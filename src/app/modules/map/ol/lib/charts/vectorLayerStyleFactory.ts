@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { SKChart } from 'src/app/modules';
 import { S57Service } from './s57.service';
 import { S57Style } from './s57Style';
+import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { Extent } from 'ol/extent';
@@ -46,7 +47,8 @@ class S57LayerStyler extends VectorLayerStyler {
       minZoom: this.chart.minZoom,
       maxZoom: this.chart.maxZoom,
       format: new MVT({}),
-      tileSize: 256
+      tileSize: 256,
+      cacheSize: VECTOR_TILE_CACHE_SIZE
     });
 
     const style = new S57Style(this.s57service);

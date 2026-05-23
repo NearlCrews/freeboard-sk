@@ -4,6 +4,7 @@ import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { XYZ } from 'ol/source';
 import * as pmtiles from 'pmtiles';
 import { SKChart } from 'src/app/modules/skresources';
+import { RASTER_TILE_CACHE_SIZE, VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { MVT } from 'ol/format';
@@ -84,7 +85,8 @@ export function initPMTilesXYZLayer(
       url: 'pmtiles://' + chart.url + '/{z}/{x}/{y}',
       wrapX: true,
       maxZoom: chart.maxZoom,
-      minZoom: chart.minZoom
+      minZoom: chart.minZoom,
+      cacheSize: RASTER_TILE_CACHE_SIZE
     }),
     zIndex: zIndex,
     opacity: chart.defaultOpacity ?? 1
@@ -129,7 +131,8 @@ export function initPMTilesVectorLayer(
     source: new VectorTileSource({
       format: new MVT(),
       url: 'pmtiles://' + chart.url + '/{z}/{x}/{y}',
-      tileLoadFunction: loader
+      tileLoadFunction: loader,
+      cacheSize: VECTOR_TILE_CACHE_SIZE
     }),
     zIndex: zIndex,
     opacity: chart.defaultOpacity ?? 1,

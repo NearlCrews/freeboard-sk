@@ -17,6 +17,7 @@ import { MapComponent } from '../map.component';
 
 import { FBChart } from 'src/app/types';
 import { initPMTilesVectorLayer } from './pmtiles-utils';
+import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 
 // ** Freeboard Vector TileLayer Chart **
@@ -85,7 +86,8 @@ export class VectorChartLayerComponent implements OnDestroy {
                   ? chart[1].layers
                   : null
             }),
-            maxZoom: maxZ
+            maxZoom: maxZ,
+            cacheSize: VECTOR_TILE_CACHE_SIZE
           }),
           preload: 0,
           zIndex: this.zIndex(),
