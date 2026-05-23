@@ -98,8 +98,7 @@ import {
 } from 'src/app/lib/components/dialogs';
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
-
-import * as semver from 'semver';
+import { compareSemver } from 'src/app/lib/semver';
 
 import {
   NotificationMessage,
@@ -800,7 +799,7 @@ export class AppComponent {
           // buddy list
           if (p.id === 'signalk-buddylist-plugin') {
             this.app.debug('*** found buddylist plugin');
-            ff.buddyList = semver.satisfies(p.version, '>1.2.0') ? true : false;
+            ff.buddyList = compareSemver(p.version, '1.2.0') > 0;
           }
           // PMTiles support
           if (p.id === 'signalk-pmtiles-plugin') {
