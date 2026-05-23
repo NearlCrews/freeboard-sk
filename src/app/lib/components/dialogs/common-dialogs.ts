@@ -1,19 +1,15 @@
 /** Dialog Components **
  ************************/
 
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 
@@ -208,199 +204,6 @@ export class ConfirmDialog implements OnInit {
     this.data.button1Text = this.data.button1Text || 'Yes';
     this.data.button2Text = this.data.button2Text || 'No';
     this.msglines = this.data.message.split('\n');
-  }
-}
-
-/********* AboutDialog ****************
-    data: {
-        name: this.app.name,  
-        version: this.app.version, 
-        description: this.app.description, 
-        logo: this.app.logo,  
-        url: this.app.url
-    }
-***************************************/
-@Component({
-  selector: 'ap-about-dialog',
-  imports: [MatDialogModule, MatIconModule, MatButtonModule],
-  template: `
-    <div>
-      <h1 mat-dialog-title><mat-icon>info</mat-icon>&nbsp;About</h1>
-      <mat-dialog-content>
-        <div class="about-row">
-          <div class="item"><img [src]="data.logo" /></div>
-          <div class="item">
-            <span style="font-weight:bold;">{{ data.name }}</span
-            >&nbsp;&nbsp;<br />
-            <span class="description">
-              {{ data.description }}
-            </span>
-            <br />
-            <span>Version: {{ data.version }}</span>
-            <br /><br />
-          </div>
-        </div>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
-        @if (data.url) {
-          <a mat-button [href]="data.url" target="_web" rel="noopener"
-            >Visit Website</a
-          >
-          &nbsp;
-        }
-        <button mat-raised-button (click)="dialogRef.close(false)">
-          Close
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [
-    `
-      .about-row {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        align-content: stretch;
-        font-family: roboto;
-      }
-      .about-row .item {
-        padding-left: 10px;
-      }
-      .about-row img {
-        width: 42px;
-      }
-      .about-row .description {
-        font-size: 12pt;
-      }
-    `
-  ]
-})
-export class AboutDialog {
-  constructor(
-    public dialogRef: MatDialogRef<AboutDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
-  ) {}
-}
-
-/********* LoginDialog ****************
-    data: {
-        message: '',  
-        button1Text: 'Log in', 
-        button2Text: 'Cancel'
-    }
-***************************************/
-@Component({
-  selector: 'ap-login-dialog',
-  imports: [
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule
-  ],
-  styles: [],
-  template: `
-    <mat-dialog-content>
-      <mat-card>
-        <mat-card-title-group>
-          <mat-icon>account_circle</mat-icon>
-          <mat-card-title>Sign-In</mat-card-title>
-          <mat-card-subtitle>{{ data.message }}</mat-card-subtitle>
-        </mat-card-title-group>
-        <mat-card-content>
-          <mat-form-field>
-            <mat-label>User name</mat-label>
-            <input
-              matInput
-              type="text"
-              value=""
-              #username
-              (keyup)="keyUp($event, username, password)"
-              style="width:110px;"
-              (focus)="handleFocus($event)"
-            /> </mat-form-field
-          ><br />
-          <mat-form-field>
-            <mat-label>Password</mat-label>
-            <input
-              matInput
-              type="password"
-              value=""
-              #password
-              (keyup)="keyUp($event, username, password)"
-              style="width:110px;"
-              (focus)="handleFocus($event)"
-            />
-          </mat-form-field>
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <button
-            default
-            mat-raised-button
-            [disabled]="username.value.length === 0"
-            (click)="login(username.value, password.value)"
-          >
-            {{ data.button1Text }}
-          </button>
-          &nbsp;&nbsp;
-          <button default mat-raised-button (click)="cancel()">
-            {{ data.button2Text }}
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    </mat-dialog-content>
-  `
-})
-export class LoginDialog implements OnInit {
-  @ViewChild('username', { static: false }) username;
-
-  public imgSource = 'assets/img/success.png';
-  private result = {
-    cancel: false,
-    user: null,
-    pwd: null
-  };
-
-  constructor(
-    public dialogRef: MatDialogRef<LoginDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
-  ) {}
-
-  ngOnInit() {
-    this.data.message = this.data.message || '';
-    this.data.button1Text = this.data.button1Text || 'Log in';
-    this.data.button2Text = this.data.button2Text || 'Cancel';
-  }
-
-  ngAfterViewInit() {
-    setTimeout(() => this.username.nativeElement.focus(), 500);
-  }
-
-  keyUp(e, u, p) {
-    if (e.key === 'Enter') {
-      this.login(u.value, p.value);
-    }
-  }
-
-  handleFocus(e) {
-    e.currentTarget.select(0, e.currentTarget.value.length);
-  }
-
-  // ** cancelled login
-  cancel() {
-    this.result.cancel = true;
-    this.dialogRef.close(this.result);
-  }
-
-  //** submit log in
-  login(user = '', password = '') {
-    this.result.cancel = false;
-    this.result.user = user;
-    this.result.pwd = password;
-    this.dialogRef.close(this.result);
   }
 }
 
