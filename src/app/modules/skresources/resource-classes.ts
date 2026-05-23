@@ -244,6 +244,7 @@ export class SKVessel extends SKTargetBase {
   vectors = {
     cog: [] // cog vector
   };
+  cogVecKey: [number, number, number, number] | null = null; // [lon, lat, cog, cvlen] of last vectors.cog compute
   wind = {
     direction: null,
     mwd: null,

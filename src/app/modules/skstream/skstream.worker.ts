@@ -1003,10 +1003,22 @@ function processVessel(d: SKVessel, v: any, isSelf = false) {
       ? vesselPrefs.selfLines.cog.length
       : vesselPrefs.aisCogLine;
     const cvlen = (d.sog ?? 0) * (cogLen * 60);
-    d.vectors.cog = [
-      d.position,
-      GeoUtils.rhumbDestination(d.position, cog, cvlen)
-    ];
+    const lon = d.position[0];
+    const lat = d.position[1];
+    const last = d.cogVecKey;
+    if (
+      !last ||
+      last[0] !== lon ||
+      last[1] !== lat ||
+      last[2] !== cog ||
+      last[3] !== cvlen
+    ) {
+      d.vectors.cog = [
+        d.position,
+        GeoUtils.rhumbDestination(d.position, cog, cvlen)
+      ];
+      d.cogVecKey = [lon, lat, cog, cvlen];
+    }
   }
 }
 
