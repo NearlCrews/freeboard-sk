@@ -23,7 +23,9 @@ addEventListener('message', (event) => {
     Object.keys(radar.legend).forEach((n) => {
       colors.set(parseInt(n), fromString(radar.legend[n].color));
     });
-    const radarContext = radarCanvas.getContext('2d'); // as CanvasRenderingContext2D;
+    const radarContext = radarCanvas.getContext('2d', {
+      willReadFrequently: true
+    });
 
     const pixel = radarContext.createImageData(1, 1);
     const pixelData = pixel.data;
