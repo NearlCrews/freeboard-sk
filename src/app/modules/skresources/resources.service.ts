@@ -9,7 +9,6 @@ import { AppFacade } from 'src/app/app.facade';
 import { GeoUtils } from 'src/app/lib/geoutils';
 
 import {
-  NoteDialog,
   RegionDialog,
   RouteDialog,
   WaypointDialog,
@@ -18,6 +17,7 @@ import {
   SKInfoLayer,
   ChartPropertiesDialog
 } from '.';
+import type { NoteDialog } from './components/notes/note-dialog';
 import { processUrlTokens } from 'src/app/app.config';
 
 import {
@@ -1865,7 +1865,10 @@ export class SKResourceService {
       createRegion: boolean
     }
   */
-  private openNoteForEdit(e: any) {
+  private async openNoteForEdit(e: any) {
+    const { NoteDialog } = await import(
+      'src/app/modules/skresources/components/notes/note-dialog'
+    );
     this.dialog
       .open(NoteDialog, {
         disableClose: true,
@@ -2121,6 +2124,9 @@ export class SKResourceService {
       this.app.showAlert('ERROR', 'Unable to retrieve Note!');
       return;
     }
+    const { NoteDialog } = await import(
+      'src/app/modules/skresources/components/notes/note-dialog'
+    );
     this.dialog
       .open(NoteDialog, {
         disableClose: true,
