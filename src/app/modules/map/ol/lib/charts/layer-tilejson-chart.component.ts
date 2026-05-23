@@ -16,6 +16,7 @@ import { MapComponent } from '../map.component';
 import { FBChart } from 'src/app/types';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableRasterTileLoader } from './tile-loader-abort';
+import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
 // ** Freeboard TileJSON Chart **
 @Component({
@@ -75,7 +76,8 @@ export class TileJsonChartLayerComponent implements OnDestroy {
         source: new TileJSON({
           url: chart[1].url,
           crossOrigin: 'anonymous',
-          tileLoadFunction: createAbortableRasterTileLoader()
+          tileLoadFunction: createAbortableRasterTileLoader(),
+          cacheSize: RASTER_TILE_CACHE_SIZE
         }),
         preload: 0,
         zIndex: this.zIndex(),

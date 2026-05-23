@@ -18,6 +18,7 @@ import { Map } from 'ol';
 import { MapService } from '../map.service';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableRasterTileLoader } from './tile-loader-abort';
+import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
 // ** Freeboard WMS Chart **
 @Component({
@@ -114,7 +115,8 @@ export class WmsChartLayerComponent implements OnDestroy {
           params: {
             LAYERS: chart[1].layers ? chart[1].layers.join(',') : ''
           },
-          tileLoadFunction: createAbortableRasterTileLoader()
+          tileLoadFunction: createAbortableRasterTileLoader(),
+          cacheSize: RASTER_TILE_CACHE_SIZE
         }),
         preload: 0,
         zIndex: this.zIndex(),

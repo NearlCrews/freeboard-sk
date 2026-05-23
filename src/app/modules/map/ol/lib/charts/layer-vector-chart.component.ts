@@ -17,6 +17,7 @@ import { MapComponent } from '../map.component';
 
 import { FBChart } from 'src/app/types';
 import { initPMTilesVectorLayer } from './pmtiles-utils';
+import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableVectorTileLoader } from './tile-loader-abort';
 
@@ -87,7 +88,8 @@ export class VectorChartLayerComponent implements OnDestroy {
                   : null
             }),
             maxZoom: maxZ,
-            tileLoadFunction: createAbortableVectorTileLoader()
+            tileLoadFunction: createAbortableVectorTileLoader(),
+            cacheSize: VECTOR_TILE_CACHE_SIZE
           }),
           preload: 0,
           zIndex: this.zIndex(),

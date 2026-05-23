@@ -17,6 +17,7 @@ import { optionsFromCapabilities } from 'ol/source/WMTS';
 import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 
 import { MapComponent } from '../map.component';
+import { RASTER_TILE_CACHE_SIZE } from '../charts/tile-source.constants';
 import { FBInfoLayer, FBInfoLayers } from 'src/app/types';
 import { SKInfoLayer } from 'src/app/modules/skresources';
 
@@ -187,7 +188,8 @@ export class FreeboardLiveLayerComponent
         source = await this.setWMTSSource(ldef);
       } else if (ldef[1].values?.sourceType?.toLowerCase() === 'xyz') {
         source = new XYZ({
-          url: ldef[1].values?.url
+          url: ldef[1].values?.url,
+          cacheSize: RASTER_TILE_CACHE_SIZE
         });
       }
       const layer = new TileLayer({
@@ -219,7 +221,8 @@ export class FreeboardLiveLayerComponent
       url: ldef[1].values?.url,
       params: {
         LAYERS: ldef[1].values?.layers ? ldef[1].values?.layers.join(',') : ''
-      }
+      },
+      cacheSize: RASTER_TILE_CACHE_SIZE
     });
   }
 
@@ -256,6 +259,6 @@ export class FreeboardLiveLayerComponent
       layer: ldef[1].values?.layers[0],
       matrixSet: 'EPSG:3857'
     });
-    return new WMTS(options);
+    return new WMTS({ ...options, cacheSize: RASTER_TILE_CACHE_SIZE });
   }
 }

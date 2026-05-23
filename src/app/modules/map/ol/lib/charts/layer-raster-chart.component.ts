@@ -17,6 +17,7 @@ import { osmLayer } from '../util';
 import { MapComponent } from '../map.component';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableRasterTileLoader } from './tile-loader-abort';
+import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
 import { FBChart } from 'src/app/types';
 
@@ -89,7 +90,8 @@ export class RasterChartLayerComponent implements OnDestroy {
             source: new XYZ({
               url: chart[1].url,
               maxZoom: maxZ,
-              tileLoadFunction: createAbortableRasterTileLoader()
+              tileLoadFunction: createAbortableRasterTileLoader(),
+              cacheSize: RASTER_TILE_CACHE_SIZE
             }),
             preload: 0,
             zIndex: this.zIndex(),
