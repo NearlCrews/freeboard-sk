@@ -43,18 +43,34 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.source && ('routes' in changes || 'activeRoute' in changes)) {
+    if (!this.source) return;
+    if ('routes' in changes) {
       this.source.clear();
-      if ('routes' in changes) {
-        this.parseFBRoutes(changes['routes'].currentValue);
-      } else if ('activeRoute' in changes) {
-        this.onActivateRoute();
-      }
+      this.parseFBRoutes(changes['routes'].currentValue);
+    } else if ('activeRoute' in changes) {
+      this.onActivateRoute(
+        changes['activeRoute'].previousValue as string | undefined
+      );
     }
   }
 
-  onActivateRoute() {
-    this.parseFBRoutes(this.routes);
+  // Skip full feature rebuild; only re-style affected routes on active-state change.
+  onActivateRoute(previousActive?: string) {
+    if (!this.source) return;
+    this.restyleRouteById(previousActive);
+    if (this.activeRoute !== previousActive) {
+      this.restyleRouteById(this.activeRoute);
+    }
+  }
+
+  private restyleRouteById(id: string | undefined) {
+    if (!id) return;
+    const feature = this.source.getFeatureById(
+      'route.' + id
+    ) as Feature | null;
+    if (feature) {
+      feature.setStyle(this.buildStyle(feature));
+    }
   }
 
   parseFBRoutes(routes: FBRoutes = this.routes) {
