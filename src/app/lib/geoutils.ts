@@ -197,6 +197,65 @@ export class GeoUtils {
     return ext;
   }
 
+  // Geohash base-32 alphabet (lowercase per spec; toLowerCase in
+  // geohashDecodeBbox normalizes any uppercase input defensively).
+  private static readonly GEOHASH_BASE32 =
+    '0123456789bcdefghjkmnpqrstuvwxyz';
+
+  /**
+   * Decode a geohash to a bounding box [minLat, minLon, maxLat, maxLon].
+   * Port of ngeohash.decode_bbox. Each base-32 char contributes 5 bits;
+   * bits alternate refining longitude then latitude, halving the active
+   * range on each step.
+   */
+  static geohashDecodeBbox(
+    hash: string
+  ): [number, number, number, number] {
+    let isLon = true;
+    let minLat = -90;
+    let maxLat = 90;
+    let minLon = -180;
+    let maxLon = 180;
+    for (let i = 0; i < hash.length; i++) {
+      const c = GeoUtils.GEOHASH_BASE32.indexOf(hash.charAt(i).toLowerCase());
+      if (c < 0) continue;
+      for (let bit = 4; bit >= 0; bit--) {
+        const v = (c >> bit) & 1;
+        if (isLon) {
+          const mid = (minLon + maxLon) / 2;
+          if (v === 1) minLon = mid;
+          else maxLon = mid;
+        } else {
+          const mid = (minLat + maxLat) / 2;
+          if (v === 1) minLat = mid;
+          else maxLat = mid;
+        }
+        isLon = !isLon;
+      }
+    }
+    return [minLat, minLon, maxLat, maxLon];
+  }
+
+  /**
+   * Decode a geohash to a center point and error margins.
+   * Port of ngeohash.decode.
+   */
+  static geohashDecode(hash: string): {
+    latitude: number;
+    longitude: number;
+    error: { latitude: number; longitude: number };
+  } {
+    const [minLat, minLon, maxLat, maxLon] = GeoUtils.geohashDecodeBbox(hash);
+    return {
+      latitude: (minLat + maxLat) / 2,
+      longitude: (minLon + maxLon) / 2,
+      error: {
+        latitude: (maxLat - minLat) / 2,
+        longitude: (maxLon - minLon) / 2
+      }
+    };
+  }
+
   // ensure -180<coords<180
   static normaliseCoords(coords: Position); // Point
   static normaliseCoords(coords: Array<Position>); //LineString

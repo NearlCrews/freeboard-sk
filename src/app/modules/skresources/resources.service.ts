@@ -2,7 +2,6 @@ import { inject, Injectable, signal } from '@angular/core';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
-import ngeohash from 'ngeohash';
 
 import { SignalKClient } from 'signalk-client-angular';
 import { AppFacade } from 'src/app/app.facade';
@@ -1551,7 +1550,7 @@ export class SKResourceService {
       typeof (region as any).geohash === 'string'
     ) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const gh = ngeohash.decode_bbox((region as any).geohash);
+      const gh = GeoUtils.geohashDecodeBbox((region as any).geohash);
       const reg = new SKRegion();
       reg.name = 'Region-' + id.slice(-6);
       reg.feature.geometry.coordinates = [
@@ -1818,7 +1817,7 @@ export class SKResourceService {
     if (typeof note.position === 'undefined') {
       if (typeof note['geohash'] !== 'undefined') {
         // replace geohash with position
-        const gh = ngeohash.decode(note['geohash']);
+        const gh = GeoUtils.geohashDecode(note['geohash']);
         note.position = { latitude: gh.latitude, longitude: gh.longitude };
         delete note['geohash'];
       }
