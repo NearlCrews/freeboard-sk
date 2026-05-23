@@ -89,10 +89,8 @@ import type { SettingsDialog } from 'src/app/modules/settings/components/setting
 import type { GPXImportDialog } from 'src/app/modules/gpx/gpxload-dialog';
 import type { GPXExportDialog } from 'src/app/modules/gpx/gpxsave-dialog';
 
-import type {
-  AboutDialog,
-  LoginDialog
-} from 'src/app/lib/components/dialogs/common-dialogs';
+import type { AboutDialog } from 'src/app/lib/components/dialogs/about-dialog';
+import type { LoginDialog } from 'src/app/lib/components/dialogs/login-dialog';
 import type { PlaybackDialog } from 'src/app/lib/components/dialogs/playback-dialog';
 import type { GeoJSONImportDialog } from 'src/app/lib/components/dialogs/geojson/geojson-dialog';
 import type { Trail2RouteDialog } from 'src/app/lib/components/dialogs/trail2route-dialog';
@@ -1075,7 +1073,7 @@ export class AppComponent {
 
   protected async openAbout() {
     const { AboutDialog } =
-      await import('src/app/lib/components/dialogs/common-dialogs');
+      await import('src/app/lib/components/dialogs/about-dialog');
     this.dialog
       .open(AboutDialog, {
         disableClose: false,
@@ -1253,7 +1251,7 @@ export class AppComponent {
     onConnect?: boolean
   ): Promise<void> {
     const { LoginDialog } =
-      await import('src/app/lib/components/dialogs/common-dialogs');
+      await import('src/app/lib/components/dialogs/login-dialog');
     this.dialog
       .open(LoginDialog, {
         disableClose: true,
