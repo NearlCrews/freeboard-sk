@@ -15,8 +15,8 @@ import { MapComponent } from '../map.component';
 import { FBChart } from 'src/app/types';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 
-import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
+import { WmtsCapabilitiesService } from './wmts-capabilities.service';
 
 // ** Freeboard WMTS Chart **
 @Component({
@@ -32,9 +32,10 @@ export class WmtsChartLayerComponent implements OnDestroy {
   protected mapMaxZoom = input<number>();
 
   private layer: TileLayer;
-  private capabilities: string;
+  private capabilities?: unknown;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
+  private wmtsCache = inject(WmtsCapabilitiesService);
 
   constructor() {
     this.changeDetectorRef.detach();
@@ -48,7 +49,6 @@ export class WmtsChartLayerComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.capabilities = undefined;
     const map = this.mapComponent.getMap();
     if (this.layer) {
       map.removeLayer(this.layer);
@@ -65,7 +65,7 @@ export class WmtsChartLayerComponent implements OnDestroy {
     if (!this.capabilities) {
       try {
         const url = `${chart[1].url}`;
-        this.capabilities = await this.fetchWMTSCapabilities(url);
+        this.capabilities = await this.wmtsCache.getCapabilities(url);
       } catch (err) {
         console.log(err);
         return;
@@ -123,24 +123,5 @@ export class WmtsChartLayerComponent implements OnDestroy {
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }
     map.render();
-  }
-
-  /** Retrieve WMTS capabilities as JSON object*/
-  private async fetchWMTSCapabilities(hostUrl: string) {
-    const abortCtrl = new AbortController();
-    const abortTimer = setTimeout(() => abortCtrl.abort(), 5000);
-    try {
-      const r = await fetch(hostUrl + `?request=GetCapabilities&service=wmts`, {
-        signal: abortCtrl.signal
-      });
-      clearTimeout(abortTimer);
-      const res = await r.text();
-      const wmts = new WMTSCapabilities();
-      const capabilities = wmts.read(res);
-      return capabilities;
-    } catch (err) {
-      clearTimeout(abortTimer);
-      throw new Error(err.message ?? 'Unable to retrieve capabilities!');
-    }
   }
 }
