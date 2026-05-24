@@ -240,10 +240,13 @@ export class AlertComponent {
         !['emergency', 'alarm'].includes(this.alert().priority) &&
         !this.showAutoNextPoint
       ) {
-        // hide after set time secs
+        // Auto-hide non-critical alerts after ~10 s (100 ticks of 100
+        // ms, decrementing the progress bar from 100 to 0 by 1 each
+        // tick). Critical alerts (`emergency`/`alarm` priority) and
+        // the auto-next-point case bypass this above.
         this.timerRef = setInterval(() => {
           if (this.progressValue() > 0) {
-            this.progressValue.update((value) => value - 4);
+            this.progressValue.update((value) => value - 1);
           } else {
             this.hidden.set(true);
             clearInterval(this.timerRef);
