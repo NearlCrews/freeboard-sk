@@ -732,7 +732,7 @@ export class AppComponent {
         next: () => {
           this.signalk.authToken = this.app.getFBToken();
           this.app.watchSKLogin();
-          this.fetchResources(true); // pre-config: parallelize with config load
+          this.fetchAllResources(); // pre-config: parallelize with config load
           this.app
             .loadUserConfigfromServer()
             .then((loaded: boolean) => {
@@ -748,7 +748,7 @@ export class AppComponent {
               }
             })
             .finally(() => {
-              this.fetchResources(true); // post-config: re-apply user selections
+              this.fetchAllResources(); // post-config: re-apply user selections
             });
           this.getFeatures();
           this.app.data.server = this.signalk.server.info;
@@ -1268,7 +1268,7 @@ export class AppComponent {
               this.app.persistToken(r['token']);
               this.app.loadUserConfigfromServer().then((loaded: boolean) => {
                 if (loaded) {
-                  this.fetchResources(true);
+                  this.fetchAllResources();
                 }
               });
               if (onConnect) {
@@ -1821,20 +1821,18 @@ export class AppComponent {
 
   // ******** SIGNAL K STREAM *************
 
-  /** fetch resource types from server */
-  private fetchResources(allTypes = false) {
+  /** fetch the standard SK resource collections */
+  private fetchResources() {
     this.skres.refreshRoutes();
     this.skres.refreshWaypoints();
     this.skres.refreshCharts();
     // this.skres.refreshNotes(); // triggered via map center change
     this.skres.refreshRegions();
-    if (allTypes) {
-      this.fetchOtherResources();
-    }
   }
 
-  /** fetch non-standard resources from server */
-  private fetchOtherResources() {
+  /** fetch standard plus non-standard (tracks + custom + info layers) */
+  private fetchAllResources() {
+    this.fetchResources();
     this.skres.refreshTracks();
     this.skresOther.refreshResourceSetsInBounds();
     this.skresOther.refreshInfoLayers();
