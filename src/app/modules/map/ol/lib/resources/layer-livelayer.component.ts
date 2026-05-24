@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
+  inject,
   input,
   Input,
   OnChanges,
@@ -14,10 +15,10 @@ import {
 import TileLayer from 'ol/layer/Tile';
 import { TileWMS, WMTS, XYZ } from 'ol/source';
 import { optionsFromCapabilities } from 'ol/source/WMTS';
-import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 
 import { MapComponent } from '../map.component';
 import { RASTER_TILE_CACHE_SIZE } from '../charts/tile-source.constants';
+import { WmtsCapabilitiesService } from '../charts/wmts-capabilities.service';
 import { FBInfoLayer, FBInfoLayers } from 'src/app/types';
 import { SKInfoLayer } from 'src/app/modules/skresources';
 
@@ -47,7 +48,7 @@ export class FreeboardLiveLayerComponent
   public params = input<Array<{ id: string; param: { [key: string]: any } }>>();
 
   protected layerGroup: LayerGroup;
-  private wmtsCapabilitesMap = new Map();
+  private wmtsCache = inject(WmtsCapabilitiesService);
   private layerMap: Map<string, LiveLayer> = new Map();
   private refreshTimer: any;
 
@@ -228,32 +229,11 @@ export class FreeboardLiveLayerComponent
 
   /** @returns WMTS source */
   private async setWMTSSource(ldef: any): Promise<WMTS> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let result: any;
-    if (!this.wmtsCapabilitesMap.has(ldef[1].values?.url)) {
-      const abortCtrl = new AbortController();
-      const abortTimer = setTimeout(() => abortCtrl.abort(), 5000);
-      try {
-        const response = await fetch(
-          `${ldef[1].values?.url}?request=GetCapabilities&service=wmts`,
-          { signal: abortCtrl.signal }
-        );
-        clearTimeout(abortTimer);
-        const capabilitiesXml = await response.text();
-        if (!capabilitiesXml) {
-          console.log('Error: GetCapabilities response is empty!');
-          return;
-        }
-        const parser = new WMTSCapabilities();
-        result = parser.read(capabilitiesXml);
-        this.wmtsCapabilitesMap.set(ldef[1].values?.url, result);
-      } catch (err) {
-        clearTimeout(abortTimer);
-        return;
-      }
-    } else {
-      // get pre-fetched capabilities
-      result = this.wmtsCapabilitesMap.get(ldef[1].values?.url);
+    let result: unknown;
+    try {
+      result = await this.wmtsCache.getCapabilities(ldef[1].values?.url);
+    } catch {
+      return;
     }
     const options = optionsFromCapabilities(result, {
       layer: ldef[1].values?.layers[0],
