@@ -206,7 +206,14 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   line-height: 1.6;
   color: var(--notes-text);
   font-family: Roboto, system-ui, sans-serif;
+}
 
+// Note body is injected via [innerHTML] (and via <remark>), so the
+// rendered children never receive Angular's _ngcontent encapsulation
+// attribute. Scoped selectors like `.detail-body a` would silently
+// fail to match, letting links fall back to user-agent blue against
+// the dark background. Use ::ng-deep so the rules cross the boundary.
+:host ::ng-deep .detail-body {
   :is(h1, h2, h3, h4) {
     font-family: Roboto, system-ui, sans-serif;
     color: var(--notes-text);
@@ -239,22 +246,27 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     margin: 0 0 1em;
   }
 
-  a {
+  // Anchors in the rendered note body sometimes wrap a <b>/<strong>
+  // (or come through markdown that emits one), so we have to override
+  // the weight on the descendants too, not just on the anchor itself.
+  // Drop the underline by default; color carries the affordance and an
+  // underline appears on hover.
+  a,
+  a:link,
+  a:visited,
+  a *,
+  a:link *,
+  a:visited * {
     color: var(--notes-accent);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-    font-weight: 700;
-    padding: 2px 4px;
-    border-radius: 3px;
-    margin: 0 -4px;
-    transition: color 120ms ease, background 120ms ease;
+    font-weight: 400;
+    text-decoration: none;
+  }
 
-    &:hover {
-      color: var(--notes-text);
-      background: var(--notes-accent-soft);
-      text-decoration-color: var(--notes-text);
-    }
+  a:hover,
+  a:hover * {
+    color: var(--notes-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   code {
