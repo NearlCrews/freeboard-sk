@@ -1,150 +1,170 @@
-<div class="resourcelist">
-  <mat-card style="border-radius: unset">
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
-            matTooltip="Close Note List"
-            matTooltipPosition="right"
-          >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-        </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Notes</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
-      <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: 3px">
-          <mat-form-field floatLabel="always" style="max-width: 170px">
-            <mat-label>Type to filter list</mat-label>
-            <input
-              #ftext
-              type="text"
-              matInput
-              [value]="filterText"
-              (keyup)="filterKeyUp(ftext.value)"
-            />
-            @if(filterText) {
-            <button matSuffix mat-icon-button (click)="filterKeyUp('')">
-              <mat-icon>close</mat-icon>
-            </button>
-            }
-          </mat-form-field>
-        </div>
-        <div>
-          <button
-            mat-icon-button
-            (click)="itemRefresh()"
-            matTooltip="Reload Notes"
-            matTooltipPosition="left"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </div>
-        <div>
-          <button
-            mat-icon-button
-            [ngClass]="{'icon-primary': draftOnly }"
-            (click)="toggleDraftOnly()"
-            matTooltip="Show Draft Only"
-            matTooltipPosition="left"
-          >
-            <mat-icon>border_color</mat-icon>
-          </button>
-        </div>
-        <div>
-          <mat-checkbox
-            [checked]="showNotes"
-            (change)="toggleMapDisplay($event.checked)"
-            matTooltip="Show Notes on Map"
-            matTooltipPosition="left"
-          >
-          </mat-checkbox>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <div class="resources">
-    <cdk-virtual-scroll-viewport class="vscroller" itemSize="72">
-      <mat-card
-        *cdkVirtualFor="let r of filterList; let i= index;"
-        style="border-bottom: silver 1px outset; border-radius: unset"
+<section class="notes-panel" role="region" aria-label="Notes">
+  <header class="notes-header">
+    <button
+      mat-icon-button
+      (click)="close()"
+      matTooltip="Close note list"
+      matTooltipPosition="right"
+      aria-label="Close note list"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="notes-title">Notes</h1>
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        (click)="itemRefresh()"
+        matTooltip="Reload notes"
+        matTooltipPosition="below"
+        aria-label="Reload notes"
       >
-        <mat-card-content>
-          <div style="display: flex">
-            <div style="flex: 1 1 auto; width: 215px; display: flex">
-              <div>
-                @if(r[1].properties?.skIcon) {
-                <mat-icon
-                  [svgIcon]="'sk-' + r[1].properties?.skIcon"
-                ></mat-icon>
-                } @else {
-                <mat-icon class="icon-note icon-accent">local_offer</mat-icon>
-                }
-              </div>
-              <div
-                style="
-                  text-overflow: ellipsis;
-                  overflow-x: hidden;
-                  white-space: pre;
-                "
-              >
-                &nbsp;<b>{{r[1].name}}</b>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <div style="display: flex; width: 100%">
-            <div style="text-align: left">
-              @if(r[1].properties && r[1].properties.draft) {
-              <button
-                mat-icon-button
-                [disabled]="true"
-                matTooltip="Draft"
-                matTooltipPosition="right"
-              >
-                <mat-icon>border_color</mat-icon>
-              </button>
-              }
-            </div>
-            <div style="flex: 1 1 auto; text-align: right">
-              @if(r[1].group && app.config.resources.notes.groupNameEdit) {
-              <button
-                mat-icon-button
-                (click)="viewNote(r[1].group, true)"
-                matTooltip="View Group"
-                matTooltipPosition="left"
-              >
-                <mat-icon>style</mat-icon>
-              </button>
-              } @if(r[1].position){
-              <button
-                mat-icon-button
-                [disabled]="app.uiConfig().mapMove"
-                (click)="emitCenter(r[1].position)"
-                matTooltip="Center Note"
-                matTooltipPosition="left"
-              >
-                <mat-icon>center_focus_strong</mat-icon>
-              </button>
-              }
-              <button
-                mat-icon-button
-                (click)="viewNote(r[0])"
-                matTooltip="View Note"
-                matTooltipPosition="left"
-              >
-                <mat-icon>info_outline</mat-icon>
-              </button>
-            </div>
-          </div>
-        </mat-card-actions>
-      </mat-card>
-    </cdk-virtual-scroll-viewport>
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        class="action-toggle"
+        [class.active]="draftOnly"
+        (click)="toggleDraftOnly()"
+        matTooltip="Show drafts only"
+        matTooltipPosition="below"
+        [attr.aria-pressed]="draftOnly"
+        aria-label="Show drafts only"
+      >
+        <mat-icon>border_color</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        class="action-toggle"
+        [class.active]="showNotes"
+        (click)="toggleMapDisplay(!showNotes)"
+        matTooltip="Show notes on map"
+        matTooltipPosition="below"
+        [attr.aria-pressed]="showNotes"
+        aria-label="Show notes on map"
+      >
+        <mat-icon>{{ showNotes ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="notes-search">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      #searchInput
+      type="text"
+      [value]="filterText"
+      (keyup)="filterKeyUp(searchInput.value)"
+      (keydown)="onSearchKey($event)"
+      placeholder="Search notes..."
+      aria-label="Search notes"
+    />
+    @if (filterText) {
+      <button
+        type="button"
+        class="clear"
+        (click)="filterKeyUp(''); searchInput.focus()"
+        matTooltip="Clear search"
+        aria-label="Clear search"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
   </div>
-</div>
+
+  @if (groupChips.length > 1) {
+    <nav class="group-chips" role="tablist" aria-label="Filter by group">
+      @for (chip of groupChips; track chip.name) {
+        <button
+          type="button"
+          class="chip"
+          role="tab"
+          [class.active]="activeGroup === chip.name"
+          [style.--chip-color]="chip.color"
+          [attr.aria-selected]="activeGroup === chip.name"
+          (click)="setActiveGroup(chip.name)"
+        >
+          @if (chip.name) {
+            <span class="dot" aria-hidden="true"></span>
+          }
+          {{ chip.label }}
+          <span class="count">{{ chip.count }}</span>
+        </button>
+      }
+    </nav>
+  }
+
+  @if (filterList.length > 0) {
+    <cdk-virtual-scroll-viewport
+      #scrollViewport
+      class="note-list"
+      itemSize="132"
+      role="listbox"
+      aria-label="Notes"
+    >
+      <article
+        *cdkVirtualFor="let r of filterList; let i = index; trackBy: trackById"
+        class="note-card"
+        role="option"
+        tabindex="0"
+        [class.selected]="selectedIndex === i"
+        [class.draft]="r[1].properties?.draft"
+        [style.--group-color]="groupColor(r[1].group)"
+        [attr.aria-selected]="selectedIndex === i"
+        (click)="selectNote(r, i)"
+        (keydown)="onCardKey($event, r, i)"
+      >
+        <header class="card-head">
+          @if (r[1].properties?.skIcon) {
+            <mat-icon
+              class="card-icon"
+              [svgIcon]="'sk-' + r[1].properties?.skIcon"
+              aria-hidden="true"
+            ></mat-icon>
+          } @else {
+            <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
+          }
+          <div class="card-title">
+            <h2>{{ r[1].name || 'Untitled note' }}</h2>
+            @if (r[1].timestamp) {
+              <time class="card-time" [attr.datetime]="r[1].timestamp">
+                {{ timeAgo(r[1].timestamp) }}
+              </time>
+            }
+          </div>
+          @if (r[1].properties?.draft) {
+            <span class="draft-pill" aria-label="Draft">Draft</span>
+          }
+        </header>
+
+        @if (snippet(r[1]); as text) {
+          <p class="card-snippet">{{ text }}</p>
+        }
+
+        @if (r[1].group || r[1].position) {
+          <footer class="card-meta">
+            @if (r[1].group) {
+              <span class="group-chip">
+                <span class="dot" aria-hidden="true"></span>{{ r[1].group }}
+              </span>
+            }
+            @if (r[1].position) {
+              <span class="pos-pill">
+                <mat-icon aria-hidden="true">place</mat-icon>
+                {{ formatPos(r[1].position) }}
+              </span>
+            }
+          </footer>
+        }
+      </article>
+    </cdk-virtual-scroll-viewport>
+  } @else {
+    <div class="empty-state" role="status">
+      <mat-icon aria-hidden="true">note_alt</mat-icon>
+      @if (filterText || activeGroup || draftOnly) {
+        <p>No notes match the current filter.</p>
+      } @else {
+        <p>No notes yet.</p>
+      }
+    </div>
+  }
+</section>

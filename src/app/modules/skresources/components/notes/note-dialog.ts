@@ -57,7 +57,7 @@ interface DialogData {
     RemarkModule
   ],
   templateUrl: `note-dialog.html`,
-  styleUrls: ['notes.css']
+  styleUrls: ['notes.scss']
 })
 export class NoteDialog implements OnInit {
   private editorHiddenButtons = [

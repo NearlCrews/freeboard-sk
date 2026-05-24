@@ -1,0 +1,439 @@
+// Shared tokens + list-card styles.
+// Used by NoteListComponent and (alongside relatednotes-dialog.scss) by
+// RelatedNotesDialog and NoteDialog. NotePanel pulls the detail-specific
+// counterpart from note-panel.scss.
+
+:host {
+  --notes-bg: #f8f4ee;
+  --notes-surface: #fffdf8;
+  --notes-surface-hover: #f4edde;
+  --notes-text: #0a1f3d;
+  --notes-text-muted: #5c6b82;
+  --notes-text-faint: #8896b0;
+  --notes-accent: #b66428;
+  --notes-accent-soft: rgba(182, 100, 40, 0.08);
+  --notes-hairline: #e8e2d5;
+  --notes-amber: #d4a574;
+  --notes-shadow: 0 4px 16px -8px rgba(10, 31, 61, 0.16);
+
+  display: block;
+  height: 100%;
+}
+
+:host-context(body.dark-theme),
+:host-context(.dark-theme) {
+  --notes-bg: #0b1220;
+  --notes-surface: #13203a;
+  --notes-surface-hover: #1c2a4a;
+  --notes-text: #e8e2d5;
+  --notes-text-muted: #8896b0;
+  --notes-text-faint: #5c6b82;
+  --notes-accent: #f0b45f;
+  --notes-accent-soft: rgba(240, 180, 95, 0.12);
+  --notes-hairline: #1f2e50;
+  --notes-amber: #f0b45f;
+  --notes-shadow: 0 4px 16px -8px rgba(0, 0, 0, 0.5);
+}
+
+$serif: Georgia, 'Times New Roman', 'Liberation Serif', serif;
+$mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
+
+// =============================================================
+// LIST PANEL
+// =============================================================
+.notes-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 200px;
+  background: var(--notes-bg);
+  color: var(--notes-text);
+}
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px 6px 4px;
+  border-bottom: 1px solid var(--notes-hairline);
+  background: var(--notes-surface);
+
+  .notes-title {
+    flex: 1;
+    margin: 0 0 0 4px;
+    font: 600 22px/1.2 $serif;
+    letter-spacing: -0.02em;
+  }
+
+  .header-actions {
+    display: flex;
+
+    .action-toggle.active {
+      color: var(--notes-accent);
+    }
+  }
+}
+
+.notes-search {
+  position: relative;
+  margin: 12px 12px 0;
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--notes-text-faint);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 36px;
+    border: 1px solid var(--notes-hairline);
+    border-radius: 10px;
+    background: var(--notes-surface);
+    color: var(--notes-text);
+    font: inherit;
+    font-size: 14px;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+
+    &::placeholder {
+      color: var(--notes-text-faint);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--notes-accent);
+      box-shadow: 0 0 0 3px var(--notes-accent-soft);
+    }
+  }
+
+  .clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    color: var(--notes-text-faint);
+    cursor: pointer;
+    padding: 0;
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--notes-surface-hover);
+      color: var(--notes-text);
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.group-chips {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+
+  .chip {
+    --chip-color: var(--notes-text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--notes-hairline);
+    border-radius: 999px;
+    background: var(--notes-surface);
+    color: var(--notes-text-muted);
+    font: 600 11px/1.2 inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--chip-color);
+    }
+
+    .count {
+      color: var(--notes-text-faint);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    &:hover:not(.active) {
+      background: var(--notes-surface-hover);
+      color: var(--notes-text);
+    }
+
+    &.active {
+      background: var(--chip-color);
+      color: var(--notes-surface);
+      border-color: var(--chip-color);
+
+      .dot {
+        background: var(--notes-surface);
+      }
+
+      .count {
+        color: inherit;
+        opacity: 0.85;
+      }
+    }
+  }
+}
+
+.note-list {
+  flex: 1 1 auto;
+  contain: strict;
+
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    padding: 4px 12px 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.note-card {
+  --group-color: var(--notes-text-muted);
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 8px;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid var(--notes-hairline);
+  border-radius: 12px;
+  background: var(--notes-surface);
+  color: var(--notes-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 140ms ease, border-color 140ms ease,
+    transform 140ms ease, box-shadow 140ms ease;
+  outline: none;
+  overflow: hidden;
+  animation: notes-card-in 220ms ease both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: transparent;
+    transition: background 140ms ease;
+  }
+
+  &:hover {
+    background: var(--notes-surface-hover);
+    border-color: var(--notes-text-faint);
+    transform: translateY(-1px);
+    box-shadow: var(--notes-shadow);
+  }
+
+  &:focus-visible {
+    border-color: var(--notes-accent);
+    box-shadow: 0 0 0 3px var(--notes-accent-soft);
+  }
+
+  &.selected {
+    background: var(--notes-accent-soft);
+    border-color: var(--notes-accent);
+
+    &::before {
+      background: var(--notes-accent);
+    }
+  }
+
+  &.draft {
+    --group-color: var(--notes-amber);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-icon {
+    color: var(--group-color);
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .card-title {
+    flex: 1;
+    min-width: 0;
+
+    h2 {
+      margin: 0;
+      font: 600 15px/1.3 $serif;
+      letter-spacing: -0.01em;
+      color: var(--notes-text);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+
+    .card-time {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--notes-text-faint);
+    }
+  }
+
+  .draft-pill {
+    align-self: flex-start;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--notes-amber);
+    color: var(--notes-bg);
+    font: 700 10px/1.4 inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  .card-snippet {
+    margin: 8px 0 10px;
+    color: var(--notes-text-muted);
+    font-size: 13px;
+    line-height: 1.45;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+
+    .group-chip,
+    .pos-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .group-chip {
+      background: var(--notes-surface-hover);
+      color: var(--group-color);
+
+      .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--group-color);
+        flex-shrink: 0;
+      }
+    }
+
+    .pos-pill {
+      background: transparent;
+      border: 1px solid var(--notes-hairline);
+      color: var(--notes-text-muted);
+      font-family: $mono;
+      letter-spacing: 0.02em;
+
+      mat-icon {
+        font-size: 11px;
+        width: 11px;
+        height: 11px;
+      }
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--notes-text-faint);
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+@keyframes notes-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Preserve angular-editor bold rendering inside note-dialog.
+:host ::ng-deep .angular-editor-textarea b {
+  font-weight: bold;
+}
+
+.related-notes-grid {
+  display: grid;
+  gap: 10px;
+  padding: 4px 2px;
+
+  .note-card {
+    margin: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .notes-search,
+  .group-chips,
+  ::ng-deep .cdk-virtual-scroll-content-wrapper {
+    padding-inline: 8px;
+  }
+}

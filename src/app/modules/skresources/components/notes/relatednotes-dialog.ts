@@ -42,7 +42,7 @@ interface DialogData {
     RemarkModule
   ],
   templateUrl: `relatednotes-dialog.html`,
-  styleUrls: ['notes.css']
+  styleUrls: ['notes.scss', 'relatednotes-dialog.scss']
 })
 export class RelatedNotesDialog implements OnInit {
   protected relatedBy: string;
@@ -50,8 +50,6 @@ export class RelatedNotesDialog implements OnInit {
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<RelatedNotesDialog>);
-
-  constructor() {}
 
   ngOnInit() {
     this.relatedBy =
@@ -72,5 +70,42 @@ export class RelatedNotesDialog implements OnInit {
 
   deleteNote(noteId: string) {
     this.dialogRef.close({ result: true, data: 'delete', id: noteId });
+  }
+
+  groupColor(name: string | undefined): string {
+    if (!name) {
+      return 'var(--notes-text-muted)';
+    }
+    const palette = [
+      '#b66428',
+      '#5b7b8b',
+      '#8b5e5e',
+      '#5e8b6e',
+      '#8e7948',
+      '#6e5b8b',
+      '#8b6e48',
+      '#487b8b'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = (hash << 5) - hash + name.charCodeAt(i);
+      hash |= 0;
+    }
+    return palette[Math.abs(hash) % palette.length];
+  }
+
+  snippet(note: { description?: string; mimeType?: string }): string {
+    const body = note?.description;
+    if (!body) {
+      return '';
+    }
+    let text = body.replace(/<[^>]+>/g, ' ');
+    text = text
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[#*_`~>]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text.length > 180 ? text.slice(0, 180).trim() + '...' : text;
   }
 }

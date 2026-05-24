@@ -1,154 +1,109 @@
-<style>
-  .ap-confirm-icon {
-    min-width: 35px;
-    max-width: 35px;
-    text-align: left;
-  }
-
-  .mat-form-field {
-    width: 100%;
-  }
-  .nosmall {
-    display: none;
-  }
-  @media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
-    only screen and (min-width: 800px) {
-    .ap-confirm-icon {
-      min-width: 25%;
-      max-width: 25%;
-    }
-
-    .nosmall {
-      display: flex;
-    }
-  }
-</style>
-
-<div style="min-width: 300px">
-  <mat-toolbar style="background-color: transparent">
-    <span class="dialog-icon"><mat-icon>local_offer</mat-icon></span>
-    <span style="flex: 1 1 auto; text-align: center">{{relatedBy}} Notes</span>
-    <span style="text-align: right">
-      <button mat-icon-button (click)="dialogRef.close({result:false})">
-        <mat-icon>close</mat-icon>
-      </button>
-    </span>
+<div class="related-notes-dialog">
+  <mat-toolbar class="related-toolbar">
+    <mat-icon class="toolbar-icon" aria-hidden="true">local_offer</mat-icon>
+    <span class="toolbar-title">{{ relatedBy }} Notes</span>
+    <button
+      mat-icon-button
+      (click)="dialogRef.close({ result: false })"
+      matTooltip="Close"
+      aria-label="Close"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
   </mat-toolbar>
-  <mat-dialog-content>
-    @for(n of data.notes; track n) {
-    <div style="padding-bottom: 5px; overflow-y: auto">
-      <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title-group>
-            <mat-card-title>{{n[1].name}}</mat-card-title>
-            @if(n[1].properties?.skIcon) {
-            <mat-icon [svgIcon]="'sk-' + n[1].properties?.skIcon"></mat-icon>
+
+  <mat-dialog-content class="related-content">
+    <div class="related-notes-grid">
+      @for (n of data.notes; track n[0]) {
+        <article
+          class="note-card"
+          [class.draft]="n[1].properties?.draft"
+          [style.--group-color]="groupColor(n[1].group)"
+        >
+          <header class="card-head">
+            @if (n[1].properties?.skIcon) {
+              <mat-icon
+                class="card-icon"
+                [svgIcon]="'sk-' + n[1].properties?.skIcon"
+                aria-hidden="true"
+              ></mat-icon>
             } @else {
-            <mat-icon class="icon-accent">local_offer</mat-icon>
+              <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
             }
-          </mat-card-title-group>
-        </mat-card-header>
-        <mat-card-content style="margin-bottom: 0">
-          @if(n[1].properties.draft) {
-          <p class="draft-watermark">Draft</p>
+            <div class="card-title">
+              <h2>{{ n[1].name || 'Untitled note' }}</h2>
+              @if (n[1].timestamp) {
+                <time class="card-time" [attr.datetime]="n[1].timestamp">
+                  {{ n[1].timestamp.slice(0, 10) }}
+                </time>
+              }
+            </div>
+            @if (n[1].properties?.draft) {
+              <span class="draft-pill" aria-label="Draft">Draft</span>
+            }
+          </header>
+
+          @if (snippet(n[1]); as text) {
+            <p class="card-snippet">{{ text }}</p>
           }
-          <div style="display: flex; flex-direction: column">
-            @if(n[1].group) {
-            <div style="padding-bottom: 5px; display: flex">
-              <div style="font-weight: bold; vertical-align: top">Date:</div>
-              <div style="padding-left: 10px">
-                <i>{{n[1].timestamp?.slice(0,10)}}</i>
-              </div>
-            </div>
-            } @if(n[1].group) {
-            <div style="padding-bottom: 5px; display: flex">
-              <div style="font-weight: bold; vertical-align: top">Group:</div>
-              <div style="padding-left: 10px">{{n[1].group}}</div>
-            </div>
-            }
-            <div style="padding-bottom: 5px">
-              <div style="font-weight: bold; vertical-align: top">
-                Description:
-              </div>
-              @if(n[1].mimeType?.includes('markdown')) {
-              <remark
-                style="
-                  flex: 1 1 auto;
-                  text-align: left;
-                  font-style: italic;
-                  overflow: hidden;
-                  display: -webkit-box;
-                  -webkit-box-orient: vertical;
-                  -webkit-line-clamp: 2;
-                  line-clamp: 2;
-                  text-overflow: ellipsis;
-                "
-                [markdown]="n[1].description ?? ''"
+
+          @if (n[1].group || (n[1].authors && n[1].authors.length)) {
+            <footer class="card-meta">
+              @if (n[1].group) {
+                <span class="group-chip">
+                  <span class="dot" aria-hidden="true"></span>{{ n[1].group }}
+                </span>
+              }
+              @if (n[1].authors && n[1].authors.length) {
+                <span class="pos-pill">
+                  <mat-icon aria-hidden="true">person</mat-icon>
+                  {{ n[1].authors[0]?.name }}
+                </span>
+              }
+            </footer>
+          }
+
+          <div class="related-card-actions">
+            @if (n[1].url) {
+              <button
+                mat-icon-button
+                (click)="openNoteUrl(n[1].url)"
+                matTooltip="Open linked URL in a new tab"
+                aria-label="Open link"
               >
-                <ng-template remarkTemplate="heading" let-node>
-                  <h1 [remarkNode]="node" style="font-size: 10pt"></h1>
-                </ng-template>
-              </remark>
-              } @else {
-              <div [innerHTML]="n[1].description | addTarget: '_notes'"></div>
-              }
-            </div>
-            <div style="padding-bottom: 5px; display: flex">
-              @if(n[1].authors && n[1].authors.length!=0) {
-              <div>
-                <span style="font-weight: bold">Author:</span>
-                &nbsp;{{n[1].authors[0]?.name}} &nbsp;&nbsp;
-              </div>
-              }
-            </div>
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <div style="display: flex">
-            <div style="flex: 1 1 auto">
-              @if(n[1].url) {
-              <div>
-                <button
-                  mat-icon-button
-                  (click)="openNoteUrl(n[1].url)"
-                  matTooltip="Open Note link in browser window"
-                >
-                  <mat-icon>open_in_new</mat-icon>
-                </button>
-              </div>
-              }
-            </div>
-            @if(!n[1].properties.readOnly) {
-            <div style="text-align: right">
+                <mat-icon>open_in_new</mat-icon>
+              </button>
+            }
+            @if (!n[1].properties?.readOnly) {
               <button
                 mat-icon-button
                 [disabled]="data.readOnly"
                 (click)="editNote(n[0])"
-                matTooltip="Edit Note"
+                matTooltip="Edit note"
+                aria-label="Edit"
               >
                 <mat-icon>edit</mat-icon>
               </button>
-              &nbsp;
               <button
                 mat-icon-button
                 [disabled]="data.readOnly"
                 (click)="deleteNote(n[0])"
-                matTooltip="Delete Note"
+                matTooltip="Delete note"
+                aria-label="Delete"
               >
                 <mat-icon>delete</mat-icon>
               </button>
-            </div>
             }
           </div>
-        </mat-card-actions>
-      </mat-card>
+        </article>
+      }
     </div>
-    }
   </mat-dialog-content>
-  <mat-dialog-actions align="right">
+
+  <mat-dialog-actions class="related-actions" align="end">
     <button mat-flat-button [disabled]="data.readOnly" (click)="addNote()">
-      <mat-icon>local_offer</mat-icon>
-      ADD
+      <mat-icon>add</mat-icon>
+      Add note
     </button>
   </mat-dialog-actions>
 </div>
