@@ -1,7 +1,7 @@
 /** Resource Dialog Components **
  ********************************/
 
-import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -24,6 +24,7 @@ import { SKResourceSet } from '../../custom-resource-classes';
 ***********************************/
 @Component({
   selector: 'ap-resourceset-feature-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

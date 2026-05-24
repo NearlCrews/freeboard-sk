@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -40,6 +41,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'route-panel',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatButtonModule,

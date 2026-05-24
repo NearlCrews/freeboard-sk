@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +22,7 @@ import { AppFacade } from 'src/app/app.facade';
 //** Resources upload dialog **
 @Component({
   selector: 'resource-upload-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './resource-upload-dialog.html',
   styleUrls: ['./resource-upload-dialog.css'],
   imports: [

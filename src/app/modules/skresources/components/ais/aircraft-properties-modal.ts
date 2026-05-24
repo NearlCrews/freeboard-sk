@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MatBottomSheetRef,
@@ -16,6 +16,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 
 @Component({
   selector: 'ap-aircraft-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

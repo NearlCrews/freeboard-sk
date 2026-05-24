@@ -1,7 +1,8 @@
-import { Component, effect, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, signal } from '@angular/core';
 
 @Component({
   selector: 'country-flag',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   template: `
     @if (showFlag()) {

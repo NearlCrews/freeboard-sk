@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -34,6 +35,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'region-panel',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatButtonModule,

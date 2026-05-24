@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   EventEmitter,
@@ -13,6 +14,7 @@ import { AppFacade } from 'src/app/app.facade';
 /********* NodeList Select ***********/
 @Component({
   selector: 'node-list-select',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatListModule],
   template: `
     <div class="_ap-node-list">

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -19,6 +19,7 @@ import { wmtsCapabilitiesInWorker } from './maplib';
 
 @Component({
   selector: 'wmts-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

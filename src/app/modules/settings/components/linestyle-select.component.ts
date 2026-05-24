@@ -1,4 +1,4 @@
-import { Component, inject, input, linkedSignal, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ export type LineStyleDash = 'none' | 'short' | 'medium' | 'long' | 'alt';
 
 @Component({
   selector: 'linestyle-select',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatIconModule,

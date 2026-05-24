@@ -1,7 +1,7 @@
 /** Multi-Select List Dialog Component **
  ********************************/
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, Inject } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +23,7 @@ import { AppIconDef } from 'src/app/modules/icons';
  */
 @Component({
   selector: 'ap-multiselectlistdialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatButtonModule, MatDialogModule, MatListModule],
   template: `
     <div class="_ap-multisellist">

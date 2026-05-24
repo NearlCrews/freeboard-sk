@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
@@ -36,6 +37,7 @@ import { CourseService } from 'src/app/modules/course';
 
 @Component({
   selector: 'waypoint-panel',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatButtonModule,

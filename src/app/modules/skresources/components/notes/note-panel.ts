@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -26,6 +27,7 @@ import { SKResourceService } from '../../resources.service';
 
 @Component({
   selector: 'note-panel',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatButtonModule,

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -14,6 +14,7 @@ import { SKInfoLayer } from '../../custom-resource-classes';
 
 @Component({
   selector: 'ap-infolayerproperties',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

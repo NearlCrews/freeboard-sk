@@ -1,7 +1,7 @@
 /** About Dialog Component **
  ****************************/
 
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogModule,
@@ -21,6 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 ***************************************/
 @Component({
   selector: 'ap-about-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatIconModule, MatButtonModule],
   template: `
     <div>

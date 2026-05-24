@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -23,6 +23,7 @@ interface DialogData {
 
 @Component({
   selector: 'ap-chartproperties',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,
