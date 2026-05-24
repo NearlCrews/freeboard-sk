@@ -254,6 +254,7 @@ export class AlertComponent {
   }
 
   ngOnDestroy() {
+    clearInterval(this.timerRef);
     this.audio.pause();
     this.audio = null;
     this.source = null;
