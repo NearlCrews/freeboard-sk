@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MatBottomSheetRef,
@@ -17,6 +17,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 
 @Component({
   selector: 'ap-aton-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

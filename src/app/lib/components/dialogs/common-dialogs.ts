@@ -1,7 +1,7 @@
 /** Dialog Components **
  ************************/
 
-import { Component, OnInit, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
@@ -22,6 +22,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 ***********************************/
 @Component({
   selector: 'ap-msgbox',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatButtonModule],
   template: `
     <div class="_ap-msgbox">

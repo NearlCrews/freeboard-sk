@@ -1,7 +1,7 @@
 /** Resource Dialog Components **
  ********************************/
 
-import { Component, OnInit, Inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +25,7 @@ import { FBResourceSet, FBResourceSets } from 'src/app/types';
 ***********************************/
 @Component({
   selector: 'ap-resourceset-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

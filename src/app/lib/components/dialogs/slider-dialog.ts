@@ -1,7 +1,7 @@
 /** Slider input Dialog Component **
  ********************************/
 
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, inject } from '@angular/core';
 
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,7 @@ export interface SliderInputDialogResult {
 //********* SliderInputDialog *********
 @Component({
   selector: 'ap-slider-input-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatSliderModule,
     MatIconModule,

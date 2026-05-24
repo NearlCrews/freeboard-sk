@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
@@ -23,6 +23,7 @@ import { FBRoute, FBWaypoint } from 'src/app/types';
 //** GPXSave dialog **
 @Component({
   selector: 'gpxsave-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatToolbarModule,
     MatProgressBarModule,

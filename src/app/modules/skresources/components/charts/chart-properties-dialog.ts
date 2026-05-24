@@ -1,4 +1,4 @@
-import { Component, inject, resource, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   MatDialogModule,
@@ -28,6 +28,7 @@ import { NodeListSelect } from './node-list-select';
 
 @Component({
   selector: 'ap-chartproperties',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatTooltipModule,

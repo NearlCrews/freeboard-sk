@@ -1,7 +1,7 @@
 /** History Playback Dialog **
  ********************************/
 
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   MatDialogModule,
@@ -18,6 +18,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'ap-playbackdialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatDialogModule,

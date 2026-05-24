@@ -1,7 +1,7 @@
 /** Trail2Route Dialog Component **
  ********************************/
 
-import { Component, OnInit, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -26,6 +26,7 @@ import { AppFacade } from 'src/app/app.facade';
 ***********************************/
 @Component({
   selector: 'ap-trail2routedialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,
     MatButtonModule,

@@ -1,7 +1,7 @@
 /** Single Select List Dialog Component **
  ********************************/
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, Inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -25,6 +25,7 @@ import { AppIconDef } from 'src/app/modules/icons';
  */
 @Component({
   selector: 'ap-singleselectlistdialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatInputModule,

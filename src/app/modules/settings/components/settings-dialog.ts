@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, signal, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ElementRef, signal, effect } from '@angular/core';
 
 import { FormsModule, NgModel } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,6 +40,7 @@ interface PreferredPathsResult {
 //** Settings **
 @Component({
   selector: 'settings-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatDialogModule,

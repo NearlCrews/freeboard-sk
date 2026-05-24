@@ -1,7 +1,7 @@
 /** Experiments Components **
  ********************************/
 
-import { Component, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Output, EventEmitter } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 /********* ExperimentsComponent ********/
 @Component({
   selector: 'fb-experiments',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatMenuModule, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
     <mat-menu #experimentsmenu="matMenu">

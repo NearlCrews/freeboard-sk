@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   EventEmitter,
@@ -20,6 +21,7 @@ import { LayerNode } from './maplib';
 /********* NodeTree Select ***********/
 @Component({
   selector: 'node-tree-select',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTreeModule,
     MatCheckboxModule,

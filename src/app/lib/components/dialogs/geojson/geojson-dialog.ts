@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -22,6 +22,7 @@ import { AppFacade } from 'src/app/app.facade';
 //** GeoJSON import dialog **
 @Component({
   selector: 'geojson-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     MatDialogModule,

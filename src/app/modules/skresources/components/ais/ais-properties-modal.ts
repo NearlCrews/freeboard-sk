@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -15,6 +15,7 @@ import { getAisIcon } from 'src/app/modules/icons';
 
 @Component({
   selector: 'ap-ais-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,

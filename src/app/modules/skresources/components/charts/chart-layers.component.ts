@@ -1,4 +1,4 @@
-import { Component, OnInit, input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, input, inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +16,7 @@ import { SKResourceService } from '../../resources.service';
 /********* ChartLayersList***********/
 @Component({
   selector: 'ap-chartlayers',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatTooltipModule, MatIconModule, MatCardModule, DragDropModule],
   template: `
     <div class="_ap-chartlayers">

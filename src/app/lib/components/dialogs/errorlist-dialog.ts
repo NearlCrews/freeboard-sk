@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -16,6 +16,7 @@ import { MatListModule } from '@angular/material/list';
 ***********************************/
 @Component({
   selector: 'ap-errorlistdialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatIconModule, MatButtonModule, MatListModule],
   template: `
     <div class="_ap-errlist">

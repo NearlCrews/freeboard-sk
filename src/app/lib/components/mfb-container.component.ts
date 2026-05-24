@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 
 import { AppFacade } from 'src/app/app.facade';
 import { MFBAction } from 'src/app/types';
@@ -10,6 +10,7 @@ import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
 
 @Component({
   selector: 'mfb-container',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     POBButtonComponent,

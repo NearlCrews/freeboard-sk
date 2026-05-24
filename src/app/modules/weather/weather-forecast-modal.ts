@@ -1,7 +1,7 @@
 /** Weather Forecast Component **
  ********************************/
 
-import { Component, DestroyRef, Inject, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Inject, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -51,6 +51,7 @@ interface WeatherData {
 ***********************************/
 @Component({
   selector: 'weather-forecast-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
     MatListModule,

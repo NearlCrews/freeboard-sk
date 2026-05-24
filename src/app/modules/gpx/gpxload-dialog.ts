@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
@@ -31,6 +31,7 @@ import { ErrorList } from 'src/app/types';
 //** GPXLoad dialog **
 @Component({
   selector: 'gpxload-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatToolbarModule,
     MatProgressBarModule,

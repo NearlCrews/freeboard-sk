@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, Inject, inject } from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -20,6 +20,7 @@ import { NotificationManager } from '../notification-manager';
 ***********************************/
 @Component({
   selector: 'ap-alert-modal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
     MatIconModule,
