@@ -157,8 +157,8 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 16px 16px;
-  border-bottom: 1.5px solid var(--notes-hairline);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--notes-hairline);
   // Background-shift creates a deliberate visual step between header,
   // actions, and body. Helps the eye parse the panel at chart distance.
   background: var(--notes-bg);
@@ -200,12 +200,21 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
 
 .detail-body {
   flex: 1 1 auto;
-  padding: 28px 24px 32px;
+  padding: 16px 24px 28px;
   overflow-y: auto;
   font-size: 16px;
   line-height: 1.6;
   color: var(--notes-text);
   font-family: Roboto, system-ui, sans-serif;
+
+  // First child shouldn't add its own top margin on top of the body's
+  // padding-top, which created an extra-large gap below the actions
+  // border. Collapsing it keeps the body content tucked up against
+  // the divider.
+  > :first-child,
+  > :first-child > :first-child {
+    margin-top: 0;
+  }
 }
 
 // Note body is injected via [innerHTML] (and via <remark>), so the
