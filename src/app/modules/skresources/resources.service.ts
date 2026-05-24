@@ -72,6 +72,17 @@ export type SKResourceType =
 
 export type SKSelection = SKResourceType | 'aisTargets' | 'infolayers';
 
+// Hoisted so `fromCache()` does not re-allocate a 6-element array
+// per call (called on every per-feature interaction lookup).
+const CACHED_COLLECTIONS: ReadonlySet<SKResourceType> = new Set([
+  'routes',
+  'waypoints',
+  'notes',
+  'regions',
+  'charts',
+  'tracks'
+]);
+
 // ** Signal K resource operations
 @Injectable({ providedIn: 'root' })
 export class SKResourceService {
@@ -235,11 +246,7 @@ export class SKResourceService {
    * @returns resource entry
    */
   public fromCache(collection: SKResourceType, id: string) {
-    if (
-      ['routes', 'waypoints', 'notes', 'regions', 'charts', 'tracks'].includes(
-        collection
-      )
-    ) {
+    if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
         this.app.showAlert('Error', 'Collection not found!');
