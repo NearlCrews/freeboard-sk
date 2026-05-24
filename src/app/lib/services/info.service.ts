@@ -5,6 +5,7 @@ import { isDevMode } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
 import { State } from './state.service';
+import { parseSemver } from '../semver';
 import { IAppConfig, FBAppData } from '../../types';
 
 export type ConfigEvent = 'saved' | 'ready';
@@ -82,24 +83,14 @@ export class InfoService {
       };
     } else {
       //changed version
-      const pva = pv.split('.');
-      const cva = this.version.split('.');
-      if (pva[0] !== cva[0]) {
-        this.launchStatus = {
-          result: 'major',
-          previousVersion: pv
-        };
-      } else if (pva[1] !== cva[1]) {
-        this.launchStatus = {
-          result: 'minor',
-          previousVersion: pv
-        };
-      } else {
-        this.launchStatus = {
-          result: 'patch',
-          previousVersion: pv
-        };
+      const pva = parseSemver(pv);
+      const cva = parseSemver(this.version);
+      let result: 'major' | 'minor' | 'patch' = 'patch';
+      if (pva && cva) {
+        if (pva[0] !== cva[0]) result = 'major';
+        else if (pva[1] !== cva[1]) result = 'minor';
       }
+      this.launchStatus = { result, previousVersion: pv };
     }
 
     this.saveInfo();
