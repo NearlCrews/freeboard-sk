@@ -37,12 +37,6 @@
                 {{ timeAgo(_note()?.timestamp) }}
               </span>
             }
-            @if (_note()?.properties?.skIcon) {
-              <span class="pill">
-                <mat-icon aria-hidden="true">label</mat-icon>
-                {{ _note()?.properties?.skIcon }}
-              </span>
-            }
           </div>
         }
       </div>
@@ -50,42 +44,52 @@
   </header>
 
   <nav class="detail-actions" aria-label="Note actions">
-    <button
-      mat-button
-      [disabled]="_note()?.properties?.readOnly"
-      (click)="onEdit()"
-      matTooltip="Edit note"
-    >
-      <mat-icon>edit</mat-icon>
-      Edit
-    </button>
-    @if (_note()?.url) {
+    <div class="action-grid">
       <button
-        mat-button
-        (click)="openNoteUrl()"
-        matTooltip="Open linked URL in a new tab"
+        mat-stroked-button
+        class="action-btn"
+        [disabled]="_note()?.properties?.readOnly"
+        (click)="onEdit()"
+        matTooltip="Edit note"
       >
-        <mat-icon>open_in_new</mat-icon>
-        Link
+        <mat-icon>edit</mat-icon>
+        Edit
       </button>
-    }
-    @if (_note()?.position) {
-      <button mat-button (click)="onGoto()" matTooltip="Navigate to this position">
-        <mat-icon>near_me</mat-icon>
-        Go to
-      </button>
-      <button
-        mat-button
-        (click)="onPanTo()"
-        matTooltip="Centre the map on this note"
-      >
-        <mat-icon>center_focus_strong</mat-icon>
-        Centre
-      </button>
-    }
+      @if (_note()?.url) {
+        <button
+          mat-stroked-button
+          class="action-btn"
+          (click)="openNoteUrl()"
+          matTooltip="Open linked URL in a new tab"
+        >
+          <mat-icon>open_in_new</mat-icon>
+          Link
+        </button>
+      }
+      @if (_note()?.position) {
+        <button
+          mat-stroked-button
+          class="action-btn"
+          (click)="onGoto()"
+          matTooltip="Navigate to this position"
+        >
+          <mat-icon>near_me</mat-icon>
+          Go to
+        </button>
+        <button
+          mat-stroked-button
+          class="action-btn"
+          (click)="onPanTo()"
+          matTooltip="Centre the map on this note"
+        >
+          <mat-icon>center_focus_strong</mat-icon>
+          Centre
+        </button>
+      }
+    </div>
     <button
-      mat-button
-      class="danger"
+      mat-stroked-button
+      class="action-btn danger"
       [disabled]="_note()?.properties?.readOnly"
       (click)="onDelete()"
       matTooltip="Delete note"

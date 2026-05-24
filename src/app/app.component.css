@@ -37,9 +37,9 @@ mat-nav-list {
     left: 0;
     bottom: 0;
     padding-left: 0px;
-    z-index: 5000; 
+    z-index: 5000;
     background-color: rgba(200,200,200,.4);
-    width: 315px;
+    width: 400px;
 }
 
 .statusBar { 

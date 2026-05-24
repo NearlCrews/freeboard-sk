@@ -1,35 +1,38 @@
 // Detail-panel styles for the right sidenav note view.
-// Tokens duplicated rather than partial-imported so each component file
-// stays under Angular's per-style budget.
+// High-contrast palette matching notes.scss. Sans-serif for body text
+// (readability on screen), serif reserved for the hero title.
 
 :host {
-  --notes-bg: #f8f4ee;
-  --notes-surface: #fffdf8;
-  --notes-surface-hover: #f4edde;
-  --notes-text: #0a1f3d;
-  --notes-text-muted: #5c6b82;
-  --notes-text-faint: #8896b0;
-  --notes-accent: #b66428;
-  --notes-accent-soft: rgba(182, 100, 40, 0.08);
-  --notes-hairline: #e8e2d5;
-  --notes-amber: #d4a574;
+  --notes-bg: #ffffff;
+  --notes-surface: #ffffff;
+  --notes-surface-hover: #ededed;
+  --notes-text: #000000;
+  --notes-text-muted: #2e2e2e;
+  --notes-text-faint: #555555;
+  --notes-accent: #8a3300;
+  --notes-accent-soft: #fbe9de;
+  --notes-hairline: #b8b8b8;
+  --notes-amber: #8a5500;
 
   display: block;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
 }
 
 :host-context(body.dark-theme),
 :host-context(.dark-theme) {
-  --notes-bg: #0b1220;
-  --notes-surface: #13203a;
-  --notes-surface-hover: #1c2a4a;
-  --notes-text: #e8e2d5;
-  --notes-text-muted: #8896b0;
-  --notes-text-faint: #5c6b82;
-  --notes-accent: #f0b45f;
-  --notes-accent-soft: rgba(240, 180, 95, 0.12);
-  --notes-hairline: #1f2e50;
-  --notes-amber: #f0b45f;
+  --notes-bg: #0a0a0a;
+  --notes-surface: #161616;
+  --notes-surface-hover: #242424;
+  --notes-text: #ffffff;
+  --notes-text-muted: #d0d0d0;
+  --notes-text-faint: #888888;
+  --notes-accent: #ffb84d;
+  --notes-accent-soft: #2a1e0a;
+  --notes-hairline: #3a3a3a;
+  --notes-amber: #ffd166;
 }
 
 $serif: Georgia, 'Times New Roman', 'Liberation Serif', serif;
@@ -45,20 +48,20 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
 }
 
 .detail-head {
-  padding: 18px 18px 14px;
-  border-bottom: 1px solid var(--notes-hairline);
+  padding: 22px 22px 18px;
+  border-bottom: 1.5px solid var(--notes-hairline);
   background: var(--notes-surface);
 
   .head-row {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 14px;
   }
 
   .detail-icon-wrap {
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,9 +70,9 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     color: var(--notes-accent);
 
     mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
     }
   }
 
@@ -79,50 +82,59 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   }
 
   .detail-title {
-    margin: 0;
-    font: 600 22px/1.25 $serif;
+    margin: 0 0 14px;
+    // Sans heavy reads cleaner at chartplotter distance than a serif at
+    // the same size: less anti-aliasing on the thick strokes, so the
+    // edges stay crisp instead of looking fuzzy.
+    font: 700 26px/1.25 Roboto, system-ui, sans-serif;
     letter-spacing: -0.015em;
     color: var(--notes-text);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
 
   .detail-meta-row {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 10px;
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
+      gap: 6px;
+      padding: 6px 12px;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       line-height: 1.4;
-      border: 1px solid var(--notes-hairline);
-      background: transparent;
+      border: 1.5px solid var(--notes-hairline);
+      background: var(--notes-surface-hover);
       color: var(--notes-text-muted);
 
       mat-icon {
-        font-size: 12px;
-        width: 12px;
-        height: 12px;
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
       }
 
       &.pos {
         font-family: $mono;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        background: var(--notes-accent-soft);
+        color: var(--notes-accent);
+        border-color: var(--notes-accent);
       }
 
       &.draft {
         border-color: var(--notes-amber);
         background: var(--notes-amber);
         color: var(--notes-bg);
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 10px;
+        letter-spacing: 0.06em;
+        font-size: 12px;
       }
 
       &.group {
@@ -131,8 +143,8 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
         border-color: var(--pill-color);
 
         .dot {
-          width: 5px;
-          height: 5px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: var(--pill-color);
         }
@@ -143,67 +155,81 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
 
 .detail-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--notes-hairline);
-  background: var(--notes-surface);
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border-bottom: 1.5px solid var(--notes-hairline);
+  // Background-shift creates a deliberate visual step between header,
+  // actions, and body. Helps the eye parse the panel at chart distance.
+  background: var(--notes-bg);
 
-  button[mat-button] {
-    --mdc-text-button-label-text-color: var(--notes-text);
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    padding: 0 10px;
-    min-width: 0;
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .action-btn {
+    --mdc-outlined-button-label-text-color: var(--notes-text);
+    --mdc-outlined-button-outline-color: var(--notes-hairline);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    min-height: 44px;
+    border-radius: 8px;
 
     mat-icon {
-      font-size: 17px;
-      width: 17px;
-      height: 17px;
-      margin-right: 4px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
     }
 
     &.danger {
-      --mdc-text-button-label-text-color: #c63838;
+      --mdc-outlined-button-label-text-color: #b00020;
+      --mdc-outlined-button-outline-color: #b00020;
     }
   }
 }
 
-:host-context(body.dark-theme) .detail-actions button[mat-button].danger,
-:host-context(.dark-theme) .detail-actions button[mat-button].danger {
-  --mdc-text-button-label-text-color: #ff8a8a;
+:host-context(body.dark-theme) .detail-actions .action-btn.danger,
+:host-context(.dark-theme) .detail-actions .action-btn.danger {
+  --mdc-outlined-button-label-text-color: #ff7373;
+  --mdc-outlined-button-outline-color: #ff7373;
 }
 
 .detail-body {
   flex: 1 1 auto;
-  padding: 20px 22px 28px;
+  padding: 28px 24px 32px;
   overflow-y: auto;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--notes-text);
+  font-family: Roboto, system-ui, sans-serif;
 
   :is(h1, h2, h3, h4) {
-    font-family: $serif;
+    font-family: Roboto, system-ui, sans-serif;
     color: var(--notes-text);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
     margin: 1.4em 0 0.5em;
     line-height: 1.25;
   }
 
   h1 {
-    font-size: 19px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
   }
   h2 {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
   }
   h3 {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
   }
   h4 {
-    font: 600 13px/1.25 $serif;
+    font-size: 13px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--notes-text-muted);
@@ -215,44 +241,52 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
 
   a {
     color: var(--notes-accent);
-    text-decoration: none;
-    border-bottom: 1px solid var(--notes-accent-soft);
-    transition: border-color 120ms ease;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 0 -4px;
+    transition: color 120ms ease, background 120ms ease;
 
     &:hover {
-      border-bottom-color: var(--notes-accent);
+      color: var(--notes-text);
+      background: var(--notes-accent-soft);
+      text-decoration-color: var(--notes-text);
     }
   }
 
   code {
     font-family: $mono;
-    font-size: 12.5px;
+    font-size: 13.5px;
     background: var(--notes-surface-hover);
-    padding: 1px 6px;
+    padding: 2px 6px;
     border-radius: 4px;
     color: var(--notes-accent);
+    font-weight: 600;
   }
 
   pre {
-    background: var(--notes-surface);
+    background: var(--notes-surface-hover);
     border: 1px solid var(--notes-hairline);
     border-radius: 8px;
     padding: 12px 14px;
     overflow-x: auto;
-    font: 12.5px/1.5 $mono;
+    font: 13.5px/1.5 $mono;
   }
 
   blockquote {
     margin: 1em 0;
-    padding: 4px 0 4px 14px;
-    border-left: 3px solid var(--notes-accent);
+    padding: 6px 0 6px 16px;
+    border-left: 4px solid var(--notes-accent);
     color: var(--notes-text-muted);
     font-style: italic;
   }
 
   ul,
   ol {
-    padding-left: 22px;
+    padding-left: 24px;
     margin: 0 0 1em;
   }
 
