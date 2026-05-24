@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  inject
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,6 +45,12 @@ interface DialogData {
 @Component({
   selector: 'ap-notedialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // ViewEncapsulation.None so the angular-editor stylesheet (imported
+  // via styleUrls below) reaches the editor's deeply-nested children.
+  // The editor's class names are specific enough (`.angular-editor*`)
+  // that global scope is fine, and the styles only insert when this
+  // dialog actually mounts.
+  encapsulation: ViewEncapsulation.None,
   imports: [
     FormsModule,
     MatCardModule,
@@ -57,7 +69,14 @@ interface DialogData {
     RemarkModule
   ],
   templateUrl: `note-dialog.html`,
-  styleUrls: ['notes.scss']
+  styleUrls: [
+    '../../../../../../node_modules/@kolkov/angular-editor/themes/default.scss'
+  ],
+  styles: [
+    // Override the global `b { font-weight: 500 }` rule from
+    // src/styles.scss so bold actually looks bold inside the editor.
+    `.angular-editor-textarea b { font-weight: bold; }`
+  ]
 })
 export class NoteDialog implements OnInit {
   private editorHiddenButtons = [

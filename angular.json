@@ -39,8 +39,7 @@
             ],
             "styles": [
               "src/app-theme.scss",
-              "src/styles.scss",
-              "node_modules/@kolkov/angular-editor/themes/default.scss"
+              "src/styles.scss"
             ],
             "scripts": [],
             "extractLicenses": false,

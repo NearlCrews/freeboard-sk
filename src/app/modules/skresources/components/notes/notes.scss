@@ -430,11 +430,6 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   }
 }
 
-// Preserve angular-editor bold rendering inside note-dialog.
-:host ::ng-deep .angular-editor-textarea b {
-  font-weight: bold;
-}
-
 .related-notes-grid {
   display: grid;
   gap: 12px;
