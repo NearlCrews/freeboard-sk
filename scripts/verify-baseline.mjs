@@ -1,42 +1,52 @@
 #!/usr/bin/env node
-/**
- * Monotonic-decrease verifier for the freeboard-sk Phase 0 floor.
- *
- * Tracks per-file violation counts for two rule families:
- *   - `@typescript-eslint/no-explicit-any` → .eslint-any-baseline.json
- *   - `rxjs-x/*`                            → .eslint-rxjs-baseline.json
- *
- * Behaviour:
- *   node scripts/verify-baseline.mjs            # verify counts <= baselines
- *   node scripts/verify-baseline.mjs --seed     # rewrite baselines from current
- *   node scripts/verify-baseline.mjs --report   # print current counts, no diff
- *
- * Scope is `src/**` by default. Override with `--scope <glob>` (single arg) if
- * a future ratchet PR wants a narrower view; the committed baselines stay at
- * `src/**` so the ratchet covers the whole app.
- *
- * Exit codes:
- *   0  no regression (or seed/report mode)
- *   1  regression: at least one file's count went up
- *   2  config / I/O error
- */
-import { ESLint } from 'eslint';
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
-import { resolve, relative } from 'node:path';
+//
+// Monotonic-decrease verifier for the freeboard-sk Phase 0 floor.
+//
+// Tracks per-file violation counts for two rule families:
+//   @typescript-eslint/no-explicit-any  -> .eslint-any-baseline.json
+//   rxjs-x/*                            -> .eslint-rxjs-baseline.json
+//
+// Usage:
+//   node scripts/verify-baseline.mjs            verify counts <= baselines
+//   node scripts/verify-baseline.mjs --seed     rewrite baselines from current
+//   node scripts/verify-baseline.mjs --report   print current counts, no diff
+//
+// Scope defaults to src/**/*.ts. Override with --scope <glob> (single arg) for
+// ad-hoc narrower views; committed baselines should stay at the default so the
+// ratchet covers the whole app.
+//
+// Exit codes:
+//   0  no regression (or seed/report mode)
+//   1  regression: at least one file's count went up
+//   2  config, I/O, or argument error
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ESLint } from 'eslint';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 const ANY_RULE = '@typescript-eslint/no-explicit-any';
 const RXJS_PREFIX = 'rxjs-x/';
 const ANY_BASELINE = resolve(ROOT, '.eslint-any-baseline.json');
 const RXJS_BASELINE = resolve(ROOT, '.eslint-rxjs-baseline.json');
+const DEFAULT_SCOPE = 'src/**/*.ts';
 
-const args = new Set(process.argv.slice(2));
-const SEED = args.has('--seed');
-const REPORT = args.has('--report');
+const argv = process.argv.slice(2);
+const SEED = argv.includes('--seed');
+const REPORT = argv.includes('--report');
 
-const scopeIdx = process.argv.indexOf('--scope');
-const SCOPE = scopeIdx > -1 ? process.argv[scopeIdx + 1] : 'src/**/*.ts';
+const scopeIdx = argv.indexOf('--scope');
+let SCOPE = DEFAULT_SCOPE;
+if (scopeIdx > -1) {
+  const value = argv[scopeIdx + 1];
+  if (!value || value.startsWith('--')) {
+    exit(
+      2,
+      'verify-baseline: --scope requires a glob argument, e.g. --scope "src/**/*.ts"'
+    );
+  }
+  SCOPE = value;
+}
 
 function exit(code, msg) {
   if (msg) {

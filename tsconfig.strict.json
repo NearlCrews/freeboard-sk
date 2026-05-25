@@ -1,11 +1,7 @@
 {
-  "//": "Parallel strict tsconfig for the Phase 0 ratchet (roadmap §3 Phase 0, §5).",
-  "//1": "Phase 0 scope: src/app/lib/ only. Other folders ratchet in later phases:",
-  "//2": "  Phase 1: src/lib/, src/types/",
-  "//3": "  Phase 2: src/app/lib/services/",
-  "//4": "  Phase 3: src/app/modules/skstream/",
-  "//5": "  Phase 4: src/app/modules/map/, src/app/modules/skresources/",
-  "//6": "  Phase 6: everything else + flip strict:true in root tsconfig.json.",
+  // Parallel strict tsconfig for the Phase 0 ratchet (src/app/lib/ only).
+  // Later phases widen the include and ultimately flip strict:true in
+  // tsconfig.json. See MODERNIZATION_ROADMAP.md sections 3 (Phase 0) and 5.
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "outDir": "./out-tsc/strict",

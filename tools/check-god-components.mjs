@@ -1,43 +1,35 @@
 #!/usr/bin/env node
 // Phase 0 architectural floor: block any TS file under src/app/ that exceeds
-// the god-component LOC ceiling. Grandfathered files are tracked here with a
-// TODO link to the Phase 3 decomposition.
-//
-// Rule lives outside .dependency-cruiser.cjs because dependency-cruiser 17.4.2
-// does not natively check per-file LOC; the cruise script chains both gates.
+// the god-component LOC ceiling. Rule lives outside .dependency-cruiser.cjs
+// because depcruise 17 does not check per-file LOC; the cruise script chains
+// both gates.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const ROOT = process.cwd();
 const TARGET = 'src/app';
 const LOC_CEILING = 1500;
 
-// Grandfathered files: pre-existing god components. Phase 3 (UX track) splits
-// app.component.ts into AppShell + DialogOrchestrator + AudioAlarmService +
-// MenuController. Phase 3 (data track) splits app.facade.ts into vessel,
-// resource, course, settings, and alarms stores.
-// See MODERNIZATION_ROADMAP.md sections 3 (Phase 3) and 4 (Framework lens).
+// Grandfathered files: pre-existing god components above the ceiling. Each
+// gets its own decomposition PR in a later phase, listed in
+// MODERNIZATION_ROADMAP.md sections 3 (Phase 3) and 4 (Framework lens).
 const EXCLUDE = new Set([
   'src/app/app.component.ts',
-  'src/app/app.facade.ts',
-  // Additional pre-existing offenders. Each gets its own Phase 3 or Phase 4
-  // breakout PR; listed here so the gate stays green for the rest of the tree.
   'src/app/modules/skresources/resources.service.ts',
-  'src/app/modules/map/fb-map.component.ts',
-  'src/app/modules/skstream/skstream.worker.ts'
+  'src/app/modules/map/fb-map.component.ts'
 ]);
 
 const SKIP_DIRS = new Set(['node_modules', '.angular', 'dist', 'public']);
 
 function walk(dir, acc) {
-  for (const entry of readdirSync(dir)) {
-    if (SKIP_DIRS.has(entry)) continue;
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const { name } = entry;
+    if (SKIP_DIRS.has(name)) continue;
+    const full = join(dir, name);
+    if (entry.isDirectory()) {
       walk(full, acc);
-    } else if (entry.endsWith('.ts') && !entry.endsWith('.spec.ts')) {
+    } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
       acc.push(full);
     }
   }

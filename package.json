@@ -34,8 +34,7 @@
     "lint:fix": "eslint . --fix",
     "lint:baseline": "node scripts/verify-baseline.mjs",
     "lint:baseline:seed": "node scripts/verify-baseline.mjs --seed",
-    "lint:baseline:any": "node scripts/verify-baseline.mjs",
-    "lint:baseline:rxjs": "node scripts/verify-baseline.mjs",
+    "lint:baseline:report": "node scripts/verify-baseline.mjs --report",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:helper": "prettier --ignore-path .gitignore --write \"helper/**/*.+(ts|html)\"",
@@ -53,8 +52,8 @@
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged",
-    "commit-msg": "pnpm exec commitlint --edit $1",
-    "pre-push": "pnpm typecheck && pnpm test"
+    "commit-msg": "pnpm exec commitlint --edit \"$1\"",
+    "pre-push": "pnpm typecheck:strict && pnpm cruise"
   },
   "author": "AdrianP",
   "contributors": [

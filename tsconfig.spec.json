@@ -2,19 +2,9 @@
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": [
-      "vitest/globals",
-      "@playwright/test",
-      "@testing-library/jest-dom",
-      "node"
-    ]
+    "types": ["node"]
   },
   "files": [],
-  "include": [
-    "src/**/*.spec.ts",
-    "src/**/*.d.ts",
-    "vitest.setup.ts",
-    "e2e/**/*.ts"
-  ],
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts", "vitest.setup.ts"],
   "exclude": []
 }

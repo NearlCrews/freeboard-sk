@@ -22,14 +22,12 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.json", 
+              "src/manifest.json",
               "src/browserconfig.xml",
               {
                 "glob": "**/*",
@@ -37,20 +35,14 @@
                 "output": "assets/ae-icons/"
               }
             ],
-            "styles": [
-              "src/app-theme.scss",
-              "src/styles.scss"
-            ],
+            "styles": ["src/app-theme.scss", "src/styles.scss"],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,
             "optimization": false,
             "namedChunks": true,
             "webWorkerTsConfig": "tsconfig.worker.json",
-            "allowedCommonJsDependencies": [
-              "geolib",
-              "simplify-ts"
-           ]
+            "allowedCommonJsDependencies": ["geolib", "simplify-ts"]
           },
           "configurations": {
             "production": {
@@ -101,7 +93,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "runnerConfig": true
+            "runnerConfig": true,
+            "tsConfig": "tsconfig.spec.json"
           }
         }
       }
