@@ -35,7 +35,11 @@
                 "output": "assets/ae-icons/"
               }
             ],
-            "styles": ["src/app-theme.scss", "src/styles.scss"],
+            "styles": [
+              "src/styles.scss",
+              "src/tailwind.css",
+              "src/app-theme.scss"
+            ],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,

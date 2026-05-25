@@ -245,6 +245,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected mapSetFocus = signal<string>('');
   protected mapCenter = signal<Position>([0, 0]);
   protected audioStatus = signal<string>('');
+
+  /**
+   * Phase 3 foundation hook for body[data-theme] switching. Drives the
+   * three tokens.css blocks: 'light' (default), 'dark', and 'night-red'.
+   * Full ThemeService (settings persistence, prefers-color-scheme bridge,
+   * environment.mode bridge) is Phase 7 scope; for now any teammate
+   * verifying tokens can call `themeAttr.set('night-red')` from a debug
+   * console to flip the body attribute.
+   */
+  protected themeAttr = signal<'light' | 'dark' | 'night-red'>('light');
   protected isInteracting = computed(() => {
     return (
       this.mapInteract.isMeasuring() ||
@@ -295,6 +305,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     effect(() => {
       this.app.uiConfig();
       this.handleSettingChangeEvent();
+    });
+    // Phase 3 foundation: mirror themeAttr to body[data-theme] so
+    // tokens.css's [data-theme] blocks resolve. Full ThemeService
+    // is Phase 7.
+    effect(() => {
+      document.body.setAttribute('data-theme', this.themeAttr());
     });
   }
 

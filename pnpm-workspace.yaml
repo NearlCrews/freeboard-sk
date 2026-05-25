@@ -3,6 +3,7 @@ allowBuilds:
   esbuild: true
   lmdb: false
   msgpackr-extract: false
+  puppeteer: false
   simple-git-hooks: true
 minimumReleaseAgeExclude:
   - '@testing-library/angular@19.3.0'

@@ -1,4 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Design tokens load first so Tailwind utilities, Material theming, and
+   any component styles authored later can reference them. Marine-safety
+   tokens live inside tokens.css too; do not redefine --safety-* anywhere
+   else in this stylesheet or in app-theme.scss. */
+@use './tokens.css';
 @use '../node_modules/ol/ol.css';
 @use '../font_resources/material/material-roboto.css';
 @use '../font_resources/material/material-icons.css';

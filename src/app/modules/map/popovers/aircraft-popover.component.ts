@@ -79,7 +79,7 @@ import { SKAircraft } from 'src/app/modules';
             (click)="handleInfo()"
             matTooltip="Show Properties"
           >
-            <mat-icon>info_outline</mat-icon>
+            <mat-icon>info</mat-icon>
             INFO
           </button>
         </div>

@@ -1,22 +1,29 @@
+/*
+ * Material icon font for the freeboard-sk standalone help bundle.
+ *
+ * Mirrors font_resources/material/material-icons.css: backed by the
+ * Material Symbols Outlined subset. The help bundle is served as a
+ * standalone HTML page with its own relative paths, so it gets a copy
+ * of material-symbols-subset.woff2 next to this CSS.
+ *
+ * To regenerate the subset after icon usage changes:
+ *   node font_resources/material/build-subset.mjs
+ *   cp font_resources/material/material-symbols-subset.woff2 \
+ *      src/assets/help/css/material-symbols-subset.woff2
+ */
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url(https://example.com/MaterialIcons-Regular.eot); /* For IE6-8 */
-  src: local('Material Icons'),
-    local('MaterialIcons-Regular'),
-    url(./MaterialIconsRound-Regular.otf) format('otf'),
-    url(./MaterialIconsOutlined-Regular.otf) format('otf'),
-    url(./MaterialIconsSharp-Regular.otf) format('otf'),
-    url(./MaterialIconsTwoTone-Regular.otf) format('otf'),
-    url(./MaterialIcons-Regular.ttf) format('truetype');
+  font-display: block;
+  src: url(./material-symbols-subset.woff2) format('woff2');
 }
 
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
+  font-size: 24px;
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -25,15 +32,8 @@
   white-space: nowrap;
   direction: ltr;
 
-  /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
   -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
   font-feature-settings: 'liga';
 }
-

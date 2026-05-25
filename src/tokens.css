@@ -1,0 +1,178 @@
+/*
+ * freeboard-sk design tokens (Phase 3 foundation).
+ *
+ * Three [data-theme] blocks: 'light' (default), 'dark', and 'night-red'.
+ * 'night-red' is a true red palette, NOT a CSS filter, so chart canvases,
+ * SVG overlays, and safety glyphs render their original safety colors
+ * underneath instead of being distorted by a backdrop-filter.
+ *
+ * Token domains: color, spacing, typography, and touch-target floors.
+ * Color space: OKLCH. OKLCH interpolates perceptually so theme transitions
+ * stay smooth, contrast ratios stay sane, and night-red can sit at the
+ * same L* as light without picking up undesired blue/green channels.
+ *
+ * Marine-safety tokens (--safety-*) live in a separate :root block at the
+ * bottom of this file. They MUST stay identical across themes because they
+ * encode navigation-hazard meaning (AIS collision risk, depth-contour
+ * crossings, COG-vector visibility). Theme switching cannot override them:
+ * the [data-theme] selectors above only redefine --color-* tokens, never
+ * --safety-* tokens. If a future surface needs to recolor a safety glyph
+ * for a non-safety reason, it must allocate its own token, not reuse the
+ * safety palette.
+ */
+
+/* Light theme (default). Also applies when no data-theme is set. */
+:root,
+[data-theme='light'] {
+  /* Surface / background */
+  --color-bg: oklch(99% 0.003 250);
+  --color-surface: oklch(97% 0.005 250);
+  --color-surface-raised: oklch(94% 0.008 250);
+  --color-border: oklch(85% 0.01 250);
+
+  /* Text */
+  --color-text: oklch(20% 0.02 260);
+  --color-text-muted: oklch(45% 0.02 260);
+  --color-text-inverse: oklch(99% 0 0);
+
+  /* Brand */
+  --color-primary: oklch(55% 0.15 250);
+  --color-on-primary: oklch(99% 0 0);
+  --color-accent: oklch(75% 0.15 60);
+  --color-on-accent: oklch(15% 0.02 60);
+
+  /* Status (non-safety): success/warning/error for UI feedback only.
+     Safety-critical status uses --safety-* below. */
+  --color-success: oklch(65% 0.15 145);
+  --color-warning: oklch(80% 0.15 75);
+  --color-error: oklch(60% 0.2 25);
+
+  /* Focus ring */
+  --color-focus-ring: oklch(60% 0.18 250);
+}
+
+/* Dark theme. */
+[data-theme='dark'] {
+  --color-bg: oklch(15% 0.01 260);
+  --color-surface: oklch(20% 0.012 260);
+  --color-surface-raised: oklch(25% 0.015 260);
+  --color-border: oklch(35% 0.01 260);
+
+  --color-text: oklch(95% 0.005 250);
+  --color-text-muted: oklch(70% 0.01 250);
+  --color-text-inverse: oklch(15% 0.02 260);
+
+  --color-primary: oklch(70% 0.16 250);
+  --color-on-primary: oklch(15% 0.02 260);
+  --color-accent: oklch(80% 0.15 60);
+  --color-on-accent: oklch(15% 0.02 60);
+
+  --color-success: oklch(70% 0.16 145);
+  --color-warning: oklch(82% 0.15 75);
+  --color-error: oklch(65% 0.2 25);
+
+  --color-focus-ring: oklch(75% 0.18 250);
+}
+
+/* Night-red theme: every UI surface reduces to red-on-black to preserve
+   scotopic vision during night watch. Rod cells need the absence of
+   blue/green light to stay dark-adapted, so the entire color palette
+   collapses to varying lightness of a single red hue. Safety tokens
+   below remain unaffected so chart-side hazards stay legible. */
+[data-theme='night-red'] {
+  --color-bg: oklch(2% 0 0);
+  --color-surface: oklch(8% 0.05 25);
+  --color-surface-raised: oklch(12% 0.08 25);
+  --color-border: oklch(25% 0.1 25);
+
+  --color-text: oklch(55% 0.18 25);
+  --color-text-muted: oklch(40% 0.16 25);
+  --color-text-inverse: oklch(5% 0 0);
+
+  --color-primary: oklch(60% 0.2 25);
+  --color-on-primary: oklch(5% 0 0);
+  --color-accent: oklch(65% 0.2 25);
+  --color-on-accent: oklch(5% 0 0);
+
+  --color-success: oklch(55% 0.18 25);
+  --color-warning: oklch(60% 0.2 25);
+  --color-error: oklch(65% 0.22 25);
+
+  --color-focus-ring: oklch(55% 0.2 25);
+}
+
+/* Theme-invariant tokens: spacing, typography, and touch targets.
+   These belong in :root and never under [data-theme] because the OS
+   text-size setting and the user's physical screen are the only inputs
+   that should reshape them. Theme switching does not move buttons. */
+:root {
+  /* Spacing scale (rem-based so OS-level zoom and screen-reader text
+     scaling lift everything together) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+
+  /* Typography */
+  --font-family-sans: 'Roboto', system-ui, 'Helvetica Neue', sans-serif;
+  --font-family-mono:
+    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* Touch-target floors. Primary 56 px is the WCAG 2.2 Enhanced ceiling,
+     used for safety-critical actions: anchor drop, abandon route, OK an
+     alarm. Secondary 44 px is the Apple HIG floor and WCAG 2.5.5
+     minimum, used for chart-pan controls, list rows, and secondary
+     toolbar buttons. Tertiary actions (icon-only chips, dense list
+     toggles) may go below these, but only inside a 44 px hit-area. */
+  --touch-primary: 56px;
+  --touch-secondary: 44px;
+}
+
+/*
+ * Marine-safety tokens (theme-invariant).
+ *
+ * Pattern: defined on :root only, never under [data-theme]. The [data-theme]
+ * selectors above redefine the --color-* palette but DO NOT touch the
+ * --safety-* palette, so AIS collision risk, depth-contour crossings, and
+ * the COG vector keep their signal colors at night, in dark mode, and in
+ * any future theme. WCAG 1.4.1 (no color-only signal) is still required at
+ * the call site: pair each safety color with shape, label, or animation.
+ */
+:root {
+  /* AIS target risk colors. Tied to TCPA/CPA thresholds in the AIS
+     filter, not to UI theming. */
+  --safety-ais-safe: oklch(70% 0.17 145);
+  --safety-ais-caution: oklch(82% 0.17 75);
+  --safety-ais-danger: oklch(60% 0.22 25);
+
+  /* Course / heading overlays drawn over the chart canvas. */
+  --safety-cog-vector: oklch(60% 0.18 250);
+  --safety-heading-line: oklch(70% 0.15 145);
+
+  /* Depth-contour state: at or above the configured safety contour
+     vs. shallow. The chart raster owns the actual contour palette;
+     these are for app-side overlays only. */
+  --safety-depth-safe: oklch(60% 0.18 250);
+  --safety-depth-shallow: oklch(60% 0.22 25);
+
+  /* Anchor alarm radius and active route highlight. */
+  --safety-anchor: oklch(70% 0.17 145);
+  --safety-route-active: oklch(55% 0.2 280);
+}

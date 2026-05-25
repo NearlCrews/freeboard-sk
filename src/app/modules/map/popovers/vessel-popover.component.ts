@@ -108,7 +108,7 @@ isSelf: boolean - true if vessel 'self'
             (click)="handleInfo()"
             matTooltip="Show Properties"
           >
-            <mat-icon>info_outline</mat-icon>
+            <mat-icon>info</mat-icon>
           </button>
         </div>
       </div>

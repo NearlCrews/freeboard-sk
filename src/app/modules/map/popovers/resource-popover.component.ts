@@ -6,7 +6,8 @@ import {
   signal,
   output,
   effect,
-  input
+  input,
+  OnChanges
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -226,7 +227,7 @@ interface PopoverCtrl {
               matTooltip="Show Details"
               matTooltipPosition="after"
             >
-              <mat-icon>info_outline</mat-icon>
+              <mat-icon>info</mat-icon>
               INFO
             </button>
           </div>
@@ -236,7 +237,7 @@ interface PopoverCtrl {
   `,
   styleUrls: [`./popover.component.scss`]
 })
-export class ResourcePopoverComponent {
+export class ResourcePopoverComponent implements OnChanges {
   @Input() title: string; // popover title text
   @Input() type: string; // resource type
   @Input() resource: SKRoute | SKWaypoint | SKNote | SKRegion;
@@ -255,7 +256,7 @@ export class ResourcePopoverComponent {
   points = output<void>();
   notes = output<void>();
 
-  properties: Array<unknown>; // ** resource properties
+  properties: unknown[]; // ** resource properties
   ctrl: PopoverCtrl = {
     showInfoButton: false,
     showModifyButton: false,
@@ -521,7 +522,7 @@ id: string - resource id
             matTooltip="Show Properties"
             matTooltipPosition="after"
           >
-            <mat-icon>info_outline</mat-icon>
+            <mat-icon>info</mat-icon>
             INFO
           </button>
         </div>
@@ -530,7 +531,7 @@ id: string - resource id
   `,
   styleUrls: [`./popover.component.scss`]
 })
-export class ResourceSetPopoverComponent {
+export class ResourceSetPopoverComponent implements OnChanges {
   title = input<string>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resource = input<any>();
@@ -538,7 +539,7 @@ export class ResourceSetPopoverComponent {
   info = output<void>();
   closed = output<void>();
 
-  protected properties: Array<unknown>; // ** resource properties
+  protected properties: unknown[]; // ** resource properties
   protected app = inject(AppFacade);
 
   constructor() {

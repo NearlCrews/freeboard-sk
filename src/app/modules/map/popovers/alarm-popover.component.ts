@@ -94,7 +94,7 @@ import { AlertData } from '../../alarms';
             (click)="handleInfo()"
             matTooltip="Show Properties"
           >
-            <mat-icon>info_outline</mat-icon>
+            <mat-icon>info</mat-icon>
             INFO
           </button>
         </div>
