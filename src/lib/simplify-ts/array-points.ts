@@ -34,15 +34,19 @@ function getSqSegDistAP(
   return getAddedSquaresAP(p[0] - x, p[1] - y);
 }
 
+// Helpers below are only reached via SimplifyAP after a length > 2 guard, so
+// every points[i] in 0..length-1 is statically present. Non-null assertions
+// keep the original code shape without paying for runtime existence checks.
+
 function simplifyRadialDistAP(
   points: ISimplifyArrayPoint[],
   sqTolerance: number
 ): ISimplifyArrayPoint[] {
-  let prevPoint = points[0];
+  let prevPoint = points[0]!;
   let point: ISimplifyArrayPoint = prevPoint;
   const newPoints: ISimplifyArrayPoint[] = [prevPoint];
   for (let i = 1, len = points.length; i < len; i++) {
-    point = points[i];
+    point = points[i]!;
     if (getSqDistAP(point, prevPoint) > sqTolerance) {
       newPoints.push(point);
       prevPoint = point;
@@ -64,7 +68,7 @@ function simplifyDPStepAP(
   let maxSqDist = sqTolerance;
   let index = -1;
   for (let i = first + 1; i < last; i++) {
-    const sqDist = getSqSegDistAP(points[i], points[first], points[last]);
+    const sqDist = getSqSegDistAP(points[i]!, points[first]!, points[last]!);
     if (sqDist > maxSqDist) {
       index = i;
       maxSqDist = sqDist;
@@ -74,7 +78,7 @@ function simplifyDPStepAP(
     if (index - first > 1) {
       simplifyDPStepAP(points, first, index, sqTolerance, simplified);
     }
-    simplified.push(points[index]);
+    simplified.push(points[index]!);
     if (last - index > 1) {
       simplifyDPStepAP(points, index, last, sqTolerance, simplified);
     }
@@ -86,9 +90,9 @@ function simplifyDouglasPeuckerAP(
   sqTolerance: number
 ): ISimplifyArrayPoint[] {
   const last = points.length - 1;
-  const simplified: ISimplifyArrayPoint[] = [points[0]];
+  const simplified: ISimplifyArrayPoint[] = [points[0]!];
   simplifyDPStepAP(points, 0, last, sqTolerance, simplified);
-  simplified.push(points[last]);
+  simplified.push(points[last]!);
   return simplified;
 }
 

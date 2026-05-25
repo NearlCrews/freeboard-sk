@@ -2,11 +2,13 @@
 // Pure ESM, named exports, tree-shakable.
 
 export class Path {
-  // Transform dot notation to slash notation.
+  // Transform dot notation to slash notation. String.split always yields at
+  // least one element, so p[0] is statically present.
   static dotToSlash(path: string): string {
     const p = path.split('?');
-    if (p[0].includes('.')) {
-      p[0] = p[0].split('.').join('/');
+    const first = p[0]!;
+    if (first.includes('.')) {
+      p[0] = first.split('.').join('/');
     }
     return p.join('?');
   }

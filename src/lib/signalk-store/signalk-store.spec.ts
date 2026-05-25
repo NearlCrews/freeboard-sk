@@ -114,7 +114,10 @@ describe('SignalKStore: batched applyDeltas', () => {
     const before = sel();
     store.applyDeltas([]);
     store.applyDeltas([{ updates: [{ values: [] }] }]);
-    store.applyDeltas([{ updates: [{ values: undefined }] }]);
+    // Omit `values` entirely rather than passing undefined: under
+    // exactOptionalPropertyTypes, `values?: DeltaValue[]` rejects explicit
+    // undefined. The store treats missing and missing-as-undefined the same.
+    store.applyDeltas([{ updates: [{}] }]);
     expect(sel()).toEqual(before);
   });
 

@@ -1,8 +1,10 @@
 // Vendored from signalk-client-angular ^2.1.0 (Apache 2.0, AdrianP).
 // Pure ESM, named exports, tree-shakable.
 //
-// Loose response types preserved during inline. Phase 6 (TS strict ratchet)
-// will tighten the public surface. See MODERNIZATION_ROADMAP.md.
+// Loose response types preserved during inline. Public surface still uses
+// `any` for upstream-API parity; the file compiles under tsconfig.strict.json
+// (Phase 1 ratchet). Public-surface tightening (replacing `any` with narrower
+// observable types) is roadmap Phase 6. See MODERNIZATION_ROADMAP.md.
 
 /* eslint-disable
    @typescript-eslint/no-explicit-any,
@@ -57,7 +59,7 @@ export class SignalKHttp {
   get(version: number, path: string): any;
   get(p1: string | number, p2?: string): any {
     if (!this.endpoint) {
-      return;
+      return undefined;
     }
     let ep: string;
     let path: string;
@@ -91,7 +93,7 @@ export class SignalKHttp {
   put(version: number, path: string, value: any): any;
   put(p1: string | number, p2: any, p3?: any): any {
     if (!this.endpoint) {
-      return;
+      return undefined;
     }
     let ep: string;
     let path: string;
@@ -134,7 +136,7 @@ export class SignalKHttp {
   ): any;
   putWithContext(p1: string | number, p2: any, p3?: any, p4?: any): any {
     if (!this.endpoint) {
-      return;
+      return undefined;
     }
     let ep: string;
     let path: string;
@@ -175,7 +177,7 @@ export class SignalKHttp {
   post(version: number, path: string, value: any): any;
   post(p1: string | number, p2: any, p3?: any): any {
     if (!this.endpoint) {
-      return;
+      return undefined;
     }
     let ep: string;
     let path: string;
@@ -210,7 +212,7 @@ export class SignalKHttp {
   delete(version: number, path: string): any;
   delete(p1: string | number, p2?: string): any {
     if (!this.endpoint) {
-      return;
+      return undefined;
     }
     let ep: string;
     let path: string;

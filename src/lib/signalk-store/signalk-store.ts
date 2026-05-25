@@ -14,10 +14,14 @@ import {
 interface RawState {
   value: unknown;
   lastUpdate: number;
-  sourceRef?: SourceRef;
+  sourceRef: SourceRef | undefined;
 }
 
-const MISSING_RAW: RawState = { value: undefined, lastUpdate: 0 };
+const MISSING_RAW: RawState = {
+  value: undefined,
+  lastUpdate: 0,
+  sourceRef: undefined
+};
 
 export interface SignalKStoreOptions {
   // Wall clock the store derives age from. Override in tests so age and state
@@ -51,7 +55,11 @@ export class SignalKStore {
   private readonly tick = signal(0);
   private readonly now: () => number;
   private readonly defaultThresholds: AgeThresholds;
-  private readonly thresholdsFor?: (path: Path) => AgeThresholds | undefined;
+  // Explicit `| undefined` rather than `?:` so the constructor can assign
+  // `options.thresholdsFor` directly under exactOptionalPropertyTypes.
+  private readonly thresholdsFor:
+    | ((path: Path) => AgeThresholds | undefined)
+    | undefined;
 
   constructor(options: SignalKStoreOptions = {}) {
     this.now = options.now ?? (() => Date.now());
@@ -162,7 +170,8 @@ export class SignalKStore {
         value: undefined,
         lastUpdate: 0,
         age: Number.POSITIVE_INFINITY,
-        state: 'missing'
+        state: 'missing',
+        sourceRef: undefined
       };
     }
     const age = Math.max(0, this.now() - raw.lastUpdate);

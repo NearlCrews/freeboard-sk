@@ -1,8 +1,11 @@
 // Vendored from signalk-client-angular ^2.1.0 (Apache 2.0, AdrianP).
 // Pure ESM, named exports, tree-shakable.
 //
-// Loose response types preserved during inline. Phase 6 (TS strict ratchet)
-// will tighten the public surface. See MODERNIZATION_ROADMAP.md.
+// Loose response types preserved during inline. Public surface still uses
+// `any` for upstream-API parity; the file compiles under tsconfig.strict.json
+// (Phase 1 ratchet) by writing Record-typed message envelopes via bracket
+// access. Public-surface tightening (replacing `any` with narrower observable
+// types) is roadmap Phase 6. See MODERNIZATION_ROADMAP.md.
 
 /* eslint-disable
    @typescript-eslint/no-explicit-any,
@@ -201,13 +204,13 @@ export class SignalKStream {
     }
     const msg: Record<string, any> = Message.request();
     if (typeof value.login === 'undefined' && this._token) {
-      msg.token = this._token;
+      msg['token'] = this._token;
     }
     for (const k of Object.keys(value)) {
       msg[k] = value[k];
     }
     this.send(msg);
-    return msg.requestId as string;
+    return msg['requestId'] as string;
   }
 
   // Send a PUT request via the Delta stream.
@@ -240,11 +243,11 @@ export class SignalKStream {
   sendUpdate(context = 'self', path: string | any[], value?: any): void {
     const val: Record<string, any> = Message.updates();
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
-    val.context = context === 'self' ? 'vessels.self' : context;
+    val['context'] = context === 'self' ? 'vessels.self' : context;
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
     let uValues: any[] = [];
     if (typeof path === 'string') {
@@ -258,9 +261,9 @@ export class SignalKStream {
       values: uValues
     };
     if (this._source) {
-      u.source = this._source;
+      u['source'] = this._source;
     }
-    (val.updates as any[]).push(u);
+    (val['updates'] as any[]).push(u);
     this.send(val);
   }
 
@@ -273,30 +276,30 @@ export class SignalKStream {
   ): void {
     const val: Record<string, any> = Message.subscribe();
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
-    val.context = context === 'self' ? 'vessels.self' : context;
+    val['context'] = context === 'self' ? 'vessels.self' : context;
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
     if (typeof path === 'object' && Array.isArray(path)) {
-      val.subscribe = path;
+      val['subscribe'] = path;
     }
     if (typeof path === 'string') {
       const sValue: Record<string, any> = { path };
       if (options && typeof options === 'object') {
         if (options.period) {
-          sValue.period = options.period;
+          sValue['period'] = options.period;
         }
         if (options.minPeriod) {
           // Parity with original: minPeriod source uses options.period.
-          sValue.minPeriod = options.period;
+          sValue['minPeriod'] = options.period;
         }
         if (
           options.format &&
           (options.format === 'delta' || options.format === 'full')
         ) {
-          sValue.format = options.format;
+          sValue['format'] = options.format;
         }
         if (
           options.policy &&
@@ -304,10 +307,10 @@ export class SignalKStream {
             options.policy === 'ideal' ||
             options.policy === 'fixed')
         ) {
-          sValue.policy = options.policy;
+          sValue['policy'] = options.policy;
         }
       }
-      (val.subscribe as any[]).push(sValue);
+      (val['subscribe'] as any[]).push(sValue);
     }
     this.send(val);
   }
@@ -316,17 +319,17 @@ export class SignalKStream {
   unsubscribe(context = '*', path: any = '*'): void {
     const val: Record<string, any> = Message.unsubscribe();
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
-    val.context = context === 'self' ? 'vessels.self' : context;
+    val['context'] = context === 'self' ? 'vessels.self' : context;
     if (this._token) {
-      val.token = this._token;
+      val['token'] = this._token;
     }
     if (typeof path === 'object' && Array.isArray(path)) {
-      val.unsubscribe = path;
+      val['unsubscribe'] = path;
     }
     if (typeof path === 'string') {
-      (val.unsubscribe as any[]).push({ path });
+      (val['unsubscribe'] as any[]).push({ path });
     }
     this.send(val);
   }

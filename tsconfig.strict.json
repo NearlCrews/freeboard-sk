@@ -1,7 +1,9 @@
 {
-  // Parallel strict tsconfig for the Phase 0 ratchet (src/app/lib/ only).
-  // Later phases widen the include and ultimately flip strict:true in
-  // tsconfig.json. See MODERNIZATION_ROADMAP.md sections 3 (Phase 0) and 5.
+  // Parallel strict tsconfig. Phase 0 seeded the ratchet over src/app/lib/.
+  // Phase 1 widens to src/lib/ (new vendored + store code) and src/types/
+  // (codegen output). Each phase keeps adding surfaces until tsconfig.json
+  // can flip strict:true at Phase 6. See MODERNIZATION_ROADMAP.md sections
+  // 3 (Phase 1) and 5.
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "outDir": "./out-tsc/strict",
@@ -14,6 +16,6 @@
     "noFallthroughCasesInSwitch": true
   },
   "files": [],
-  "include": ["src/app/lib/**/*.ts"],
+  "include": ["src/app/lib/**/*.ts", "src/lib/**/*.ts", "src/types/**/*.ts"],
   "exclude": ["src/app/lib/**/*.spec.ts", "src/app/lib/**/*.worker.ts"]
 }

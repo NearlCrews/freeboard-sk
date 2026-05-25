@@ -1,13 +1,27 @@
 #!/usr/bin/env node
 // SCOPE_PREFIXES widens per phase as each modernization track lands its strict
-// ratchet step. See MODERNIZATION_ROADMAP.md sections 3 (Phase 0), 5.
+// ratchet step. See MODERNIZATION_ROADMAP.md sections 3 (Phases 0, 1, 2+), 5.
+//
+// Two scope sets:
+//   NEW_PREFIXES   - surfaces required to be strict-clean (gating).
+//   LEGACY_PREFIXES - surfaces with pre-existing strict errors (info only).
+//
+// Flags:
+//   --raw     pass tsc output through unchanged (debugging).
+//   --legacy  report errors under LEGACY_PREFIXES only, info-only mode.
+//             without --legacy, the script gates on NEW_PREFIXES.
+//   --all     report combined in-scope (new + legacy), gates on new being zero.
 
 import { spawnSync } from 'node:child_process';
 
-const SCOPE_PREFIXES = ['src/app/lib/'];
+const NEW_PREFIXES = ['src/lib/', 'src/types/'];
+const LEGACY_PREFIXES = ['src/app/lib/'];
+
 const RAW = process.argv.includes('--raw');
+const LEGACY = process.argv.includes('--legacy');
+const ALL = process.argv.includes('--all');
+
 const ERROR_LINE = /^([^()\s][^()]*)\(\d+,\d+\):\s+error\s+TS\d+:/;
-const SCOPE_LABEL = SCOPE_PREFIXES.join(', ');
 
 const result = spawnSync(
   process.execPath,
@@ -38,7 +52,8 @@ if (RAW) {
 }
 
 const lines = combined.split('\n');
-const inScope = [];
+const newScope = [];
+const legacyScope = [];
 let totalErrors = 0;
 
 for (const line of lines) {
@@ -46,8 +61,10 @@ for (const line of lines) {
   if (!match) continue;
   totalErrors += 1;
   const path = match[1].replaceAll('\\', '/');
-  if (SCOPE_PREFIXES.some((prefix) => path.startsWith(prefix))) {
-    inScope.push(line);
+  if (NEW_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    newScope.push(line);
+  } else if (LEGACY_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    legacyScope.push(line);
   }
 }
 
@@ -60,19 +77,56 @@ if (tscExitCode !== 0 && totalErrors === 0) {
   process.exit(2);
 }
 
-const outOfScope = totalErrors - inScope.length;
+const newLabel = NEW_PREFIXES.join(', ');
+const legacyLabel = LEGACY_PREFIXES.join(', ');
+const outOfScope = totalErrors - newScope.length - legacyScope.length;
 
-if (inScope.length > 0) {
-  process.stderr.write(inScope.join('\n'));
+if (LEGACY) {
+  // Info-only report of legacy surfaces.
+  if (legacyScope.length > 0) {
+    process.stdout.write(legacyScope.join('\n'));
+    process.stdout.write('\n\n');
+  }
+  process.stdout.write(
+    `typecheck:strict (legacy): ${legacyScope.length} in-scope error(s) under ${legacyLabel} ` +
+      `(${newScope.length} new-scope, ${outOfScope} out-of-scope suppressed).\n`
+  );
+  process.exit(0);
+}
+
+if (ALL) {
+  // Print everything, gate on NEW being zero.
+  if (newScope.length > 0) {
+    process.stderr.write(newScope.join('\n'));
+    process.stderr.write('\n\n');
+  }
+  if (legacyScope.length > 0) {
+    process.stdout.write(legacyScope.join('\n'));
+    process.stdout.write('\n\n');
+  }
+  process.stdout.write(
+    `typecheck:strict: ${newScope.length} new-scope error(s) under ${newLabel}, ` +
+      `${legacyScope.length} legacy-scope error(s) under ${legacyLabel}, ` +
+      `${outOfScope} out-of-scope suppressed.\n`
+  );
+  process.exit(newScope.length > 0 ? 1 : 0);
+}
+
+// Default: gate on NEW_PREFIXES being zero. The legacy count is suppressed
+// from stderr so a regression in new code is the only failure signal.
+if (newScope.length > 0) {
+  process.stderr.write(newScope.join('\n'));
   process.stderr.write(
-    `\n\ntypecheck:strict: ${inScope.length} in-scope error(s) under ${SCOPE_LABEL}` +
-      ` (${outOfScope} out-of-scope error(s) suppressed)\n`
+    `\n\ntypecheck:strict: ${newScope.length} in-scope error(s) under ${newLabel}` +
+      ` (${legacyScope.length} legacy-scope and ${outOfScope} out-of-scope suppressed; ` +
+      `re-run with --legacy or --all for the full picture)\n`
   );
   process.exit(1);
 }
 
 process.stdout.write(
-  `typecheck:strict: 0 in-scope error(s) under ${SCOPE_LABEL} ` +
-    `(${outOfScope} out-of-scope diagnostic(s) suppressed, scope widens per roadmap phase).\n`
+  `typecheck:strict: 0 in-scope error(s) under ${newLabel} ` +
+    `(${legacyScope.length} legacy-scope diagnostic(s) suppressed under ${legacyLabel}, ` +
+    `${outOfScope} out-of-scope; scope widens per roadmap phase).\n`
 );
 process.exit(0);

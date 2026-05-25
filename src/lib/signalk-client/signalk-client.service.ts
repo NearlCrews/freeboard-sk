@@ -1,8 +1,12 @@
 // Vendored from signalk-client-angular ^2.1.0 (Apache 2.0, AdrianP).
 // Pure ESM, named exports, tree-shakable.
 //
-// Loose response types preserved during inline. Phase 6 (TS strict ratchet)
-// will tighten the public surface. See MODERNIZATION_ROADMAP.md.
+// Loose response types preserved during inline. Public surface still uses
+// `any` for upstream-API parity; the file compiles under tsconfig.strict.json
+// (Phase 1 ratchet) via per-block eslint disables plus bracket access on the
+// Record-typed server.info / server.endpoints fields. Public-surface tightening
+// (replacing `any` with narrower observable types) is roadmap Phase 6.
+// See MODERNIZATION_ROADMAP.md.
 
 /* eslint-disable
    @typescript-eslint/no-explicit-any,
@@ -331,7 +335,7 @@ export class SignalKClient implements OnDestroy {
       this.debug(`Connecting endpoint version: ${this._version}`);
       return `${versioned['signalk-ws']}`;
     }
-    const v1 = this.server.endpoints.v1;
+    const v1 = this.server.endpoints['v1'];
     if (v1 && v1['signalk-ws']) {
       this.debug(`Connection falling back to: v1`);
       return `${v1['signalk-ws']}`;
@@ -347,7 +351,7 @@ export class SignalKClient implements OnDestroy {
       if (versioned['signalk-http']) {
         url = `${versioned['signalk-http']}`;
       } else {
-        url = `${this.server.endpoints.v1['signalk-http']}`;
+        url = `${this.server.endpoints['v1']?.['signalk-http'] ?? ''}`;
       }
     } else {
       this.debug(
@@ -453,9 +457,9 @@ export class SignalKClient implements OnDestroy {
     if (
       this.server &&
       this.server.info &&
-      this.server.info.id === 'signalk-server-node'
+      this.server.info['id'] === 'signalk-server-node'
     ) {
-      const ver = (this.server.info.version as string).split('.');
+      const ver = (this.server.info['version'] as string).split('.');
       // Use legacy link for older versions.
       url = ver[0] === '1' && Number(ver[1]) < 36 ? `/loginstatus` : url;
     }
@@ -465,12 +469,12 @@ export class SignalKClient implements OnDestroy {
   // Get data via the snapshot HTTP API path for the supplied time.
   snapshot(context: string, time: string): Observable<any> | undefined {
     if (!time) {
-      return;
+      return undefined;
     }
     const isoTime = time.slice(0, time.indexOf('.')) + 'Z';
     let url = this.resolveHttpEndpoint();
     if (!url) {
-      return;
+      return undefined;
     }
     url = `${url.replace('api', 'snapshot')}${Path.contextToPath(context)}?time=${isoTime}`;
     if (this._token) {
@@ -552,12 +556,12 @@ export class SignalKClient implements OnDestroy {
     version: string = this._appVersion
   ): Observable<any> | undefined {
     if (!path) {
-      return;
+      return undefined;
     }
     const p = path.startsWith('/') ? path.slice(1) : path;
     const ep = this.resolveAppDataEndpoint(context, appId);
     if (!ep) {
-      return;
+      return undefined;
     }
     const url = `${ep}${version}/${p}`;
     if (this._token) {
@@ -576,7 +580,7 @@ export class SignalKClient implements OnDestroy {
   ): Observable<any> | undefined {
     const ep = this.resolveAppDataEndpoint(context, appId);
     if (!ep || !version) {
-      return;
+      return undefined;
     }
     const url = `${ep}${version}`;
     if (this._token) {

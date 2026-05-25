@@ -18,12 +18,16 @@ export {
 
 export type FreshnessState = 'fresh' | 'stale' | 'missing';
 
+// sourceRef is always present so the field always exists on the projection.
+// A path with no source attribution carries `undefined` rather than being
+// omitted, so consumers can destructure without `?:` semantics. This keeps
+// the store interface clean under `exactOptionalPropertyTypes`.
 export interface PathState<T> {
   value: T | undefined;
   lastUpdate: number;
   age: number;
   state: FreshnessState;
-  sourceRef?: SourceRef;
+  sourceRef: SourceRef | undefined;
 }
 
 export interface AgeThresholds {

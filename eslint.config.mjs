@@ -171,7 +171,14 @@ export default tseslint.config(
       '@typescript-eslint/array-type': 'warn',
       '@typescript-eslint/consistent-indexed-object-style': 'warn',
       '@typescript-eslint/consistent-type-definitions': 'warn',
-      '@typescript-eslint/dot-notation': 'warn',
+      // dot-notation conflicts with tsconfig.strict.json's
+      // noPropertyAccessFromIndexSignature: tsc requires bracket access on
+      // index-signature properties, eslint nags about it. The option lets
+      // bracket access stand when the property comes from an index signature.
+      '@typescript-eslint/dot-notation': [
+        'warn',
+        { allowIndexSignaturePropertyAccess: true }
+      ],
       '@typescript-eslint/non-nullable-type-assertion-style': 'warn',
       '@typescript-eslint/prefer-for-of': 'warn',
       '@typescript-eslint/prefer-function-type': 'warn',
