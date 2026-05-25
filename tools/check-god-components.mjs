@@ -15,7 +15,9 @@ const LOC_CEILING = 1500;
 // gets its own decomposition PR in a later phase, listed in
 // MODERNIZATION_ROADMAP.md sections 3 (Phase 3) and 4 (Framework lens).
 const EXCLUDE = new Set([
-  'src/app/app.component.ts',
+  // Phase 3 Batch 2 removed src/app/app.component.ts after decomposing it
+  // into AppShellService, DialogOrchestrator, MenuController, and
+  // AudioAlarmService under src/app/shell/.
   'src/app/modules/skresources/resources.service.ts',
   'src/app/modules/map/fb-map.component.ts'
 ]);

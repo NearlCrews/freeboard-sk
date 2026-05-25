@@ -1,22 +1,19 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  OnDestroy,
+  OnInit,
   ViewChild,
   computed,
   effect,
   inject,
-  signal,
-  AfterViewInit,
-  OnInit,
-  OnDestroy
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { OverlayContainer } from '@angular/cdk/overlay';
 
 // standalone
 import { CommonModule } from '@angular/common';
@@ -41,75 +38,64 @@ import {
 // ****
 
 import { AppFacade } from './app.facade';
-import { InfoPanelFacade, InfoPanelComponent } from './modules/info-panel';
+import { InfoPanelComponent, InfoPanelFacade } from './modules/info-panel';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { WakeLockService } from 'src/app/lib/services';
+import {
+  AppShellService,
+  AudioAlarmService,
+  DialogOrchestrator,
+  MenuController
+} from 'src/app/shell';
 
 import {
-  AISPropertiesModal,
-  AtoNPropertiesModal,
-  AircraftPropertiesModal,
-  ActiveResourcePropertiesModal,
-  ResourceSetModal,
-  ResourceSetFeatureModal,
-  SKStreamFacade,
-  SKSTREAM_MODE,
-  StreamOptions,
+  AISListComponent,
   AnchorService,
-  SKResourceService,
-  SKVessel,
-  SKSaR,
-  SKAircraft,
-  SKAtoN,
-  FBCustomResourceService,
-  SKRegion,
-  WeatherForecastModal,
-  CourseSettingsModal,
-  NotificationManager,
-  CourseService,
-  SettingsFacade,
-  AutopilotService,
-  FBMapComponent,
-  ExperimentsComponent,
   AnchorWatchComponent,
   AlertComponent,
   AlertListComponent,
   AutopilotComponent,
-  RouteNextPointComponent,
-  RouteListComponent,
-  WaypointListComponent,
+  AutopilotService,
+  BuildRouteComponent,
   ChartListComponent,
-  NoteListComponent,
-  RegionListComponent,
-  TrackListComponent,
-  AISListComponent,
+  CourseService,
+  ExperimentsComponent,
+  FBCustomResourceService,
+  FBMapComponent,
   GroupListComponent,
   InfoLayerListComponent,
-  BuildRouteComponent,
+  NoteListComponent,
   NotePanel,
-  RegionPanel
+  NotificationManager,
+  RegionListComponent,
+  RegionPanel,
+  RouteListComponent,
+  RouteNextPointComponent,
+  SettingsFacade,
+  SKRegion,
+  SKResourceService,
+  SKSTREAM_MODE,
+  SKStreamFacade,
+  StreamOptions,
+  TrackListComponent,
+  WaypointListComponent
 } from 'src/app/modules';
 
-// Dialogs below are lazy-loaded via `await import(...)` at their call sites.
-// No static import here, so they stay out of the eager main chunk.
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { compareSemver, parseSemver } from 'src/app/lib/semver';
 
 import {
-  NotificationMessage,
-  UpdateMessage,
   LineString,
+  NotificationMessage,
   Polygon,
-  FBRoute,
   Position,
-  ErrorList
+  UpdateMessage
 } from './types';
-import { Feature } from 'ol';
 import {
+  DrawFeatureInfo,
   DrawFeatureType,
   FBMapInteractService,
-  DrawFeatureInfo,
   SelectionResultDef
 } from './modules/map/fbmap-interact.service';
 import { RadarAPIService } from './modules/radar/radar-api.service';
@@ -118,17 +104,6 @@ import {
   SKResourceType,
   WaypointPanel
 } from './modules/skresources';
-
-interface DrawEndEvent {
-  coordinates: LineString | Position | Polygon;
-  enabled: boolean;
-  features: Feature[];
-  forSave: boolean;
-  mode: string;
-  modify: false;
-  properties: Record<string, unknown>;
-  type: string;
-}
 
 @Component({
   selector: 'app-root',
@@ -179,6 +154,12 @@ interface DrawEndEvent {
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('sideright', { static: false }) sideright;
 
+  // Phase 3 shell services (state and orchestration extracted from this file)
+  private readonly shell = inject(AppShellService);
+  private readonly menu = inject(MenuController);
+  private readonly audio = inject(AudioAlarmService);
+  private readonly dialogs = inject(DialogOrchestrator);
+
   protected navDataPanel = signal<{
     show: boolean;
     nextPointCtrl: boolean;
@@ -193,45 +174,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected playbackTime = signal<string | null>(null);
 
-  protected leftMenuCtrl = signal<{
-    leftMenuPanel: boolean;
-    routeList: boolean;
-    waypointList: boolean;
-    chartList: boolean;
-    noteList: boolean;
-    regionList: boolean;
-    trackList: boolean;
-    aisList: boolean;
-    resourceGroups: boolean;
-    infoLayerList: boolean;
-    anchorWatch: boolean;
-  }>({
-    leftMenuPanel: false,
-    routeList: false,
-    waypointList: false,
-    chartList: false,
-    noteList: false,
-    regionList: false,
-    trackList: false,
-    aisList: false,
-    resourceGroups: false,
-    infoLayerList: false,
-    anchorWatch: false
-  });
-
-  protected displayFullscreen = signal<{
-    active: boolean;
-    enabled: boolean;
-  }>({
-    active: false,
-    enabled: document.fullscreenEnabled
-  });
-
   // APP features / mode
   public features = { playbackAPI: true };
   public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME; // current mode
 
-  private timers = [];
+  private timers: ReturnType<typeof setInterval>[] = [];
 
   // external resources
   protected instUrl = signal<SafeResourceUrl | null>(null);
@@ -240,21 +187,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected convert = Convert;
   private destroyRef = inject(DestroyRef);
-  private streamOptions = { options: null, toMode: null };
+  private streamOptions: {
+    options: StreamOptions | null;
+    toMode: SKSTREAM_MODE | null;
+  } = { options: null, toMode: null };
 
-  protected mapSetFocus = signal<string>('');
   protected mapCenter = signal<Position>([0, 0]);
-  protected audioStatus = signal<string>('');
 
-  /**
-   * Phase 3 foundation hook for body[data-theme] switching. Drives the
-   * three tokens.css blocks: 'light' (default), 'dark', and 'night-red'.
-   * Full ThemeService (settings persistence, prefers-color-scheme bridge,
-   * environment.mode bridge) is Phase 7 scope; for now any teammate
-   * verifying tokens can call `themeAttr.set('night-red')` from a debug
-   * console to flip the body attribute.
-   */
-  protected themeAttr = signal<'light' | 'dark' | 'night-red'>('light');
   protected isInteracting = computed(() => {
     return (
       this.mapInteract.isMeasuring() ||
@@ -275,40 +214,52 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected skresOther = inject(FBCustomResourceService);
   protected signalk = inject(SignalKClient);
   private dom = inject(DomSanitizer);
-  private overlayContainer = inject(OverlayContainer);
-  private bottomSheet = inject(MatBottomSheet);
-  private dialog = inject(MatDialog);
   protected wakeLock = inject(WakeLockService);
   private settings = inject(SettingsFacade);
   protected autopilot = inject(AutopilotService);
   protected radarApi = inject(RadarAPIService);
 
+  // ----- template-bound signal proxies -----
+
+  protected leftMenuCtrl = () => this.menu.state();
+  protected displayFullscreen = () => this.shell.displayFullscreen();
+  protected mapSetFocus = () => this.shell.mapSetFocus();
+  protected audioStatus = () => this.audio.status();
+  protected get themeAttr() {
+    return this.shell.themeAttr;
+  }
+
   constructor() {
-    // set self to active vessel
     this.app.data.vessels.active = this.app.data.vessels.self;
 
-    // handle skAuthChange signal
+    // Wire menu close to map-focus restoration.
+    this.menu.registerOnClose(() => this.shell.focusMap());
+
+    // Wire dialog cross-cuts back into the shell's stream/connection lifecycle.
+    this.dialogs.registerHooks({
+      fetchResources: () => this.fetchResources(),
+      fetchAllResources: () => this.fetchAllResources(),
+      switchMode: (mode, options) => this.switchMode(mode, options),
+      queryAfterConnect: () => this.queryAfterConnect()
+    });
+
     effect(() => {
       this.app.debug('** skAuthChange Event:', this.app.skAuthChange());
       this.handleSKAuthChange();
     });
-    // handle kioskMode signal
     effect(() => {
       this.app.debug('** kioskMode Event:', this.app.kioskMode());
-      this.toggleSuppressContextMenu(this.app.kioskMode());
+      this.shell.toggleSuppressContextMenu(this.app.kioskMode());
     });
-    // handle map interaction selection signal
     effect(() => {
       this.handleSelectionEnded(this.mapInteract.selection());
     });
-    // handle uiConfig signal
     effect(() => {
       this.app.uiConfig();
       this.handleSettingChangeEvent();
     });
     // Phase 3 foundation: mirror themeAttr to body[data-theme] so
-    // tokens.css's [data-theme] blocks resolve. Full ThemeService
-    // is Phase 7.
+    // tokens.css's [data-theme] blocks resolve. Full ThemeService is Phase 7.
     effect(() => {
       document.body.setAttribute('data-theme', this.themeAttr());
     });
@@ -324,22 +275,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }, 500);
   }
 
-  protected enableAudio() {
-    if (this.app.audio.context) {
-      this.app.audio.context.resume();
-    }
-  }
-
   ngOnInit() {
-    // ** audio context handing **
-    this.audioStatus.update(() => this.app.audio.context.state);
-    this.app.debug('audio state:', this.audioStatus());
-    this.app.audio.context.onstatechange = () => {
-      this.app.debug('audio statechange:', this.app.audio.context.state);
-      this.audioStatus.update(() => this.app.audio.context.state);
-    };
+    this.audio.init();
+    this.shell.initFullscreenListeners();
 
-    // ** apply loaded app config
     this.mapCenter.update(() => this.app.config.map.center);
     this.app.instrumentPanel.update((current) => {
       return Object.assign({}, current, {
@@ -347,8 +286,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       });
     });
 
-    // overlay dark-theme
-    this.setDarkTheme();
+    this.shell.setDarkTheme();
 
     this.instUrl.update(() =>
       this.dom.bypassSecurityTrustResourceUrl(this.formatInstrumentsUrl())
@@ -359,11 +297,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       )
     );
 
-    // ** connect to signalk server and intialise
     this.connectSignalKServer();
 
     // ********************* SUBSCRIPTIONS *****************
-    // ** SIGNAL K STREAM **
     this.stream
       .delta$()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -388,164 +324,118 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       .subscribe((msg: NotificationMessage | UpdateMessage) =>
         this.onError(msg)
       );
-    // ** TRAIL$ update event
     this.stream
       .trail$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => this.handleTrailUpdate(msg));
 
-    // ** SETTINGS.CHANGE$ - handle settings.change$ event
     this.settings.change$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: string[]) => this.handleSettingChangeEvent(value));
-
-    // fullscreen event handlers
-    document.addEventListener('fullscreenchange', () => {
-      this.displayFullscreen.update((current) =>
-        Object.assign({}, current, {
-          active: document.fullscreenElement ? true : false
-        })
-      );
-    });
-    document.addEventListener('fullscreenerror', () => {
-      this.displayFullscreen.update((current) =>
-        Object.assign({}, current, { active: false })
-      );
-    });
   }
 
   ngOnDestroy() {
-    // ** clean up
     this.stopTimers();
     this.stream.terminate();
     this.signalk.disconnect();
   }
 
-  // ********* DISPLAY / APPEARANCE ****************
+  // ********* DISPLAY / APPEARANCE / TOOLBAR (delegated to AppShellService) ****************
 
-  // ** return the map orientation **
   protected getOrientation() {
-    return this.app.uiConfig().mapNorthUp
-      ? 'rotate(' + 0 + 'deg)'
-      : 'rotate(' + (0 - this.app.data.vessels.active.orientation) + 'rad)';
+    return this.shell.getOrientation();
   }
-
-  /** TOOLBAR ACTIONS */
-
+  protected focusMap() {
+    this.shell.focusMap();
+  }
   protected toggleRadar() {
-    this.app.uiCtrl.update((current) => {
-      return Object.assign({}, current, { radarLayer: !current.radarLayer });
-    });
-    this.focusMap();
+    this.shell.toggleRadar();
   }
-
   protected toggleMoveMap(exit = false) {
-    this.app.uiConfig.update((current) => {
-      const mm = exit ? false : !current.mapMove;
-      return Object.assign({}, current, { mapMove: mm });
-    });
-    this.focusMap();
+    this.shell.toggleMoveMap(exit);
   }
-
   protected toggleNorthUp() {
-    this.app.uiConfig.update((current) => {
-      return Object.assign({}, current, { mapNorthUp: !current.mapNorthUp });
-    });
-    this.focusMap();
+    this.shell.toggleNorthUp();
   }
-
   protected toggleToolbarButtons() {
-    this.app.uiConfig.update((current) => {
-      return Object.assign({}, current, {
-        toolbarButtons: !current.toolbarButtons
-      });
-    });
-    this.focusMap();
+    this.shell.toggleToolbarButtons();
   }
-
   protected toggleConstrainMapZoom() {
-    this.app.uiConfig.update((current) => {
-      return Object.assign({}, current, {
-        mapConstrainZoom: !current.mapConstrainZoom
-      });
-    });
-    this.skres.setMapZoomRange();
-    this.focusMap();
+    this.shell.toggleConstrainMapZoom();
   }
-
   protected invertFeatureLabelColor() {
-    this.app.uiConfig.update((current) => {
-      return Object.assign({}, current, { invertColor: !current.invertColor });
-    });
-    this.focusMap();
+    this.shell.invertFeatureLabelColor();
   }
-
   protected toggleAlertList(show: boolean) {
-    this.app.uiCtrl.update((current) => {
-      return Object.assign({}, current, { alertList: show });
-    });
+    this.shell.toggleAlertList(show);
   }
-
   protected toggleAutopilotConsole(show: boolean) {
-    this.app.uiCtrl.update((current) => {
-      return Object.assign({}, current, { autopilotConsole: show });
-    });
+    this.shell.toggleAutopilotConsole(show);
   }
-
   protected toggleRouteBuilderConsole(show: boolean) {
-    this.app.uiCtrl.update((current) => {
-      return Object.assign({}, current, { routeBuilder: show });
-    });
+    this.shell.toggleRouteBuilderConsole(show);
   }
-
   protected toggleSuppressContextMenu(value: boolean) {
-    this.app.uiCtrl.update((current) => {
-      return Object.assign({}, current, { suppressContextMenu: value });
-    });
+    this.shell.toggleSuppressContextMenu(value);
   }
-
-  /** fullscreen mode */
   protected toggleFullscreen() {
-    const docel = document.documentElement as HTMLElement & {
-      webkitRequestFullScreen?: () => Promise<void>;
-      mozRequestFullscreen?: () => Promise<void>;
-      msRequestFullscreen?: () => Promise<void>;
-    };
-    const fscreen =
-      docel.requestFullscreen ||
-      docel.webkitRequestFullScreen ||
-      docel.mozRequestFullscreen ||
-      docel.msRequestFullscreen;
-    if (fscreen) {
-      if (!document.fullscreenElement) {
-        fscreen.call(docel);
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
-      this.focusMap();
-    }
+    this.shell.toggleFullscreen();
   }
 
-  /** ************* */
+  // ********* AUDIO (delegated to AudioAlarmService) ****************
 
-  private setDarkTheme() {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-    if (
-      (this.app.config.display.darkMode.source === 0 && mq.matches) ||
-      (this.app.config.display.darkMode.source === 1 &&
-        this.app.data.vessels.self.environment.mode === 'night') ||
-      this.app.config.display.darkMode.source === -1
-    ) {
-      this.overlayContainer.getContainerElement().classList.add('dark-theme');
-      this.app.config.display.darkMode.enabled = true;
-    } else {
-      this.overlayContainer
-        .getContainerElement()
-        .classList.remove('dark-theme');
-      this.app.config.display.darkMode.enabled = false;
-    }
+  protected enableAudio() {
+    this.audio.enable();
   }
+
+  // ********* DIALOGS (delegated to DialogOrchestrator) ****************
+
+  protected openAbout() {
+    this.dialogs.openAbout();
+  }
+  protected openSettings() {
+    this.dialogs.openSettings();
+  }
+  protected importFile(f: { data: string | ArrayBuffer; name: string }) {
+    this.dialogs.importFile(f);
+  }
+  protected exportToGPX() {
+    this.dialogs.exportToGPX();
+  }
+  protected importResourceSet() {
+    this.dialogs.importResourceSet();
+  }
+  protected showLogin(
+    message?: string,
+    cancelWarning = true,
+    onConnect?: boolean
+  ): Promise<void> {
+    return this.dialogs.showLogin(message, cancelWarning, onConnect);
+  }
+  protected showPlaybackSettings() {
+    this.dialogs.showPlaybackSettings();
+  }
+  protected trailToRoute() {
+    this.dialogs.trailToRoute();
+  }
+  protected showWeather(mode: string) {
+    this.dialogs.showWeather(mode);
+  }
+  protected openCourseSettings() {
+    this.dialogs.openCourseSettings();
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected openExperiment(e: { choice: string; value?: any }) {
+    this.dialogs.openExperiment(e);
+  }
+  protected featureProperties(e: { id: string; type: string }) {
+    this.dialogs.featureProperties(e);
+  }
+  protected processGPX(f: { data: string | ArrayBuffer; name: string }) {
+    this.dialogs.processGPX(f);
+  }
+
+  // ********* PLUGIN / INSTRUMENT URLS ****************
 
   private formatInstrumentsUrl() {
     const url = `${this.app.hostDef.url}${this.app.config.display.plugins.instruments}`;
@@ -558,23 +448,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     return params ? `${url}/${params}` : url;
   }
 
-  // ** select prev/next favourite plugin **
   protected selectPlugin(next = false) {
+    const favs = this.app.config.display.plugins.favourites;
     if (next) {
       if (this.selFavourite === -1) {
         this.selFavourite = 0;
-      } else if (
-        this.selFavourite ===
-        this.app.config.display.plugins.favourites.length - 1
-      ) {
+      } else if (this.selFavourite === favs.length - 1) {
         this.selFavourite = -1;
       } else {
         this.selFavourite++;
       }
     } else {
       if (this.selFavourite === -1) {
-        this.selFavourite =
-          this.app.config.display.plugins.favourites.length - 1;
+        this.selFavourite = favs.length - 1;
       } else if (this.selFavourite === 0) {
         this.selFavourite = -1;
       } else {
@@ -584,14 +470,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     const url =
       this.selFavourite === -1
         ? this.formatInstrumentsUrl()
-        : `${this.app.hostDef.url}${
-            this.app.config.display.plugins.favourites[this.selFavourite]
-          }`;
-
+        : `${this.app.hostDef.url}${favs[this.selFavourite]}`;
     this.instUrl.update(() => this.dom.bypassSecurityTrustResourceUrl(url));
   }
 
-  /** handle infolayer parameter change **/
   protected onInfoLayerParamChange(param: {
     id: string;
     param: Record<string, any>;
@@ -599,7 +481,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.skresOther.infoLayerParams.update(() => [param]);
   }
 
-  // ** handle map context menu selections **
+  // ********* MAP CONTEXT MENU ****************
+
   protected handleContextMenuSelection(action: string) {
     switch (action) {
       case 'cleartrail':
@@ -619,100 +502,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         break;
     }
   }
-  // ** create route from vessel trail **
-  protected async trailToRoute() {
-    const { Trail2RouteDialog } =
-      await import('src/app/lib/components/dialogs/trail2route-dialog');
-    this.dialog
-      .open(Trail2RouteDialog, {
-        disableClose: true,
-        data: { trail: this.app.selfTrail() }
-      })
-      .afterClosed()
-      .subscribe((r) => {
-        if (r.result) {
-          this.skres.newRouteAt(r.data);
-        }
-        this.focusMap();
-      });
-  }
 
-  protected showWeather(mode: string) {
-    if (mode === 'forecast') {
-      this.bottomSheet
-        .open(WeatherForecastModal, {
-          disableClose: true,
-          data: {
-            title: 'Forecast',
-            position: this.app.data.vessels.self.position,
-            subTitle: 'Location: Vessel Position'
-          }
-        })
-        .afterDismissed()
-        .subscribe(() => {
-          this.focusMap();
-        });
-    }
-  }
+  // ********* SIGNAL K AUTH ****************
 
-  // display selected experiment UI
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected openExperiment(e: { choice: string; value?: any }) {
-    switch (e.choice) {
-      case 'debugCapture':
-        if (window.isSecureContext) {
-          navigator.clipboard.writeText(
-            JSON.stringify({
-              data: this.app.data,
-              config: this.app.config
-            })
-          );
-          this.app.showMessage('Debug data catpured to clipboard.');
-        } else {
-          this.app.showAlert(
-            'Feature Unavailable',
-            'This feature is only available in a secure context!\n e.g. https, http://localhost, http://127.0.0.1'
-          );
-        }
-        break;
-      default:
-        // resource set
-        if (this.app.config.resources.paths.includes(e.choice)) {
-          this.bottomSheet
-            .open(ResourceSetModal, {
-              disableClose: true,
-              data: { path: e.choice }
-            })
-            .afterDismissed()
-            .subscribe(() => {
-              this.focusMap();
-            });
-        }
-    }
-  }
-
-  // ** display course settings screen **
-  protected openCourseSettings() {
-    this.bottomSheet
-      .open(CourseSettingsModal, {
-        disableClose: true,
-        data: { title: 'Course Settings' }
-      })
-      .afterDismissed()
-      .subscribe(() => {
-        this.focusMap();
-      });
-  }
-
-  // ************************************************
-  /** Handle SignalK Auth token value change */
   protected handleSKAuthChange() {
     this.signalk.getLoginStatus().subscribe((r) => {
       this.app.data.loginRequired = r.authenticationRequired ?? false;
-      this.app.isLoggedIn.update(() =>
-        r.status === 'loggedIn' ? true : false
-      );
-      // ** Request using cached auth token and display badge
+      this.app.isLoggedIn.update(() => r.status === 'loggedIn');
       this.signalk.get('/plugins/freeboard-sk').subscribe(
         () => {
           this.app.debug('User Authenticated');
@@ -728,7 +524,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  /** establish connection to server */
+  // ********* SIGNAL K CONNECTION ****************
+
   private connectSignalKServer() {
     this.app.data.selfId = null;
     this.app.data.server = null;
@@ -743,7 +540,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         next: () => {
           this.signalk.authToken = this.app.getFBToken();
           this.app.watchSKLogin();
-          this.fetchAllResources(); // pre-config: parallelize with config load
+          this.fetchAllResources();
           this.app
             .loadUserConfigfromServer()
             .then((loaded: boolean) => {
@@ -755,11 +552,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
                   });
                 }
               } else {
-                const wr = this.app.showWelcome(true);
+                this.app.showWelcome(true);
               }
             })
             .finally(() => {
-              this.fetchAllResources(); // post-config: re-apply user selections
+              this.fetchAllResources();
             });
           this.getFeatures();
           this.app.data.server = this.signalk.server.info;
@@ -776,9 +573,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       });
   }
 
-  // ** discover server features **
   private async getFeatures() {
-    // check server features
     const ff = {
       anchorApi: false,
       autopilotApi: false,
@@ -789,30 +584,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     };
     this.signalk.get('/signalk/v2/features?enabled=1').subscribe(
       (res: { apis: string[]; plugins: { id: string; version: string }[] }) => {
-        // detect apis
         ff.weatherApi = res.apis.includes('weather');
         ff.autopilotApi = res.apis.includes('autopilot');
         ff.radarApi = res.apis.includes('radar');
         ff.notificationApi = res.apis.includes('notifications');
 
-        // detect plugins
-        const hasPlugin = {
-          charts: false,
-          pmTiles: false
-        };
+        const hasPlugin = { charts: false, pmTiles: false };
 
         res.plugins.forEach((p: { id: string; version: string }) => {
-          // anchor alarm
           if (p.id === 'anchoralarm') {
             this.app.debug('*** found anchoralarm plugin');
             ff.anchorApi = true;
           }
-          // buddy list
           if (p.id === 'signalk-buddylist-plugin') {
             this.app.debug('*** found buddylist plugin');
             ff.buddyList = compareSemver(p.version, '1.2.0') > 0;
           }
-          // PMTiles support
           if (p.id === 'signalk-pmtiles-plugin') {
             this.app.debug('*** found PMTiles plugin');
             hasPlugin.pmTiles = true;
@@ -827,41 +614,32 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     );
 
-    // Get unit preferences from the signal k server
     this.app.fetchUnitPrefsFromSKServer();
 
-    // Check for custom resource collections
     const rcs = await this.skresOther.initCustomCollections();
     this.app.featureFlags.update((current) => {
       return Object.assign({}, current, rcs);
     });
   }
 
-  // ** start trail / AIS timers
+  // ********* TRAIL LOGGING TIMER ****************
+
   private startTimers() {
-    // ** start trail logging interval timer
     this.app.debug(`Starting Trail logging timer...`);
-    this.timers.push(
-      setInterval(() => {
-        this.processTrail();
-      }, 5000)
-    );
+    this.timers.push(setInterval(() => this.processTrail(), 5000));
   }
-  // ** stop timers
+
   private stopTimers() {
     this.app.debug(`Stopping timers:`);
     this.timers.forEach((t) => clearInterval(t));
     this.timers = [];
   }
 
-  /** process local vessel trail
-   * @param trailData Vessel trail data from server (stream.trail$)
-   */
+  /** Process local vessel trail. trailData is the optional server trail. */
   private processTrail(trailData?: LineString) {
     if (!this.app.config.vessels.trail) {
       return;
     }
-    // ** update vessel trail **
     const t = this.app.selfTrail().slice(-1);
     if (this.app.data.vessels.showSelf) {
       if (t.length === 0) {
@@ -885,15 +663,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     if (!trailData || trailData.length === 0) {
-      // no server trail data supplied
       if (this.app.selfTrail().length % 60 === 0 && this.app.data.serverTrail) {
         if (this.app.config.vessels.trailFromServer) {
-          this.stream.requestTrailFromServer(); // request trail from server
+          this.stream.requestTrailFromServer();
         }
       }
       this.app.selfTrail.update((current) => current.slice(-5000));
     } else {
-      // use server trail data, keep minimal local trail data
       const lastseg = trailData.slice(-1);
       const lastpt: any =
         lastseg.length !== 0
@@ -907,44 +683,24 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.app.db.saveTrail(trailId, this.app.selfTrail());
   }
 
-  // ** stream.trail$ event handler (vessel trail from server) **
   private handleTrailUpdate(e: { action: string; mode: string; data: any[] }) {
     if (e.action === 'get' && e.mode === 'trail') {
       if (this.app.config.vessels.trailFromServer) {
-        this.app.selfTrailFromServer.update(() => {
-          return e.data;
-        });
+        this.app.selfTrailFromServer.update(() => e.data);
       }
       this.processTrail(e.data);
     }
   }
 
-  /** Handle setting change events
-   * @param e setting change identifier
-   */
+  // ********* SETTINGS CHANGE HANDLER ****************
+
   private handleSettingChangeEvent(e: string[] = []) {
     if (e?.includes('darkTheme')) {
-      this.setDarkTheme();
+      this.shell.setDarkTheme();
     }
 
     if (e?.includes('headingAttribute')) {
-      this.app.debug('True / Magnetic selection changed..');
-      this.app.data.vessels.self.heading = this.app.useMagnetic
-        ? this.app.data.vessels.self.headingMagnetic
-        : this.app.data.vessels.self.headingTrue;
-      this.app.data.vessels.self.cog = this.app.useMagnetic
-        ? this.app.data.vessels.self.cogMagnetic
-        : this.app.data.vessels.self.cogTrue;
-      this.app.data.vessels.self.wind.direction = this.app.useMagnetic
-        ? this.app.data.vessels.self.wind.mwd
-        : this.app.data.vessels.self.wind.twd;
-
-      this.app.data.vessels.aisTargets.forEach((v) => {
-        v.heading = this.app.useMagnetic ? v.headingMagnetic : v.headingTrue;
-        v.cog = this.app.useMagnetic ? v.cogMagnetic : v.cogTrue;
-        v.wind.direction = this.app.useMagnetic ? v.wind.mwd : v.wind.twd;
-      });
-      this.app.sTrueMagChoice.set(this.app.config.units.headingAttribute);
+      this.applyHeadingAttributeChange();
     }
 
     if (
@@ -952,19 +708,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       e?.includes('pluginInstruments') ||
       e?.includes('pluginStartOnOpen')
     ) {
-      this.instUrl.update(() =>
-        this.dom.bypassSecurityTrustResourceUrl(this.formatInstrumentsUrl())
-      );
-      // update instrument app state
-      this.app.instrumentPanel.update((current) => {
-        return Object.assign({}, current, {
-          activate: this.app.config.display.plugins.startOnOpen
-            ? current.open
-              ? true
-              : false
-            : true
-        });
-      });
+      this.applyInstrumentPanelChange();
     }
 
     if (e?.includes('videoUrl')) {
@@ -975,10 +719,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       );
     }
 
-    // ** trail **
     if (e?.includes('vesselTrail') || e?.includes('trailFromServer')) {
       if (this.app.config.vessels.trail) {
-        // show trail
         if (this.app.config.vessels.trailFromServer) {
           this.stream.requestTrailFromServer();
         } else {
@@ -988,12 +730,37 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  // ** trigger focus of the map so keyboard controls work
-  protected focusMap() {
-    this.mapSetFocus.update(() => Date().valueOf());
+  private applyHeadingAttributeChange() {
+    this.app.debug('True / Magnetic selection changed..');
+    const self = this.app.data.vessels.self;
+    self.heading = this.app.useMagnetic
+      ? self.headingMagnetic
+      : self.headingTrue;
+    self.cog = this.app.useMagnetic ? self.cogMagnetic : self.cogTrue;
+    self.wind.direction = this.app.useMagnetic ? self.wind.mwd : self.wind.twd;
+
+    this.app.data.vessels.aisTargets.forEach((v) => {
+      v.heading = this.app.useMagnetic ? v.headingMagnetic : v.headingTrue;
+      v.cog = this.app.useMagnetic ? v.cogMagnetic : v.cogTrue;
+      v.wind.direction = this.app.useMagnetic ? v.wind.mwd : v.wind.twd;
+    });
+    this.app.sTrueMagChoice.set(this.app.config.units.headingAttribute);
   }
 
-  // ********* SIDENAV ACTIONS *************
+  private applyInstrumentPanelChange() {
+    this.instUrl.update(() =>
+      this.dom.bypassSecurityTrustResourceUrl(this.formatInstrumentsUrl())
+    );
+    this.app.instrumentPanel.update((current) => {
+      return Object.assign({}, current, {
+        activate: this.app.config.display.plugins.startOnOpen
+          ? !!current.open
+          : true
+      });
+    });
+  }
+
+  // ********* SIDENAV / LEFT MENU ****************
 
   protected rightSideNavAction(e: boolean) {
     this.app.instrumentPanel.update((current) => {
@@ -1005,66 +772,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       });
     });
     if (!e) {
-      this.focusMap();
-    } // set when closed
+      this.shell.focusMap();
+    }
   }
 
-  /** control left menu display  */
   protected displayLeftMenu(menulist = '', show = false) {
-    const lm = {
-      leftMenuPanel: show,
-      routeList: false,
-      waypointList: false,
-      chartList: false,
-      noteList: false,
-      regionList: false,
-      trackList: false,
-      aisList: false,
-      resourceGroups: false,
-      infoLayerList: false,
-      anchorWatch: false
-    };
-    switch (menulist) {
-      case 'routeList':
-        lm.routeList = show;
-        break;
-      case 'waypointList':
-        lm.waypointList = show;
-        break;
-      case 'chartList':
-        lm.chartList = show;
-        break;
-      case 'noteList':
-        lm.noteList = show;
-        break;
-      case 'regionList':
-        lm.regionList = show;
-        break;
-      case 'trackList':
-        lm.trackList = show;
-        break;
-      case 'anchorWatch':
-        lm.anchorWatch = show;
-        break;
-      case 'aisList':
-        lm.aisList = show;
-        break;
-      case 'resourceGroups':
-        lm.resourceGroups = show;
-        break;
-      case 'infoLayerList':
-        lm.infoLayerList = show;
-        break;
-      default:
-        lm.leftMenuPanel = false;
-    }
-    this.leftMenuCtrl.update(() => lm);
-    if (!show) {
-      this.focusMap();
-    }
+    this.menu.display(menulist, show);
   }
 
-  /** handle resource info event */
   protected handleResourceInfo(collection: SKResourceType, id: string) {
     if (collection === 'notes' && !this.app.useInfoPanel()) {
       this.skres.noteSelected(id, false);
@@ -1079,286 +794,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  // ********* MAIN MENU ACTIONS *************
+  // ********* OPTIONS / NAV ACTIONS ****************
 
-  protected async openAbout() {
-    const { AboutDialog } =
-      await import('src/app/lib/components/dialogs/about-dialog');
-    this.dialog
-      .open(AboutDialog, {
-        disableClose: false,
-        data: {
-          name: this.app.name,
-          version: this.app.version,
-          description: this.app.description,
-          logo: this.app.logo,
-          url: this.app.url
-        }
-      })
-      .afterClosed()
-      .subscribe(() => this.focusMap());
-  }
-
-  protected async openSettings() {
-    const { SettingsDialog } =
-      await import('src/app/modules/settings/components/settings-dialog');
-    this.dialog
-      .open(SettingsDialog, {
-        disableClose: true,
-        data: {},
-        maxWidth: '1000px',
-        minHeight: '80vh'
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.focusMap();
-      });
-  }
-
-  /** GPX / GeoJSON imports */
-  protected importFile(f: { data: string | ArrayBuffer; name: string }) {
-    if ((f.data as string).includes('<gpx ')) {
-      this.processGPX(f);
-    } else if ((f.data as string).includes(`"type": "FeatureCollection",`)) {
-      this.processGeoJSON(f);
-    } else {
-      this.app.showAlert('Import', 'File format not supported!');
-    }
-    this.focusMap();
-  }
-
-  /** process GPX file */
-  protected async processGPX(f: { data: string | ArrayBuffer; name: string }) {
-    const { GPXImportDialog } =
-      await import('src/app/modules/gpx/gpxload-dialog');
-    this.dialog
-      .open(GPXImportDialog, {
-        disableClose: true,
-        data: {
-          fileData: f.data,
-          fileName: f.name
-        }
-      })
-      .afterClosed()
-      .subscribe((res: { errCount: number; errList: ErrorList }) => {
-        if (typeof res.errCount === 'undefined' || res.errCount < 0) {
-          // cancelled
-          this.focusMap();
-          return;
-        }
-        this.fetchResources();
-        if (res.errCount === 0) {
-          this.app.showMsgBox(
-            'GPX Load',
-            'GPX file resources loaded successfully.'
-          );
-        } else {
-          this.app.showErrorList(res.errList);
-        }
-        this.focusMap();
-      });
-  }
-
-  /** Export resources to GPX file */
-  protected async exportToGPX() {
-    const { GPXExportDialog } =
-      await import('src/app/modules/gpx/gpxsave-dialog');
-    this.dialog
-      .open(GPXExportDialog, {
-        disableClose: true,
-        data: {
-          routes: this.skres.routes(),
-          tracks: [this.app.selfTrail()]
-        }
-      })
-      .afterClosed()
-      .subscribe((errCount) => {
-        if (errCount < 0) {
-          // cancelled
-          this.focusMap();
-          return;
-        }
-        if (errCount === 0) {
-          this.app.showMsgBox(
-            'GPX Save',
-            'Resources saved to GPX file successfully.'
-          );
-        } else {
-          this.app.showAlert('GPX Save', 'Error saving resources to GPX file!');
-        }
-        this.focusMap();
-      });
-  }
-
-  /** process GeoJSON file */
-  protected async processGeoJSON(f: {
-    data: string | ArrayBuffer;
-    name: string;
-  }) {
-    const { GeoJSONImportDialog } =
-      await import('src/app/lib/components/dialogs/geojson/geojson-dialog');
-    this.dialog
-      .open(GeoJSONImportDialog, {
-        disableClose: true,
-        data: {
-          fileData: f.data,
-          fileName: f.name
-        }
-      })
-      .afterClosed()
-      .subscribe((errCount) => {
-        if (errCount < 0) {
-          return;
-        } // cancelled
-        this.fetchResources();
-        if (errCount === 0) {
-          this.app.showMsgBox(
-            'GeoJSON Load',
-            'GeoJSON features loaded successfully.'
-          );
-        } else {
-          this.app.showAlert(
-            'GeoJSON Load',
-            'Completed with errors!\nNot all features were loaded.'
-          );
-        }
-        this.focusMap();
-      });
-  }
-
-  /** Import ResourceSet */
-  protected async importResourceSet() {
-    const { ResourceImportDialog } =
-      await import('src/app/modules/skresources/components/resourcesets/resource-upload-dialog');
-    this.dialog
-      .open(ResourceImportDialog, {
-        disableClose: true,
-        data: {}
-      })
-      .afterClosed()
-      .subscribe((res) => {
-        if (!res) {
-          return;
-        } // cancelled
-        try {
-          const d = JSON.parse(res.data);
-          this.skres.postToServer(res.path as any, d);
-        } catch (err) {
-          this.app.showAlert(
-            'Load Resource',
-            'Resources were not loaded!\nInvalid JSON.'
-          );
-        }
-        this.focusMap();
-      });
-  }
-
-  protected async showLogin(
-    message?: string,
-    cancelWarning = true,
-    onConnect?: boolean
-  ): Promise<void> {
-    const { LoginDialog } =
-      await import('src/app/lib/components/dialogs/login-dialog');
-    this.dialog
-      .open(LoginDialog, {
-        disableClose: true,
-        data: { message: message || 'Login to Signal K server.' }
-      })
-      .afterClosed()
-      .subscribe((res) => {
-        if (!res.cancel) {
-          this.signalk.login(res.user, res.pwd).subscribe({
-            next: (r) => {
-              // ** authenticated
-              this.app.persistToken(r.token);
-              this.app.loadUserConfigfromServer().then((loaded: boolean) => {
-                if (loaded) {
-                  this.fetchAllResources();
-                }
-              });
-              if (onConnect) {
-                this.queryAfterConnect();
-              }
-              this.app.isLoggedIn.set(true);
-            },
-            error: () => {
-              // ** auth failed
-              this.app.persistToken(null);
-              this.signalk.isLoggedIn().subscribe((r) => {
-                this.app.isLoggedIn.set(r);
-              });
-              if (onConnect) {
-                this.app
-                  .showConfirm(
-                    'Invalid Username or Password.',
-                    'Authentication Failed:',
-                    'Try Again'
-                  )
-                  .subscribe(() => {
-                    this.showLogin(null, false, true);
-                  });
-              } else {
-                this.app
-                  .showConfirm(
-                    'Invalid Username or Password.\nNote: Choosing CLOSE may make operations requiring authentication unavailable.',
-                    'Authentication Failed:',
-                    'Try Again',
-                    'Close'
-                  )
-                  .subscribe((r) => {
-                    if (r) {
-                      this.showLogin();
-                    }
-                  });
-              }
-            }
-          });
-        } else {
-          this.app.hasAuthToken.set(false); // show login menu item
-          this.signalk.isLoggedIn().subscribe((r: boolean) => {
-            this.app.isLoggedIn.set(r);
-          });
-          if (onConnect) {
-            this.showLogin(null, false, true);
-          } else if (cancelWarning) {
-            this.app.showAlert(
-              'Login Cancelled:',
-              `Update operations are NOT available until you have authenticated to the Signal K server.`
-            );
-          }
-        }
-        this.focusMap();
-      });
-  }
-
-  protected async showPlaybackSettings() {
-    const { PlaybackDialog } =
-      await import('src/app/lib/components/dialogs/playback-dialog');
-    this.dialog
-      .open(PlaybackDialog, {
-        disableClose: false
-      })
-      .afterClosed()
-      .subscribe((r) => {
-        if (r.result) {
-          // OK: switch to playback mode
-          this.switchMode(SKSTREAM_MODE.PLAYBACK, r.query);
-        } else {
-          // cancel: restarts realtime mode
-          this.switchMode(SKSTREAM_MODE.REALTIME);
-        }
-        this.focusMap();
-      });
-  }
-
-  // ***** OPTIONS MENU ACTONS *******
-
-  /**
-   * Center and zoom the map
-   * @param position Location to center the map
-   * @param zoomTo Zoom level to apply
-   */
   protected centerAndZoom(position: Position, zoomTo?: number) {
     this.mapCenter.update(() => position);
     if (typeof zoomTo === 'number') {
@@ -1366,12 +803,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Center the map relative to the vessel position
-   */
   protected centerVessel() {
-    const pos = this.app.calcMapCenter();
-    this.centerAndZoom(pos);
+    this.centerAndZoom(this.app.calcMapCenter());
   }
 
   protected toggleAisTargets() {
@@ -1392,48 +825,40 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.app.saveConfig();
   }
 
-  // ** delete vessel trail **
   protected clearTrail(noprompt = false) {
     const doClear = () => {
       if (!this.app.data.serverTrail) {
         this.app.selfTrail.set([]);
-      } else {
-        if (this.app.config.vessels.trailFromServer) {
-          this.stream.requestTrailFromServer(); // request trail from server
-        }
+      } else if (this.app.config.vessels.trailFromServer) {
+        this.stream.requestTrailFromServer();
       }
     };
     if (noprompt) {
       doClear();
-    } else {
-      if (!this.app.data.serverTrail) {
-        this.app
-          .showConfirm(
-            'Clear Vessel Trail',
-            'Do you want to delete the vessel trail?'
-          )
-          .subscribe((res) => {
-            if (res) {
-              doClear();
-            }
-          });
-      }
+    } else if (!this.app.data.serverTrail) {
+      this.app
+        .showConfirm(
+          'Clear Vessel Trail',
+          'Do you want to delete the vessel trail?'
+        )
+        .subscribe((res) => {
+          if (res) {
+            doClear();
+          }
+        });
     }
   }
 
-  // ** clear course / navigation data **
   protected clearCourseData() {
     this.course.initCourseData();
   }
 
-  // ** clear active destination **
   protected clearDestination() {
     this.course.clearCourse();
   }
 
-  // ********** MAP / UI ACTIONS **********
+  // ********* ROUTE / MAP ACTIONS ****************
 
-  // ** set active route starting at nearest point **
   protected activateRoute(id: string) {
     const r = this.skres.fromCache('routes', id);
     const cpi = GeoUtils.closestForwardPoint(
@@ -1447,8 +872,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
           'Closest point is behind vessel!\nDo you want to start from the first point?',
           'Start Route'
         )
-        .subscribe((r) => {
-          if (r) {
+        .subscribe((res) => {
+          if (res) {
             this.course.activateRoute(id);
           }
         });
@@ -1457,174 +882,46 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.course.activateRoute(id, cpi);
   }
 
-  // ** Increment / decrement next active route point **
   protected routeNextPoint(pointIndex: number) {
     this.course.coursePointIndex(pointIndex);
-    this.focusMap();
+    this.shell.focusMap();
   }
 
-  // ** show feature (vessel/AtoN/Aircraft/Route points) properties **
-  protected async featureProperties(e: { id: string; type: string }) {
-    let v: FBRoute | SKVessel | SKSaR | SKAircraft | SKAtoN;
-    if (e.type === 'route') {
-      try {
-        this.app.sIsFetching.set(true);
-        v = await this.skres.fromServer('routes', e.id);
-        this.app.sIsFetching.set(false);
-        if (v) {
-          this.bottomSheet
-            .open(ActiveResourcePropertiesModal, {
-              disableClose: true,
-              data: {
-                title: 'Route Properties',
-                resource: [e.id, v, false],
-                type: e.type
-              }
-            })
-            .afterDismissed()
-            .subscribe((deactivate: boolean) => {
-              if (deactivate) {
-                this.clearDestination();
-              }
-              this.focusMap();
-            });
-        }
-      } catch (err) {
-        this.app.sIsFetching.set(false);
-        this.app.parseHttpErrorResponse(err);
-      }
-    } else if (e.type === 'aton' || e.type === 'meteo') {
-      let title: string;
-      let icon: string;
-      let atonType: string;
-      if (e.type === 'meteo') {
-        v = this.app.data.meteo.get(e.id);
-        title = 'Meteo Properties';
-        icon = 'air';
-        atonType = e.type;
-      } else if (e.id.startsWith('sar')) {
-        v = this.app.data.sar.get(e.id);
-        title = 'SaR Properties';
-        icon = 'tour';
-        atonType = 'sar';
-      } else {
-        v = this.app.data.atons.get(e.id);
-        title = 'AtoN Properties';
-        icon = 'beenhere';
-        atonType = 'aton';
-      }
-      if (v) {
-        this.bottomSheet
-          .open(AtoNPropertiesModal, {
-            disableClose: true,
-            data: {
-              title: title,
-              target: v,
-              id: e.id,
-              icon: icon,
-              type: atonType
-            }
-          })
-          .afterDismissed()
-          .subscribe(() => this.focusMap());
-      }
-    } else if (e.type === 'aircraft') {
-      v = this.app.data.aircraft.get(e.id);
-      if (v) {
-        this.bottomSheet
-          .open(AircraftPropertiesModal, {
-            disableClose: true,
-            data: {
-              title: 'Aircraft Properties',
-              target: v,
-              id: e.id
-            }
-          })
-          .afterDismissed()
-          .subscribe(() => this.focusMap());
-      }
-    } else if (e.type === 'alarm') {
-      this.notiMgr.showAlertInfo(e.id);
-    } else if (e.type === 'rset') {
-      v = this.skresOther.fromResourceSetCache(e.id);
-      if (v) {
-        this.bottomSheet
-          .open(ResourceSetFeatureModal, {
-            disableClose: true,
-            data: { id: e.id, item: v }
-          })
-          .afterDismissed()
-          .subscribe(() => {
-            this.focusMap();
-          });
-      }
-    } else {
-      // vessel
-      const id =
-        e.type === 'self'
-          ? e.type
-          : e.id.includes('vessels.')
-            ? e.id.split('.')[1]
-            : e.id;
-      try {
-        this.app.sIsFetching.set(true);
-        v = await this.skres.vesselFromServer(id);
-        this.app.sIsFetching.set(false);
-        if (v) {
-          this.bottomSheet
-            .open(AISPropertiesModal, {
-              disableClose: true,
-              data: {
-                title: 'Vessel Properties',
-                target: v
-              }
-            })
-            .afterDismissed()
-            .subscribe(() => this.focusMap());
-        }
-      } catch (err) {
-        this.app.sIsFetching.set(false);
-        this.app.parseHttpErrorResponse(err);
-      }
-    }
-  }
-
-  // ** handle drag and drop of files onto map container**
   protected mapDragOver(e: DragEvent) {
     e.preventDefault();
   }
 
   protected mapDrop(e: DragEvent) {
     e.preventDefault();
-    if (e.dataTransfer.files) {
-      if (e.dataTransfer.files.length > 1) {
-        this.app.showAlert(
-          'Load Resources',
-          'Multiple files provided!\nPlease select only one file for processing.'
-        );
-      } else {
-        const reader = new FileReader();
-        reader.onerror = () => {
-          this.app.showAlert(
-            'File Load error',
-            `There was an error reading the file contents!`
-          );
-        };
-        if (!e.dataTransfer.files[0].name) {
-          return;
-        }
-        const fname = e.dataTransfer.files[0].name;
-        reader.onload = () => {
-          this.processGPX({ name: fname, data: reader.result });
-        };
-        reader.readAsText(e.dataTransfer.files[0]);
-      }
+    if (!e.dataTransfer.files) {
+      return;
     }
+    if (e.dataTransfer.files.length > 1) {
+      this.app.showAlert(
+        'Load Resources',
+        'Multiple files provided!\nPlease select only one file for processing.'
+      );
+      return;
+    }
+    if (!e.dataTransfer.files[0].name) {
+      return;
+    }
+    const fname = e.dataTransfer.files[0].name;
+    const reader = new FileReader();
+    reader.onerror = () => {
+      this.app.showAlert(
+        'File Load error',
+        `There was an error reading the file contents!`
+      );
+    };
+    reader.onload = () => {
+      this.processGPX({ name: fname, data: reader.result });
+    };
+    reader.readAsText(e.dataTransfer.files[0]);
   }
 
-  // ********* MODE ACTIONS *************
+  // ********* MODE ACTIONS ****************
 
-  // ** set the active vessel to the supplied UUID **
   protected switchActiveVessel(uuid: string = null) {
     this.app.data.vessels.activeId = uuid;
     if (!uuid) {
@@ -1636,7 +933,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.app.data.vessels.activeId = null;
       } else {
         this.app.data.vessels.active = av;
-        // if instrument panel open - close it
         this.sideright.close();
       }
     }
@@ -1646,15 +942,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.app.debug(this.app.data.vessels.active);
   }
 
-  // ** switch between realtime and history playback modes
   protected switchMode(toMode: SKSTREAM_MODE, options?: StreamOptions) {
     this.app.debug(`switchMode from: ${this.mode} to ${toMode}`);
     if (toMode === SKSTREAM_MODE.PLAYBACK) {
-      // ** history playback
       this.app.db.saveTrail('self', this.app.selfTrail());
       this.app.selfTrail.set([]);
     } else {
-      // ** realtime data
       this.app.db.getTrail('self').then((t) => {
         this.app.selfTrail.update(() => (t && t.value ? t.value : []));
       });
@@ -1663,53 +956,40 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.openSKStream(options, toMode, true);
   }
 
-  // ** show select mode dialog
   protected showSelectMode() {
     if (this.mode === SKSTREAM_MODE.REALTIME) {
-      // request history playback
       this.app
         .showConfirm(
           'Do you want to change to History Playback mode?',
           'Switch Mode'
         )
         .subscribe((r) => {
-          if (r) {
-            this.showPlaybackSettings();
-          }
+          if (r) this.showPlaybackSettings();
         });
     } else {
-      // request realtime
       this.app
         .showConfirm(
           'Do you want to exit History Playback mode?',
           'Exit History Playback'
         )
         .subscribe((r) => {
-          if (r) {
-            this.switchMode(SKSTREAM_MODE.REALTIME);
-          }
+          if (r) this.switchMode(SKSTREAM_MODE.REALTIME);
         });
     }
   }
 
-  // ******** DRAW / EDIT EVENT HANDLERS ************
+  // ********* DRAW / EDIT ****************
 
-  /** Handle OL selection end event and prompt */
   protected handleSelectionEnded(selection: SelectionResultDef) {
     if (selection.mode === 'seedChart') {
       this.skres.seedChartCache(selection.data, selection.bbox);
     }
   }
 
-  /**
-   * Start feature drawing mode
-   * @param f type of feature to draw
-   */
   protected drawFeature(f: DrawFeatureType) {
     this.mapInteract.startDrawing(f);
   }
 
-  /** Handle feature DrawEnded event and prompt to save */
   protected handleDrawEnded(e: DrawFeatureInfo) {
     this.mapInteract.isDrawing();
     switch (this.mapInteract.draw.resourceType) {
@@ -1740,7 +1020,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  /** End interaction mode */
   protected closeInteraction() {
     if (this.mapInteract.isBoxSelecting()) {
       this.mapInteract.stopBoxSelection();
@@ -1752,95 +1031,88 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.mapInteract.stopDrawing();
     }
     if (this.mapInteract.isModifying()) {
-      this.mapInteract.stopModifying();
-      this.app.data.activeRouteIsEditing = false;
+      this.handleModifyEnded();
+    }
+  }
 
-      if (this.mapInteract.draw.forSave?.id) {
-        // anchor moved
-        if (this.mapInteract.draw.forSave.id === 'anchor') {
-          this.mapInteract.draw.forSave = null;
-          this.focusMap();
-          return;
-        }
+  private handleModifyEnded() {
+    this.mapInteract.stopModifying();
+    this.app.data.activeRouteIsEditing = false;
+    const forSave = this.mapInteract.draw.forSave;
+    if (!forSave?.id) {
+      return;
+    }
+    if (forSave.id === 'anchor') {
+      this.mapInteract.draw.forSave = null;
+      this.shell.focusMap();
+      return;
+    }
+    this.app
+      .showConfirm(
+        `Do you want to save the changes made to ${forSave.id.split('.')[0]}?`,
+        'Save Changes'
+      )
+      .subscribe((result) => {
+        this.applyModifyDecision(result, forSave);
+        this.mapInteract.draw.forSave = null;
+        this.shell.focusMap();
+      });
+  }
 
-        // save changes
-        this.app
-          .showConfirm(
-            `Do you want to save the changes made to ${
-              this.mapInteract.draw.forSave.id.split('.')[0]
-            }?`,
-            'Save Changes'
-          )
-          .subscribe((result) => {
-            const r = this.mapInteract.draw.forSave.id.split('.');
-            if (result) {
-              // save changes
-              if (r[0] === 'route') {
-                this.skres.updateRouteCoords(
-                  r[1],
-                  this.mapInteract.draw.forSave.coords,
-                  this.mapInteract.draw.forSave.coordsMetadata
-                );
-              }
-              if (r[0] === 'waypoint') {
-                this.skres.updateWaypointPosition(
-                  r[1],
-                  this.mapInteract.draw.forSave.coords
-                );
-                // if waypoint the target destination update nextPoint
-                if (r[1] === this.app.data.activeWaypoint) {
-                  this.course.setDestination({
-                    latitude: this.mapInteract.draw.forSave.coords[1],
-                    longitude: this.mapInteract.draw.forSave.coords[0]
-                  });
-                }
-              }
-              if (r[0] === 'note') {
-                this.skres.updateNotePosition(
-                  r[1],
-                  this.mapInteract.draw.forSave.coords
-                );
-              }
-              if (r[0] === 'region') {
-                this.skres.updateRegionCoords(
-                  r[1],
-                  this.mapInteract.draw.forSave.coords
-                );
-              }
-            } else {
-              // do not save
-              if (r[0] === 'route') {
-                this.skres.refreshRoutes();
-              }
-              if (r[0] === 'waypoint') {
-                this.skres.refreshWaypoints();
-              }
-              if (r[0] === 'note') {
-                this.skres.refreshNotes();
-              }
-              if (r[0] === 'region') {
-                this.skres.refreshRegions();
-              }
-            }
-            this.mapInteract.draw.forSave = null;
-            this.focusMap();
+  private applyModifyDecision(
+    save: boolean,
+    forSave: {
+      id: string;
+      coords: Position | Position[] | Position[][];
+      coordsMetadata?: unknown;
+    }
+  ) {
+    const r = forSave.id.split('.');
+    if (save) {
+      if (r[0] === 'route') {
+        this.skres.updateRouteCoords(
+          r[1],
+          forSave.coords as Position[],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          forSave.coordsMetadata as any[] | undefined
+        );
+      } else if (r[0] === 'waypoint') {
+        const wptCoords = forSave.coords as Position;
+        this.skres.updateWaypointPosition(r[1], wptCoords);
+        if (r[1] === this.app.data.activeWaypoint) {
+          this.course.setDestination({
+            latitude: wptCoords[1],
+            longitude: wptCoords[0]
           });
+        }
+      } else if (r[0] === 'note') {
+        this.skres.updateNotePosition(r[1], forSave.coords as Position);
+      } else if (r[0] === 'region') {
+        this.skres.updateRegionCoords(r[1], forSave.coords as Position[][]);
       }
+      return;
+    }
+    if (r[0] === 'route') {
+      this.skres.refreshRoutes();
+    } else if (r[0] === 'waypoint') {
+      this.skres.refreshWaypoints();
+    } else if (r[0] === 'note') {
+      this.skres.refreshNotes();
+    } else if (r[0] === 'region') {
+      this.skres.refreshRegions();
     }
   }
 
   // ******** SIGNAL K STREAM *************
 
-  /** fetch the standard SK resource collections */
   private fetchResources() {
     this.skres.refreshRoutes();
     this.skres.refreshWaypoints();
     this.skres.refreshCharts();
-    // this.skres.refreshNotes(); // triggered via map center change
+    // notes refresh is triggered via map center change, not here.
     this.skres.refreshRegions();
   }
 
-  /** fetch standard plus non-standard (tracks + custom + info layers) */
   private fetchAllResources() {
     this.fetchResources();
     this.skres.refreshTracks();
@@ -1848,14 +1120,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.skresOther.refreshInfoLayers();
   }
 
-  /** open WS Stream */
   private openSKStream(
     options: StreamOptions = null,
     toMode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME,
     restart = false
   ) {
     if (restart) {
-      this.streamOptions = { options: options, toMode: toMode };
+      this.streamOptions = { options, toMode };
       this.stream.close();
       return;
     }
@@ -1863,7 +1134,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.stream.open(options);
   }
 
-  /** query server for current values */
   private queryAfterConnect() {
     if (parseSemver(String(this.signalk.server.info.version))?.[0] === 1) {
       this.app.showAlert(
@@ -1879,14 +1149,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
           options: { context: 'self', name: r.name }
         });
         if (this.app.config.vessels.trailFromServer) {
-          this.stream.requestTrailFromServer(); // request trail from server
+          this.stream.requestTrailFromServer();
         }
-        // query anchor alarm status
         this.anchor.queryAnchorStatus(
           undefined,
           this.app.data.vessels.self.position
         );
-        // query radar API
         this.radarApi.listRadars().catch((err: Error) => {
           this.app.debug(err.message);
         });
@@ -1900,67 +1168,62 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     );
   }
 
-  /** handle connection established */
+  // ******** STREAM EVENT HANDLERS *************
+
+  private reconnecting = false;
+
   private onConnect(e?: NotificationMessage | UpdateMessage) {
     this.app.showMessage('Connection Open.', false, 2000);
     this.app.debug(e);
-    // ** query server for status
     this.queryAfterConnect();
-    // ** start trail timer
     this.startTimers();
   }
 
-  // ** handle connection closure
   private onClose(e?: NotificationMessage | UpdateMessage) {
     this.app.debug('onClose: STREAM connection closed...');
     this.app.debug(e);
     this.stopTimers();
     if (e.result) {
-      // closed by command then restart
       this.openSKStream(this.streamOptions.options, this.streamOptions.toMode);
-    } else {
-      const data = {
-        title: 'Connection Closed:',
-        buttonText: 'Re-connect',
-        message: ''
-      };
-      if (e.playback) {
-        data.buttonText = 'OK';
-        data.message = 'Unable to open Playback connection.';
-
-        this.app
-          .showAlert(data.message, data.title, data.buttonText)
-          .subscribe(() => {
-            if (this.mode === SKSTREAM_MODE.REALTIME) {
-              this.switchMode(this.mode);
-            } else {
-              this.showPlaybackSettings();
-            }
-          });
-      } else {
-        if (!this.reconnecting) {
-          this.reconnecting = true;
-          setTimeout(() => {
-            this.reconnecting = false;
-            this.openSKStream(this.streamOptions.options, this.mode);
-          }, 5000);
-        }
-      }
+      return;
+    }
+    if (e.playback) {
+      this.handlePlaybackClose();
+      return;
+    }
+    if (!this.reconnecting) {
+      this.reconnecting = true;
+      setTimeout(() => {
+        this.reconnecting = false;
+        this.openSKStream(this.streamOptions.options, this.mode);
+      }, 5000);
     }
   }
 
-  private reconnecting = false;
+  private handlePlaybackClose() {
+    const data = {
+      title: 'Connection Closed:',
+      buttonText: 'OK',
+      message: 'Unable to open Playback connection.'
+    };
+    this.app
+      .showAlert(data.message, data.title, data.buttonText)
+      .subscribe(() => {
+        if (this.mode === SKSTREAM_MODE.REALTIME) {
+          this.switchMode(this.mode);
+        } else {
+          this.showPlaybackSettings();
+        }
+      });
+  }
 
-  // ** handle error message
   private onError(e?: NotificationMessage | UpdateMessage) {
     this.app.showMessage('Connection Error!', false, 2000);
     console.warn('Stream Error!', e);
   }
 
-  // ** handle delta message received
   private onMessage(e: NotificationMessage | UpdateMessage) {
     if (e.action === 'hello') {
-      // ** hello message
       this.app.debug(e);
       if (e.playback) {
         this.mode = SKSTREAM_MODE.PLAYBACK;
@@ -1970,8 +1233,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       }
       this.app.data.selfId = e.self;
       return;
-    } else if (e.action === 'update') {
-      // delta message
+    }
+    if (e.action === 'update') {
       if (this.mode === SKSTREAM_MODE.PLAYBACK) {
         const d = new Date(e.timestamp);
         this.playbackTime.update(
@@ -1979,34 +1242,26 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         );
       } else {
         this.playbackTime.set(null);
-        this.setDarkTheme();
+        this.shell.setDarkTheme();
       }
       this.updateNavPanel();
     }
   }
 
-  // ** Update NavData Panel display **
   private updateNavPanel() {
-    this.navDataPanel.update((current) => {
-      return {
-        show:
-          this.app.data.activeRoute ||
-          this.app.data.activeWaypoint ||
-          this.course.courseData().position
-            ? true
-            : false,
-
-        nextPointCtrl: this.app.data.activeRoute ? true : false,
-
-        //autopilot
-        apModeColor: this.app.data.vessels.self.autopilot.enabled
-          ? 'primary'
-          : '',
-
-        apModeText: this.app.data.vessels.self.autopilot.default
-          ? `Autopilot: ${this.app.data.vessels.self.autopilot.default}`
-          : ''
-      };
-    });
+    this.navDataPanel.update(() => ({
+      show: !!(
+        this.app.data.activeRoute ||
+        this.app.data.activeWaypoint ||
+        this.course.courseData().position
+      ),
+      nextPointCtrl: !!this.app.data.activeRoute,
+      apModeColor: this.app.data.vessels.self.autopilot.enabled
+        ? 'primary'
+        : '',
+      apModeText: this.app.data.vessels.self.autopilot.default
+        ? `Autopilot: ${this.app.data.vessels.self.autopilot.default}`
+        : ''
+    }));
   }
 }

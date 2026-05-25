@@ -175,4 +175,17 @@
   /* Anchor alarm radius and active route highlight. */
   --safety-anchor: oklch(70% 0.17 145);
   --safety-route-active: oklch(55% 0.2 280);
+
+  /* Alert severity for SignalK `notifications.*` deltas. Theme-invariant
+     so a `state: 'alarm'` notification stays red, and a `state: 'warn'`
+     stays yellow, in dark mode and night-red. IEC 62288 / IMO MSC.302(87)
+     conventions: alarm and emergency render red, warn renders yellow,
+     caution renders yellow (lower intensity), nominal/normal are not
+     safety-coded. Non-safety UI feedback continues to use --color-warning
+     and --color-error which DO theme-switch. Pair every safety color with
+     a shape, label, or animation per WCAG 1.4.1. */
+  --safety-alert-emergency: oklch(60% 0.22 25);
+  --safety-alert-alarm: oklch(60% 0.22 25);
+  --safety-alert-warn: oklch(82% 0.17 75);
+  --safety-alert-caution: oklch(75% 0.15 75);
 }

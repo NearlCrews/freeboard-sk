@@ -1,10 +1,10 @@
 {
   "//": "Phase 0 monotonic-decrease baseline. See scripts/verify-baseline.mjs.",
   "seededAt": "2026-05-25",
-  "totalViolations": 28,
-  "fileCount": 12,
+  "totalViolations": 26,
+  "fileCount": 13,
   "perFile": {
-    "src/app/app.component.ts": 7,
+    "src/app/app.component.ts": 2,
     "src/app/app.facade.ts": 1,
     "src/app/modules/skresources/components/charts/chartlist.ts": 1,
     "src/app/modules/skresources/components/groups/groups.service.ts": 1,
@@ -15,6 +15,7 @@
     "src/app/modules/skresources/components/routes/routelist.ts": 1,
     "src/app/modules/skresources/components/waypoints/waypoint-panel.ts": 1,
     "src/app/modules/skresources/components/waypoints/waypointlist.ts": 1,
-    "src/app/modules/skresources/resources.service.ts": 10
+    "src/app/modules/skresources/resources.service.ts": 10,
+    "src/app/shell/dialog-orchestrator.service.ts": 3
   }
 }
