@@ -4,7 +4,7 @@ import { effect, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { Position } from 'src/app/types';
 import { SKStreamFacade } from '../skstream/skstream.facade';
 

@@ -5,8 +5,11 @@ import type { OnInit, AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -352,8 +355,8 @@ export class WelcomeDialog implements AfterViewInit {
     const sh = document.getElementsByClassName(
       'mat-horizontal-stepper-header-container'
     );
-    if (sh) {
-      sh[0].style.display = 'none';
+    if (sh.length) {
+      (sh[0] as HTMLElement).style.display = 'none';
     }
   }
 }

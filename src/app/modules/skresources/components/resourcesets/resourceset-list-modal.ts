@@ -15,10 +15,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import type { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import type { AppFacade } from 'src/app/app.facade';
-import type { FBCustomResourceService } from '../../custom-resources-service';
+import {
+  MatBottomSheetRef,
+  MAT_BOTTOM_SHEET_DATA
+} from '@angular/material/bottom-sheet';
+import { AppFacade } from 'src/app/app.facade';
+import { FBCustomResourceService } from '../../custom-resources-service';
 import type { FBResourceSet, FBResourceSets } from 'src/app/types';
 
 /********* ResourceSetModal **********

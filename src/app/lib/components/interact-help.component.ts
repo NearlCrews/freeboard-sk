@@ -1,8 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  Output,
-  EventEmitter,
+  output,
   computed,
   Signal
 } from '@angular/core';
@@ -129,7 +128,7 @@ import { Measurements } from './measurements.component';
   ]
 })
 export class InteractionHelpComponent {
-  @Output() cancel: EventEmitter<void> = new EventEmitter();
+  readonly cancel = output<void>();
 
   protected showHelpPanel: Signal<boolean>;
   protected showMeasurePanel: Signal<boolean>;
@@ -226,7 +225,7 @@ export class InteractionHelpComponent {
   }
 
   close() {
-    this.cancel.next();
+    this.cancel.emit();
   }
 
   setButtonState() {

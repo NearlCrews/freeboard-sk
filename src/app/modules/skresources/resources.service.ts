@@ -3,7 +3,7 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import type { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { GeoUtils } from 'src/app/lib/geoutils';
 
@@ -16,7 +16,7 @@ import {
   TrackDialog,
   ChartPropertiesDialog
 } from '.';
-import type { NoteDialog } from './components/notes/note-dialog';
+import { NoteDialog } from './components/notes/note-dialog';
 import { processUrlTokens } from 'src/app/app.config';
 
 import {

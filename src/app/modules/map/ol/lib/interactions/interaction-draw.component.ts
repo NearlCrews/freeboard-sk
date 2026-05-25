@@ -2,9 +2,10 @@ import {
   ChangeDetectorRef,
   ChangeDetectionStrategy,
   Component,
-  Output,
+  output,
   Input,
-  EventEmitter
+  AfterViewInit,
+  OnDestroy
 } from '@angular/core';
 import { Map } from 'ol';
 import { Draw } from 'ol/interaction';
@@ -18,7 +19,7 @@ import { MapComponent } from '../map.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class InteractionDrawComponent {
+export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
     protected mapComponent: MapComponent
@@ -30,10 +31,10 @@ export class InteractionDrawComponent {
   @Input() style: Style;
   @Input() stopClick: boolean;
 
-  @Output() change: EventEmitter<DrawEvent> = new EventEmitter();
-  @Output() drawStart: EventEmitter<DrawEvent> = new EventEmitter();
-  @Output() drawEnd: EventEmitter<DrawEvent> = new EventEmitter();
-  @Output() drawAbort: EventEmitter<DrawEvent> = new EventEmitter();
+  readonly change = output<DrawEvent>();
+  readonly drawStart = output<DrawEvent>();
+  readonly drawEnd = output<DrawEvent>();
+  readonly drawAbort = output<DrawEvent>();
 
   private map: Map;
   private interaction: Draw;

@@ -13,8 +13,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import type { MatListOption } from '@angular/material/list';
 import { MatListModule } from '@angular/material/list';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 /********* MultiSelectListDialog **********

@@ -5,10 +5,10 @@ Signal K preferred paths component
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
-  inject
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { MatRadioModule } from '@angular/material/radio';
@@ -50,10 +50,10 @@ import { AppFacade } from 'src/app/app.facade';
     </fieldset>
   `
 })
-export class SignalKPreferredPathsComponent {
+export class SignalKPreferredPathsComponent implements OnInit {
   @Input() title = '';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() chosen: any = new EventEmitter<any>();
+  readonly chosen = output<any>();
 
   private pathChoices = {
     tws: {
@@ -116,14 +116,14 @@ export class SignalKPreferredPathsComponent {
     u.forEach((x) => {
       const i = x[1];
       // ** fill available paths from received path data **
-      i['choices'].forEach((c) => {
+      i.choices.forEach((c) => {
         if (this.availPaths.has(c)) {
-          i['available'].push(c);
+          i.available.push(c);
         }
       });
       // ** ensure a default
-      if (i['available'].length === 0) {
-        i['available'].push(i['choices'][0]);
+      if (i.available.length === 0) {
+        i.available.push(i.choices[0]);
       }
     });
   }

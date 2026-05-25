@@ -7,8 +7,7 @@ import {
   signal,
   ChangeDetectionStrategy,
   input,
-  Output,
-  EventEmitter,
+  output,
   effect,
   computed
 } from '@angular/core';
@@ -22,7 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { Convert } from 'src/app/lib/convert';
 import { AutopilotService } from './autopilot.service';
 
@@ -294,12 +293,10 @@ import { AutopilotService } from './autopilot.service';
   `
 })
 export class AutopilotComponent {
-  @Output() close: EventEmitter<void> = new EventEmitter();
+  readonly close = output<void>();
 
   protected modeOptions = signal<string[]>([]);
-  protected stateOptions = signal<Array<{ name: string; engaged: boolean }>>(
-    []
-  );
+  protected stateOptions = signal<{ name: string; engaged: boolean }[]>([]);
   private autopilotApiPath: string;
   private currentPilot: string;
 

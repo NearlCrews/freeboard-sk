@@ -1,10 +1,11 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -87,12 +88,12 @@ import { SKAircraft } from 'src/app/modules';
   `,
   styleUrls: []
 })
-export class AircraftPopoverComponent {
+export class AircraftPopoverComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() aircraft: SKAircraft;
   @Input() canClose: boolean;
-  @Output() info: EventEmitter<string> = new EventEmitter();
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly info = output<string>();
+  readonly closed = output<void>();
   _title: string;
   timeLastUpdate: string;
   timeAgo: string; // last update in minutes ago
@@ -116,8 +117,7 @@ export class AircraftPopoverComponent {
     this.timeLastUpdate = `${this.aircraft.lastUpdated.getHours()}:${(
       '00' + this.aircraft.lastUpdated.getMinutes()
     ).slice(-2)}`;
-    const td =
-      (new Date().valueOf() - this.aircraft.lastUpdated.valueOf()) / 1000;
+    const td = (Date.now() - this.aircraft.lastUpdated.valueOf()) / 1000;
     this.timeAgo = td < 60 ? '' : `(${Math.floor(td / 60)} min ago)`;
   }
   handleInfo() {

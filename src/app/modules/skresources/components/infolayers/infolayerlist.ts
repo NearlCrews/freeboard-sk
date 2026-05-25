@@ -3,7 +3,8 @@ import {
   Component,
   DestroyRef,
   inject,
-  output
+  output,
+  OnInit
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -33,7 +34,7 @@ import { ResourceListBase } from '../resource-list-baseclass';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { MatSliderModule } from '@angular/material/slider';
 import {
   TimeDef,
@@ -64,11 +65,11 @@ import {
     MatSliderModule
   ]
 })
-export class InfoLayerListComponent extends ResourceListBase {
+export class InfoLayerListComponent extends ResourceListBase implements OnInit {
   closed = output<void>();
   paramChanged = output<{
     id: string;
-    param: { [key: string]: any };
+    param: Record<string, any>;
   }>();
 
   filterList = [];
@@ -77,7 +78,7 @@ export class InfoLayerListComponent extends ResourceListBase {
   override allSel = false;
   protected override fullList: FBInfoLayers = [];
 
-  private timeDim: Map<string, TimeDef> = new Map();
+  private timeDim = new Map<string, TimeDef>();
   private fetchedUrls: string[] = [];
 
   private destroyRef = inject(DestroyRef);
@@ -176,7 +177,7 @@ export class InfoLayerListComponent extends ResourceListBase {
    * @abstract Currently only WMS with time.values array
    */
   private compileCapabilitiesReqList() {
-    const capList: Map<string, SKInfoLayer[]> = new Map();
+    const capList = new Map<string, SKInfoLayer[]>();
     this.fullList.forEach((l) => {
       const values = l[1].values;
       const sourceType = values.sourceType.toLowerCase();

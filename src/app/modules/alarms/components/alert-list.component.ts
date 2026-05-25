@@ -5,8 +5,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  EventEmitter,
-  Output,
+  output,
   input,
   inject
 } from '@angular/core';
@@ -189,8 +188,7 @@ import { NotificationManager } from '../notification-manager';
 export class AlertListComponent {
   alerts = input([]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly closed = output<void>();
 
   protected app = inject(AppFacade);
   protected notiMgr = inject(NotificationManager);

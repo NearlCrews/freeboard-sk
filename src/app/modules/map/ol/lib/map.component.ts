@@ -3,14 +3,15 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   inject,
   Input,
   OnDestroy,
   OnInit,
   Output,
+  output,
   signal,
-  SimpleChanges
+  SimpleChanges,
+  OnChanges
 } from '@angular/core';
 import { Map, MapBrowserEvent } from 'ol';
 import MapEvent from 'ol/MapEvent';
@@ -39,7 +40,7 @@ export interface FBMapEvent extends MapEvent {
 }
 
 export interface FBClickEvent extends MapBrowserEvent<PointerEvent> {
-  features: Array<FeatureLike>;
+  features: FeatureLike[];
   lonlat: Coordinate;
 }
 
@@ -67,7 +68,7 @@ export const zoomOffsetLevel = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private map: Map;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private timeoutId: any;
@@ -76,7 +77,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * This event is triggered after the map is initialized
    * Use this to have access to the maps and some helper functions
    */
-  @Output() mapReady: AsyncSubject<MapReadyEvent> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() mapReady = new AsyncSubject<MapReadyEvent>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   /**
    * This event is triggered after the user clicks on the map.
@@ -84,44 +85,33 @@ export class MapComponent implements OnInit, OnDestroy {
    * Note that this event is delayed by 250 ms to ensure that it is not a double click.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() mapClick: EventEmitter<any> = new EventEmitter<any>();
-  @Output() mapRightClick: EventEmitter<{
+  readonly mapClick = output<any>();
+  readonly mapRightClick = output<{
     features: FeatureLike[];
     lonlat: Coordinate;
-  }> = new EventEmitter<{ features: FeatureLike[]; lonlat: Coordinate }>();
-  @Output() mapContextMenu: EventEmitter<FBPointerEvent> =
-    new EventEmitter<FBPointerEvent>();
-  @Output() mapSingleClick: EventEmitter<FBClickEvent> =
-    new EventEmitter<FBClickEvent>();
-  @Output() mapDblClick: EventEmitter<FBClickEvent> =
-    new EventEmitter<FBClickEvent>();
-  @Output() mapMoveStart: EventEmitter<MapEvent> =
-    new EventEmitter<FBMapEvent>();
-  @Output() mapMoveEnd: EventEmitter<MapEvent> = new EventEmitter<FBMapEvent>();
-  @Output() mapPointerDrag: EventEmitter<FBPointerEvent> =
-    new EventEmitter<FBPointerEvent>();
-  @Output() mapPointerMove: EventEmitter<FBPointerEvent> =
-    new EventEmitter<FBPointerEvent>();
-  @Output() mapPointerDown: EventEmitter<FBPointerEvent> =
-    new EventEmitter<FBPointerEvent>();
-  @Output() mapPostCompose: EventEmitter<RenderEvent> =
-    new EventEmitter<RenderEvent>();
-  @Output() mapPostRender: EventEmitter<MapEvent> =
-    new EventEmitter<MapEvent>();
-  @Output() mapPreCompose: EventEmitter<RenderEvent> =
-    new EventEmitter<RenderEvent>();
-  @Output() mapPropertyChange: EventEmitter<ObjectEvent> =
-    new EventEmitter<ObjectEvent>();
+  }>();
+  readonly mapContextMenu = output<FBPointerEvent>();
+  readonly mapSingleClick = output<FBClickEvent>();
+  readonly mapDblClick = output<FBClickEvent>();
+  readonly mapMoveStart = output<MapEvent>();
+  readonly mapMoveEnd = output<MapEvent>();
+  readonly mapPointerDrag = output<FBPointerEvent>();
+  readonly mapPointerMove = output<FBPointerEvent>();
+  readonly mapPointerDown = output<FBPointerEvent>();
+  readonly mapPostCompose = output<RenderEvent>();
+  readonly mapPostRender = output<MapEvent>();
+  readonly mapPreCompose = output<RenderEvent>();
+  readonly mapPropertyChange = output<ObjectEvent>();
 
   @Input() pixelRatio: number;
   @Input() keyboardEventTarget: Element | string;
   @Input() logo: string | boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() properties: { [index: string]: any };
+  @Input() properties: Record<string, any>;
   @Input() setFocus = '';
   @Input() hitTolerance = 5;
 
-  private _pointerDown = signal<MouseEvent>(undefined);
+  private _pointerDown = signal<MouseEvent>();
   public pointerDownSignal = this._pointerDown.asReadonly();
 
   protected changeDetectorRef = inject(ChangeDetectorRef);
@@ -232,7 +222,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   // Long Press Detection (iOS & Android)
   private touchTimer: any;
-  private evCache: { [id: number]: MouseEvent } = {};
+  private evCache: Record<number, MouseEvent> = {};
   private clearTouchTimer = () => {
     clearTimeout(this.touchTimer);
     this.evCache = {};

@@ -5,17 +5,17 @@ import {
   MultiPolygonFeature
 } from './geojson';
 
-export type SKPosition = {
+export interface SKPosition {
   latitude: number;
   longitude: number;
   altitude?: number;
-};
+}
 
-export type Routes = { [id: string]: RouteResource };
-export type Waypoints = { [id: string]: WaypointResource };
-export type Regions = { [id: string]: RegionResource };
-export type Notes = { [id: string]: NoteResource };
-export type Charts = { [id: string]: ChartResource };
+export type Routes = Record<string, RouteResource>;
+export type Waypoints = Record<string, WaypointResource>;
+export type Regions = Record<string, RegionResource>;
+export type Notes = Record<string, NoteResource>;
+export type Charts = Record<string, ChartResource>;
 
 export interface RouteResource {
   name?: string | null;
@@ -47,18 +47,24 @@ export interface NoteResource {
   // ca reports attributes
   group?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authors?: Array<any>;
+  authors?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: { [key: string]: any };
+  properties: Record<string, any>;
   timestamp: string;
   source: string;
+  // Legacy server fields. resources.service.ts#transformNote migrates these
+  // into name (from title), href (from region), and position (from geohash)
+  // and deletes them. Newer servers do not emit them.
+  title?: string;
+  region?: string;
+  geohash?: string;
 }
 
 export interface ChartResource {
   name?: string;
   identifier?: string;
   description?: string;
-  bounds?: Array<number>;
+  bounds?: number[];
   format?: string;
   minzoom?: number;
   maxzoom?: number;

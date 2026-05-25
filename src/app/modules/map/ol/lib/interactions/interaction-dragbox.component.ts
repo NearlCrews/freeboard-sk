@@ -2,8 +2,9 @@ import {
   ChangeDetectorRef,
   ChangeDetectionStrategy,
   Component,
-  Output,
-  EventEmitter
+  output,
+  AfterViewInit,
+  OnDestroy
 } from '@angular/core';
 import { Map } from 'ol';
 import { DragBox } from 'ol/interaction';
@@ -16,7 +17,7 @@ import { MapComponent } from '../map.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class InteractionDragBoxComponent {
+export class InteractionDragBoxComponent implements AfterViewInit, OnDestroy {
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
     protected mapComponent: MapComponent
@@ -24,11 +25,11 @@ export class InteractionDragBoxComponent {
     this.changeDetectorRef.detach();
   }
 
-  @Output() change: EventEmitter<DragBoxEvent> = new EventEmitter();
-  @Output() boxStart: EventEmitter<DragBoxEvent> = new EventEmitter();
-  @Output() boxEnd: EventEmitter<DragBoxEvent> = new EventEmitter();
-  @Output() boxDrag: EventEmitter<DragBoxEvent> = new EventEmitter();
-  @Output() boxCancel: EventEmitter<DragBoxEvent> = new EventEmitter();
+  readonly change = output<DragBoxEvent>();
+  readonly boxStart = output<DragBoxEvent>();
+  readonly boxEnd = output<DragBoxEvent>();
+  readonly boxDrag = output<DragBoxEvent>();
+  readonly boxCancel = output<DragBoxEvent>();
 
   private map: Map;
   private interaction: DragBox;

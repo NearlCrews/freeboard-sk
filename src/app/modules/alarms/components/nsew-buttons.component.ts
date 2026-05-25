@@ -5,9 +5,8 @@ NSEW arrow buttons component
 import {
   Component,
   Input,
-  Output,
-  ChangeDetectionStrategy,
-  EventEmitter
+  output,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -71,7 +70,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class NSEWButtonsComponent {
   @Input() disabled: boolean;
-  @Output() direction: EventEmitter<number> = new EventEmitter();
+  readonly direction = output<number>();
 
   constructor() {}
 

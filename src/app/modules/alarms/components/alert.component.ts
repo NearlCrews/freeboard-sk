@@ -2,12 +2,12 @@
 
 import {
   Component,
-  Output,
-  EventEmitter,
+  output,
   input,
   effect,
   signal,
-  inject
+  inject,
+  OnDestroy
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -29,7 +29,7 @@ export interface AlertData {
   message: string;
   sound: boolean;
   visual: boolean;
-  properties?: { [index: string]: any };
+  properties?: Record<string, any>;
   icon: AppIconDef;
   type?: string;
   acknowledged: boolean;
@@ -195,7 +195,7 @@ const SoundFiles = {
   `,
   styles: []
 })
-export class AlertComponent {
+export class AlertComponent implements OnDestroy {
   alert = input<AlertData>();
   acknowledged = input<boolean>(false);
   silenced = input<boolean>(false);
@@ -205,8 +205,8 @@ export class AlertComponent {
   hidden = signal<boolean>(false); // alert card is hidden
   progressValue = signal<number>(100);
 
-  @Output() nextPoint: EventEmitter<void> = new EventEmitter();
-  @Output() routeEnd: EventEmitter<void> = new EventEmitter();
+  readonly nextPoint = output<void>();
+  readonly routeEnd = output<void>();
 
   protected showStaticNextPoint = false;
   protected showAutoNextPoint = false;
@@ -302,8 +302,8 @@ export class AlertComponent {
             this.audio.src = this.soundFile;
             this.audio
               .play()
-              .then(() => undefined)
-              .catch(() => undefined);
+              .then(() => {})
+              .catch(() => {});
           }
         } else {
           this.audio.pause();

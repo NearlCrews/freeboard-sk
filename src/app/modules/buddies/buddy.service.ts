@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 
 interface BuddyProperties {

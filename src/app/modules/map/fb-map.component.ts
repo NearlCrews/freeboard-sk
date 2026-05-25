@@ -2,16 +2,19 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  DestroyRef,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ViewChild,
   SimpleChanges,
   signal,
   input,
   effect,
-  inject
+  inject,
+  AfterViewInit,
+  OnChanges
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -47,7 +50,12 @@ import { Feature as GeoJsonFeature } from 'geojson';
 
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils, Angle } from 'src/app/lib/geoutils';
-import { LineString, MultiLineString, Position } from 'src/app/types';
+import {
+  LineString,
+  MultiLineString,
+  Position,
+  SKPosition
+} from 'src/app/types';
 
 import { AppFacade } from 'src/app/app.facade';
 
@@ -88,7 +96,6 @@ import {
 import { ModifyEvent } from 'ol/interaction/Modify';
 import { DrawEvent } from 'ol/interaction/Draw';
 import { Coordinate } from 'ol/coordinate';
-import { SKPosition } from 'src/app/types';
 import {
   FBMapEvent,
   FBPointerEvent,
@@ -121,7 +128,7 @@ interface IFeatureData {
   ais: Map<string, SKVessel>; // other vessels
   active: SKVessel; // focussed vessel
   navData: { position: Position; startPosition: Position };
-  closest: Array<LineString>;
+  closest: LineString[];
 }
 
 enum INTERACTION_MODE {
@@ -156,7 +163,9 @@ enum INTERACTION_MODE {
   templateUrl: './fb-map.component.html',
   styleUrls: ['./fb-map.component.css']
 })
-export class FBMapComponent implements OnInit, OnDestroy {
+export class FBMapComponent
+  implements OnInit, OnDestroy, AfterViewInit, OnChanges
+{
   @Input() setFocus: string;
   @Input() mapCenter: Position = [0, 0];
   @Input() mapZoom = 1;
@@ -166,16 +175,16 @@ export class FBMapComponent implements OnInit, OnDestroy {
   @Input() drawMode: boolean;
   @Input() modifyMode = false;
   @Input() activeRoute: string;
-  @Input() vesselTrail: Array<Position> = [];
+  @Input() vesselTrail: Position[] = [];
   @Input() dblClickZoom = false;
   @Input() overZoomTiles = true;
-  @Output() drawEnded: EventEmitter<DrawFeatureInfo> = new EventEmitter();
-  @Output() activate: EventEmitter<string> = new EventEmitter();
-  @Output() deactivate: EventEmitter<string> = new EventEmitter();
-  @Output() info: EventEmitter<IResource> = new EventEmitter();
-  @Output() exitMovingMap: EventEmitter<boolean> = new EventEmitter();
-  @Output() focusVessel: EventEmitter<string> = new EventEmitter();
-  @Output() menuItemSelected: EventEmitter<string> = new EventEmitter();
+  readonly drawEnded = output<DrawFeatureInfo>();
+  readonly activate = output<string>();
+  readonly deactivate = output<string>();
+  readonly info = output<IResource>();
+  readonly exitMovingMap = output<boolean>();
+  readonly focusVessel = output<string>();
+  readonly menuItemSelected = output<string>();
 
   @ViewChild(MatMenuTrigger, { static: true }) contextMenu: MatMenuTrigger;
   @ViewChild('olMap', { static: false }) olMap: MapComponent;
@@ -209,7 +218,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
   });
 
   protected olMapControls = mapControls;
-  protected olMapInteractions = signal<Array<{ name: string }>>([]);
+  protected olMapInteractions = signal<{ name: string }[]>([]);
   protected mapZoomLevel = signal<number>(1);
   protected mapCenterPositon = signal<Position>([0, 0]);
   protected mapRotation = signal<number>(0);
@@ -254,7 +263,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
   };
   contextMenuPosition = { x: '0px', y: '0px' };
 
-  private obsList = [];
+  private destroyRef = inject(DestroyRef);
 
   private http = inject(HttpClient);
   protected app = inject(AppFacade);
@@ -289,12 +298,14 @@ export class FBMapComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // STREAM VESSELS update event
-    this.obsList.push(
-      this.skstream.vessels$().subscribe(() => this.onVessels())
-    );
+    this.skstream
+      .vessels$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onVessels());
     // SETTINGS settings.change$ event
-    this.obsList.push(
-      this.settings.change$.subscribe((r: string[]) => {
+    this.settings.change$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((r: string[]) => {
         this.renderMapContents(r.includes('fetchNotes'));
         if (r.includes(`trailFromServer`)) {
           if (!this.app.config.vessels.trailFromServer) {
@@ -303,13 +314,11 @@ export class FBMapComponent implements OnInit, OnDestroy {
             });
           }
         }
-      })
-    );
+      });
   }
 
   ngOnDestroy() {
     this.stopSaveTimer();
-    this.obsList.forEach((i) => i.unsubscribe());
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -725,13 +734,13 @@ export class FBMapComponent implements OnInit, OnDestroy {
 
   /** Handle OL interaction start event */
   protected onDragBoxStart(e: DragBoxEvent) {
-    let c = toLonLat(e.coordinate);
+    const c = toLonLat(e.coordinate);
     this.mapInteract.initBoxCoord(c as Position);
   }
 
   /** Handle OL interaction end event */
   protected onDragBoxEnd(e: DragBoxEvent) {
-    let c = toLonLat(e.coordinate);
+    const c = toLonLat(e.coordinate);
     this.mapInteract.stopBoxSelection(c as Position);
   }
 
@@ -918,10 +927,10 @@ export class FBMapComponent implements OnInit, OnDestroy {
         });
       }
     }
-    this.mapInteract.draw.forSave['coords'] = pc;
+    this.mapInteract.draw.forSave.coords = pc;
     if (
       this.app.data.activeRoute &&
-      this.mapInteract.draw.forSave.id.indexOf(this.app.data.activeRoute) !== -1
+      this.mapInteract.draw.forSave.id.includes(this.app.data.activeRoute)
     ) {
       this.app.data.activeRouteIsEditing = true;
     } else {
@@ -935,7 +944,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
   /** Process pointer click in non-interaction mode */
   private processMapClick(e) {
     this.s57Features = {};
-    const featureList: Map<
+    const featureList = new Map<
       string,
       {
         id: string;
@@ -943,8 +952,8 @@ export class FBMapComponent implements OnInit, OnDestroy {
         icon: string;
         text: string;
       }
-    > = new Map(); // features under pointer
-    const chartBoundsFeatures: Map<
+    >(); // features under pointer
+    const chartBoundsFeatures = new Map<
       string,
       {
         id: string;
@@ -952,7 +961,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
         icon: string;
         text: string;
       }
-    > = new Map(); // chart bounds under pointer
+    >(); // chart bounds under pointer
     const fa = []; // features that can be the target of modify interaction
     let maskPopover = false; // suppress popover display
 
@@ -1068,11 +1077,11 @@ export class FBMapComponent implements OnInit, OnDestroy {
       } else if (!id && feature.getProperties) {
         const props = feature.getProperties();
         // S57 features
-        if (props['RCID'] && S57_CLICKABLE_LAYERS.has(props['layer'])) {
-          id = `s57.${props['LNAM']}`;
+        if (props.RCID && S57_CLICKABLE_LAYERS.has(props.layer)) {
+          id = `s57.${props.LNAM}`;
           addToFeatureList = true;
           icon = 'beenhere';
-          text = S57_NAMES[props['layer']];
+          text = S57_NAMES[props.layer];
           this.s57Features[id] = props;
         }
       }
@@ -1100,7 +1109,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
     if (featureList.size === 1) {
       // only 1 feature
       const v = featureList.values().next().value;
-      this.formatPopover(v['id'], v['coord']);
+      this.formatPopover(v.id, v.coord);
     } else if (featureList.size > 1) {
       // show list of features
       this.formatPopover('list.', e.lonlat, featureList);
@@ -1117,7 +1126,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
    * @param coord Position to display the popover
    * @param featureList list of map features at the supplied position
    * */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   protected formatPopover(
     id: string,
     coord: Position,
@@ -1721,7 +1730,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
 
   // ********************************************************
 
-  private isCoordsArray(ca: Array<Position>) {
+  private isCoordsArray(ca: Position[]) {
     if (Array.isArray(ca)) {
       return Array.isArray(ca[0]) && typeof ca[0][0] === 'number';
     } else {
@@ -1729,7 +1738,7 @@ export class FBMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  private transformCoordsArray(ca: Array<Position>) {
+  private transformCoordsArray(ca: Position[]) {
     return ca.map((i) => {
       return toLonLat(i);
     });

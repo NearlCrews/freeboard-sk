@@ -4,11 +4,12 @@ import {
   Component,
   DestroyRef,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
   SimpleChanges,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -232,17 +233,17 @@ isSelf: boolean - true if vessel 'self'
   `,
   styleUrls: []
 })
-export class VesselPopoverComponent {
+export class VesselPopoverComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() vessel: SKVessel;
   @Input() useMagnetic: string;
   @Input() isActive: boolean;
   @Input() isSelf: boolean;
   @Input() canClose: boolean;
-  @Output() info: EventEmitter<string> = new EventEmitter();
-  @Output() closed: EventEmitter<void> = new EventEmitter();
-  @Output() focused: EventEmitter<boolean> = new EventEmitter();
-  @Output() markPosition: EventEmitter<Position> = new EventEmitter();
+  readonly info = output<string>();
+  readonly closed = output<void>();
+  readonly focused = output<boolean>();
+  readonly markPosition = output<Position>();
 
   protected _title: string;
   protected convert = Convert;
@@ -300,8 +301,7 @@ export class VesselPopoverComponent {
     this.timeLastUpdate = `${this.vessel.lastUpdated.getHours()}:${(
       '00' + this.vessel.lastUpdated.getMinutes()
     ).slice(-2)}`;
-    const td =
-      (new Date().valueOf() - this.vessel.lastUpdated.valueOf()) / 1000;
+    const td = (Date.now() - this.vessel.lastUpdated.valueOf()) / 1000;
     this.timeAgo = td < 60 ? '' : `(${Math.floor(td / 60)} min ago)`;
     this.distToSelf = this.app.formatValueForDisplay(
       this.vessel.distanceToSelf,

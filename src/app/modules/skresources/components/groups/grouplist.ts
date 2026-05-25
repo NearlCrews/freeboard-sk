@@ -4,7 +4,9 @@ import {
   signal,
   effect,
   inject,
-  output
+  output,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,7 +23,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { AppFacade } from 'src/app/app.facade';
 import { SKResourceService } from '../../resources.service';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 
 import {
   SKResourceGroupService,
@@ -48,7 +50,7 @@ import {
     MatRadioModule
   ]
 })
-export class GroupListComponent {
+export class GroupListComponent implements OnInit, OnChanges {
   closed = output<void>();
 
   protected fullList: FBResourceGroups = [];
@@ -120,7 +122,7 @@ export class GroupListComponent {
         return x > y ? 1 : -1;
       });
     };
-    let fl: Array<FBResourceGroup>;
+    let fl: FBResourceGroup[];
     if (this.filterText.length === 0) {
       fl = this.fullList.slice(0);
     } else {

@@ -5,10 +5,11 @@ timer button component
 import {
   Component,
   Input,
-  Output,
+  output,
   ChangeDetectionStrategy,
-  EventEmitter,
-  signal
+  signal,
+  OnInit,
+  OnDestroy
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -37,13 +38,13 @@ import { MatIconModule } from '@angular/material/icon';
     </div>
   `
 })
-export class TimerButtonComponent {
+export class TimerButtonComponent implements OnInit, OnDestroy {
   @Input() period = 5000; // timeout period in milliseconds
   @Input() label: string;
   @Input() icon: string;
   @Input() cancelledLabel: string;
   @Input() disabled: boolean;
-  @Output() nextPoint: EventEmitter<void> = new EventEmitter();
+  readonly nextPoint = output<void>();
 
   private timer: ReturnType<typeof setInterval>;
   protected timeLeft = signal<number>(this.period ?? 5);

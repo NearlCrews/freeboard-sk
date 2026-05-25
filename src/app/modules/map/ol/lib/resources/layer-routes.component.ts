@@ -1,10 +1,15 @@
-import type { ChangeDetectorRef, SimpleChanges } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+  Component,
+  Input
+} from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Stroke, Fill, Circle, RegularShape } from 'ol/style';
 import { LineString, Point } from 'ol/geom';
 import { toLonLat } from 'ol/proj';
-import type { MapComponent } from '../map.component';
+import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { getRhumbLineBearing } from 'geolib';
 import type { GeolibInputCoordinates } from 'geolib/es/types';

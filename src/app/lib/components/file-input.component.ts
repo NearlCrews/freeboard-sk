@@ -7,9 +7,8 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   Input,
-  Output,
+  output,
   ChangeDetectorRef,
-  EventEmitter,
   inject
 } from '@angular/core';
 
@@ -29,14 +28,13 @@ export class FileInputComponent {
   @Input() icon = false;
   @Input() label = 'Upload File'; // ** button text
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() chosen: EventEmitter<{ name: string; data: any }> =
-    new EventEmitter();
-  @Output() invalid: EventEmitter<{
+  readonly chosen = output<{ name: string; data: any }>();
+  readonly invalid = output<{
     type: string;
     value: string;
     message: string;
-  }> = new EventEmitter();
-  @Output() cleared: EventEmitter<void> = new EventEmitter();
+  }>();
+  readonly cleared = output<void>();
 
   public avatar = null;
 
@@ -84,13 +82,13 @@ export class FileInputComponent {
         return;
       }
       // ** Check file type **
-      if (this.accept.indexOf('/*') !== -1) {
+      if (this.accept.includes('/*')) {
         // ** if <filetype>/* used in accept attribute
         const ftype = files[index].type.substring(
           0,
           files[index].type.indexOf('/')
         );
-        if (this.accept.indexOf(ftype) < 0) {
+        if (!this.accept.includes(ftype)) {
           errmsg.type = 'TYPE';
           errmsg.value = files[index].type;
           errmsg.message = `File type does not match the accepted type (${this.accept}) specified.`;
@@ -140,7 +138,7 @@ export class FileInputComponent {
       callback(reader.result);
     };
 
-    if (file.type.indexOf('text') !== -1 || this.astext) {
+    if (file.type.includes('text') || this.astext) {
       reader.readAsText(file);
     } else {
       // read as base64

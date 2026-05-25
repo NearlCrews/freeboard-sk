@@ -1,10 +1,11 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -99,12 +100,12 @@ import { Convert } from 'src/app/lib/convert';
   `,
   styleUrls: []
 })
-export class AtoNPopoverComponent {
+export class AtoNPopoverComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() aton: SKMeteo;
   @Input() canClose: boolean;
-  @Output() info: EventEmitter<string> = new EventEmitter();
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly info = output<string>();
+  readonly closed = output<void>();
   _title: string;
   timeLastUpdate: string;
   timeAgo: string; // last update in minutes ago
@@ -131,7 +132,7 @@ export class AtoNPopoverComponent {
     this.timeLastUpdate = `${this.aton.lastUpdated.getHours()}:${(
       '00' + this.aton.lastUpdated.getMinutes()
     ).slice(-2)}`;
-    const td = (new Date().valueOf() - this.aton.lastUpdated.valueOf()) / 1000;
+    const td = (Date.now() - this.aton.lastUpdated.valueOf()) / 1000;
     this.timeAgo = td < 60 ? '' : `(${Math.floor(td / 60)} min ago)`;
   }
   handleInfo() {

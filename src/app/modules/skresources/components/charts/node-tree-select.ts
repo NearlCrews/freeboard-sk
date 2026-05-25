@@ -2,10 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
-  EventEmitter,
   inject,
   input,
-  Output
+  output
 } from '@angular/core';
 
 import { MatTreeModule } from '@angular/material/tree';
@@ -100,12 +99,12 @@ import { LayerNode } from './maplib';
   ]
 })
 export class NodeTreeSelect {
-  @Output() selected: EventEmitter<string[]> = new EventEmitter<string[]>();
+  readonly selected = output<string[]>();
   protected preSelect = input<string[]>([]);
   protected layers = input<LayerNode[]>([]);
   protected expand = input<boolean>(false);
 
-  private selections: Array<string> = [];
+  private selections: string[] = [];
   protected childrenAccessor = (node: LayerNode) => node.children ?? [];
   protected hasChild = (_: number, node: LayerNode) =>
     !!node.children && node.children.length > 0;

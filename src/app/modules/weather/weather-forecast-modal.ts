@@ -20,13 +20,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import type { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import {
+  MatBottomSheetRef,
   MatBottomSheetModule,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import type { AppFacade } from 'src/app/app.facade';
-import type { SignalKClient } from 'signalk-client-angular';
+import { AppFacade } from 'src/app/app.facade';
+import { SignalKClient } from 'src/lib/signalk-client';
 import type { SI_BASE_UNIT } from 'src/app/lib/convert';
 import { Convert } from 'src/app/lib/convert';
 import type { Position } from 'src/app/types';

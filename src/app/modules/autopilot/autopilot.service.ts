@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { HttpErrorResponse } from '@angular/common/http';
 
 export interface AutopilotOptions {
   modes: string[];
-  states: Array<{ name: string; engaged: boolean }>;
-  actions: Array<{ id: string; name: string; available: boolean }>;
+  states: { name: string; engaged: boolean }[];
+  actions: { id: string; name: string; available: boolean }[];
 }
 
 // ** Signal K autopilot service

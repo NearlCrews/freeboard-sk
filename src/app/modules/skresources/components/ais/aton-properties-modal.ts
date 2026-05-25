@@ -17,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import type { SKAtoN } from 'src/app/modules/skresources/resource-classes';
 import { SignalKDetailsComponent } from '../../components/signalk-details.component';
 

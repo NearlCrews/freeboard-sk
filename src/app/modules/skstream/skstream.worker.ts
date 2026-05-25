@@ -16,19 +16,19 @@ import {
   ResultPayload,
   ResourceMessage
 } from 'src/app/types/stream';
-import { SimplifyAP } from 'simplify-ts';
+import { SimplifyAP } from 'src/lib/simplify-ts';
 import { Convert } from 'src/app/lib/convert';
 import { PathValue } from 'src/app/types';
 
 interface AisStatus {
-  updated: { [key: string]: boolean };
-  stale: { [key: string]: boolean };
-  expired: { [key: string]: boolean };
+  updated: Record<string, boolean>;
+  stale: Record<string, boolean>;
+  expired: Record<string, boolean>;
 }
 
 interface AisFilter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signalk: { [key: string]: any };
+  signalk: Record<string, any>;
   aisState: [];
 }
 
@@ -55,11 +55,11 @@ interface MsgFromApp {
     | 'auth'
     | 'trail';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: { [key: string]: any };
+  options: Record<string, any>;
 }
 
 // preference source paths
-const prefSourcePaths = [
+const prefSourcePaths = new Set([
   'environment.wind.speedTrue',
   'environment.wind.speedOverGround',
   'environment.wind.angleTrueGround',
@@ -70,7 +70,7 @@ const prefSourcePaths = [
   'navigation.courseOverGroundMagnetic',
   'navigation.headingTrue',
   'navigation.headingMagnetic'
-];
+]);
 
 // server message reception watch dog
 const watchDog = {
@@ -106,7 +106,7 @@ let playbackTime: string;
 const aisMgr = {
   maxAge: 540000, // time since last update in ms (9 min)
   staleAge: 360000, // time since last update in ms (6 min)
-  lastTick: new Date().valueOf(),
+  lastTick: Date.now(),
   maxTrack: 20 // max point count in track
 };
 
@@ -228,7 +228,7 @@ function handleCommand(data: MsgFromApp) {
     // { cmd: 'open', options: { url: string, subscribe: string, token: string} }
     case 'open':
       //console.log('Worker control: opening stream...');
-      applySettings(data.options as { config: { [key: string]: any } });
+      applySettings(data.options as { config: Record<string, any> });
       openStream(data.options);
       break;
     //** { cmd: 'close', options: {terminate: boolean} }
@@ -244,7 +244,7 @@ function handleCommand(data: MsgFromApp) {
     //** { cmd: 'settings' , options: {..}
     case 'settings':
       //console.log('Worker control: settings...');
-      applySettings(data.options as { config: { [key: string]: any } });
+      applySettings(data.options as { config: Record<string, any> });
       break;
     //** { cmd: 'alarm', options: {raise: boolean, type: string, msg: string, state: string} }
     case 'alarm':
@@ -301,10 +301,9 @@ function handleCommand(data: MsgFromApp) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function applySettings(
   opt: {
-    config: { [key: string]: any };
+    config: Record<string, any>;
     interval?: number;
     playback?: boolean;
   } = { config: {} }
@@ -555,10 +554,9 @@ function openStream(opt) {
 }
 
 function actionAlarm(opt) {
-  const n =
-    opt.type.indexOf('notifications.') === -1
-      ? `notifications.${opt.type}`
-      : opt.type;
+  const n = !opt.type.includes('notifications.')
+    ? `notifications.${opt.type}`
+    : opt.type;
   if (opt.raise) {
     // raise alarm
     stream.raiseAlarm('self', n, new Alarm(opt.message, opt.state, true, true));
@@ -674,7 +672,7 @@ function filterContext(
   context: string,
   group: GroupFilter,
   enabled = true,
-  state: Array<string> = []
+  state: string[] = []
 ) {
   if (enabled) {
     let obj = group.get(context);
@@ -833,11 +831,10 @@ function processVessel(d: SKVessel, v: any, isSelf = false) {
       }
     }
     // ** record received preferred path names for selection
-    const cp =
-      v.path.indexOf('course') !== -1
-        ? v.path.split('.').slice(0, 2).join('.')
-        : v.path;
-    if (prefSourcePaths.indexOf(cp) !== -1) {
+    const cp = v.path.includes('course')
+      ? v.path.split('.').slice(0, 2).join('.')
+      : v.path;
+    if (prefSourcePaths.has(cp)) {
       vessels.paths[cp] = null;
     }
   } else {
@@ -971,23 +968,23 @@ function processVessel(d: SKVessel, v: any, isSelf = false) {
 
   // use preferred heading value for orientation **
   if (
-    typeof preferredPaths['heading'] !== 'undefined' &&
-    v.path === preferredPaths['heading']
+    typeof preferredPaths.heading !== 'undefined' &&
+    v.path === preferredPaths.heading
   ) {
     d.orientation = v.value;
   }
 
   // use preferred path value for tws **
   if (
-    typeof preferredPaths['tws'] !== 'undefined' &&
-    v.path === preferredPaths['tws']
+    typeof preferredPaths.tws !== 'undefined' &&
+    v.path === preferredPaths.tws
   ) {
     d.wind.tws = v.value;
   }
   // use preferred path value for twd **
   if (
-    typeof preferredPaths['twd'] !== 'undefined' &&
-    v.path === preferredPaths['twd']
+    typeof preferredPaths.twd !== 'undefined' &&
+    v.path === preferredPaths.twd
   ) {
     d.wind.direction =
       v.path === 'environment.wind.angleTrueGround' ||
@@ -1050,7 +1047,7 @@ function processNotifications(v: PathValue) {
 
 // process / cleanup stale / obsolete AIS vessels, aircraft, SaR targets
 function processAISStatus() {
-  const now = new Date().valueOf();
+  const now = Date.now();
   vessels.aisTargets.forEach((v, k) => {
     //if not present then mark for deletion
     if (v.lastUpdated.valueOf() < now - aisMgr.maxAge) {
@@ -1086,7 +1083,7 @@ function processAISStatus() {
 // process AtoN values
 function processAtoN(id: string, v): string {
   let isBaseStation = false;
-  if (id.indexOf('shore.basestations') !== -1) {
+  if (id.includes('shore.basestations')) {
     isBaseStation = true;
   }
   if (!vessels.atons.has(id)) {

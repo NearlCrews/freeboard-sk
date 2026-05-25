@@ -1,10 +1,10 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
-  inject
+  inject,
+  OnChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { PopoverComponent } from './popover.component';
 import { AppFacade } from 'src/app/app.facade';
 
 // S-57 object class readable names
-export const S57_NAMES: { [key: string]: string } = {
+export const S57_NAMES: Record<string, string> = {
   SOUNDG: 'Sounding',
   DEPCNT: 'Depth Contour',
   OBSTRN: 'Obstruction',
@@ -123,7 +123,7 @@ export const S57_CLICKABLE_LAYERS = new Set([
 ]);
 
 // S-57 attribute value decodings
-const COLOUR_CODES: { [key: string]: string } = {
+const COLOUR_CODES: Record<string, string> = {
   '1': 'White',
   '2': 'Black',
   '3': 'Red',
@@ -139,7 +139,7 @@ const COLOUR_CODES: { [key: string]: string } = {
   '13': 'Pink'
 };
 
-const WATLEV_CODES: { [key: string]: string } = {
+const WATLEV_CODES: Record<string, string> = {
   '1': 'Partly submerged',
   '2': 'Always dry',
   '3': 'Always under water',
@@ -149,7 +149,7 @@ const WATLEV_CODES: { [key: string]: string } = {
   '7': 'Floating'
 };
 
-const CATOBS_CODES: { [key: string]: string } = {
+const CATOBS_CODES: Record<string, string> = {
   '1': 'Snag/stump',
   '2': 'Wellhead',
   '3': 'Diffuser',
@@ -162,7 +162,7 @@ const CATOBS_CODES: { [key: string]: string } = {
   '10': 'Boom'
 };
 
-const CATWRK_CODES: { [key: string]: string } = {
+const CATWRK_CODES: Record<string, string> = {
   '1': 'Non-dangerous',
   '2': 'Dangerous',
   '3': 'Distributed remains',
@@ -170,7 +170,7 @@ const CATWRK_CODES: { [key: string]: string } = {
   '5': 'Hull showing'
 };
 
-const BOYSHP_CODES: { [key: string]: string } = {
+const BOYSHP_CODES: Record<string, string> = {
   '1': 'Conical (nun)',
   '2': 'Can (cylindrical)',
   '3': 'Spherical',
@@ -181,7 +181,7 @@ const BOYSHP_CODES: { [key: string]: string } = {
   '8': 'Ice buoy'
 };
 
-const BCNSHP_CODES: { [key: string]: string } = {
+const BCNSHP_CODES: Record<string, string> = {
   '1': 'Stake/pole',
   '2': 'Withy',
   '3': 'Tower',
@@ -191,14 +191,14 @@ const BCNSHP_CODES: { [key: string]: string } = {
   '7': 'Buoyant'
 };
 
-const CATLAM_CODES: { [key: string]: string } = {
+const CATLAM_CODES: Record<string, string> = {
   '1': 'Port',
   '2': 'Starboard',
   '3': 'Preferred channel starboard',
   '4': 'Preferred channel port'
 };
 
-const CATLIT_CODES: { [key: string]: string } = {
+const CATLIT_CODES: Record<string, string> = {
   '1': 'Directional',
   '4': 'Leading',
   '5': 'Aero',
@@ -214,7 +214,7 @@ const CATLIT_CODES: { [key: string]: string } = {
   '15': 'Upper'
 };
 
-const LITCHR_CODES: { [key: string]: string } = {
+const LITCHR_CODES: Record<string, string> = {
   '1': 'Fixed',
   '2': 'Flashing',
   '3': 'Long flashing',
@@ -234,14 +234,14 @@ const LITCHR_CODES: { [key: string]: string } = {
   '29': 'Fixed & alternating flashing'
 };
 
-const CONDTN_CODES: { [key: string]: string } = {
+const CONDTN_CODES: Record<string, string> = {
   '1': 'Under construction',
   '2': 'Ruined',
   '3': 'Under reclamation',
   '5': 'Planned'
 };
 
-const STATUS_CODES: { [key: string]: string } = {
+const STATUS_CODES: Record<string, string> = {
   '1': 'Permanent',
   '2': 'Occasional',
   '3': 'Recommended',
@@ -261,7 +261,7 @@ const STATUS_CODES: { [key: string]: string } = {
   '18': 'Doubtful'
 };
 
-const RESTRN_CODES: { [key: string]: string } = {
+const RESTRN_CODES: Record<string, string> = {
   '1': 'Anchoring prohibited',
   '2': 'Anchoring restricted',
   '3': 'Fishing prohibited',
@@ -279,7 +279,7 @@ const RESTRN_CODES: { [key: string]: string } = {
   '27': 'Speed restricted'
 };
 
-const COLPAT_CODES: { [key: string]: string } = {
+const COLPAT_CODES: Record<string, string> = {
   '1': 'Horizontal stripes',
   '2': 'Vertical stripes',
   '3': 'Diagonal stripes',
@@ -288,7 +288,7 @@ const COLPAT_CODES: { [key: string]: string } = {
   '6': 'Single colour'
 };
 
-const TOPSHP_CODES: { [key: string]: string } = {
+const TOPSHP_CODES: Record<string, string> = {
   '1': 'Cone, point up',
   '2': 'Cone, point down',
   '3': 'Sphere',
@@ -306,14 +306,14 @@ const TOPSHP_CODES: { [key: string]: string } = {
   '33': 'Flag'
 };
 
-const CATCAM_CODES: { [key: string]: string } = {
+const CATCAM_CODES: Record<string, string> = {
   '1': 'North',
   '2': 'East',
   '3': 'South',
   '4': 'West'
 };
 
-const CATSPM_CODES: { [key: string]: string } = {
+const CATSPM_CODES: Record<string, string> = {
   '1': 'Firing danger area',
   '2': 'Target',
   '3': 'Marker ship',
@@ -348,7 +348,7 @@ const CATSPM_CODES: { [key: string]: string } = {
 };
 
 // Map attribute codes to their decode tables
-const DECODE_TABLES: { [key: string]: { [key: string]: string } } = {
+const DECODE_TABLES: Record<string, Record<string, string>> = {
   COLOUR: COLOUR_CODES,
   WATLEV: WATLEV_CODES,
   CATOBS: CATOBS_CODES,
@@ -477,12 +477,12 @@ const HEIGHT_KEYS = new Set(['HEIGHT', 'VERLEN', 'HORLEN', 'HORWID']);
     </ap-popover>
   `
 })
-export class S57PopoverComponent {
+export class S57PopoverComponent implements OnChanges {
   @Input() title: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() properties: { [key: string]: any };
+  @Input() properties: Record<string, any>;
   @Input() canClose: boolean;
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly closed = output<void>();
 
   private app = inject(AppFacade);
   _title: string;
@@ -517,7 +517,7 @@ export class S57PopoverComponent {
     if (!this.properties) {
       return;
     }
-    const layer = this.properties['layer'] || '';
+    const layer = this.properties.layer || '';
     this._title = this.title || S57_NAMES[layer] || layer || 'Chart Feature';
 
     this.displayProps = [];

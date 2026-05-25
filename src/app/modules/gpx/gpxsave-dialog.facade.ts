@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { SK2GPX } from './sk2gpx';
 import { SKTrack } from 'src/app/modules';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 
 @Injectable({ providedIn: 'root' })
 export class GPXSaveFacade {
@@ -32,7 +32,7 @@ export class GPXSaveFacade {
 
   // ** prepare resource data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  prepData(data: { [key: string]: any }) {
+  prepData(data: Record<string, any>) {
     const resData = {
       routes: [],
       waypoints: [],
@@ -65,11 +65,11 @@ export class GPXSaveFacade {
     this.sk2gpx = new SK2GPX();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const skroutes: { [key: string]: any } = {};
+    const skroutes: Record<string, any> = {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const skwaypoints: { [key: string]: any } = {};
+    const skwaypoints: Record<string, any> = {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sktracks: { [key: string]: any } = {};
+    const sktracks: Record<string, any> = {};
 
     for (let i = 0; i < selections.rte.selected.length; i++) {
       if (selections.rte.selected[i]) {

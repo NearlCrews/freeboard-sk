@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import {
   SKResourceService,
   SKRoute,
@@ -118,7 +118,7 @@ export class GeoJSONLoadFacade {
       r.name = f.properties.name ?? '';
       delete f.properties.name;
     } else {
-      r.name = `rte-${new Date().getTime()}`;
+      r.name = `rte-${Date.now()}`;
     }
 
     if (typeof f.properties.description !== 'undefined') {
@@ -136,7 +136,7 @@ export class GeoJSONLoadFacade {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (r['state'] === 'COMPLETED') {
+          if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Route added.');
           } else {
             this.errorCount++;
@@ -163,7 +163,7 @@ export class GeoJSONLoadFacade {
       w.name = f.properties.name ?? '';
       delete f.properties.name;
     } else {
-      w.name = `wpt-${new Date().getTime()}`;
+      w.name = `wpt-${Date.now()}`;
     }
 
     if (typeof f.properties.description !== 'undefined') {
@@ -181,7 +181,7 @@ export class GeoJSONLoadFacade {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (r['state'] === 'COMPLETED') {
+          if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Waypoint added.');
           } else {
             this.errorCount++;
@@ -204,7 +204,7 @@ export class GeoJSONLoadFacade {
     f.properties.name =
       typeof f.properties.name !== 'undefined'
         ? (f.properties.name ?? '')
-        : `trk-${new Date().getTime()}`;
+        : `trk-${Date.now()}`;
     f.properties.description =
       typeof f.properties.description !== 'undefined'
         ? (f.properties.description ?? '')
@@ -217,7 +217,7 @@ export class GeoJSONLoadFacade {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (r['state'] === 'COMPLETED') {
+          if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Track added.');
           } else {
             this.errorCount++;
@@ -243,7 +243,7 @@ export class GeoJSONLoadFacade {
       r.name = f.properties.name ?? '';
       delete f.properties.name;
     } else {
-      r.name = `reg-${new Date().getTime()}`;
+      r.name = `reg-${Date.now()}`;
     }
 
     if (typeof f.properties.description !== 'undefined') {
@@ -260,7 +260,7 @@ export class GeoJSONLoadFacade {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (r['state'] === 'COMPLETED') {
+          if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Region added.');
           } else {
             this.errorCount++;

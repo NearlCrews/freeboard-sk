@@ -3,9 +3,9 @@ import {
   Input,
   ChangeDetectionStrategy,
   SimpleChanges,
-  Output,
-  EventEmitter,
-  inject
+  output,
+  inject,
+  OnChanges
 } from '@angular/core';
 
 import { MatTooltip } from '@angular/material/tooltip';
@@ -100,11 +100,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     `
   ]
 })
-export class Measurements {
-  @Input() coords: Array<Position> = [];
+export class Measurements implements OnChanges {
+  @Input() coords: Position[] = [];
   @Input() index = -1;
   @Input() totalOnly = false;
-  @Output() cancel: EventEmitter<void> = new EventEmitter();
+  readonly cancel = output<void>();
 
   protected totalDistance: string;
   protected legDistance: string;
@@ -156,7 +156,7 @@ export class Measurements {
   }
 
   close() {
-    this.cancel.next();
+    this.cancel.emit();
   }
 
   private calc() {

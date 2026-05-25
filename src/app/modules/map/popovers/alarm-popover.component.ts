@@ -1,10 +1,11 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -102,14 +103,14 @@ import { AlertData } from '../../alarms';
   `,
   styleUrls: []
 })
-export class AlarmPopoverComponent {
+export class AlarmPopoverComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() id: string;
   @Input() alarm: AlertData;
   @Input() canClose: boolean;
-  @Output() info: EventEmitter<string> = new EventEmitter();
-  @Output() goto: EventEmitter<Position> = new EventEmitter();
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly info = output<string>();
+  readonly goto = output<Position>();
+  readonly closed = output<void>();
   _title: string;
 
   protected app = inject(AppFacade);

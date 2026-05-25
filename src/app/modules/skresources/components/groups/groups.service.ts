@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 
 import { ResourceGroupDialog } from './group-dialog';
@@ -13,16 +13,14 @@ import { SKResourceType } from '../../resources.service';
 export interface SKResourceGroup {
   name: string;
   description: string;
-  routes?: Array<string>;
-  waypoints?: Array<string>;
-  charts?: Array<string>;
-  regions?: Array<string>;
+  routes?: string[];
+  waypoints?: string[];
+  charts?: string[];
+  regions?: string[];
 }
-interface GroupResponse {
-  [index: string]: SKResourceGroup;
-}
+type GroupResponse = Record<string, SKResourceGroup>;
 export type FBResourceGroup = [string, SKResourceGroup, boolean?];
-export type FBResourceGroups = Array<FBResourceGroup>;
+export type FBResourceGroups = FBResourceGroup[];
 
 // ** Signal K resource group operations
 @Injectable({ providedIn: 'root' })

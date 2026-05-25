@@ -2,15 +2,16 @@ import {
   Component,
   DestroyRef,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy,
   SimpleChanges,
   ViewChild,
   ElementRef,
   inject,
   signal,
-  computed
+  computed,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -38,7 +39,7 @@ import { computeDestinationPoint } from 'geolib';
 
 import { AnchorService } from '../anchor.service';
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Convert, SI_BASE_UNIT, TARGET_UNIT } from 'src/app/lib/convert';
 
@@ -61,13 +62,13 @@ import { Convert, SI_BASE_UNIT, TARGET_UNIT } from 'src/app/lib/convert';
   templateUrl: './anchor-watch.component.html',
   styleUrls: ['./anchor-watch.component.css']
 })
-export class AnchorWatchComponent {
+export class AnchorWatchComponent implements OnInit, OnChanges {
   @Input() radius: number;
   @Input() min = 5;
   @Input() max = 250;
   @Input() raised = true;
   @Input() showSelf = false;
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly closed = output<void>();
 
   @ViewChild('slideCtl', { static: true }) slideCtl: ElementRef<MatSlideToggle>;
 
@@ -312,7 +313,7 @@ export class AnchorWatchComponent {
       .post('/plugins/anchoralarm/raiseAnchor', {})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }

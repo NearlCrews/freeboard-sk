@@ -1,17 +1,24 @@
 /** Resource Dialog Components **
  ********************************/
 
-import type { OnInit, ChangeDetectorRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import {
+  OnInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  Component,
+  Inject
+} from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import type { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import type { AppFacade } from 'src/app/app.facade';
+import {
+  MatBottomSheetRef,
+  MAT_BOTTOM_SHEET_DATA
+} from '@angular/material/bottom-sheet';
+import { AppFacade } from 'src/app/app.facade';
 import type { SKResourceSet } from '../../custom-resource-classes';
 
 /********* ResourceSetFeatureModal **********

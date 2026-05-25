@@ -20,7 +20,7 @@ import {
 import { ErrorListDialog } from './lib/components/dialogs/errorlist-dialog';
 
 import { Convert, SI_BASE_UNIT, TARGET_UNIT } from './lib/convert';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { SKWorkerService } from './modules';
 
 import {
@@ -130,7 +130,7 @@ export class AppFacade extends InfoService {
   }
 
   public serverConfig = {
-    unitPreferences: signal<SKServerUnitPrefs>(undefined)
+    unitPreferences: signal<SKServerUnitPrefs>()
   };
 
   // controls map zoom limits
@@ -153,7 +153,7 @@ export class AppFacade extends InfoService {
   hasAuthToken = signal<boolean>(false); // auth token has been presented
   isLoggedIn = signal<boolean>(false); // logged in to SK Server
   instrumentPanelAvailable = signal<boolean>(true); // show instrument panel button
-  skAuthChange = signal<string | undefined>(undefined); // Signal K cookie change event
+  skAuthChange = signal<string | undefined>(); // Signal K cookie change event
 
   sIsFetching = signal<boolean>(false); // show progress for fetching data from server
   sTrueMagChoice = signal<string>(''); // preferred path True / Magnetic
@@ -719,7 +719,7 @@ export class AppFacade extends InfoService {
     if (this.watchingSKLogin) return;
     this.watchingSKLogin = window.setInterval(
       (() => {
-        let lastCookie = this.getCookie(document.cookie, 'skLoginInfo');
+        const lastCookie = this.getCookie(document.cookie, 'skLoginInfo');
         return () => {
           const currentCookie = this.getCookie(document.cookie, 'skLoginInfo');
           this.skAuthChange.set(currentCookie);
@@ -737,7 +737,7 @@ export class AppFacade extends InfoService {
   /** return the requested cookie */
   private getCookie(cookies: string, sel: 'sktoken' | 'skLoginInfo') {
     if (!cookies) {
-      return undefined;
+      return;
     }
     const tk = new Map();
     cookies.split(';').forEach((i) => {
@@ -747,7 +747,7 @@ export class AppFacade extends InfoService {
     if (tk.has(sel)) {
       return tk.get(sel);
     } else {
-      return undefined;
+      return;
     }
   }
 
@@ -821,12 +821,12 @@ export class AppFacade extends InfoService {
   alignCustomResourcesPaths() {
     this.signalk.api
       .get(this.skApiVersion, '/resources')
-      .subscribe((res: { [key: string]: { description: string } }) => {
-        const paths = Object.keys(res).filter(
-          (i) => !this.IGNORE_RESOURCES.includes(i)
+      .subscribe((res: Record<string, { description: string }>) => {
+        const paths = new Set(
+          Object.keys(res).filter((i) => !this.IGNORE_RESOURCES.includes(i))
         );
         this.config.resources.paths = this.config.resources.paths.filter((k) =>
-          paths.includes(k)
+          paths.has(k)
         );
       });
   }
@@ -859,7 +859,7 @@ export class AppFacade extends InfoService {
       ['first_run', 'major', 'minor'].includes(this.launchStatus.result)
     ) {
       if (this.launchStatus.result === 'first_run' && !suppressFirstRun) {
-        messages.push(WELCOME_MESSAGES['welcome']);
+        messages.push(WELCOME_MESSAGES.welcome);
         if (this.data.server && this.data.server.id) {
           messages.push(WELCOME_MESSAGES[this.data.server.id]);
           showPrefs = true;
@@ -976,7 +976,7 @@ export class AppFacade extends InfoService {
    * @param err Error response
    */
   parseHttpErrorResponse(err: HttpErrorResponse) {
-    let msg: string = '';
+    let msg = '';
     if (err.status && [401, 403].includes(err.status)) {
       // unauthorised / forbidden
       msg =

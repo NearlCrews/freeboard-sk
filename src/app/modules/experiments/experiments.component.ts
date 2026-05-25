@@ -1,12 +1,7 @@
 /** Experiments Components **
  ********************************/
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Output,
-  EventEmitter
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -51,7 +46,7 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class ExperimentsComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() selected = new EventEmitter<any>();
+  readonly selected = output<any>();
 
   //constructor() {}
 

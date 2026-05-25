@@ -25,7 +25,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import type { SKTrack } from 'src/app/modules';
 import { SKResourceService } from 'src/app/modules';
 import type {
@@ -399,7 +399,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     }
     rte.feature.properties.coordinatesMeta = [];
     rte.feature.properties.coordinatesMeta = r.rtept.map((pt) => {
-      const ptMeta = { name: pt.name ?? '' };
+      const ptMeta: Record<string, string> = { name: pt.name ?? '' };
       if (pt.cmt) {
         ptMeta.description = pt.cmt;
       }
@@ -487,8 +487,8 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     const trk = {
       feature: {
         type: 'Feature',
-        geometry: { type: 'MultiLineString', coordinates: [] },
-        properties: {},
+        geometry: { type: 'MultiLineString', coordinates: [] as number[][][] },
+        properties: {} as Record<string, unknown>,
         id: ''
       }
     };

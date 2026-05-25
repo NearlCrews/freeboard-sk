@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { SKWorkerService } from './skstream.service';
 import { CourseService, SettingsFacade, SKVessel } from 'src/app/modules';
 import {
@@ -29,16 +29,16 @@ export interface StreamOptions {
 @Injectable({ providedIn: 'root' })
 export class SKStreamFacade {
   // **************** ATTRIBUTES ***************************
-  private onConnect: Subject<UpdateMessage> = new Subject();
-  private onClose: Subject<UpdateMessage> = new Subject();
-  private onError: Subject<UpdateMessage> = new Subject();
-  private onMessage: Subject<UpdateMessage> = new Subject();
-  private onSelfTrail: Subject<{
+  private onConnect = new Subject<UpdateMessage>();
+  private onClose = new Subject<UpdateMessage>();
+  private onError = new Subject<UpdateMessage>();
+  private onMessage = new Subject<UpdateMessage>();
+  private onSelfTrail = new Subject<{
     action: 'get';
     mode: 'trail';
     data: MultiLineString;
-  }> = new Subject();
-  private vesselsUpdate: Subject<void> = new Subject();
+  }>();
+  private vesselsUpdate = new Subject<void>();
   // **************** SIGNALS ***********************************
   private anchorSignal = signal<{
     maxRadius?: number;
@@ -143,7 +143,7 @@ export class SKStreamFacade {
   // ** open Signal K Stream
   open(options?: StreamOptions) {
     if (options && options.startTime) {
-      const url = this.signalk.server.endpoints['v1']['signalk-ws'].replace(
+      const url = this.signalk.server.endpoints.v1['signalk-ws'].replace(
         'stream',
         'playback'
       );
@@ -161,7 +161,7 @@ export class SKStreamFacade {
       this.worker.postMessage({
         cmd: 'open',
         options: {
-          url: this.signalk.server.endpoints['v1']['signalk-ws'],
+          url: this.signalk.server.endpoints.v1['signalk-ws'],
           subscribe: 'none',
           token: null
         }
@@ -332,10 +332,9 @@ export class SKStreamFacade {
 
       // process AIS tracks
       this.aisLifecycle().updated.forEach((id) => {
-        const v =
-          id.indexOf('aircraft') !== -1
-            ? this.app.data.aircraft.get(id)
-            : this.app.data.vessels.aisTargets.get(id);
+        const v = id.includes('aircraft')
+          ? this.app.data.aircraft.get(id)
+          : this.app.data.vessels.aisTargets.get(id);
         if (v) {
           this.app.data.vessels.aisTracks.set(id, v.track);
         }

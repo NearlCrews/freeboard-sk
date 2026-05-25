@@ -37,43 +37,43 @@ importers:
         specifier: 21.4.0
         version: 21.4.0(eslint@10.4.0(jiti@2.6.1))(typescript@5.9.3)
       '@angular/animations':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))
       '@angular/build':
-        specifier: ^21.0.3
+        specifier: ^21.2.12
         version: 21.2.12(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.4)(chokidar@5.0.0)(jiti@2.6.1)(less@4.6.4)(ng-packagr@21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tslib@2.8.1)(typescript@5.9.3))(postcss@8.5.15)(tslib@2.8.1)(typescript@5.9.3)(vitest@4.1.7)(yaml@2.9.0)
       '@angular/cdk':
-        specifier: ^21.0.3
+        specifier: ^21.2.12
         version: 21.2.12(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@angular/cli':
-        specifier: ^21.0.3
+        specifier: ^21.2.12
         version: 21.2.12(@types/node@24.12.4)(chokidar@5.0.0)
       '@angular/common':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
       '@angular/compiler':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14
       '@angular/compiler-cli':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3)
       '@angular/core':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)
       '@angular/forms':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@angular/language-service':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14
       '@angular/material':
-        specifier: ^21.0.3
+        specifier: ^21.2.12
         version: 21.2.12(301e0a8fdea8b536416ba650cc60f719)
       '@angular/platform-browser':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))
       '@angular/platform-browser-dynamic':
-        specifier: ^21.0.5
+        specifier: ^21.2.14
         version: 21.2.14(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.1)))
       '@axe-core/playwright':
         specifier: ^4.11.3
@@ -207,15 +207,9 @@ importers:
       semver:
         specifier: ^7.6.0
         version: 7.8.1
-      signalk-client-angular:
-        specifier: ^2.1.0
-        version: 2.1.0
       simple-git-hooks:
         specifier: 2.13.1
         version: 2.13.1
-      simplify-ts:
-        specifier: ^1.0.2
-        version: 1.0.2
       size-limit:
         specifier: ^12.1.0
         version: 12.1.0(jiti@2.6.1)
@@ -4397,9 +4391,6 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  signalk-client-angular@2.1.0:
-    resolution: {integrity: sha512-LtnWFpSgPxmg/5BKdbLxqAqOH+H6xuvcche3QSMulioyT5PccbdS7oqdALWNkALM2EsVB5o4fMlymHtgwV4BFg==}
-
   sigstore@4.1.1:
     resolution: {integrity: sha512-endqECJkfhozrXMK5ngu/UAA0xVcVEFdnHJCElGaExypjW+HK5i6zu3NteLoaX/iFbRUbC3+DjttQs0GARr+5w==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -4407,9 +4398,6 @@ packages:
   simple-git-hooks@2.13.1:
     resolution: {integrity: sha512-WszCLXwT4h2k1ufIXAgsbiTOazqqevFCIncOuUBZJ91DdvWcC5+OFkluWRQPrcuSYd8fjq+o2y1QfWqYMoAToQ==}
     hasBin: true
-
-  simplify-ts@1.0.2:
-    resolution: {integrity: sha512-fDfgIdW3IbsOvEArM/VIEiX863+wqXD44mYWgsC3lsUJnk8+kXbBDt2rIpPA6JVndmp1B758dhi2bIThPiRkCg==}
 
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
@@ -9462,10 +9450,6 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  signalk-client-angular@2.1.0:
-    dependencies:
-      tslib: 2.8.1
-
   sigstore@4.1.1:
     dependencies:
       '@sigstore/bundle': 4.0.0
@@ -9478,8 +9462,6 @@ snapshots:
       - supports-color
 
   simple-git-hooks@2.13.1: {}
-
-  simplify-ts@1.0.2: {}
 
   sisteransi@1.0.5: {}
 
@@ -9854,12 +9836,12 @@ snapshots:
 
   vite@7.3.2(@types/node@24.12.4)(jiti@2.6.1)(less@4.6.4)(sass@1.97.3)(yaml@2.9.0):
     dependencies:
-      esbuild: 0.27.3
+      esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
       postcss: 8.5.15
       rollup: 4.60.4
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.16
     optionalDependencies:
       '@types/node': 24.12.4
       fsevents: 2.3.3

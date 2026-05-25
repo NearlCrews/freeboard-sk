@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 
 // ** WDantuma classes
@@ -14,7 +14,7 @@ export class SKRadar {
   spokes: number;
   maxSpokeLen: number;
   streamUrl: string;
-  legend: { [key: string]: SKRadarLegendEntry };
+  legend: Record<string, SKRadarLegendEntry>;
 }
 
 // server-api /radars response

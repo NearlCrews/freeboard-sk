@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { FBAppData, IAppConfig, Position } from 'src/app/types';
 import { Observable, Subject } from 'rxjs';
 
@@ -17,12 +17,13 @@ interface SKAppsList {
   version: string;
 }
 
-interface ResourceTypeList {
-  [key: string]: {
+type ResourceTypeList = Record<
+  string,
+  {
     $source: string;
     description: string;
-  };
-}
+  }
+>;
 
 /** Settings Option Choices */
 export class SettingsOptions {
@@ -311,7 +312,7 @@ export class SettingsFacade {
     }
 
     this.signalk.apps.list().subscribe(
-      (a: Array<SKAppsList>) => {
+      (a: SKAppsList[]) => {
         this.applicationList = a
           .map((i) => {
             if (i.name === '@signalk/freeboard-sk') {

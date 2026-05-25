@@ -12,10 +12,10 @@ import { AppFacade } from 'src/app/app.facade';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { AlertData } from './components/alert.component';
 import { getAlertIcon } from '../icons';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AlertPropertiesModal } from './components/alert-properties-modal';
 
-type AlertItems = Array<[string, AlertData]>;
+type AlertItems = [string, AlertData][];
 
 @Injectable({ providedIn: 'root' })
 export class NotificationManager {

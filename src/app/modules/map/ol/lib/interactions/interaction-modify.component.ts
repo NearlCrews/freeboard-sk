@@ -2,9 +2,10 @@ import {
   ChangeDetectorRef,
   ChangeDetectionStrategy,
   Component,
-  Output,
+  output,
   Input,
-  EventEmitter
+  AfterViewInit,
+  OnDestroy
 } from '@angular/core';
 import { Map, Feature, Collection, MapBrowserEvent } from 'ol';
 import { Geometry } from 'ol/geom';
@@ -18,7 +19,7 @@ import { MapComponent } from '../map.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class InteractionModifyComponent {
+export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
     protected mapComponent: MapComponent
@@ -28,9 +29,9 @@ export class InteractionModifyComponent {
 
   @Input() features: Collection<Feature<Geometry>>;
 
-  @Output() change: EventEmitter<ModifyEvent> = new EventEmitter();
-  @Output() modifyStart: EventEmitter<ModifyEvent> = new EventEmitter();
-  @Output() modifyEnd: EventEmitter<ModifyEvent> = new EventEmitter();
+  readonly change = output<ModifyEvent>();
+  readonly modifyStart = output<ModifyEvent>();
+  readonly modifyEnd = output<ModifyEvent>();
 
   private map: Map;
   private interaction: Modify;

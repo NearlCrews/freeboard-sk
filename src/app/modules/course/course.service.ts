@@ -1,6 +1,6 @@
 import { effect, Injectable, signal } from '@angular/core';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { SKResourceService, SKVessel } from '../skresources';
 import { CourseData, FBRoute, SKPosition } from 'src/app/types';
@@ -68,7 +68,7 @@ export class CourseService {
         }
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -90,7 +90,7 @@ export class CourseService {
     this.signalk.api
       .delete(this.app.skApiVersion, `vessels/self/navigation/course`)
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -120,7 +120,7 @@ export class CourseService {
         })
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -139,7 +139,7 @@ export class CourseService {
         null
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -158,7 +158,7 @@ export class CourseService {
         null
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -177,7 +177,7 @@ export class CourseService {
         null
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -199,7 +199,7 @@ export class CourseService {
         }
       )
       .subscribe(
-        () => undefined,
+        () => {},
         (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
@@ -360,7 +360,7 @@ export class CourseService {
    * @param v self vessel
    */
   private processCourseCalcs(v: SKVessel) {
-    let c = Object.assign({}, this._courseData());
+    const c = Object.assign({}, this._courseData());
 
     // ** process preferred course data **
     if (typeof v.courseCalcs.crossTrackError !== 'undefined') {
@@ -424,7 +424,7 @@ export class CourseService {
 
     if (typeof v.courseCalcs.estimatedTimeOfArrival !== 'undefined') {
       if (v.courseCalcs.estimatedTimeOfArrival !== null) {
-        let d: Date | null = new Date(v.courseCalcs.estimatedTimeOfArrival);
+        const d: Date | null = new Date(v.courseCalcs.estimatedTimeOfArrival);
         c.eta = d instanceof Date && !isNaN(d as any) ? d : null;
       } else {
         c.eta = null;
@@ -433,7 +433,7 @@ export class CourseService {
 
     if (typeof v.courseCalcs['route.estimatedTimeOfArrival'] !== 'undefined') {
       if (v.courseCalcs['route.estimatedTimeOfArrival'] !== null) {
-        let d: Date | null = new Date(
+        const d: Date | null = new Date(
           v.courseCalcs['route.estimatedTimeOfArrival']
         );
         c.route.eta = d instanceof Date && !isNaN(d as any) ? d : null;

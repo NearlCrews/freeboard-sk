@@ -1,8 +1,7 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -55,11 +54,11 @@ import { PopoverComponent } from './popover.component';
 })
 export class FeatureListPopoverComponent {
   @Input() title: string;
-  @Input() features: Array<{ text: string; icon: string }> = [];
+  @Input() features: { text: string; icon: string }[] = [];
   @Input() canClose: boolean;
-  @Output() closed: EventEmitter<void> = new EventEmitter();
+  readonly closed = output<void>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() selected: EventEmitter<any> = new EventEmitter();
+  readonly selected = output<any>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSelect(item: any) {

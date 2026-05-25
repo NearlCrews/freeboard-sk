@@ -1,5 +1,6 @@
-import type { OnInit, ElementRef } from '@angular/core';
 import {
+  OnInit,
+  ElementRef,
   ChangeDetectionStrategy,
   Component,
   signal,
@@ -12,8 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -32,11 +32,11 @@ import type {
 } from './linestyle-select.component';
 import { LineStyleSelectComponent } from './linestyle-select.component';
 import { SignalKPreferredPathsComponent } from './signalk-preferredpaths.component';
-import type { SettingsFacade, SettingsOptions } from '../settings.facade';
-import type { WakeLockService } from 'src/app/lib/services';
+import { SettingsOptions, SettingsFacade } from '../settings.facade';
+import { WakeLockService } from 'src/app/lib/services';
 import { defaultConfig } from 'src/app/app.config';
-import type { S57Service } from '../../map/ol';
-import type { AppFacade } from 'src/app/app.facade';
+import { S57Service } from '../../map/ol';
+import { AppFacade } from 'src/app/app.facade';
 import type { TARGET_UNIT } from 'src/app/lib/convert';
 import { Convert } from 'src/app/lib/convert';
 

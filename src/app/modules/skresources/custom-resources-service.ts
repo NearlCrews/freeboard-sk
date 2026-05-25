@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer, SKResourceSet } from './custom-resource-classes';
 import { SKResourceService, SKSelection } from './resources.service';
@@ -27,9 +27,9 @@ export class FBCustomResourceService {
   private infoLayerCacheSignal = signal<FBInfoLayers>([]);
   readonly infoLayers = this.infoLayerCacheSignal.asReadonly();
 
-  public infoLayerParams = signal<
-    Array<{ id: string; param: { [key: string]: any } }>
-  >([]);
+  public infoLayerParams = signal<{ id: string; param: Record<string, any> }[]>(
+    []
+  );
 
   constructor(
     public dialog: MatDialog,
@@ -319,7 +319,7 @@ export class FBCustomResourceService {
    * @param query Filter criteria for items in placed in the cache
    */
   public async refreshInfoLayers(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshInfoLayers(): ${query}`);
@@ -330,7 +330,7 @@ export class FBCustomResourceService {
         query,
         true
       );
-      let flist = layers.filter((layer: FBInfoLayer) => layer[2]);
+      const flist = layers.filter((layer: FBInfoLayer) => layer[2]);
       //flist = this.arrangeLayers(flist);
       this.infoLayerCacheSignal.set(flist);
     } catch (err) {

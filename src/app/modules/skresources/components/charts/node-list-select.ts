@@ -1,11 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
-  EventEmitter,
   inject,
   input,
-  Output
+  output
 } from '@angular/core';
 
 import { MatListModule, MatSelectionListChange } from '@angular/material/list';
@@ -52,13 +50,13 @@ import { AppFacade } from 'src/app/app.facade';
   ]
 })
 export class NodeListSelect {
-  @Output() selected: EventEmitter<string[]> = new EventEmitter<string[]>();
+  readonly selected = output<string[]>();
   protected preSelect = input<string[]>([]);
   protected layers = input<{ id: string; name: string; description: string }[]>(
     []
   );
 
-  private selections: Array<string> = [];
+  private selections: string[] = [];
 
   protected app = inject(AppFacade);
 

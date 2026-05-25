@@ -1,5 +1,12 @@
-import type { OnInit, OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -10,12 +17,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
 
-import type { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { FileInputComponent } from 'src/app/lib/components/file-input.component';
-import type { AppFacade } from 'src/app/app.facade';
+import { AppFacade } from 'src/app/app.facade';
 
 //** Resources upload dialog **
 @Component({
@@ -37,7 +47,7 @@ import type { AppFacade } from 'src/app/app.facade';
     FileInputComponent
   ]
 })
-export class ResourceImportDialog implements OnInit, OnDestroy {
+export class ResourceImportDialog implements OnInit {
   public resPaths: string[] = [];
   public targetPath: string = null;
   public source = { type: null, name: null, data: null };
@@ -46,7 +56,7 @@ export class ResourceImportDialog implements OnInit, OnDestroy {
     notValid: false
   };
 
-  private unsubscribe = [];
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     public app: AppFacade,
@@ -57,30 +67,29 @@ export class ResourceImportDialog implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.skclient.api.get(this.app.skApiVersion, '/resources').subscribe(
-      (r) => {
-        this.resPaths = [];
-        this.targetPath = null;
-        this.resPaths = Object.keys(r).filter((i) => {
-          return ![
-            'routes',
-            'waypoints',
-            'notes',
-            'regions',
-            'charts',
-            'tracks'
-          ].includes(i);
-        });
-      },
-      () => {
-        this.resPaths = [];
-        this.targetPath = null;
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.forEach((i) => i.unsubscribe());
+    this.skclient.api
+      .get(this.app.skApiVersion, '/resources')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(
+        (r) => {
+          this.resPaths = [];
+          this.targetPath = null;
+          this.resPaths = Object.keys(r).filter((i) => {
+            return ![
+              'routes',
+              'waypoints',
+              'notes',
+              'regions',
+              'charts',
+              'tracks'
+            ].includes(i);
+          });
+        },
+        () => {
+          this.resPaths = [];
+          this.targetPath = null;
+        }
+      );
   }
 
   // ** send data for load to server **

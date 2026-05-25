@@ -1,10 +1,20 @@
 /** Trail2Route Dialog Component **
  ********************************/
 
-import type { OnInit, OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,10 +24,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
-import { SimplifyAP } from 'simplify-ts';
-import type { SKResourceService, SKStreamFacade } from 'src/app/modules';
-import { SKRoute } from 'src/app/modules';
-import type { AppFacade } from 'src/app/app.facade';
+import { SimplifyAP } from 'src/lib/simplify-ts';
+import { SKResourceService, SKStreamFacade, SKRoute } from 'src/app/modules';
+import { AppFacade } from 'src/app/app.facade';
 
 /********* Trail2RouteDialog **********
 	data: {
@@ -46,7 +55,7 @@ import type { AppFacade } from 'src/app/app.facade';
     `
   ]
 })
-export class Trail2RouteDialog implements OnInit, OnDestroy {
+export class Trail2RouteDialog implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rteFromTrail: any[];
   mapCenter = [0, 0];
@@ -58,8 +67,7 @@ export class Trail2RouteDialog implements OnInit, OnDestroy {
 
   mapControls = [{ name: 'zoom' }];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private obsList: any[] = [];
+  private destroyRef = inject(DestroyRef);
   private fetching = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private serverCoords: any[] = [];
@@ -76,14 +84,11 @@ export class Trail2RouteDialog implements OnInit, OnDestroy {
   //** lifecycle: events **
   ngOnInit() {
     this.parseTrail(false, true);
-    this.obsList.push(
-      this.stream.trail$().subscribe((value) => this.onServerResource(value))
-    );
+    this.stream
+      .trail$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.onServerResource(value));
     this.getServerTrail(this.app.config.vessels.trailFromServer);
-  }
-
-  ngOnDestroy() {
-    this.obsList.forEach((i) => i.unsubscribe());
   }
 
   changeTolerance(val: number) {

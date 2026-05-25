@@ -1,4 +1,12 @@
-import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ChangeDetectorRef,
+  DestroyRef,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -19,11 +27,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { Convert, TARGET_UNIT } from 'src/app/lib/convert';
 import { CourseService, SKStreamFacade } from 'src/app/modules';
 import { UpdateMessage } from 'src/app/types';
-import { Subscription } from 'rxjs';
 
 /********* Course Settings Modal ********
 	data: {
@@ -187,7 +194,7 @@ import { Subscription } from 'rxjs';
 })
 export class CourseSettingsModal implements OnInit {
   frmArrivalCircle: number;
-  private deltaSub: Subscription;
+  private destroyRef = inject(DestroyRef);
   protected targetArrivalEnabled = false;
   protected minDate = new Date();
   protected arrivalData = {
@@ -213,7 +220,7 @@ export class CourseSettingsModal implements OnInit {
 
   ngOnInit() {
     if (this.data.title === 'undefined') {
-      this.data['title'] = 'Course Settings';
+      this.data.title = 'Course Settings';
     }
     this.frmArrivalCircle =
       this.course.courseData().arrivalCircle === null
@@ -228,11 +235,14 @@ export class CourseSettingsModal implements OnInit {
             )
           );
 
-    this.deltaSub = this.stream.delta$().subscribe((e: UpdateMessage) => {
-      if (e.action === 'update') {
-        this.cdr.detectChanges();
-      }
-    });
+    this.stream
+      .delta$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((e: UpdateMessage) => {
+        if (e.action === 'update') {
+          this.cdr.detectChanges();
+        }
+      });
 
     this.signalk.api
       .get(this.app.skApiVersion, 'vessels/self/navigation/course')
@@ -252,10 +262,6 @@ export class CourseSettingsModal implements OnInit {
           ).slice(-2);
         }
       });
-  }
-
-  ngOnDestroy() {
-    this.deltaSub.unsubscribe();
   }
 
   closeModal() {
@@ -297,7 +303,7 @@ export class CourseSettingsModal implements OnInit {
             { value: d }
           )
           .subscribe(
-            () => undefined,
+            () => {},
             (error: HttpErrorResponse) => {
               let msg = `Error setting Arrival Circle!\n`;
               if (error.status === 403) {

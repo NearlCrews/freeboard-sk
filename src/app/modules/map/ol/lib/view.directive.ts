@@ -2,19 +2,17 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Directive,
-  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   SimpleChanges
 } from '@angular/core';
 import View from 'ol/View';
-import { transformExtent, toLonLat, fromLonLat } from 'ol/proj';
+import { transformExtent, toLonLat, fromLonLat, ProjectionLike } from 'ol/proj';
 import { Coordinate, Extent } from './models';
 import { MapComponent } from './map.component';
-import { ProjectionLike } from 'ol/proj';
 
 const animateDuration = 500;
 
@@ -33,12 +31,11 @@ export class ViewDirective
   private timerRotationId: any;
   private view: View;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private viewProperties: { [index: string]: any } = {};
+  private viewProperties: Record<string, any> = {};
 
-  @Output() centerChange: EventEmitter<Coordinate> =
-    new EventEmitter<Coordinate>();
-  @Output() rotationChange: EventEmitter<number> = new EventEmitter<number>();
-  @Output() zoomChange: EventEmitter<number> = new EventEmitter<number>();
+  readonly centerChange = output<Coordinate>();
+  readonly rotationChange = output<number>();
+  readonly zoomChange = output<number>();
 
   @Input() enableAnimation = false;
   @Input() constrainRotation: boolean | number;
@@ -87,7 +84,7 @@ export class ViewDirective
 
   ngOnChanges(changes: SimpleChanges) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const properties: { [index: string]: any } = {};
+    const properties: Record<string, any> = {};
 
     for (const key in changes) {
       if (key === 'zoom') {

@@ -4,8 +4,8 @@ import {
   ElementRef,
   ViewChild,
   Input,
-  Output,
-  EventEmitter
+  output,
+  OnChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,7 +45,7 @@ interface PiPVideoElement extends HTMLVideoElement {
   `,
   styles: [``]
 })
-export class PiPVideoComponent implements OnInit {
+export class PiPVideoComponent implements OnInit, OnChanges {
   private pipVideo: PiPVideoElement;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pipWindow: any;
@@ -53,9 +53,9 @@ export class PiPVideoComponent implements OnInit {
   vidUrl: string;
   @Input() src: string;
   @Input() muted = true;
-  @Output() resize: EventEmitter<[number, number]> = new EventEmitter();
-  @Output() change: EventEmitter<boolean> = new EventEmitter();
-  @Output() click: EventEmitter<boolean> = new EventEmitter();
+  readonly resize = output<[number, number]>();
+  readonly change = output<boolean>();
+  readonly click = output<boolean>();
   @ViewChild('vid', { static: true }) vid: ElementRef;
 
   //constructor() {}
@@ -79,7 +79,6 @@ export class PiPVideoComponent implements OnInit {
       this.change.emit(this.pipMode);
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.pipVideo.addEventListener('leavepictureinpicture', () => {
       this.pipMode = false;
       this.pipVideo.pause();

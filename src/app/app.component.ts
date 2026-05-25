@@ -1,12 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ViewChild,
   computed,
   effect,
   inject,
-  signal
+  signal,
+  AfterViewInit,
+  OnInit,
+  OnDestroy
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -37,7 +42,7 @@ import {
 
 import { AppFacade } from './app.facade';
 import { InfoPanelFacade, InfoPanelComponent } from './modules/info-panel';
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import { WakeLockService } from 'src/app/lib/services';
 
 import {
@@ -85,16 +90,16 @@ import {
   RegionPanel
 } from 'src/app/modules';
 
-import type { ResourceImportDialog } from 'src/app/modules/skresources/components/resourcesets/resource-upload-dialog';
-import type { SettingsDialog } from 'src/app/modules/settings/components/settings-dialog';
-import type { GPXImportDialog } from 'src/app/modules/gpx/gpxload-dialog';
-import type { GPXExportDialog } from 'src/app/modules/gpx/gpxsave-dialog';
+import { ResourceImportDialog } from 'src/app/modules/skresources/components/resourcesets/resource-upload-dialog';
+import { SettingsDialog } from 'src/app/modules/settings/components/settings-dialog';
+import { GPXImportDialog } from 'src/app/modules/gpx/gpxload-dialog';
+import { GPXExportDialog } from 'src/app/modules/gpx/gpxsave-dialog';
 
-import type { AboutDialog } from 'src/app/lib/components/dialogs/about-dialog';
-import type { LoginDialog } from 'src/app/lib/components/dialogs/login-dialog';
-import type { PlaybackDialog } from 'src/app/lib/components/dialogs/playback-dialog';
-import type { GeoJSONImportDialog } from 'src/app/lib/components/dialogs/geojson/geojson-dialog';
-import type { Trail2RouteDialog } from 'src/app/lib/components/dialogs/trail2route-dialog';
+import { AboutDialog } from 'src/app/lib/components/dialogs/about-dialog';
+import { LoginDialog } from 'src/app/lib/components/dialogs/login-dialog';
+import { PlaybackDialog } from 'src/app/lib/components/dialogs/playback-dialog';
+import { GeoJSONImportDialog } from 'src/app/lib/components/dialogs/geojson/geojson-dialog';
+import { Trail2RouteDialog } from 'src/app/lib/components/dialogs/trail2route-dialog';
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { compareSemver, parseSemver } from 'src/app/lib/semver';
@@ -129,7 +134,7 @@ interface DrawEndEvent {
   forSave: boolean;
   mode: string;
   modify: false;
-  properties: { [key: string]: unknown };
+  properties: Record<string, unknown>;
   type: string;
 }
 
@@ -179,7 +184,7 @@ interface DrawEndEvent {
     RoutePanel
   ]
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('sideright', { static: false }) sideright;
 
   protected navDataPanel = signal<{
@@ -242,7 +247,7 @@ export class AppComponent {
   protected vidUrl = signal<SafeResourceUrl | null>(null);
 
   protected convert = Convert;
-  private obsList = []; // observables array
+  private destroyRef = inject(DestroyRef);
   private streamOptions = { options: null, toMode: null };
 
   protected mapSetFocus = signal<string>('');
@@ -297,7 +302,7 @@ export class AppComponent {
     // handle uiConfig signal
     effect(() => {
       this.app.uiConfig();
-      this.handleSettingChangeEvent(undefined);
+      this.handleSettingChangeEvent();
     });
   }
 
@@ -351,45 +356,40 @@ export class AppComponent {
 
     // ********************* SUBSCRIPTIONS *****************
     // ** SIGNAL K STREAM **
-    this.obsList.push(
-      this.stream
-        .delta$()
-        .subscribe((msg: NotificationMessage | UpdateMessage) =>
-          this.onMessage(msg)
-        )
-    );
-    this.obsList.push(
-      this.stream
-        .connect$()
-        .subscribe((msg: NotificationMessage | UpdateMessage) =>
-          this.onConnect(msg)
-        )
-    );
-    this.obsList.push(
-      this.stream
-        .close$()
-        .subscribe((msg: NotificationMessage | UpdateMessage) =>
-          this.onClose(msg)
-        )
-    );
-    this.obsList.push(
-      this.stream
-        .error$()
-        .subscribe((msg: NotificationMessage | UpdateMessage) =>
-          this.onError(msg)
-        )
-    );
+    this.stream
+      .delta$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg: NotificationMessage | UpdateMessage) =>
+        this.onMessage(msg)
+      );
+    this.stream
+      .connect$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg: NotificationMessage | UpdateMessage) =>
+        this.onConnect(msg)
+      );
+    this.stream
+      .close$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg: NotificationMessage | UpdateMessage) =>
+        this.onClose(msg)
+      );
+    this.stream
+      .error$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg: NotificationMessage | UpdateMessage) =>
+        this.onError(msg)
+      );
     // ** TRAIL$ update event
-    this.obsList.push(
-      this.stream.trail$().subscribe((msg) => this.handleTrailUpdate(msg))
-    );
+    this.stream
+      .trail$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg) => this.handleTrailUpdate(msg));
 
     // ** SETTINGS.CHANGE$ - handle settings.change$ event
-    this.obsList.push(
-      this.settings.change$.subscribe((value: string[]) =>
-        this.handleSettingChangeEvent(value)
-      )
-    );
+    this.settings.change$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value: string[]) => this.handleSettingChangeEvent(value));
 
     // fullscreen event handlers
     document.addEventListener('fullscreenchange', () => {
@@ -411,7 +411,6 @@ export class AppComponent {
     this.stopTimers();
     this.stream.terminate();
     this.signalk.disconnect();
-    this.obsList.forEach((i) => i.unsubscribe());
   }
 
   // ********* DISPLAY / APPEARANCE ****************
@@ -502,9 +501,9 @@ export class AppComponent {
     const docel = document.documentElement;
     const fscreen =
       docel.requestFullscreen ||
-      docel['webkitRequestFullScreen'] ||
-      docel['mozRequestFullscreen'] ||
-      docel['msRequestFullscreen'];
+      docel.webkitRequestFullScreen ||
+      docel.mozRequestFullscreen ||
+      docel.msRequestFullscreen;
     if (fscreen) {
       if (!document.fullscreenElement) {
         fscreen.call(docel);
@@ -540,7 +539,7 @@ export class AppComponent {
     const url = `${this.app.hostDef.url}${this.app.config.display.plugins.instruments}`;
     const params = this.app.config.display.plugins.parameters
       ? this.app.config.display.plugins.parameters.length > 0 &&
-        this.app.config.display.plugins.parameters[0] !== '?'
+        !this.app.config.display.plugins.parameters.startsWith('?')
         ? `?${this.app.config.display.plugins.parameters}`
         : this.app.config.display.plugins.parameters
       : '';
@@ -583,7 +582,7 @@ export class AppComponent {
   /** handle infolayer parameter change **/
   protected onInfoLayerParamChange(param: {
     id: string;
-    param: { [key: string]: any };
+    param: Record<string, any>;
   }) {
     this.skresOther.infoLayerParams.update(() => [param]);
   }
@@ -777,10 +776,7 @@ export class AppComponent {
       buddyList: false
     };
     this.signalk.get('/signalk/v2/features?enabled=1').subscribe(
-      (res: {
-        apis: string[];
-        plugins: Array<{ id: string; version: string }>;
-      }) => {
+      (res: { apis: string[]; plugins: { id: string; version: string }[] }) => {
         // detect apis
         ff.weatherApi = res.apis.includes('weather');
         ff.autopilotApi = res.apis.includes('autopilot');
@@ -1109,11 +1105,9 @@ export class AppComponent {
 
   /** GPX / GeoJSON imports */
   protected importFile(f: { data: string | ArrayBuffer; name: string }) {
-    if ((f.data as string).indexOf('<gpx ') !== -1) {
+    if ((f.data as string).includes('<gpx ')) {
       this.processGPX(f);
-    } else if (
-      (f.data as string).indexOf(`"type": "FeatureCollection",`) !== -1
-    ) {
+    } else if ((f.data as string).includes(`"type": "FeatureCollection",`)) {
       this.processGeoJSON(f);
     } else {
       this.app.showAlert('Import', 'File format not supported!');
@@ -1265,7 +1259,7 @@ export class AppComponent {
           this.signalk.login(res.user, res.pwd).subscribe({
             next: (r) => {
               // ** authenticated
-              this.app.persistToken(r['token']);
+              this.app.persistToken(r.token);
               this.app.loadUserConfigfromServer().then((loaded: boolean) => {
                 if (loaded) {
                   this.fetchAllResources();
@@ -1496,7 +1490,7 @@ export class AppComponent {
         title = 'Meteo Properties';
         icon = 'air';
         atonType = e.type;
-      } else if (e.id.slice(0, 3) === 'sar') {
+      } else if (e.id.startsWith('sar')) {
         v = this.app.data.sar.get(e.id);
         title = 'SaR Properties';
         icon = 'tour';
@@ -1709,8 +1703,8 @@ export class AppComponent {
     switch (this.mapInteract.draw.resourceType) {
       case 'note':
         const params = { position: e.coordinates };
-        if (this.mapInteract.draw.properties['group']) {
-          params['group'] = this.mapInteract.draw.properties['group'];
+        if (this.mapInteract.draw.properties.group) {
+          params.group = this.mapInteract.draw.properties.group;
         }
         this.skres.showNoteEditor(params);
         break;
@@ -1855,7 +1849,7 @@ export class AppComponent {
 
   /** query server for current values */
   private queryAfterConnect() {
-    if (parseSemver(this.signalk.server.info.version)?.[0] === 1) {
+    if (parseSemver(String(this.signalk.server.info.version))?.[0] === 1) {
       this.app.showAlert(
         'Unsupported Server Version:',
         'The connected Signal K server is not supported by this version of Freeboard-SK.\n Signal K server version 2 or later is required!'
@@ -1866,7 +1860,7 @@ export class AppComponent {
       (r) => {
         this.stream.post({
           cmd: 'vessel',
-          options: { context: 'self', name: r['name'] }
+          options: { context: 'self', name: r.name }
         });
         if (this.app.config.vessels.trailFromServer) {
           this.stream.requestTrailFromServer(); // request trail from server

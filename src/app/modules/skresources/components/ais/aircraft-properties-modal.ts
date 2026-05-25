@@ -16,7 +16,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import { SignalKClient } from 'signalk-client-angular';
+import { SignalKClient } from 'src/lib/signalk-client';
 import type { SKAircraft } from 'src/app/modules/skresources/resource-classes';
 import { SignalKDetailsComponent } from '../../components/signalk-details.component';
 

@@ -1,7 +1,17 @@
 import type { OnInit, OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule
+} from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,9 +26,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import type { GPXSaveFacade } from './gpxsave-dialog.facade';
-import type { AppFacade } from 'src/app/app.facade';
-import type { SKResourceService } from '../skresources';
+import { GPXSaveFacade } from './gpxsave-dialog.facade';
+import { AppFacade } from 'src/app/app.facade';
+import { SKResourceService } from '../skresources';
 import type { FBRoute, FBWaypoint } from 'src/app/types';
 
 //** GPXSave dialog **
@@ -71,7 +81,7 @@ export class GPXExportDialog implements OnInit, OnDestroy {
     expand: { routes: false, waypoints: false, tracks: false }
   };
 
-  private unsubscribe = [];
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     protected app: AppFacade,
@@ -85,15 +95,14 @@ export class GPXExportDialog implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadResources();
     // ** close dialog returning error count **
-    this.unsubscribe.push(
-      this.facade.result$.subscribe((errCount) => {
+    this.facade.result$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((errCount) => {
         this.dialogRef.close(errCount);
-      })
-    );
+      });
   }
 
   ngOnDestroy() {
-    this.unsubscribe.forEach((i) => i.unsubscribe());
     this.facade.clear();
   }
 

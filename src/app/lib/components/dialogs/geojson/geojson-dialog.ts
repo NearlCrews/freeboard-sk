@@ -1,7 +1,17 @@
-import type { OnInit, OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import type { MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA
+} from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,8 +24,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import type { GeoJSONLoadFacade } from './geojson-dialog.facade';
-import type { AppFacade } from 'src/app/app.facade';
+import { GeoJSONLoadFacade } from './geojson-dialog.facade';
+import { AppFacade } from 'src/app/app.facade';
 
 //** GeoJSON import dialog **
 @Component({
@@ -37,7 +47,7 @@ import type { AppFacade } from 'src/app/app.facade';
   templateUrl: './geojson-dialog.html',
   styleUrls: ['./geojson-dialog.css']
 })
-export class GeoJSONImportDialog implements OnInit, OnDestroy {
+export class GeoJSONImportDialog implements OnInit {
   public geoData = {
     name: '',
     routes: [],
@@ -51,7 +61,7 @@ export class GeoJSONImportDialog implements OnInit, OnDestroy {
     notValid: false
   };
 
-  private unsubscribe = [];
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     public app: AppFacade,
@@ -66,15 +76,11 @@ export class GeoJSONImportDialog implements OnInit, OnDestroy {
     this.parseFileData(this.data.fileData);
 
     // ** close dialog returning error count **
-    this.unsubscribe.push(
-      this.facade.uploaded$.subscribe((errCount) => {
+    this.facade.uploaded$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((errCount) => {
         this.dialogRef.close(errCount);
-      })
-    );
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.forEach((i) => i.unsubscribe());
+      });
   }
 
   // ** upload features to server **

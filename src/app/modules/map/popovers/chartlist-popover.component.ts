@@ -1,8 +1,7 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
+  output,
   ChangeDetectionStrategy
 } from '@angular/core';
 
@@ -41,10 +40,10 @@ import { PopoverComponent } from './popover.component';
 })
 export class ChartListPopoverComponent {
   protected title = 'Click to Show / Hide Chart';
-  @Input() features: Array<{ id: string; text: string }> = [];
+  @Input() features: { id: string; text: string }[] = [];
   @Input() canClose: boolean;
-  @Output() closed: EventEmitter<void> = new EventEmitter();
-  @Output() selected: EventEmitter<string> = new EventEmitter();
+  readonly closed = output<void>();
+  readonly selected = output<string>();
 
   handleSelect(id: string) {
     this.selected.emit(id);
