@@ -1,6 +1,7 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { AppFacade } from 'src/app/app.facade';
+import { SettingsStore } from 'src/app/stores';
 import { SKResourceService } from 'src/app/modules';
 
 interface FullscreenState {
@@ -25,6 +26,9 @@ type FullscreenElement = HTMLElement & {
 @Injectable({ providedIn: 'root' })
 export class AppShellService {
   private readonly app = inject(AppFacade);
+  // Phase 3 Batch 3: direct store injection for UI-state signals; AppFacade
+  // is kept for the config + data + dark-mode bridge in setDarkTheme().
+  private readonly settings = inject(SettingsStore);
   private readonly overlayContainer = inject(OverlayContainer);
   private readonly skres = inject(SKResourceService);
 
@@ -67,12 +71,12 @@ export class AppShellService {
   // ----- toolbar toggles -----
 
   toggleRadar(): void {
-    this.app.uiCtrl.update((c) => ({ ...c, radarLayer: !c.radarLayer }));
+    this.settings.uiCtrl.update((c) => ({ ...c, radarLayer: !c.radarLayer }));
     this.focusMap();
   }
 
   toggleMoveMap(exit = false): void {
-    this.app.uiConfig.update((c) => ({
+    this.settings.uiConfig.update((c) => ({
       ...c,
       mapMove: exit ? false : !c.mapMove
     }));
@@ -80,12 +84,12 @@ export class AppShellService {
   }
 
   toggleNorthUp(): void {
-    this.app.uiConfig.update((c) => ({ ...c, mapNorthUp: !c.mapNorthUp }));
+    this.settings.uiConfig.update((c) => ({ ...c, mapNorthUp: !c.mapNorthUp }));
     this.focusMap();
   }
 
   toggleToolbarButtons(): void {
-    this.app.uiConfig.update((c) => ({
+    this.settings.uiConfig.update((c) => ({
       ...c,
       toolbarButtons: !c.toolbarButtons
     }));
@@ -93,7 +97,7 @@ export class AppShellService {
   }
 
   toggleConstrainMapZoom(): void {
-    this.app.uiConfig.update((c) => ({
+    this.settings.uiConfig.update((c) => ({
       ...c,
       mapConstrainZoom: !c.mapConstrainZoom
     }));
@@ -102,24 +106,27 @@ export class AppShellService {
   }
 
   invertFeatureLabelColor(): void {
-    this.app.uiConfig.update((c) => ({ ...c, invertColor: !c.invertColor }));
+    this.settings.uiConfig.update((c) => ({
+      ...c,
+      invertColor: !c.invertColor
+    }));
     this.focusMap();
   }
 
   toggleAlertList(show: boolean): void {
-    this.app.uiCtrl.update((c) => ({ ...c, alertList: show }));
+    this.settings.uiCtrl.update((c) => ({ ...c, alertList: show }));
   }
 
   toggleAutopilotConsole(show: boolean): void {
-    this.app.uiCtrl.update((c) => ({ ...c, autopilotConsole: show }));
+    this.settings.uiCtrl.update((c) => ({ ...c, autopilotConsole: show }));
   }
 
   toggleRouteBuilderConsole(show: boolean): void {
-    this.app.uiCtrl.update((c) => ({ ...c, routeBuilder: show }));
+    this.settings.uiCtrl.update((c) => ({ ...c, routeBuilder: show }));
   }
 
   toggleSuppressContextMenu(value: boolean): void {
-    this.app.uiCtrl.update((c) => ({ ...c, suppressContextMenu: value }));
+    this.settings.uiCtrl.update((c) => ({ ...c, suppressContextMenu: value }));
   }
 
   toggleFullscreen(): void {
@@ -143,7 +150,7 @@ export class AppShellService {
   // ----- map orientation -----
 
   getOrientation(): string {
-    return this.app.uiConfig().mapNorthUp
+    return this.settings.uiConfig().mapNorthUp
       ? 'rotate(0deg)'
       : 'rotate(' + (0 - this.app.data.vessels.active.orientation) + 'rad)';
   }

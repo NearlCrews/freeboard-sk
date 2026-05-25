@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppShellService } from './app-shell.service';
 import {
@@ -45,6 +46,10 @@ export class DialogOrchestrator {
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly app = inject(AppFacade);
+  // Phase 3 Batch 3: direct store injection for dialog and fetch-progress
+  // surface. AppFacade is kept for data + config + login flow access.
+  private readonly alarm = inject(AlarmStore);
+  private readonly settings = inject(SettingsStore);
   private readonly shell = inject(AppShellService);
   private readonly skres = inject(SKResourceService);
   private readonly skresOther = inject(FBCustomResourceService);
@@ -105,7 +110,7 @@ export class DialogOrchestrator {
     } else if (text.includes(`"type": "FeatureCollection",`)) {
       this.processGeoJSON(f);
     } else {
-      this.app.showAlert('Import', 'File format not supported!');
+      this.alarm.showAlert('Import', 'File format not supported!');
     }
     this.focus();
   }
@@ -129,7 +134,7 @@ export class DialogOrchestrator {
         }
         this.hooks?.fetchResources();
         if (res.errCount === 0) {
-          this.app.showMsgBox(
+          this.alarm.showMsgBox(
             'GPX Load',
             'GPX file resources loaded successfully.'
           );
@@ -158,12 +163,15 @@ export class DialogOrchestrator {
           return;
         }
         if (errCount === 0) {
-          this.app.showMsgBox(
+          this.alarm.showMsgBox(
             'GPX Save',
             'Resources saved to GPX file successfully.'
           );
         } else {
-          this.app.showAlert('GPX Save', 'Error saving resources to GPX file!');
+          this.alarm.showAlert(
+            'GPX Save',
+            'Error saving resources to GPX file!'
+          );
         }
         this.focus();
       });
@@ -187,12 +195,12 @@ export class DialogOrchestrator {
         }
         this.hooks?.fetchResources();
         if (errCount === 0) {
-          this.app.showMsgBox(
+          this.alarm.showMsgBox(
             'GeoJSON Load',
             'GeoJSON features loaded successfully.'
           );
         } else {
-          this.app.showAlert(
+          this.alarm.showAlert(
             'GeoJSON Load',
             'Completed with errors!\nNot all features were loaded.'
           );
@@ -219,7 +227,7 @@ export class DialogOrchestrator {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.skres.postToServer(res.path as any, d);
         } catch {
-          this.app.showAlert(
+          this.alarm.showAlert(
             'Load Resource',
             'Resources were not loaded!\nInvalid JSON.'
           );
@@ -308,7 +316,7 @@ export class DialogOrchestrator {
     if (onConnect) {
       this.showLogin(null, false, true);
     } else if (cancelWarning) {
-      this.app.showAlert(
+      this.alarm.showAlert(
         'Login Cancelled:',
         `Update operations are NOT available until you have authenticated to the Signal K server.`
       );
@@ -401,7 +409,7 @@ export class DialogOrchestrator {
       );
       this.app.showMessage('Debug data catpured to clipboard.');
     } else {
-      this.app.showAlert(
+      this.alarm.showAlert(
         'Feature Unavailable',
         'This feature is only available in a secure context!\n e.g. https, http://localhost, http://127.0.0.1'
       );
@@ -428,13 +436,13 @@ export class DialogOrchestrator {
   private async openRouteProperties(id: string): Promise<void> {
     let v: FBRoute | null;
     try {
-      this.app.sIsFetching.set(true);
+      this.settings.sIsFetching.set(true);
       v = (await this.skres.fromServer('routes', id)) as FBRoute | null;
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err);
       return;
     } finally {
-      this.app.sIsFetching.set(false);
+      this.settings.sIsFetching.set(false);
     }
     if (!v) {
       return;
@@ -530,13 +538,13 @@ export class DialogOrchestrator {
           : e.id;
     let v: SKVessel | null;
     try {
-      this.app.sIsFetching.set(true);
+      this.settings.sIsFetching.set(true);
       v = (await this.skres.vesselFromServer(id)) as SKVessel | null;
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err);
       return;
     } finally {
-      this.app.sIsFetching.set(false);
+      this.settings.sIsFetching.set(false);
     }
     if (!v) {
       return;

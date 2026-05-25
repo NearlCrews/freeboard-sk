@@ -3,6 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
 import {
   CourseService,
@@ -14,27 +15,43 @@ import { AppShellService } from './app-shell.service';
 import { DialogOrchestrator } from './dialog-orchestrator.service';
 
 interface FakeApp {
-  showAlert: ReturnType<typeof vi.fn>;
-  showMessage: ReturnType<typeof vi.fn>;
   config: { resources: { paths: string[] } };
   data: object;
 }
 
+interface FakeAlarm {
+  showAlert: ReturnType<typeof vi.fn>;
+  showMsgBox: ReturnType<typeof vi.fn>;
+  showConfirm: ReturnType<typeof vi.fn>;
+  showMessage: ReturnType<typeof vi.fn>;
+  parseHttpErrorResponse: ReturnType<typeof vi.fn>;
+}
+
 function fakeApp(): FakeApp {
   return {
-    showAlert: vi.fn(),
-    showMessage: vi.fn(),
     config: { resources: { paths: ['custom-set'] } },
     data: {}
   };
 }
 
-function configure(app: FakeApp) {
+function fakeAlarm(): FakeAlarm {
+  return {
+    showAlert: vi.fn(),
+    showMsgBox: vi.fn(),
+    showConfirm: vi.fn(),
+    showMessage: vi.fn(),
+    parseHttpErrorResponse: vi.fn()
+  };
+}
+
+function configure(app: FakeApp, alarm: FakeAlarm) {
   TestBed.configureTestingModule({
     providers: [
       { provide: MatDialog, useValue: { open: vi.fn() } },
       { provide: MatBottomSheet, useValue: { open: vi.fn() } },
       { provide: AppFacade, useValue: app },
+      { provide: AlarmStore, useValue: alarm },
+      { provide: SettingsStore, useValue: { sIsFetching: { set: vi.fn() } } },
       { provide: AppShellService, useValue: { focusMap: vi.fn() } },
       { provide: SKResourceService, useValue: {} },
       { provide: FBCustomResourceService, useValue: {} },
@@ -47,12 +64,14 @@ function configure(app: FakeApp) {
 
 describe('DialogOrchestrator', () => {
   let app: FakeApp;
+  let alarm: FakeAlarm;
   let svc: DialogOrchestrator;
 
   beforeEach(() => {
     TestBed.resetTestingModule();
     app = fakeApp();
-    configure(app);
+    alarm = fakeAlarm();
+    configure(app, alarm);
     svc = TestBed.inject(DialogOrchestrator);
   });
 
@@ -62,7 +81,7 @@ describe('DialogOrchestrator', () => {
       .mockResolvedValue(undefined as unknown as void);
     svc.importFile({ data: '<gpx ><wpt/></gpx>', name: 't.gpx' });
     expect(spy).toHaveBeenCalledOnce();
-    expect(app.showAlert).not.toHaveBeenCalled();
+    expect(alarm.showAlert).not.toHaveBeenCalled();
   });
 
   it('importFile dispatches GeoJSON files to processGeoJSON', () => {
@@ -78,7 +97,7 @@ describe('DialogOrchestrator', () => {
 
   it('importFile rejects unknown formats with an alert', () => {
     svc.importFile({ data: 'random text', name: 't.txt' });
-    expect(app.showAlert).toHaveBeenCalledWith(
+    expect(alarm.showAlert).toHaveBeenCalledWith(
       'Import',
       'File format not supported!'
     );

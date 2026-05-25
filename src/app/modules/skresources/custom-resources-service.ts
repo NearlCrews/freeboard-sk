@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
+import { ResourceStore } from 'src/app/stores';
 import { SKInfoLayer, SKResourceSet } from './custom-resource-classes';
 import { SKResourceService, SKSelection } from './resources.service';
 import {
@@ -31,6 +32,9 @@ export class FBCustomResourceService {
     []
   );
 
+  // Phase 3 Batch 3: direct store injection for the custom-resources taxonomy.
+  private resourceStore = inject(ResourceStore);
+
   constructor(
     public dialog: MatDialog,
     public signalk: SignalKClient,
@@ -49,7 +53,7 @@ export class FBCustomResourceService {
   public async initCustomCollections() {
     const rcs = {};
     await Promise.all(
-      this.app.CUSTOM_RESOURCES.map(async (cr) => {
+      this.resourceStore.CUSTOM_RESOURCES.map(async (cr) => {
         rcs[cr.featureKey] = await this.checkCustomCollection(
           cr.name,
           cr.description
@@ -214,7 +218,7 @@ export class FBCustomResourceService {
    * @param query Filter criteria for ResourceSets in placed in the cache
    */
   private async refreshResourceSets(collection: string, query?: string) {
-    if (this.app.IGNORE_RESOURCES.includes(collection)) {
+    if (this.resourceStore.IGNORE_RESOURCES.includes(collection)) {
       return;
     }
     this.app.debug(`** refreshResourceSets() query: ${query}`);
@@ -251,12 +255,12 @@ export class FBCustomResourceService {
     };
 
     if (collection) {
-      if (!this.app.IGNORE_RESOURCES.includes(collection)) {
+      if (!this.resourceStore.IGNORE_RESOURCES.includes(collection)) {
         doRefresh(collection);
       }
     } else {
       Object.keys(this.app.config.selections.resourceSets)
-        .filter((r) => !this.app.IGNORE_RESOURCES.includes(r))
+        .filter((r) => !this.resourceStore.IGNORE_RESOURCES.includes(r))
         .forEach(async (collection: string) => doRefresh(collection));
     }
   }
@@ -289,7 +293,7 @@ export class FBCustomResourceService {
   public anyResourceSetSelection(): boolean {
     let result = false;
     Object.entries(this.app.config.selections.resourceSets)
-      .filter((r) => !this.app.IGNORE_RESOURCES.includes(r[0]))
+      .filter((r) => !this.resourceStore.IGNORE_RESOURCES.includes(r[0]))
       .forEach((r) => {
         if (r[1].length > 0) {
           result = true;

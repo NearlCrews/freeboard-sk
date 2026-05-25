@@ -9,6 +9,7 @@ import {
   SKNotification
 } from '../../types/stream';
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { AlertData } from './components/alert.component';
 import { getAlertIcon } from '../icons';
@@ -29,6 +30,11 @@ export class NotificationManager {
   readonly mobAlerts = this.mobSignal.asReadonly();
 
   private app = inject(AppFacade);
+  // Phase 3 Batch 3: direct store injection for alert dialogs and HTTP-error
+  // surface. AppFacade kept for config + data access; remove once those
+  // migrate too.
+  private alarm = inject(AlarmStore);
+  private settingsStore = inject(SettingsStore);
   private worker = inject(SKWorkerService);
   private signalk = inject(SignalKClient);
   private bottomSheet = inject(MatBottomSheet);
@@ -114,7 +120,7 @@ export class NotificationManager {
     let alert: AlertData;
 
     // Test for Notifications API
-    if (this.app.featureFlags().notificationApi) {
+    if (this.settingsStore.featureFlags().notificationApi) {
       const v: SKNotification = msg.value as SKNotification;
       alert = {
         id: v.id,
@@ -178,7 +184,7 @@ export class NotificationManager {
 
     if (['buddy'].includes(alertType)) {
       // show toast message
-      this.app.showMessage(
+      this.alarm.showMessage(
         alert.message,
         !this.app.config.display.muteSound && alert.sound
       );
@@ -256,7 +262,7 @@ export class NotificationManager {
 
   public showAlertInfo(path: string) {
     if (!this.alertMap.has(path)) {
-      this.app.showAlert('Alert', 'Alert not found!');
+      this.alarm.showAlert('Alert', 'Alert not found!');
       return;
     }
     this.bottomSheet
@@ -275,7 +281,7 @@ export class NotificationManager {
    */
   public acknowledge(path: string) {
     if (this.alertMap.has(path)) {
-      if (this.app.featureFlags().notificationApi) {
+      if (this.settingsStore.featureFlags().notificationApi) {
         const alert = this.alertMap.get(path);
         this.signalk.api
           .post(
@@ -288,7 +294,7 @@ export class NotificationManager {
               this.app.debug(`Acknowledged ${alert.id}, ${path}`);
             },
             (err: HttpErrorResponse) => {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           );
       }
@@ -302,7 +308,7 @@ export class NotificationManager {
   public silence(path: string) {
     if (this.alertMap.has(path)) {
       const alert = this.alertMap.get(path);
-      if (this.app.featureFlags().notificationApi) {
+      if (this.settingsStore.featureFlags().notificationApi) {
         this.signalk.api
           .post(this.app.skApiVersion, `notifications/${alert.id}/silence`, {})
           .subscribe(
@@ -310,7 +316,7 @@ export class NotificationManager {
               this.app.debug(`Silenced ${alert.id}, ${path}`);
             },
             (err: HttpErrorResponse) => {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           );
       }
@@ -321,7 +327,7 @@ export class NotificationManager {
    * @description Silence All alerts
    */
   public silenceAll() {
-    if (this.app.featureFlags().notificationApi) {
+    if (this.settingsStore.featureFlags().notificationApi) {
       this.signalk.api
         .post(this.app.skApiVersion, `notifications/silenceAll`, {})
         .subscribe(
@@ -329,7 +335,7 @@ export class NotificationManager {
             this.app.debug(`Silenced All alerts`);
           },
           (err: HttpErrorResponse) => {
-            this.app.parseHttpErrorResponse(err);
+            this.alarm.parseHttpErrorResponse(err);
           }
         );
     }
@@ -342,7 +348,7 @@ export class NotificationManager {
   public clear(path: string) {
     if (this.alertMap.has(path)) {
       const alert = this.alertMap.get(path);
-      if (this.app.featureFlags().notificationApi) {
+      if (this.settingsStore.featureFlags().notificationApi) {
         this.signalk.api
           .delete(this.app.skApiVersion, `notifications/${alert.id}`)
           .subscribe(
@@ -350,7 +356,7 @@ export class NotificationManager {
               this.app.debug(`Cleared ${alert.id}, ${path}`);
             },
             (err: HttpErrorResponse) => {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           );
       }
@@ -362,7 +368,7 @@ export class NotificationManager {
    * @param path Alarm type to raise
    */
   public raiseServerAlarm(alarmType: string, message?: string) {
-    if (this.app.featureFlags().notificationApi) {
+    if (this.settingsStore.featureFlags().notificationApi) {
       this.signalk.api
         .post(this.app.skApiVersion, `notifications/mob`, { message: message })
         .subscribe(
@@ -370,7 +376,7 @@ export class NotificationManager {
             this.app.debug(`MOB Alarm raised (${r.id})`);
           },
           (err: HttpErrorResponse) => {
-            this.app.parseHttpErrorResponse(err);
+            this.alarm.parseHttpErrorResponse(err);
           }
         );
     }
@@ -382,7 +388,7 @@ export class NotificationManager {
    * @returns Observable
    */
   public cancelServerAlarm(alert: AlertData) {
-    if (this.app.featureFlags().notificationApi) {
+    if (this.settingsStore.featureFlags().notificationApi) {
       this.signalk.api
         .delete(this.app.skApiVersion, `notifications/${alert.id}`)
         .subscribe(
@@ -390,7 +396,7 @@ export class NotificationManager {
             this.app.debug(`Cleared ${alert.id}`);
           },
           (err: HttpErrorResponse) => {
-            this.app.parseHttpErrorResponse(err);
+            this.alarm.parseHttpErrorResponse(err);
           }
         );
     }

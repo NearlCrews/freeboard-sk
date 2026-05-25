@@ -3,6 +3,7 @@ import {
   ElementRef,
   ChangeDetectionStrategy,
   Component,
+  inject,
   signal,
   effect
 } from '@angular/core';
@@ -37,6 +38,7 @@ import { WakeLockService } from 'src/app/lib/services';
 import { defaultConfig } from 'src/app/app.config';
 import { S57Service } from '../../map/ol';
 import { AppFacade } from 'src/app/app.facade';
+import { SettingsStore } from 'src/app/stores';
 import type { TARGET_UNIT } from 'src/app/lib/convert';
 import { Convert } from 'src/app/lib/convert';
 
@@ -94,6 +96,9 @@ export class SettingsDialog implements OnInit {
 
   private saveOnClose = false;
 
+  // Phase 3 Batch 3: direct store injection for unit-preference helpers.
+  protected settings = inject(SettingsStore);
+
   constructor(
     protected facade: SettingsFacade,
     protected myElement: ElementRef,
@@ -136,7 +141,10 @@ export class SettingsDialog implements OnInit {
   }
 
   raiseChange() {
-    this.app.alignUnitPrefs(this.app.serverConfig.unitPreferences());
+    this.settings.alignUnitPrefs(
+      this.app.config,
+      this.settings.serverConfig.unitPreferences()
+    );
     this.unitsChangedSignal.update((current) => current + 1);
   }
 

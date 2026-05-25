@@ -6,7 +6,8 @@ import {
   signal,
   input,
   inject,
-  output
+  output,
+  OnInit
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -23,6 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { ChartLayers } from './chart-layers.component';
 import { FBCharts, FBChart } from 'src/app/types';
@@ -60,7 +62,7 @@ import { SKChart } from '../../resource-classes';
     ChartLayers
   ]
 })
-export class ChartListComponent extends ResourceListBase {
+export class ChartListComponent extends ResourceListBase implements OnInit {
   closed = output<void>();
 
   selectedCharts = input<string[]>();
@@ -71,6 +73,10 @@ export class ChartListComponent extends ResourceListBase {
   displayChartLayers = false;
 
   protected app = inject(AppFacade);
+  // Phase 3 Batch 3: direct AlarmStore + SettingsStore injection for fetch
+  // progress and HTTP-error surface.
+  private alarm = inject(AlarmStore);
+  private settings = inject(SettingsStore);
   private worker = inject(SKWorkerService);
   private dialog = inject(MatDialog);
   private skgroups = inject(SKResourceGroupService);
@@ -113,17 +119,17 @@ export class ChartListComponent extends ResourceListBase {
    * @param silent Do not show progress bar when true.
    */
   protected async initItems(silent?: boolean) {
-    if (this.app.sIsFetching()) {
+    if (this.settings.sIsFetching()) {
       this.app.debug('** isFetching() ... exit.');
       return;
     }
-    this.app.sIsFetching.set(!(silent ?? false));
+    this.settings.sIsFetching.set(!(silent ?? false));
     try {
       this.fullList = await this.skres.listFromServer<FBChart>(
         this.collection as SKResourceType
       );
       this.fullList = this.skres.appendOSM(this.fullList);
-      this.app.sIsFetching.set(false);
+      this.settings.sIsFetching.set(false);
       this.doFilter();
       this.cleanOpacityConfig();
       this.skres.selectionClean(
@@ -131,8 +137,8 @@ export class ChartListComponent extends ResourceListBase {
         this.fullList.map((i) => i[0])
       );
     } catch (err) {
-      this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.settings.sIsFetching.set(false);
+      this.alarm.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -142,9 +148,9 @@ export class ChartListComponent extends ResourceListBase {
    */
   cleanOpacityConfig() {
     const keys = Object.keys(this.app.config.selections.chartOpacity);
-    const listIds = this.fullList.map((i) => i[0]);
+    const listIds = new Set(this.fullList.map((i) => i[0]));
     keys.forEach((key) => {
-      if (!listIds.includes(key)) {
+      if (!listIds.has(key)) {
         delete this.app.config.selections.chartOpacity[key];
       }
     });
@@ -155,9 +161,7 @@ export class ChartListComponent extends ResourceListBase {
    * @param url Chart url
    */
   protected isLocal(url: string): string {
-    return url && url.indexOf(this.app.hostDef.name) !== -1
-      ? 'map'
-      : 'language';
+    return url && url.includes(this.app.hostDef.name) ? 'map' : 'language';
   }
 
   /** Handle selection change triggered externally */
@@ -307,7 +311,7 @@ export class ChartListComponent extends ResourceListBase {
       });
     }
     if (!dref) {
-      this.app.showAlert(
+      this.alarm.showAlert(
         'Message',
         `Invalid Chart source type (${type}) provided! `
       );
@@ -380,12 +384,12 @@ export class ChartListComponent extends ResourceListBase {
               await this.skgroups.addToGroup(selGrp.id, 'chart', id);
               this.app.showMessage(`Chart added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

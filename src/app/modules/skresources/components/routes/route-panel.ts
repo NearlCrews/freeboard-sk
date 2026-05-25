@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RemarkModule } from 'ngx-remark';
 
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore } from 'src/app/stores';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
 import { SKRoute } from '../../resource-classes';
 import { Position } from 'geojson';
@@ -85,6 +86,9 @@ export class RoutePanel {
 
   protected icon: AppIconDef;
   protected app = inject(AppFacade);
+  // Phase 3 Batch 3: direct AlarmStore injection for showMessage and
+  // parseHttpErrorResponse.
+  private alarm = inject(AlarmStore);
   private skres = inject(SKResourceService);
   private course = inject(CourseService);
   protected skgroups = inject(SKResourceGroupService);
@@ -321,14 +325,14 @@ export class RoutePanel {
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'route', this.id());
-              this.app.showMessage(`Route added to group.`);
+              this.alarm.showMessage(`Route added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

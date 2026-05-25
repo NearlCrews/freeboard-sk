@@ -1,0 +1,106 @@
+<main class="ds-shell" [attr.data-theme]="theme()">
+  <header class="ds-header">
+    <h1 class="ds-title">freeboard-sk design system</h1>
+    <p class="ds-subtitle">
+      Phase 3 Batch 3 scaffold. Three Tier-1 primitives, theme-switchable,
+      a11y-checked, and token-driven (no hardcoded colors or sizes).
+    </p>
+    <nav class="ds-themes" aria-label="Theme switcher">
+      <fb-button
+        variant="ghost"
+        size="md"
+        ariaLabel="Switch to light theme"
+        (pressed)="setTheme('light')"
+        >Light</fb-button
+      >
+      <fb-button
+        variant="ghost"
+        size="md"
+        ariaLabel="Switch to dark theme"
+        (pressed)="setTheme('dark')"
+        >Dark</fb-button
+      >
+      <fb-button
+        variant="ghost"
+        size="md"
+        ariaLabel="Switch to night-red theme"
+        (pressed)="setTheme('night-red')"
+        >Night red</fb-button
+      >
+    </nav>
+  </header>
+
+  <section class="ds-section" aria-labelledby="ds-btn-heading">
+    <h2 id="ds-btn-heading" class="ds-section__heading">Button</h2>
+    <p class="ds-section__a11y">
+      A11y: native button element, focus-visible ring uses
+      <code>--color-focus-ring</code>, primary md and lg respect the 56 px
+      primary touch-target floor, loading state sets aria-busy and aria-disabled
+      while keeping the element focusable.
+    </p>
+
+    <h3 class="ds-grid__title">Variants (size md)</h3>
+    <div class="ds-grid">
+      <fb-button variant="primary">Primary</fb-button>
+      <fb-button variant="secondary">Secondary</fb-button>
+      <fb-button variant="ghost">Ghost</fb-button>
+      <fb-button variant="danger">Danger</fb-button>
+    </div>
+
+    <h3 class="ds-grid__title">Sizes (variant primary)</h3>
+    <div class="ds-grid">
+      <fb-button variant="primary" size="sm">Small</fb-button>
+      <fb-button variant="primary" size="md">Medium</fb-button>
+      <fb-button variant="primary" size="lg">Large</fb-button>
+    </div>
+
+    <h3 class="ds-grid__title">States</h3>
+    <div class="ds-grid">
+      <fb-button variant="primary">Default</fb-button>
+      <fb-button variant="primary" [disabled]="true">Disabled</fb-button>
+      <fb-button variant="primary" [loading]="true">Loading</fb-button>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-dlg-heading">
+    <h2 id="ds-dlg-heading" class="ds-section__heading">Dialog</h2>
+    <p class="ds-section__a11y">
+      A11y: CDK Dialog supplies focus trap, escape-to-close, and focus restore.
+      Our wrapper enforces autoFocus first-tabbable, restoreFocus true, and
+      hasBackdrop true. The shell binds aria-labelledby and aria-describedby
+      from caller-supplied element IDs.
+    </p>
+    <div class="ds-grid">
+      <fb-button variant="secondary" (pressed)="openDialog()">
+        Open dialog
+      </fb-button>
+      <span class="ds-result" aria-live="polite">
+        Last result: {{ lastDialogResult() || '(none yet)' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-sht-heading">
+    <h2 id="ds-sht-heading" class="ds-section__heading">Sheet</h2>
+    <p class="ds-section__a11y">
+      A11y: bottom-anchored CDK overlay with the same focus-trap, escape, and
+      restore guarantees as Dialog. Drag handle is aria-hidden. Slide-up
+      animation is disabled under prefers-reduced-motion.
+    </p>
+    <div class="ds-grid">
+      <fb-button variant="secondary" (pressed)="openSheet()">
+        Open sheet
+      </fb-button>
+      <span class="ds-result" aria-live="polite">
+        Opened: {{ sheetOpenCount() }}
+      </span>
+    </div>
+  </section>
+
+  <footer class="ds-footer">
+    <p>
+      Scaffold for the full 15-primitive design system. Remaining primitives
+      land in subsequent Phase 3 batches.
+    </p>
+  </footer>
+</main>

@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AppFacade } from 'src/app/app.facade';
+import { SettingsStore } from 'src/app/stores';
 
 export interface LineStyleDef {
   fill: { color: string };
@@ -171,10 +172,14 @@ export class LineStyleSelectComponent implements OnInit {
     config: LineStyleConfig;
   }>();
 
+  // Phase 3 Batch 3: line-style helpers now live on SettingsStore. AppFacade
+  // injection kept for back-compat consumers in this module; remove once all
+  // sites read the store directly.
   app = inject<AppFacade>(AppFacade);
+  private settings = inject(SettingsStore);
 
   protected line = {
-    dashArrays: this.app.lineDashMap,
+    dashArrays: this.settings.lineDashMap,
     weights: [1, 2, 3, 4, 5]
   };
 
@@ -183,7 +188,7 @@ export class LineStyleSelectComponent implements OnInit {
   ngOnInit() {}
 
   onSelectChange(opt: { key: string; value: any }) {
-    const d = this.app.formatLineDashArray(this._dash());
+    const d = this.settings.formatLineDashArray(this._dash());
 
     this.selectionChange.emit({
       lineStyle: {

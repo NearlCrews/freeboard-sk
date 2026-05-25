@@ -23,6 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RemarkModule } from 'ngx-remark';
 
 import { AppFacade } from 'src/app/app.facade';
+import { AlarmStore } from 'src/app/stores';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
 import { SKWaypoint } from '../../resource-classes';
 import { Position } from 'geojson';
@@ -69,6 +70,8 @@ export class WaypointPanel {
 
   protected icon: AppIconDef;
   protected app = inject(AppFacade);
+  // Phase 3 Batch 3: direct AlarmStore for showMessage and parseHttpErrorResponse.
+  private alarm = inject(AlarmStore);
   private skres = inject(SKResourceService);
   private course = inject(CourseService);
   protected skgroups = inject(SKResourceGroupService);
@@ -181,14 +184,14 @@ export class WaypointPanel {
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', this.id());
-              this.app.showMessage(`Waypoint added to group.`);
+              this.alarm.showMessage(`Waypoint added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

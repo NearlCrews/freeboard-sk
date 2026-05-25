@@ -25,6 +25,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
+import { SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
 import type { SKTrack } from 'src/app/modules';
 import { SKResourceService } from 'src/app/modules';
@@ -94,6 +95,8 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   private gpx: GPX;
 
   protected app = inject(AppFacade);
+  // Phase 3 Batch 3: direct store injection for the fetch-progress signal.
+  private settings = inject(SettingsStore);
   protected dialogRef = inject(MatDialogRef<GPXImportDialog>);
   private skres = inject(SKResourceService);
   private signalk = inject(SignalKClient);
@@ -272,9 +275,9 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     };
     this.gpx = new GPX();
 
-    this.app.sIsFetching.set(true);
+    this.settings.sIsFetching.set(true);
     if (!(await this.gpx.parse(data))) {
-      this.app.sIsFetching.set(false);
+      this.settings.sIsFetching.set(false);
       return null;
     }
 
@@ -303,13 +306,13 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       });
       idx++;
     });
-    this.app.sIsFetching.set(false);
+    this.settings.sIsFetching.set(false);
     return gpxData;
   }
 
   // ** upload selected resources to Signal K server **
   public async uploadToServer(res) {
-    this.app.sIsFetching.set(true);
+    this.settings.sIsFetching.set(true);
     this.errorCount = 0;
     this.subCount = 0;
 
@@ -363,7 +366,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   // ** check all submissions are resolved and emit result$
   private checkComplete() {
     if (this.subCount === 0) {
-      this.app.sIsFetching.set(false);
+      this.settings.sIsFetching.set(false);
       this.app.saveConfig();
       this.dialogRef.close({
         errCount: this.errorCount,
