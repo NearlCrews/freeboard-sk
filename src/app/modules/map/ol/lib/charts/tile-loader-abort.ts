@@ -4,6 +4,7 @@ import type VectorTile from 'ol/VectorTile';
 import type { FeatureLike } from 'ol/Feature';
 import type { Extent } from 'ol/extent';
 import type Projection from 'ol/proj/Projection';
+import { assignImageBlob } from './chart-utils';
 
 type PendingByZoom = Map<number, Set<AbortController>>;
 
@@ -71,7 +72,7 @@ export function createAbortableRasterTileLoader(): (
     fetch(src, { signal: controller.signal })
       .then((r) => r.blob())
       .then((blob) => {
-        img.src = URL.createObjectURL(blob);
+        assignImageBlob(img, blob);
         tile.setState(TileState.LOADED);
       })
       .catch((err) => {

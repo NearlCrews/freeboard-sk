@@ -1,8 +1,8 @@
 {
   "//": "Phase 0 monotonic-decrease baseline. See scripts/verify-baseline.mjs.",
   "seededAt": "2026-05-25",
-  "totalViolations": 148,
-  "fileCount": 48,
+  "totalViolations": 146,
+  "fileCount": 46,
   "perFile": {
     "src/app/app.component.ts": 3,
     "src/app/app.config.ts": 9,
@@ -17,8 +17,6 @@
     "src/app/modules/info-panel/info-panel.facade.ts": 1,
     "src/app/modules/map/fb-map.component.ts": 6,
     "src/app/modules/map/fbmap-interact.service.ts": 10,
-    "src/app/modules/map/ol/lib/charts/layer-s57-chart.component.ts": 1,
-    "src/app/modules/map/ol/lib/charts/layer-vector-chart.component.ts": 1,
     "src/app/modules/map/ol/lib/charts/layer-wms-chart.component.ts": 1,
     "src/app/modules/map/ol/lib/charts/s57.service.ts": 1,
     "src/app/modules/map/ol/lib/map-image-registry.service.ts": 2,

@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 
 import VectorTileLayer from 'ol/layer/VectorTile';
-import { applyStyle } from 'ol-mapbox-style';
 
 import { VectorLayerStyleFactory } from './vectorLayerStyleFactory';
 import { MapComponent } from '../map.component';
 
 import { FBChart } from 'src/app/types';
 import { extentFromBounds } from './chart-utils';
+import { applyMapboxStyle } from './mapbox-style-utils';
 
 // ** Freeboard S-57 Chart **
 @Component({
@@ -57,12 +57,6 @@ export class S57ChartLayerComponent implements OnDestroy {
     }
 
     if (!this.layer) {
-      const minZ =
-        chart[1].minZoom && chart[1].minZoom >= 0.1
-          ? chart[1].minZoom - 0.1
-          : chart[1].minZoom;
-      const maxZ = chart[1].maxZoom;
-
       const styleFactory = this.vectorLayerStyleFactory.CreateVectorLayerStyler(
         chart[1]
       );
@@ -72,7 +66,7 @@ export class S57ChartLayerComponent implements OnDestroy {
         this.layer.setZIndex(this.zIndex());
         this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
         if (chart[1].style) {
-          applyStyle(this.layer as any, chart[1].style);
+          void applyMapboxStyle(this.layer, chart[1].style);
         }
         this.layer.setExtent(extentFromBounds(chart[1].bounds));
 

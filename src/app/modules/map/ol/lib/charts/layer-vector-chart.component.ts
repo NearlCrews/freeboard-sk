@@ -11,12 +11,12 @@ import {
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { MVT } from 'ol/format';
-import { applyStyle } from 'ol-mapbox-style';
 
 import { MapComponent } from '../map.component';
 
 import { FBChart } from 'src/app/types';
 import { initPMTilesVectorLayer } from './pmtiles-utils';
+import { applyMapboxStyle } from './mapbox-style-utils';
 import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableVectorTileLoader } from './tile-loader-abort';
@@ -66,11 +66,7 @@ export class VectorChartLayerComponent implements OnDestroy {
     this.layer.setMaxZoom(layerMaxZ);
     this.layer.setExtent(extentFromBounds(chart[1].bounds));
     if (chart[1].style) {
-      // ol-mapbox-style v12 ships its own bundled OL types that do not match
-      // the app's OL version, so the layer arg needs a cast. Kept to one
-      // occurrence inside this helper to stay at the no-explicit-any baseline.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      void applyStyle(this.layer as any, chart[1].style);
+      void applyMapboxStyle(this.layer, chart[1].style);
     }
     this.layer.set('id', chart[0]);
     this.layer.set('chartId', chart[0]);

@@ -1,5 +1,9 @@
-import { expect, describe, it } from 'vitest';
-import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
+import { expect, describe, it, vi, beforeEach, afterEach } from 'vitest';
+import {
+  assignImageBlob,
+  extentFromBounds,
+  resolveLayerMaxZoom
+} from './chart-utils';
 
 describe('resolveLayerMaxZoom', () => {
   it('returns chart max when over-zoom disabled', () => {
@@ -31,5 +35,54 @@ describe('extentFromBounds', () => {
 
   it('returns undefined for invalid bounds values', () => {
     expect(extentFromBounds([90, 90, 90, 300])).toBe(undefined);
+  });
+});
+
+describe('assignImageBlob', () => {
+  let createSpy: ReturnType<typeof vi.spyOn>;
+  let revokeSpy: ReturnType<typeof vi.spyOn>;
+  const FAKE_URL = 'blob:assignImageBlob-test';
+
+  beforeEach(() => {
+    createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue(FAKE_URL);
+    revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    createSpy.mockRestore();
+    revokeSpy.mockRestore();
+  });
+
+  it('points the image at the freshly minted object URL', () => {
+    const img = new Image();
+    const result = assignImageBlob(img, new Blob(['x']));
+    expect(createSpy).toHaveBeenCalledTimes(1);
+    expect(result).toBe(FAKE_URL);
+    expect(img.src).toContain(FAKE_URL);
+    expect(revokeSpy).not.toHaveBeenCalled();
+  });
+
+  it('revokes the object URL after the image load event', () => {
+    const img = new Image();
+    assignImageBlob(img, new Blob(['x']));
+    img.dispatchEvent(new Event('load'));
+    expect(revokeSpy).toHaveBeenCalledTimes(1);
+    expect(revokeSpy).toHaveBeenCalledWith(FAKE_URL);
+  });
+
+  it('revokes the object URL after the image error event', () => {
+    const img = new Image();
+    assignImageBlob(img, new Blob(['x']));
+    img.dispatchEvent(new Event('error'));
+    expect(revokeSpy).toHaveBeenCalledTimes(1);
+    expect(revokeSpy).toHaveBeenCalledWith(FAKE_URL);
+  });
+
+  it('only revokes once even if both events fire', () => {
+    const img = new Image();
+    assignImageBlob(img, new Blob(['x']));
+    img.dispatchEvent(new Event('load'));
+    img.dispatchEvent(new Event('error'));
+    expect(revokeSpy).toHaveBeenCalledTimes(1);
   });
 });

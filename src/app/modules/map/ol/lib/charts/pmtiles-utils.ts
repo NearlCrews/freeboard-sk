@@ -15,6 +15,7 @@ import {
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { MVT } from 'ol/format';
+import { assignImageBlob } from './chart-utils';
 
 // Lazy-load pmtiles so the v4 decoder stays out of the eager main bundle.
 // The first call to any PMTiles initializer triggers the chunk; the module
@@ -102,8 +103,7 @@ export async function initPMTilesXYZLayer(
     void tiles.getZxy(z, x, y).then((tile_result) => {
       if (tile_result) {
         const blob = new Blob([tile_result.data]);
-        const imageUrl = URL.createObjectURL(blob);
-        (tile.getImage() as HTMLImageElement).src = imageUrl;
+        assignImageBlob(tile.getImage() as HTMLImageElement, blob);
         tile.setState(TileState.LOADED);
       } else {
         tile.setState(TileState.EMPTY);
