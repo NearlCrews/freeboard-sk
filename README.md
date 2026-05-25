@@ -1,6 +1,8 @@
 # Freeboard-SK
+
 Freeboard-SK is a stateless, multi-station, Openlayers based chart plotter for Signal K.
 Use it to display:
+
 - Resources _(i.e. routes, waypoints, notes, charts, etc)_
 - Alarms & notifications
 - AIS information
@@ -11,7 +13,6 @@ and more from any web enabled device.
 
 ![screen](https://github.com/user-attachments/assets/9b557a33-8a02-4a16-9f37-fd0cc82ab0f1)
 
-
 See the [FAQs](https://github.com/SignalK/freeboard-sk/wiki) for more information.
 
 ## Features:
@@ -20,9 +21,9 @@ See the [FAQs](https://github.com/SignalK/freeboard-sk/wiki) for more informatio
 
 Moving map display with:
 
-- Multiple chart overlay using both of online and locally served charts 
-- Built in support (no plugin required) for OpenStreetMap and OpenSeaMap(from Signal K server)  
-- North-up / Vessel-up orientation   
+- Multiple chart overlay using both of online and locally served charts
+- Built in support (no plugin required) for OpenStreetMap and OpenSeaMap(from Signal K server)
+- North-up / Vessel-up orientation
 - Moving Map / Moving Vessel
 - Vessel Heading / Bearing lines
 - Wind True / Apparent display
@@ -41,11 +42,11 @@ Charts are sourced from the `/resources/charts` path on the Signal K server and 
 
 ---
 
-### Resources:  
+### Resources:
 
 Freeboard-SK supports the creation, editing and deletion of all resource types defined in the Signal K specification that are available under the `/resources` path.
 
-__Routes and Waypoints:__
+**Routes and Waypoints:**
 
 _Path(s): `/resources/routes`, `/resources/waypoints`_
 
@@ -59,7 +60,7 @@ _Path(s): `/resources/routes`, `/resources/waypoints`_
 - Import Routes and Waypoints from GPX files
 - Attach Notes to Routes & Waypoints
 
-__Notes and Regions:__
+**Notes and Regions:**
 
 _Path(s): `/resources/notes`, `/resources/regions`_
 
@@ -69,7 +70,7 @@ _Path(s): `/resources/notes`, `/resources/regions`_
 - Add / Edit / Delete Notes
 - Attach Notes to Regions
 
-__Tracks:__
+**Tracks:**
 
 Whilst not specifically defined in the Signal K specification, Freeboard-SK supports the import and display of tracks from GPX files which are available under the `/resources/tracks` path.
 
@@ -78,10 +79,11 @@ Whilst not specifically defined in the Signal K specification, Freeboard-SK supp
 
 ---
 
-### Autopilot Console:  
+### Autopilot Console:
 
 Freeboard-SK supports the Signal K Autopilot API which enables common operations to be performed
 including:
+
 - Engage / Disengage the autopilot
 - Setting the operation mode e.g. compass, route, gps, etc.
 - Setting and adjusting the target heading
@@ -93,22 +95,21 @@ including:
 
 ### Alarms and Notifications:
 
-Freeboard-SK can display alarms _(visual and audio)_ & messages contained in *Notification* messages transmitted by the Signal K server.
+Freeboard-SK can display alarms _(visual and audio)_ & messages contained in _Notification_ messages transmitted by the Signal K server.
 
 Additionally you can set alarms, including _anchor watch_, as well as raise alarms such as _man overboard_, _sinking_, etc directly from the user interface.
 
 Supported alarm types include:
+
 - Depth
 - Closest Approach
 - Anchor drag / watch
 - "Buddy" notifications
 - All Signal K specification defined alarms.
 
-
-Freeboard-SK also implements API endpoints to accept requests for raising and clearing Signal K specification defined alarms. 
+Freeboard-SK also implements API endpoints to accept requests for raising and clearing Signal K specification defined alarms.
 
 _See OpenAPI documentation in Signal K Server Admin UI for details._
-
 
 ---
 
@@ -118,7 +119,7 @@ Freeboard-SK supports the Signal K `playback` api and can replay recorded time-s
 
 ---
 
-### Instruments: 
+### Instruments:
 
 Freeboard-SK allows you to use your favourite instrumentation apps installed on the Signal K server.
 
@@ -142,7 +143,6 @@ _Note: Only unencrypted ENC's are supported (no S63 support)._
 
 **_Requires: @signalk/charts-plugin_**
 
-
 ![S57 chart](https://github.com/SignalK/freeboard-sk/assets/38519157/a93b3889-d1c8-4df7-9f6f-97a1666fbf77)
 
 Rendering of the Shallow, safety and deep depths and can be configured in the settings dialog
@@ -153,20 +153,19 @@ _Note: This functionality is not a replacement for official navigational charts_
 
 ---
 
-### Experiments: 
+### Experiments:
 
 Features that are not ready for "prime time" are made available as experiments.
 
 To make experimental features available from within the Freeboard-SK user interface, you need to ensure the **Experimental Features** option is checked in **Settings**.
 
-_Note: Some experiments will require configuration of Freeboard-SK via the _Plugin Config_ screen of the Signal K Server Admin UI._
+_Note: Some experiments will require configuration of Freeboard-SK via the \_Plugin Config_ screen of the Signal K Server Admin UI.\_
 
 ---
 
 ## System Requirements:
 
-**Freeboard-SK requires _Signal K Server Version 2.0 or above**.
-
+**Freeboard-SK requires \_Signal K Server Version 2.0 or above**.
 
 The following features require that the Signal K server have plugins / providers installed to service the following paths:
 
@@ -181,7 +180,6 @@ The following features require that the Signal K server have plugins / providers
 - `vessels/self/track` - Display of vessel track stored on server.
 
 - `vessels/self/navigation/course/calcValues` - Display of calculated course values such as DTG, XTE, etc.
-
 
 ### Recommended Plugins:
 
@@ -207,41 +205,44 @@ It is recommended that the Angular CLI be installed globally `npm i -g @angular/
 
 ### Note:
 
-The Freeboard-SK application will look to connect to a Signal K server at the *ip address:port* contained in the url of your browser. 
+The Freeboard-SK application will look to connect to a Signal K server at the _ip address:port_ contained in the url of your browser.
 
 In development mode you are able to specify the Signal K server host address and port you wish to connect to by editing the `DEV_SERVER` object in the `src/app/app.facade.ts` file.
+
 ```
-DEV_SERVER { 
-    host: '192.168.99.100', 
-    port; 3000, 
-    ssl: false 
+DEV_SERVER {
+    host: '192.168.99.100',
+    port; 3000,
+    ssl: false
 }
 ```
 
 _Note: These settings apply in **Development Mode** only!_
 
-_They will __NOT__ apply when using **Production Mode**, the generated application will attempt to connect to a Signal K api / stream on the hosting server._
+_They will **NOT** apply when using **Production Mode**, the generated application will attempt to connect to a Signal K api / stream on the hosting server._
 
 ---
 
 ### Building a Release:
 
-__Building the Application:__
+**Building the Application:**
 
 To build all components of the application _(plugin and webapp)_ ready for release use the `npm run build:prod` command.
 
-__Building components individually:__
+**Building components individually:**
 
 - To build only the _webapp_ use the command `npm run build:web`.
 - To build only the _helper plugin_ use the command `npm run build:helper`.
 
 Built files _(for deployment)_ are placed in the following folders:
--  `/public` _(Freeboard-SK web app)_
--  `/plugin` _(Freeboard-SK plugin)_
 
-__Building the NPM package:__
+- `/public` _(Freeboard-SK web app)_
+- `/plugin` _(Freeboard-SK plugin)_
+
+**Building the NPM package:**
 
 To build the NPM package use the `npm pack` command to:
+
 1. Execute `npm run build:prod`
 1. Create the NPM package (`.tgz`) file in the root folder of the project.
 

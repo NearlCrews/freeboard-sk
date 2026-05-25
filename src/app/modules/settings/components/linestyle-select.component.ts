@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  linkedSignal,
+  output
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +20,7 @@ export interface LineStyleDef {
   stroke: {
     color: string;
     width: number;
-    lineDash: Array<number> | null;
+    lineDash: number[] | null;
   };
 }
 
@@ -149,7 +157,7 @@ export type LineStyleDash = 'none' | 'short' | 'medium' | 'long' | 'alt';
   `,
   styles: []
 })
-export class LineStyleSelectComponent {
+export class LineStyleSelectComponent implements OnInit {
   color = input<string>('#ff0000');
   dash = input<LineStyleDash>('none');
   weight = input<number>(1);
@@ -175,7 +183,7 @@ export class LineStyleSelectComponent {
   ngOnInit() {}
 
   onSelectChange(opt: { key: string; value: any }) {
-    let d = this.app.formatLineDashArray(this._dash());
+    const d = this.app.formatLineDashArray(this._dash());
 
     this.selectionChange.emit({
       lineStyle: {

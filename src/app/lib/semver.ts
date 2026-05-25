@@ -5,16 +5,10 @@
  * treated as "1.2.0"), matching the gate semantics of the buddylist check.
  */
 
-export function parseSemver(
-  v: string
-): [number, number, number] | null {
-  const m = v.match(/^(\d+)\.(\d+)(?:\.(\d+))?/);
+export function parseSemver(v: string): [number, number, number] | null {
+  const m = /^(\d+)\.(\d+)(?:\.(\d+))?/.exec(v);
   if (!m) return null;
-  return [
-    parseInt(m[1], 10),
-    parseInt(m[2], 10),
-    parseInt(m[3] ?? '0', 10)
-  ];
+  return [parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3] ?? '0', 10)];
 }
 
 /**

@@ -10,7 +10,7 @@ import {
   isPointInPolygon,
   getGreatCircleBearing
 } from 'geolib';
-import { SKPosition, Position } from '../types';
+import type { SKPosition, Position } from '../types';
 
 export type Extent = [number, number, number, number]; // coords [swlon,swlat,nelon,nelat] of a bounding box
 
@@ -157,7 +157,7 @@ export class GeoUtils {
   }
 
   /** Calculate the centre of polygon **/
-  static centreOfPolygon(coords: Array<Position>): Position {
+  static centreOfPolygon(coords: Position[]): Position {
     const c = getCenter(coords) as SKPosition;
     return [c.longitude, c.latitude];
   }
@@ -199,8 +199,7 @@ export class GeoUtils {
 
   // Geohash base-32 alphabet (lowercase per spec; toLowerCase in
   // geohashDecodeBbox normalizes any uppercase input defensively).
-  private static readonly GEOHASH_BASE32 =
-    '0123456789bcdefghjkmnpqrstuvwxyz';
+  private static readonly GEOHASH_BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz';
 
   /**
    * Decode a geohash to a bounding box [minLat, minLon, maxLat, maxLon].
@@ -208,9 +207,7 @@ export class GeoUtils {
    * bits alternate refining longitude then latitude, halving the active
    * range on each step.
    */
-  static geohashDecodeBbox(
-    hash: string
-  ): [number, number, number, number] {
+  static geohashDecodeBbox(hash: string): [number, number, number, number] {
     let isLon = true;
     let minLat = -90;
     let maxLat = 90;
@@ -258,8 +255,8 @@ export class GeoUtils {
 
   // ensure -180<coords<180
   static normaliseCoords(coords: Position); // Point
-  static normaliseCoords(coords: Array<Position>); //LineString
-  static normaliseCoords(coords: Array<Array<Position>>); // MultiLineString
+  static normaliseCoords(coords: Position[]); //LineString
+  static normaliseCoords(coords: Position[][]); // MultiLineString
   static normaliseCoords(coords) {
     if (!Array.isArray(coords)) {
       return [0, 0];

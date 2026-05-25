@@ -59,7 +59,10 @@ const TYPE_LABEL: Record<string, string> = {
     }
 
     .info-bar-label {
-      font: 700 13px/1 Roboto, system-ui, sans-serif;
+      font:
+        700 13px/1 Roboto,
+        system-ui,
+        sans-serif;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--mat-sys-on-surface-variant, #2e2e2e);
@@ -78,7 +81,7 @@ export class InfoPanelComponent {
 
   protected label = () => {
     const type = this.infoPanel.item()?.type;
-    return type ? TYPE_LABEL[type] ?? type : '';
+    return type ? (TYPE_LABEL[type] ?? type) : '';
   };
 
   close() {

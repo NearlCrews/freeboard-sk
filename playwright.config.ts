@@ -1,11 +1,11 @@
-// Phase 0 floor: Playwright 1.60 configuration. CI runs inside the
-// `mcr.microsoft.com/playwright:v1.60.0-jammy` container (pinned in
-// .github/workflows/ci.yml by ci-lead); Playwright versions must stay in lock-step
-// with the container tag.
+// Playwright 1.60 configuration. CI runs inside the
+// `mcr.microsoft.com/playwright:v1.60.0-jammy` container pinned in
+// .github/workflows/ci.yml; the @playwright/test version must stay in
+// lock-step with the container tag.
 //
-// baseURL targets signalk-server's default port (3000); the freeboard-sk plugin
-// is served at /@signalk/freeboard-sk/. Override with E2E_BASE_URL for alternate
-// hosts.
+// baseURL targets signalk-server's default port (3000); the freeboard-sk
+// plugin is served at /@signalk/freeboard-sk/. Override with E2E_BASE_URL
+// for alternate hosts.
 
 import { defineConfig, devices } from '@playwright/test';
 

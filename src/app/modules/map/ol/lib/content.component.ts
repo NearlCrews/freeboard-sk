@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject
+} from '@angular/core';
 
 @Component({
   selector: 'ol-map > ol-content',

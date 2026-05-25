@@ -11,6 +11,7 @@ Synthesis of a 6-expert team review (framework, map/geo, data, build, UX, qualit
 **Stay on Angular 21, reshape the rest.** The Angular 21 signals story is now mature, the codebase has already absorbed signals heavily, and the marine reactivity model (delta streams, per-vessel state, signal-derived derived views) maps cleanly onto Angular's primitives. A framework swap to React, Solid, Svelte, or Qwik would be a 6 to 12 month rewrite for marginal gain.
 
 What changes around Angular is large:
+
 - Angular Material drops; Tailwind v4 + CDK + a hand-rolled 15-primitive design system replaces it
 - RxJS retreats to the WebSocket and HTTP boundary; signals carry user-facing state
 - OpenLayers 10.9 stays but the chart subsystem is reshaped (lazy splits, OffscreenCanvas night-mode, WebGLPoints for AIS above ~50 targets, drop geolib, drop simplify-ts, upgrade pmtiles 2 to 4)
@@ -23,55 +24,55 @@ What changes around Angular is large:
 
 ## 2. Locked stack (all latest stable as of 2026-05-24)
 
-| Layer | Tool | Version | Notes |
-|---|---|---|---|
-| Runtime | Node.js | 24 LTS (Active) | `.nvmrc`; CI matrix `22 + 24` |
-| Package manager | pnpm | 11.2.2 | Via Corepack |
-| Language | TypeScript | 5.9.3 | Held: `@angular/build@21.2.12` peer cap `<6.0`. Target 6.0.3 when Angular bumps to `<6.1` |
-| Framework | Angular | 21.2.14 | Ride-along bump from 21.0.5 |
-| Build | `@angular/build` | 21.2.12 | esbuild builder |
-| Reactivity | Angular signals + signal-forms | 21.2.14 | RxJS 7.8.2 at boundary only (v8 still alpha) |
-| Map | OpenLayers | 10.9.0 | Minor bump from 10.7 |
-| Map style | ol-mapbox-style | 13.4.1 | **Major** from 12.3.5; lazy-loaded |
-| Vector tiles | pmtiles | 4.4.1 | **Major** from 2.7.0; lazy-loaded |
-| Projections | proj4 | 2.20.8 | For non-3857 charts |
-| SignalK API | `@signalk/server-api` | 2.24.0 | Already pinned |
-| SignalK schema | `@signalk/signalk-schema` | 1.8.2 | New, drives codegen |
-| Styling | Tailwind | 4.3.0 | CSS-first config |
-| | `@tailwindcss/postcss` | 4.3.0 | |
-| | Material CDK | 21.2.12 | Kept |
-| | Material core | (drops in tiers) | Tier-1: button/dialog/sheet/sidenav/FAB/menu/snackbar/icon |
-| Icons | Material Symbols | 0.44.9 | Variable font, glyphhanger subset (~60 kB) |
-| | glyphhanger | 5.0.0 | Node-only |
-| | subset-font | 2.5.0 | HarfBuzz-WASM |
-| Fonts | Inter v4.1, JetBrains Mono v2.304 | self-hosted | Numerals, mono for coordinates |
-| Color | culori | 4.0.2 | Token math, contrast lints |
-| Forms | `@angular/forms/signals` | 21.2.14 | New code; legacy reactive migrates in tier 2 |
-| Service worker | `@angular/service-worker` | 21.2.14 | Real PWA (not `@angular/pwa` schematic) |
-| Lint | ESLint | 10.4.0 | Flat config, requires plugin updates |
-| | typescript-eslint | 8.59.4 | recommended-type-checked |
-| | `@angular-eslint` | 21.4.0 | |
-| | `eslint-plugin-rxjs-x` | 1.0.2 | 1.0 stable, replaces deprecated `eslint-plugin-rxjs` |
-| | `eslint-plugin-import` | 2.32.0 | |
-| | `eslint-plugin-unicorn` | 64.0.0 | Curated rules |
-| | `eslint-plugin-prettier` | 5.5.5 | |
-| Format | Prettier | 3.8.3 | |
-| Test runner | Vitest | 4.1.7 | Via `@angular/build:unit-test` |
-| | jsdom | 29.1.1 | |
-| | `@testing-library/angular` | 19.3.0 | |
-| | `@vitest/coverage-v8` | 4.1.7 | |
-| | `@vitest/web-worker` | 4.1.7 | |
-| E2E | `@playwright/test` | 1.60.0 | Container `mcr.microsoft.com/playwright:v1.60.0-jammy` |
-| A11y | `@axe-core/playwright` | 4.11.3 | Hard-fail rules + grandfathered baseline |
-| Type tests | expect-type | 1.3.0 | |
-| Hooks | simple-git-hooks | 2.13.1 | |
-| | lint-staged | 17.0.5 | |
-| | `@commitlint/cli` | 21.0.1 | |
-| Release | release-please-action | v5 | Requires Node 24 worker |
-| Observability | `@sentry/angular` | 10.53.1 | SaaS first, GlitchTip fallback |
-| | web-vitals | 5.2.0 | |
-| Bundle gate | size-limit | 12.1.0 | Current-measured baseline, ratcheted |
-| Architecture lint | dependency-cruiser | 17.4.2 | God-component prevention rule |
+| Layer             | Tool                              | Version          | Notes                                                                                     |
+| ----------------- | --------------------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| Runtime           | Node.js                           | 24 LTS (Active)  | `.nvmrc`; CI matrix `22 + 24`                                                             |
+| Package manager   | pnpm                              | 11.2.2           | Via Corepack                                                                              |
+| Language          | TypeScript                        | 5.9.3            | Held: `@angular/build@21.2.12` peer cap `<6.0`. Target 6.0.3 when Angular bumps to `<6.1` |
+| Framework         | Angular                           | 21.2.14          | Ride-along bump from 21.0.5                                                               |
+| Build             | `@angular/build`                  | 21.2.12          | esbuild builder                                                                           |
+| Reactivity        | Angular signals + signal-forms    | 21.2.14          | RxJS 7.8.2 at boundary only (v8 still alpha)                                              |
+| Map               | OpenLayers                        | 10.9.0           | Minor bump from 10.7                                                                      |
+| Map style         | ol-mapbox-style                   | 13.4.1           | **Major** from 12.3.5; lazy-loaded                                                        |
+| Vector tiles      | pmtiles                           | 4.4.1            | **Major** from 2.7.0; lazy-loaded                                                         |
+| Projections       | proj4                             | 2.20.8           | For non-3857 charts                                                                       |
+| SignalK API       | `@signalk/server-api`             | 2.24.0           | Already pinned                                                                            |
+| SignalK schema    | `@signalk/signalk-schema`         | 1.8.2            | New, drives codegen                                                                       |
+| Styling           | Tailwind                          | 4.3.0            | CSS-first config                                                                          |
+|                   | `@tailwindcss/postcss`            | 4.3.0            |                                                                                           |
+|                   | Material CDK                      | 21.2.12          | Kept                                                                                      |
+|                   | Material core                     | (drops in tiers) | Tier-1: button/dialog/sheet/sidenav/FAB/menu/snackbar/icon                                |
+| Icons             | Material Symbols                  | 0.44.9           | Variable font, glyphhanger subset (~60 kB)                                                |
+|                   | glyphhanger                       | 5.0.0            | Node-only                                                                                 |
+|                   | subset-font                       | 2.5.0            | HarfBuzz-WASM                                                                             |
+| Fonts             | Inter v4.1, JetBrains Mono v2.304 | self-hosted      | Numerals, mono for coordinates                                                            |
+| Color             | culori                            | 4.0.2            | Token math, contrast lints                                                                |
+| Forms             | `@angular/forms/signals`          | 21.2.14          | New code; legacy reactive migrates in tier 2                                              |
+| Service worker    | `@angular/service-worker`         | 21.2.14          | Real PWA (not `@angular/pwa` schematic)                                                   |
+| Lint              | ESLint                            | 10.4.0           | Flat config, requires plugin updates                                                      |
+|                   | typescript-eslint                 | 8.59.4           | recommended-type-checked                                                                  |
+|                   | `@angular-eslint`                 | 21.4.0           |                                                                                           |
+|                   | `eslint-plugin-rxjs-x`            | 1.0.2            | 1.0 stable, replaces deprecated `eslint-plugin-rxjs`                                      |
+|                   | `eslint-plugin-import`            | 2.32.0           |                                                                                           |
+|                   | `eslint-plugin-unicorn`           | 64.0.0           | Curated rules                                                                             |
+|                   | `eslint-plugin-prettier`          | 5.5.5            |                                                                                           |
+| Format            | Prettier                          | 3.8.3            |                                                                                           |
+| Test runner       | Vitest                            | 4.1.7            | Via `@angular/build:unit-test`                                                            |
+|                   | jsdom                             | 29.1.1           |                                                                                           |
+|                   | `@testing-library/angular`        | 19.3.0           |                                                                                           |
+|                   | `@vitest/coverage-v8`             | 4.1.7            |                                                                                           |
+|                   | `@vitest/web-worker`              | 4.1.7            |                                                                                           |
+| E2E               | `@playwright/test`                | 1.60.0           | Container `mcr.microsoft.com/playwright:v1.60.0-jammy`                                    |
+| A11y              | `@axe-core/playwright`            | 4.11.3           | Hard-fail rules + grandfathered baseline                                                  |
+| Type tests        | expect-type                       | 1.3.0            |                                                                                           |
+| Hooks             | simple-git-hooks                  | 2.13.1           |                                                                                           |
+|                   | lint-staged                       | 17.0.5           |                                                                                           |
+|                   | `@commitlint/cli`                 | 21.0.1           |                                                                                           |
+| Release           | release-please-action             | v5               | Requires Node 24 worker                                                                   |
+| Observability     | `@sentry/angular`                 | 10.53.1          | SaaS first, GlitchTip fallback                                                            |
+|                   | web-vitals                        | 5.2.0            |                                                                                           |
+| Bundle gate       | size-limit                        | 12.1.0           | Current-measured baseline, ratcheted                                                      |
+| Architecture lint | dependency-cruiser                | 17.4.2           | God-component prevention rule                                                             |
 
 **Removed**: `@kolkov/angular-editor`, `signalk-client-angular` (vendor inline), `simplify-ts` (vendor inline ESM), `geolib` (replace with `ol/sphere` at 8 sites), `semver` (already inlined), `ngeohash` (already inlined).
 
@@ -86,6 +87,7 @@ Phase numbers are cross-lens; each entry names the owning lens(es). Sequencing r
 ### Phase 0: Floor PR (week 1, qa-lead owns)
 
 Single coherent PR, no app code changes:
+
 - pnpm 11.2.2 via Corepack, `package.json` `packageManager` field, `pnpm-lock.yaml`
 - `.nvmrc` Node 24, CI matrix Node 22 + 24
 - ESLint 10 flat config with full plugin stack
@@ -126,6 +128,7 @@ Single coherent PR, no app code changes:
 ### Phase 3: UI kit swap and shell decomposition (weeks 8 to 19, ux-lead + framework-lead parallel)
 
 UX track (ux-lead, weeks 8 to 19):
+
 - Tailwind v4 + `src/tokens.css` with three `[data-theme]` blocks (light, dark, night-red)
 - Material Symbols variable font, glyphhanger subset to ~120 glyphs
 - Hand-rolled CDK-based primitives, Tier 1 first (button, dialog, sheet, sidenav, FAB, menu, snackbar, icon, ~15 primitives)
@@ -137,12 +140,14 @@ UX track (ux-lead, weeks 8 to 19):
 - Resources surfaces (routes, waypoints, AIS, charts, resourcesets) move to 3-pane Bear pattern
 
 Framework track (framework-lead, weeks 8 to 11, parallel):
+
 - `app.component.ts` 2002 LOC → `AppShell` + `DialogOrchestrator` + `AudioAlarmService` + `MenuController`
 - `app.facade.ts` 1216 LOC → 5 focused stores (vessel, resource, course, settings, alarms)
 
 ### Phase 4: Map reshape (weeks 8 to 15, map-lead, parallel)
 
 Phase 4a (narrow PRs, weeks 8 to 10):
+
 - `refactor/pmtiles-v4-lazy`: bump pmtiles 2 → 4 + lazy-load
 - Lazy-load `ol-mapbox-style@13.4.1`
 - Fix blob URL leak in raster tile loader
@@ -151,6 +156,7 @@ Phase 4a (narrow PRs, weeks 8 to 10):
 - Per-tile OffscreenCanvas night-mode filter (kills the `.app-night` CSS filter hack)
 
 Phase 4b (architecture, weeks 11 to 13):
+
 - `IMapAdapter` interface
 - `LayerComponentBase` with signal-input migration (gated on Phase 1 complete)
 - Lazy-load S57 bundle (~50 kB)
@@ -158,6 +164,7 @@ Phase 4b (architecture, weeks 11 to 13):
 - Test helpers: `window.fb.testMode`, `window.fb.s57.preload`, `window.fb.waitTilesIdle`
 
 Phase 4c (perf, weeks 14 to 15):
+
 - AIS → OL WebGLPoints above ~50-target threshold (consumes data-lead's per-target signals)
 - WebGLTile for raster basemap
 - WebGL fragment-shader night-mode (replaces the OffscreenCanvas filter from 4a)
@@ -165,6 +172,7 @@ Phase 4c (perf, weeks 14 to 15):
 ### Phase 5: TS strict ratchet completion (weeks 6 to 14, qa-lead + everyone, parallel)
 
 7 ratchet PRs over the modernization runway. Each lands a folder into strict scope:
+
 - `src/lib/` (Phase 1)
 - `src/types/` (Phase 1)
 - `src/app/lib/services/` (Phase 2)
@@ -200,6 +208,7 @@ Phase 4c (perf, weeks 14 to 15):
 ## 4. Per-lens summary
 
 ### Framework (Angular + reactivity)
+
 - Stay on Angular 21.2.14
 - Zoneless via `provideExperimentalZonelessChangeDetection()`
 - Signals everywhere user-facing, RxJS confined to WS/HTTP/DOM boundaries via `SignalKStore` with `bufferTime(16)`
@@ -210,6 +219,7 @@ Phase 4c (perf, weeks 14 to 15):
 - God-component decomp: app.component 2002 LOC → AppShell + DialogOrchestrator + AudioAlarmService + MenuController
 
 ### Map / geo (OpenLayers)
+
 - Stay on OpenLayers 10.9.0
 - Drop `geolib` (use `ol/sphere`), drop `simplify-ts` (vendor-inline ESM)
 - pmtiles 2 → 4, ol-mapbox-style 12 → 13, both lazy-loaded
@@ -221,6 +231,7 @@ Phase 4c (perf, weeks 14 to 15):
 - 3 test helpers on `window.fb` bridge
 
 ### Data (SignalK)
+
 - Schema-codegen `tools/sk-codegen.mjs` from `@signalk/signalk-schema@1.8.2`
 - Branded `Path`/`Context`/`SourceRef` from `@signalk/server-api@2.24.0`
 - `SignalKStore`: path-keyed `Map<Path, WritableSignal<PathState<T>>>`
@@ -234,6 +245,7 @@ Phase 4c (perf, weeks 14 to 15):
 - `feature.streamV2` flag gates rollout; `ais-burst.skstream` fixture as default-on gate
 
 ### Build / tooling
+
 - Node 22 + 24 LTS matrix, default 24 in `.nvmrc`
 - pnpm 11.2.2 via Corepack
 - `@angular/build@21.2.12` esbuild builder retained
@@ -245,6 +257,7 @@ Phase 4c (perf, weeks 14 to 15):
 - 8-phase build roadmap B0 to B8
 
 ### UX / marine
+
 - Three themes: light, dark, night-red (true red palette, not CSS filter)
 - 56 px primary touch target, 44 px secondary, codified as tokens
 - Material Symbols variable font, subset to ~120 glyphs (~60 kB)
@@ -258,6 +271,7 @@ Phase 4c (perf, weeks 14 to 15):
 - PWA with cacheFirst chart tiles, install prompt after ≥3 sessions
 
 ### Quality / DX
+
 - Vitest 4 + ATL 19 + Playwright 1.60 + axe-core 4.11
 - ESLint 10 flat with typescript-eslint, @angular-eslint 21, rxjs-x 1.0, import, unicorn, prettier
 - 8-job CI: typecheck, lint, unit, build, size-limit, bundle-cruiser, e2e, lighthouse + any-baseline verifier

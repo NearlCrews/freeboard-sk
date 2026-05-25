@@ -1,12 +1,10 @@
 /** Trail2Route Dialog Component **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import type { OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,8 +15,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { SimplifyAP } from 'simplify-ts';
-import { SKRoute, SKResourceService, SKStreamFacade } from 'src/app/modules';
-import { AppFacade } from 'src/app/app.facade';
+import type { SKResourceService, SKStreamFacade } from 'src/app/modules';
+import { SKRoute } from 'src/app/modules';
+import type { AppFacade } from 'src/app/app.facade';
 
 /********* Trail2RouteDialog **********
 	data: {
@@ -47,7 +46,7 @@ import { AppFacade } from 'src/app/app.facade';
     `
   ]
 })
-export class Trail2RouteDialog implements OnInit {
+export class Trail2RouteDialog implements OnInit, OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rteFromTrail: any[];
   mapCenter = [0, 0];
@@ -60,10 +59,10 @@ export class Trail2RouteDialog implements OnInit {
   mapControls = [{ name: 'zoom' }];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private obsList: Array<any> = [];
+  private obsList: any[] = [];
   private fetching = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private serverCoords: Array<any> = [];
+  private serverCoords: any[] = [];
 
   constructor(
     private skres: SKResourceService,
@@ -136,7 +135,7 @@ export class Trail2RouteDialog implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onServerResource(value: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let serverTrail: Array<any> = [];
+    let serverTrail: any[] = [];
     if (this.fetching && value.action === 'get' && value.mode === 'trail') {
       this.fetching = false;
       serverTrail = value.data;

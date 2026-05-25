@@ -3,8 +3,11 @@ import TileLayer from 'ol/layer/Tile';
 import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { XYZ } from 'ol/source';
 import * as pmtiles from 'pmtiles';
-import { SKChart } from 'src/app/modules/skresources';
-import { RASTER_TILE_CACHE_SIZE, VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
+import type { SKChart } from 'src/app/modules/skresources';
+import {
+  RASTER_TILE_CACHE_SIZE,
+  VECTOR_TILE_CACHE_SIZE
+} from './tile-source.constants';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { MVT } from 'ol/format';

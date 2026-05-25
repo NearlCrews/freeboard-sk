@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, Inject, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  inject
+} from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -10,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { SignalKDetailsComponent } from '../../skresources';
-import { AlertData } from './alert.component';
+import type { AlertData } from './alert.component';
 import { NotificationManager } from '../notification-manager';
 
 /********* AlertPropertiesModal **********
@@ -123,7 +129,7 @@ import { NotificationManager } from '../notification-manager';
 export class AlertPropertiesModal implements OnInit {
   protected showProperties = true;
   protected hasProperties = false;
-  protected properties: { [key: string]: any };
+  protected properties: Record<string, any>;
   protected raisedAt!: string;
 
   protected notiMgr = inject(NotificationManager);

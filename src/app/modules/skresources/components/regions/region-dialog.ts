@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +12,7 @@ import {
 } from '@angular/material/dialog';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { SKRegion } from '../../resource-classes';
+import type { SKRegion } from '../../resource-classes';
 
 interface DialogData {
   region: SKRegion;

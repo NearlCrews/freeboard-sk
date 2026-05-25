@@ -59,112 +59,106 @@
       aria-label="Search notes"
     />
     @if (filterText) {
-      <button
-        type="button"
-        class="clear"
-        (click)="filterKeyUp(''); searchInput.focus()"
-        matTooltip="Clear search"
-        aria-label="Clear search"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+    <button
+      type="button"
+      class="clear"
+      (click)="filterKeyUp(''); searchInput.focus()"
+      matTooltip="Clear search"
+      aria-label="Clear search"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
     }
   </div>
 
   @if (groupChips.length > 1) {
-    <nav class="group-chips" role="tablist" aria-label="Filter by group">
-      @for (chip of groupChips; track chip.name) {
-        <button
-          type="button"
-          class="chip"
-          role="tab"
-          [class.active]="activeGroup === chip.name"
-          [style.--chip-color]="chip.color"
-          [attr.aria-selected]="activeGroup === chip.name"
-          (click)="setActiveGroup(chip.name)"
-        >
-          @if (chip.name) {
-            <span class="dot" aria-hidden="true"></span>
-          }
-          {{ chip.label }}
-          <span class="count">{{ chip.count }}</span>
-        </button>
-      }
-    </nav>
-  }
-
-  @if (filterList.length > 0) {
-    <cdk-virtual-scroll-viewport
-      #scrollViewport
-      class="note-list"
-      itemSize="132"
-      role="listbox"
-      aria-label="Notes"
+  <nav class="group-chips" role="tablist" aria-label="Filter by group">
+    @for (chip of groupChips; track chip.name) {
+    <button
+      type="button"
+      class="chip"
+      role="tab"
+      [class.active]="activeGroup === chip.name"
+      [style.--chip-color]="chip.color"
+      [attr.aria-selected]="activeGroup === chip.name"
+      (click)="setActiveGroup(chip.name)"
     >
-      <article
-        *cdkVirtualFor="let r of filterList; let i = index; trackBy: trackById"
-        class="note-card"
-        role="option"
-        tabindex="0"
-        [class.selected]="selectedIndex === i"
-        [class.draft]="r[1].properties?.draft"
-        [style.--group-color]="groupColor(r[1].group)"
-        [attr.aria-selected]="selectedIndex === i"
-        (click)="selectNote(r, i)"
-        (keydown)="onCardKey($event, r, i)"
-      >
-        <header class="card-head">
-          @if (r[1].properties?.skIcon) {
-            <mat-icon
-              class="card-icon"
-              [svgIcon]="'sk-' + r[1].properties?.skIcon"
-              aria-hidden="true"
-            ></mat-icon>
-          } @else {
-            <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
-          }
-          <div class="card-title">
-            <h2>{{ r[1].name || 'Untitled note' }}</h2>
-            @if (r[1].timestamp) {
-              <time class="card-time" [attr.datetime]="r[1].timestamp">
-                {{ timeAgo(r[1].timestamp) }}
-              </time>
-            }
-          </div>
-          @if (r[1].properties?.draft) {
-            <span class="draft-pill" aria-label="Draft">Draft</span>
-          }
-        </header>
-
-        @if (snippet(r[1]); as text) {
-          <p class="card-snippet">{{ text }}</p>
+      @if (chip.name) {
+      <span class="dot" aria-hidden="true"></span>
+      } {{ chip.label }}
+      <span class="count">{{ chip.count }}</span>
+    </button>
+    }
+  </nav>
+  } @if (filterList.length > 0) {
+  <cdk-virtual-scroll-viewport
+    #scrollViewport
+    class="note-list"
+    itemSize="132"
+    role="listbox"
+    aria-label="Notes"
+  >
+    <article
+      *cdkVirtualFor="let r of filterList; let i = index; trackBy: trackById"
+      class="note-card"
+      role="option"
+      tabindex="0"
+      [class.selected]="selectedIndex === i"
+      [class.draft]="r[1].properties?.draft"
+      [style.--group-color]="groupColor(r[1].group)"
+      [attr.aria-selected]="selectedIndex === i"
+      (click)="selectNote(r, i)"
+      (keydown)="onCardKey($event, r, i)"
+    >
+      <header class="card-head">
+        @if (r[1].properties?.skIcon) {
+        <mat-icon
+          class="card-icon"
+          [svgIcon]="'sk-' + r[1].properties?.skIcon"
+          aria-hidden="true"
+        ></mat-icon>
+        } @else {
+        <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
         }
-
-        @if (r[1].group || r[1].position) {
-          <footer class="card-meta">
-            @if (r[1].group) {
-              <span class="group-chip">
-                <span class="dot" aria-hidden="true"></span>{{ r[1].group }}
-              </span>
-            }
-            @if (r[1].position) {
-              <span class="pos-pill">
-                <mat-icon aria-hidden="true">place</mat-icon>
-                {{ formatPos(r[1].position) }}
-              </span>
-            }
-          </footer>
+        <div class="card-title">
+          <h2>{{ r[1].name || 'Untitled note' }}</h2>
+          @if (r[1].timestamp) {
+          <time class="card-time" [attr.datetime]="r[1].timestamp">
+            {{ timeAgo(r[1].timestamp) }}
+          </time>
+          }
+        </div>
+        @if (r[1].properties?.draft) {
+        <span class="draft-pill" aria-label="Draft">Draft</span>
         }
-      </article>
-    </cdk-virtual-scroll-viewport>
-  } @else {
-    <div class="empty-state" role="status">
-      <mat-icon aria-hidden="true">note_alt</mat-icon>
-      @if (filterText || activeGroup || draftOnly) {
-        <p>No notes match the current filter.</p>
-      } @else {
-        <p>No notes yet.</p>
+      </header>
+
+      @if (snippet(r[1]); as text) {
+      <p class="card-snippet">{{ text }}</p>
+      } @if (r[1].group || r[1].position) {
+      <footer class="card-meta">
+        @if (r[1].group) {
+        <span class="group-chip">
+          <span class="dot" aria-hidden="true"></span>{{ r[1].group }}
+        </span>
+        } @if (r[1].position) {
+        <span class="pos-pill">
+          <mat-icon aria-hidden="true">place</mat-icon>
+          {{ formatPos(r[1].position) }}
+        </span>
+        }
+      </footer>
       }
-    </div>
+    </article>
+  </cdk-virtual-scroll-viewport>
+  } @else {
+  <div class="empty-state" role="status">
+    <mat-icon aria-hidden="true">note_alt</mat-icon>
+    @if (filterText || activeGroup || draftOnly) {
+    <p>No notes match the current filter.</p>
+    } @else {
+    <p>No notes yet.</p>
+    }
+  </div>
   }
 </section>

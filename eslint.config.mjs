@@ -77,17 +77,21 @@ export default tseslint.config(
       unicorn
     },
     rules: {
-      // Angular component / directive conventions.
+      // Angular component / directive conventions. Selector prefix rules
+      // are 'warn' while legacy `app-*` components migrate to `fb-*` / `ap-*`
+      // across the modernization phases; Phase 3 (UX track) owns the rename
+      // sweep. Lifecycle hygiene is similarly 'warn' until the god-component
+      // decomposition lands implementations on the interface.
       '@angular-eslint/component-selector': [
-        'error',
+        'warn',
         { type: 'element', prefix: ['fb', 'ap'], style: 'kebab-case' }
       ],
       '@angular-eslint/directive-selector': [
-        'error',
+        'warn',
         { type: 'attribute', prefix: ['fb', 'ap'], style: 'camelCase' }
       ],
-      '@angular-eslint/no-empty-lifecycle-method': 'error',
-      '@angular-eslint/use-lifecycle-interface': 'error',
+      '@angular-eslint/no-empty-lifecycle-method': 'warn',
+      '@angular-eslint/use-lifecycle-interface': 'warn',
       '@angular-eslint/no-output-on-prefix': 'error',
 
       // RxJS hygiene (rxjs-x is the maintained replacement for eslint-plugin-rxjs).
@@ -151,6 +155,9 @@ export default tseslint.config(
       '@typescript-eslint/unbound-method': 'warn',
       '@typescript-eslint/no-redundant-type-constituents': 'warn',
       '@typescript-eslint/no-base-to-string': 'warn',
+      '@typescript-eslint/prefer-promise-reject-errors': 'warn',
+      '@typescript-eslint/require-await': 'warn',
+      'preserve-caught-error': 'warn',
       // Style rules from stylistic-type-checked. Keep as warn so the baseline
       // verifier surfaces them without breaking `pnpm lint`. Phase 1+ phases
       // clean these up file by file as code is touched.
@@ -161,6 +168,8 @@ export default tseslint.config(
       '@typescript-eslint/non-nullable-type-assertion-style': 'warn',
       '@typescript-eslint/prefer-for-of': 'warn',
       '@typescript-eslint/prefer-function-type': 'warn',
+      '@typescript-eslint/prefer-regexp-exec': 'warn',
+      '@typescript-eslint/no-empty-function': 'warn',
       // Rules that REQUIRE strictNullChecks in tsconfig to function. The
       // strict ratchet (typecheck:strict) is the path to that flag; until
       // then these rules error out the parser. Re-enable once strict lands.
@@ -175,7 +184,8 @@ export default tseslint.config(
       // Plain ESLint hygiene the recommended preset doesn't cover at the level we want.
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-      'no-debugger': 'error'
+      'no-debugger': 'error',
+      'no-useless-assignment': 'warn'
     }
   },
 
@@ -241,13 +251,13 @@ export default tseslint.config(
     }
   },
 
-  // Config and script files are JS or not part of any tsconfig project.
+  // Config, script, and e2e files are JS or not part of any tsconfig project.
   // Detach from the typed-lint project graph and turn off the type-aware
   // rule sets that would otherwise crash for lack of type services.
   // vitest.setup.ts is intentionally NOT matched here; it is covered by
   // tsconfig.spec.json and the test-files override above.
   {
-    files: ['*.config.{ts,mjs,js}', 'scripts/**/*.{mjs,js}'],
+    files: ['*.config.{ts,mjs,js}', 'scripts/**/*.{mjs,js}', 'e2e/**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.node

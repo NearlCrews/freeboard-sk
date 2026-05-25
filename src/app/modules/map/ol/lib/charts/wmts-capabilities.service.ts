@@ -27,10 +27,9 @@ export class WmtsCapabilitiesService {
     const abortCtrl = new AbortController();
     const abortTimer = setTimeout(() => abortCtrl.abort(), 5000);
     try {
-      const r = await fetch(
-        `${hostUrl}?request=GetCapabilities&service=wmts`,
-        { signal: abortCtrl.signal }
-      );
+      const r = await fetch(`${hostUrl}?request=GetCapabilities&service=wmts`, {
+        signal: abortCtrl.signal
+      });
       clearTimeout(abortTimer);
       const res = await r.text();
       const wmts = new WMTSCapabilities();

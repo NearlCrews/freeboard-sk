@@ -15,87 +15,83 @@
   <mat-dialog-content class="related-content">
     <div class="related-notes-grid">
       @for (n of data.notes; track n[0]) {
-        <article
-          class="note-card"
-          [class.draft]="n[1].properties?.draft"
-          [style.--group-color]="groupColor(n[1].group)"
-        >
-          <header class="card-head">
-            @if (n[1].properties?.skIcon) {
-              <mat-icon
-                class="card-icon"
-                [svgIcon]="'sk-' + n[1].properties?.skIcon"
-                aria-hidden="true"
-              ></mat-icon>
-            } @else {
-              <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
-            }
-            <div class="card-title">
-              <h2>{{ n[1].name || 'Untitled note' }}</h2>
-              @if (n[1].timestamp) {
-                <time class="card-time" [attr.datetime]="n[1].timestamp">
-                  {{ n[1].timestamp.slice(0, 10) }}
-                </time>
-              }
-            </div>
-            @if (n[1].properties?.draft) {
-              <span class="draft-pill" aria-label="Draft">Draft</span>
-            }
-          </header>
-
-          @if (snippet(n[1]); as text) {
-            <p class="card-snippet">{{ text }}</p>
+      <article
+        class="note-card"
+        [class.draft]="n[1].properties?.draft"
+        [style.--group-color]="groupColor(n[1].group)"
+      >
+        <header class="card-head">
+          @if (n[1].properties?.skIcon) {
+          <mat-icon
+            class="card-icon"
+            [svgIcon]="'sk-' + n[1].properties?.skIcon"
+            aria-hidden="true"
+          ></mat-icon>
+          } @else {
+          <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
           }
-
-          @if (n[1].group || (n[1].authors && n[1].authors.length)) {
-            <footer class="card-meta">
-              @if (n[1].group) {
-                <span class="group-chip">
-                  <span class="dot" aria-hidden="true"></span>{{ n[1].group }}
-                </span>
-              }
-              @if (n[1].authors && n[1].authors.length) {
-                <span class="pos-pill">
-                  <mat-icon aria-hidden="true">person</mat-icon>
-                  {{ n[1].authors[0]?.name }}
-                </span>
-              }
-            </footer>
-          }
-
-          <div class="related-card-actions">
-            @if (n[1].url) {
-              <button
-                mat-icon-button
-                (click)="openNoteUrl(n[1].url)"
-                matTooltip="Open linked URL in a new tab"
-                aria-label="Open link"
-              >
-                <mat-icon>open_in_new</mat-icon>
-              </button>
-            }
-            @if (!n[1].properties?.readOnly) {
-              <button
-                mat-icon-button
-                [disabled]="data.readOnly"
-                (click)="editNote(n[0])"
-                matTooltip="Edit note"
-                aria-label="Edit"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                [disabled]="data.readOnly"
-                (click)="deleteNote(n[0])"
-                matTooltip="Delete note"
-                aria-label="Delete"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
+          <div class="card-title">
+            <h2>{{ n[1].name || 'Untitled note' }}</h2>
+            @if (n[1].timestamp) {
+            <time class="card-time" [attr.datetime]="n[1].timestamp">
+              {{ n[1].timestamp.slice(0, 10) }}
+            </time>
             }
           </div>
-        </article>
+          @if (n[1].properties?.draft) {
+          <span class="draft-pill" aria-label="Draft">Draft</span>
+          }
+        </header>
+
+        @if (snippet(n[1]); as text) {
+        <p class="card-snippet">{{ text }}</p>
+        } @if (n[1].group || (n[1].authors && n[1].authors.length)) {
+        <footer class="card-meta">
+          @if (n[1].group) {
+          <span class="group-chip">
+            <span class="dot" aria-hidden="true"></span>{{ n[1].group }}
+          </span>
+          } @if (n[1].authors && n[1].authors.length) {
+          <span class="pos-pill">
+            <mat-icon aria-hidden="true">person</mat-icon>
+            {{ n[1].authors[0]?.name }}
+          </span>
+          }
+        </footer>
+        }
+
+        <div class="related-card-actions">
+          @if (n[1].url) {
+          <button
+            mat-icon-button
+            (click)="openNoteUrl(n[1].url)"
+            matTooltip="Open linked URL in a new tab"
+            aria-label="Open link"
+          >
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+          } @if (!n[1].properties?.readOnly) {
+          <button
+            mat-icon-button
+            [disabled]="data.readOnly"
+            (click)="editNote(n[0])"
+            matTooltip="Edit note"
+            aria-label="Edit"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            [disabled]="data.readOnly"
+            (click)="deleteNote(n[0])"
+            matTooltip="Delete note"
+            aria-label="Delete"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          }
+        </div>
+      </article>
       }
     </div>
   </mat-dialog-content>

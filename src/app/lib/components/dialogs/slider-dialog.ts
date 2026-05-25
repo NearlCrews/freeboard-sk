@@ -1,18 +1,21 @@
 /** Slider input Dialog Component **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, OnInit, signal, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+  inject
+} from '@angular/core';
 
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
-import { AppIconDef } from 'src/app/modules/icons';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { AppIconDef } from 'src/app/modules/icons';
 
 export interface SliderInputDialogResult {
   apply: boolean;

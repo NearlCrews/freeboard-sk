@@ -1,7 +1,13 @@
 /** Single Select List Dialog Component **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, Inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewChild,
+  Inject
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -9,12 +15,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
-import { AppIconDef } from 'src/app/modules/icons';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { AppIconDef } from 'src/app/modules/icons';
 
 /********* SingleSelectListDialog *********
  * data: {

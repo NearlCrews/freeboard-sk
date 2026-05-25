@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MatDialogModule,
@@ -13,34 +18,36 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { AppFacade } from 'src/app/app.facade';
-import { SKChart } from 'src/app/modules/skresources/resource-classes';
-import { ChartProvider } from 'src/app/types';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import type { SKChart } from 'src/app/modules/skresources/resource-classes';
+import type { ChartProvider } from 'src/app/types';
+import type { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 interface MapboxStyle {
   version: string;
   name?: string;
-  sources: Array<{
-    [index: string]: {
+  sources: Record<
+    string,
+    {
       type: string;
       url: string;
-    };
-  }>;
-  layers: Array<{
+    }
+  >[];
+  layers: {
     id: string;
     source: string;
     'source-layer': string;
-  }>;
+  }[];
 }
 
 interface TileJson {
   tilejson: string;
   name: string;
   description: string;
-  vector_layers?: Array<{
+  vector_layers?: {
     id: string;
     description: string;
-  }>;
+  }[];
   maxzoom: number;
   minzoom: number;
   bounds: [number, number, number, number];

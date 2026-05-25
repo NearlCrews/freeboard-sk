@@ -1,14 +1,12 @@
 /** Dialog Components **
  ************************/
 
-import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
+import type { OnInit, AfterViewInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -342,7 +340,7 @@ export class MessageBarComponent {
     `
   ]
 })
-export class WelcomeDialog {
+export class WelcomeDialog implements AfterViewInit {
   public currentPage = 1;
 
   constructor(
@@ -355,7 +353,7 @@ export class WelcomeDialog {
       'mat-horizontal-stepper-header-container'
     );
     if (sh) {
-      sh[0]['style']['display'] = 'none';
+      sh[0].style.display = 'none';
     }
   }
 }

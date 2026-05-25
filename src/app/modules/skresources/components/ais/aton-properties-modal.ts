@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MatBottomSheetRef,
@@ -12,7 +18,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'signalk-client-angular';
-import { SKAtoN } from 'src/app/modules/skresources/resource-classes';
+import type { SKAtoN } from 'src/app/modules/skresources/resource-classes';
 import { SignalKDetailsComponent } from '../../components/signalk-details.component';
 
 @Component({
@@ -93,7 +99,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 })
 export class AtoNPropertiesModal implements OnInit {
   protected showProperties = true;
-  protected properties: { [key: string]: string | number | null };
+  protected properties: Record<string, string | number | null>;
 
   private app = inject(AppFacade);
   private sk = inject(SignalKClient);

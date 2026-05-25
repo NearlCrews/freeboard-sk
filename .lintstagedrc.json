@@ -1,9 +1,4 @@
 {
-  "*.{ts,js,mjs,cjs}": [
-    "eslint --fix --no-warn-ignored",
-    "prettier --write"
-  ],
-  "*.{json,md,yaml,yml,html,css,scss}": [
-    "prettier --write"
-  ]
+  "*.{ts,js,mjs,cjs}": ["eslint --fix --no-warn-ignored", "prettier --write"],
+  "*.{json,md,yaml,yml,html,css,scss}": ["prettier --write"]
 }

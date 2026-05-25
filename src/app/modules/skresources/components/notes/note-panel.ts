@@ -17,10 +17,11 @@ import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
 
 import { AppFacade } from 'src/app/app.facade';
-import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
+import type { AppIconDef } from 'src/app/modules/icons';
+import { getResourceIcon } from 'src/app/modules/icons';
 import { SKNote } from '../../resource-classes';
 import { CourseService } from 'src/app/modules/course';
-import { Position } from 'geojson';
+import type { Position } from 'geojson';
 import { SKResourceService } from '../../resources.service';
 
 // Match the list view's palette so a group's colour is stable across
@@ -52,7 +53,7 @@ const GROUP_PALETTE = [
 })
 export class NotePanel {
   note = input<SKNote>(new SKNote());
-  id = input<string>(undefined);
+  id = input<string>();
 
   protected _note = linkedSignal(() => this.note());
 
@@ -134,8 +135,7 @@ export class NotePanel {
     if (!timestamp) {
       return '';
     }
-    const t =
-      typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
+    const t = typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
     if (isNaN(t)) {
       return '';
     }

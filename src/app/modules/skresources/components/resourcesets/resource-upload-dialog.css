@@ -1,24 +1,24 @@
 .resourceload-dialog {
-    font-family: roboto;
-    position: relative; width: 100%;    
+  font-family: roboto;
+  position: relative;
+  width: 100%;
 }
 
 .card-group {
-    padding: 5px 5% 5px 5%;
+  padding: 5px 5% 5px 5%;
 }
 
-
 /* phone */
-@media only screen and (min-width : 400px) {    
+@media only screen and (min-width: 400px) {
 }
 
 /* tablet */
-@media only screen and (min-width : 475px) {   
+@media only screen and (min-width: 475px) {
 }
 
 /* large */
-@media only screen and (min-width : 800px) {
-    .card-group {
-        padding: 5px 5% 5px 5%;
-    }
-} 
+@media only screen and (min-width: 800px) {
+  .card-group {
+    padding: 5px 5% 5px 5%;
+  }
+}

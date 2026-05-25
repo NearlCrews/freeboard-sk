@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MatBottomSheetRef,
@@ -11,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { SignalKClient } from 'signalk-client-angular';
-import { SKAircraft } from 'src/app/modules/skresources/resource-classes';
+import type { SKAircraft } from 'src/app/modules/skresources/resource-classes';
 import { SignalKDetailsComponent } from '../../components/signalk-details.component';
 
 @Component({
@@ -94,9 +100,9 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
     `
   ]
 })
-export class AircraftPropertiesModal {
+export class AircraftPropertiesModal implements OnInit {
   protected showProperties = true;
-  protected properties: { [key: string]: string | number | null };
+  protected properties: Record<string, string | number | null>;
 
   private sk = inject(SignalKClient);
   protected modalRef = inject(MatBottomSheetRef<AircraftPropertiesModal>);

@@ -86,7 +86,10 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     // Sans heavy reads cleaner at chartplotter distance than a serif at
     // the same size: less anti-aliasing on the thick strokes, so the
     // edges stay crisp instead of looking fuzzy.
-    font: 700 26px/1.25 Roboto, system-ui, sans-serif;
+    font:
+      700 26px/1.25 Roboto,
+      system-ui,
+      sans-serif;
     letter-spacing: -0.015em;
     color: var(--notes-text);
     overflow-wrap: break-word;

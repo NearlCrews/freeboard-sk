@@ -1,16 +1,19 @@
-import { ChangeDetectionStrategy, Component, OnInit, input, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject
+} from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 
-import {
-  DragDropModule,
-  CdkDragDrop,
-  moveItemInArray
-} from '@angular/cdk/drag-drop';
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { AppFacade } from 'src/app/app.facade';
-import { FBCharts } from 'src/app/types';
+import type { FBCharts } from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
 
 /********* ChartLayersList***********/
@@ -137,6 +140,6 @@ export class ChartLayers implements OnInit {
   }
 
   isLocal(url: string) {
-    return url && url.indexOf('signalk') !== -1 ? 'map' : 'language';
+    return url && url.includes('signalk') ? 'map' : 'language';
   }
 }

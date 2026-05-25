@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,10 +16,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import { GPXSaveFacade } from './gpxsave-dialog.facade';
-import { AppFacade } from 'src/app/app.facade';
-import { SKResourceService } from '../skresources';
-import { FBRoute, FBWaypoint } from 'src/app/types';
+import type { GPXSaveFacade } from './gpxsave-dialog.facade';
+import type { AppFacade } from 'src/app/app.facade';
+import type { SKResourceService } from '../skresources';
+import type { FBRoute, FBWaypoint } from 'src/app/types';
 
 //** GPXSave dialog **
 @Component({
@@ -42,7 +43,7 @@ import { FBRoute, FBWaypoint } from 'src/app/types';
   templateUrl: './gpxsave-dialog.html',
   styleUrls: ['./gpxsave-dialog.css']
 })
-export class GPXExportDialog implements OnInit {
+export class GPXExportDialog implements OnInit, OnDestroy {
   protected resData = {
     routes: [],
     waypoints: [],

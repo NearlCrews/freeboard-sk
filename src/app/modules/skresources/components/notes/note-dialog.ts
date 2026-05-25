@@ -1,7 +1,7 @@
+import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   ViewEncapsulation,
   inject
 } from '@angular/core';
@@ -22,17 +22,16 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import {
-  AngularEditorModule,
-  AngularEditorConfig
-} from '@kolkov/angular-editor';
+import type { AngularEditorConfig } from '@kolkov/angular-editor';
+import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
 
 import { AppFacade } from 'src/app/app.facade';
-import { AppIconDef, getResourceIcon, listPoiIds } from 'src/app/modules/icons';
-import { SKNote } from '../../resource-classes';
-import { SKPosition } from 'src/app/types';
+import type { AppIconDef } from 'src/app/modules/icons';
+import { getResourceIcon, listPoiIds } from 'src/app/modules/icons';
+import type { SKNote } from '../../resource-classes';
+import type { SKPosition } from 'src/app/types';
 
 interface DialogData {
   title: string;
@@ -75,7 +74,11 @@ interface DialogData {
   styles: [
     // Override the global `b { font-weight: 500 }` rule from
     // src/styles.scss so bold actually looks bold inside the editor.
-    `.angular-editor-textarea b { font-weight: bold; }`
+    `
+      .angular-editor-textarea b {
+        font-weight: bold;
+      }
+    `
   ]
 })
 export class NoteDialog implements OnInit {
@@ -138,7 +141,7 @@ export class NoteDialog implements OnInit {
   };
 
   protected icon: AppIconDef;
-  protected poiIcons: Array<{ id: string; name: string }> = [];
+  protected poiIcons: { id: string; name: string }[] = [];
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<NoteDialog>);

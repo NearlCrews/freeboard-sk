@@ -1,15 +1,18 @@
 /** Login Dialog Component **
  ****************************/
 
-import { ChangeDetectionStrategy, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import type { OnInit, AfterViewInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -86,7 +89,7 @@ import { MatInputModule } from '@angular/material/input';
     </mat-dialog-content>
   `
 })
-export class LoginDialog implements OnInit {
+export class LoginDialog implements OnInit, AfterViewInit {
   @ViewChild('username', { static: false }) username;
 
   public imgSource = 'assets/img/success.png';

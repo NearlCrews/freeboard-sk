@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import {
@@ -21,15 +26,16 @@ import {
 } from '@angular/material/dialog';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { SKWaypoint } from '../../resource-classes';
+import type { SKWaypoint } from '../../resource-classes';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AppIconDef, getResourceIcon, getSvgList } from 'src/app/modules/icons';
+import type { AppIconDef } from 'src/app/modules/icons';
+import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import { MatTooltip } from '@angular/material/tooltip';
 
 const waypointTypeDef = {
   default: {
-    icon: getResourceIcon('waypoints', undefined),
+    icon: getResourceIcon('waypoints'),
     group: 'Points of Interest',
     displayName: 'Waypoint'
   },
@@ -294,7 +300,7 @@ interface DialogData {
 })
 export class WaypointDialog {
   protected dialogIcon: string; // dialog add / edit icon
-  protected wptIcon = signal<AppIconDef>(undefined);
+  protected wptIcon = signal<AppIconDef>();
   protected waypointTypeSelections: Map<string, any[]>;
   protected wptIconDisplayName!: string;
 

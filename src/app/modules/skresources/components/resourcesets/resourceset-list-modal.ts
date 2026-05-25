@@ -1,7 +1,13 @@
 /** Resource Dialog Components **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, OnInit, Inject, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  signal
+} from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -9,13 +15,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import { AppFacade } from 'src/app/app.facade';
-import { FBCustomResourceService } from '../../custom-resources-service';
-import { FBResourceSet, FBResourceSets } from 'src/app/types';
+import type { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import type { AppFacade } from 'src/app/app.facade';
+import type { FBCustomResourceService } from '../../custom-resources-service';
+import type { FBResourceSet, FBResourceSets } from 'src/app/types';
 
 /********* ResourceSetModal **********
  * Fetches ResouorceSets from server for selection

@@ -1,11 +1,20 @@
-import { ChangeDetectionStrategy, Component, OnInit, Inject, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import type { OnInit, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  inject
+} from '@angular/core';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule
+} from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,16 +26,17 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'signalk-client-angular';
-import { SKResourceService, SKTrack } from 'src/app/modules';
-import {
-  GPX,
+import type { SKTrack } from 'src/app/modules';
+import { SKResourceService } from 'src/app/modules';
+import type {
   GPXRoute,
   GPXWaypoint,
   GPXTrack,
   GPXTrackSegment
 } from './gpxlib';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorList } from 'src/app/types';
+import { GPX } from './gpxlib';
+import type { HttpErrorResponse } from '@angular/common/http';
+import type { ErrorList } from 'src/app/types';
 
 //** GPXLoad dialog **
 @Component({
@@ -50,7 +60,7 @@ import { ErrorList } from 'src/app/types';
   templateUrl: './gpxload-dialog.html',
   styleUrls: ['./gpxload-dialog.css']
 })
-export class GPXImportDialog implements OnInit {
+export class GPXImportDialog implements OnInit, OnDestroy {
   public gpxData = {
     name: '',
     routes: [],
@@ -271,25 +281,25 @@ export class GPXImportDialog implements OnInit {
     let idx = 1;
     this.gpx.rte.forEach((r) => {
       gpxData.routes.push({
-        name: r['name'] !== '' ? r['name'] : `Rte: ${idx}`,
-        description: r['desc'] ? r['desc'] : r['cmt'] ? r['cmt'] : '',
-        wptcount: r['rtept'].length
+        name: r.name !== '' ? r.name : `Rte: ${idx}`,
+        description: r.desc ? r.desc : r.cmt ? r.cmt : '',
+        wptcount: r.rtept.length
       });
       idx++;
     });
     idx = 1;
     this.gpx.wpt.forEach((w) => {
       gpxData.waypoints.push({
-        name: w['name'] ? w['name'] : `Wpt: ${idx}`,
-        description: w['desc'] ? w['desc'] : w['cmt'] ? w['cmt'] : ''
+        name: w.name ? w.name : `Wpt: ${idx}`,
+        description: w.desc ? w.desc : w.cmt ? w.cmt : ''
       });
       idx++;
     });
     idx = 1;
     this.gpx.trk.forEach((t) => {
       gpxData.tracks.push({
-        name: t['name'] ? t['name'] : `Trk: ${idx}`,
-        description: t['desc'] ? t['desc'] : t['cmt'] ? t['cmt'] : ''
+        name: t.name ? t.name : `Trk: ${idx}`,
+        description: t.desc ? t.desc : t.cmt ? t.cmt : ''
       });
       idx++;
     });
@@ -323,7 +333,7 @@ export class GPXImportDialog implements OnInit {
         try {
           const res = await this.skres.postToServer('tracks', trk as SKTrack);
           this.subCount--;
-          if (Math.floor(res['statusCode'] / 100) === 2) {
+          if (Math.floor(res.statusCode / 100) === 2) {
             trkIds.push(res.id);
             this.app.debug('SUCCESS: Track added.');
           } else {
@@ -376,22 +386,22 @@ export class GPXImportDialog implements OnInit {
     rte.description = r.desc ?? '';
     // ** route properties **
     if (r.cmt) {
-      rte.feature.properties['cmt'] = r.cmt;
+      rte.feature.properties.cmt = r.cmt;
     }
     if (r.src) {
-      rte.feature.properties['src'] = r.src;
+      rte.feature.properties.src = r.src;
     }
     if (r.number) {
-      rte.feature.properties['number'] = r.number;
+      rte.feature.properties.number = r.number;
     }
     if (r.type) {
-      rte.feature.properties['type'] = r.type;
+      rte.feature.properties.type = r.type;
     }
-    rte.feature.properties['coordinatesMeta'] = [];
-    rte.feature.properties['coordinatesMeta'] = r.rtept.map((pt) => {
+    rte.feature.properties.coordinatesMeta = [];
+    rte.feature.properties.coordinatesMeta = r.rtept.map((pt) => {
       const ptMeta = { name: pt.name ?? '' };
       if (pt.cmt) {
-        ptMeta['description'] = pt.cmt;
+        ptMeta.description = pt.cmt;
       }
       return ptMeta;
     });
@@ -402,7 +412,7 @@ export class GPXImportDialog implements OnInit {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (Math.floor(r['statusCode'] / 100) === 2) {
+          if (Math.floor(r.statusCode / 100) === 2) {
             this.app.debug('SUCCESS: Route added.');
             this.app.config.selections.routes.push(skObj[0]);
           } else {
@@ -436,13 +446,13 @@ export class GPXImportDialog implements OnInit {
       wpt.type = pt.type;
     }
     if (pt.cmt) {
-      wpt.feature.properties['cmt'] = pt.cmt;
+      wpt.feature.properties.cmt = pt.cmt;
     }
     if (pt.src) {
-      wpt.feature.properties['src'] = pt.src;
+      wpt.feature.properties.src = pt.src;
     }
     if (pt.sym) {
-      wpt.feature.properties['sym'] = pt.sym;
+      wpt.feature.properties.sym = pt.sym;
     }
 
     this.subCount++;
@@ -455,7 +465,7 @@ export class GPXImportDialog implements OnInit {
       .subscribe(
         (r) => {
           this.subCount--;
-          if (Math.floor(r['statusCode'] / 100) === 2) {
+          if (Math.floor(r.statusCode / 100) === 2) {
             this.app.debug('SUCCESS: Waypoint added.');
             this.app.config.selections.waypoints.push(wptObj[0]);
           } else {
@@ -492,23 +502,23 @@ export class GPXImportDialog implements OnInit {
       });
     }
     if (gpxtrk.name && gpxtrk.name.length !== 0) {
-      trk.feature.properties['name'] = gpxtrk.name;
+      trk.feature.properties.name = gpxtrk.name;
     } else {
-      trk.feature.properties['name'] = `gpxtrk #${Math.random()
+      trk.feature.properties.name = `gpxtrk #${Math.random()
         .toString()
         .slice(-5)}`;
     }
     if (gpxtrk.desc && gpxtrk.desc.length !== 0) {
-      trk.feature.properties['description'] = gpxtrk.desc;
+      trk.feature.properties.description = gpxtrk.desc;
     }
     if (gpxtrk.cmt) {
-      trk.feature.properties['cmt'] = gpxtrk.cmt;
+      trk.feature.properties.cmt = gpxtrk.cmt;
     }
     if (gpxtrk.src) {
-      trk.feature.properties['src'] = gpxtrk.src;
+      trk.feature.properties.src = gpxtrk.src;
     }
     if (gpxtrk.type) {
-      trk.feature.properties['type'] = gpxtrk.type;
+      trk.feature.properties.type = gpxtrk.type;
     }
     return trk;
   }

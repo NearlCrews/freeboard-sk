@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input
+} from '@angular/core';
 
 import { AppFacade } from 'src/app/app.facade';
-import { MFBAction } from 'src/app/types';
+import type { MFBAction } from 'src/app/types';
 import { POBButtonComponent } from './pob-button.component';
 import { WptButtonComponent } from './wpt-button.component';
 import { AutopilotButtonComponent } from './autopilot-button.component';

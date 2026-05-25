@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+  inject
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,16 +15,12 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  CdkDrag,
-  CdkDropList
-} from '@angular/cdk/drag-drop';
-import { Position } from 'src/app/types';
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
+import type { Position } from 'src/app/types';
 import { AppFacade } from 'src/app/app.facade';
 
-import { SKWaypoint, SKRoute } from '../resource-classes';
+import type { SKWaypoint, SKRoute } from '../resource-classes';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKResourceService } from '../resources.service';
 import { CourseService } from '../../course';
@@ -195,8 +197,8 @@ import { Convert } from 'src/app/lib/convert';
   ]
 })
 export class ActiveResourcePropertiesModal implements OnInit {
-  protected points: Array<Position> = [];
-  protected pointMeta: Array<{ name: string; description: string }> = [];
+  protected points: Position[] = [];
+  protected pointMeta: { name: string; description: string }[] = [];
   protected legs: { bearing: string; distance: string }[] = [];
   protected selIndex = signal<number>(-1);
   protected clearButtonText = 'Clear';
@@ -339,7 +341,7 @@ export class ActiveResourcePropertiesModal implements OnInit {
   }
 
   /** Activate route starting at nearest point */
-  startAt(idx: number = -1) {
+  startAt(idx = -1) {
     if (this.points.length < 2) {
       return;
     }

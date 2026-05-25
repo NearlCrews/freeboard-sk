@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import type { OnInit, AfterViewInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
@@ -16,11 +22,12 @@ import {
   MAT_DIALOG_DATA,
   MatDialog
 } from '@angular/material/dialog';
-import { SKResourceGroup } from './groups.service';
-import { SKResourceService, SKResourceType } from '../../resources.service';
-import { FBChart, FBRegion, FBRoute, FBWaypoint } from 'src/app/types';
+import type { SKResourceGroup } from './groups.service';
+import type { SKResourceType } from '../../resources.service';
+import { SKResourceService } from '../../resources.service';
+import type { FBChart, FBRegion, FBRoute, FBWaypoint } from 'src/app/types';
 import { MultiSelectListDialog } from 'src/app/lib/components';
-import { AppIconDef } from 'src/app/modules/icons';
+import type { AppIconDef } from 'src/app/modules/icons';
 
 interface RListEntry {
   id: string;
@@ -249,7 +256,7 @@ interface RListEntry {
     `
   ]
 })
-export class ResourceGroupDialog implements OnInit {
+export class ResourceGroupDialog implements OnInit, AfterViewInit {
   protected gItem: any;
   protected selTab = 0;
   protected wpts: RListEntry[] = [];
@@ -424,26 +431,26 @@ export class ResourceGroupDialog implements OnInit {
     if (this.selTab === 1) {
       lTitle = 'Routes';
       icon = { svgIcon: 'route', class: 'ob' };
-      const rteIds = this.gItem.routes.map((i) => i.id);
-      rList = this.rtes.filter((i) => !rteIds.includes(i.id));
+      const rteIds = new Set(this.gItem.routes.map((i) => i.id));
+      rList = this.rtes.filter((i) => !rteIds.has(i.id));
     }
     if (this.selTab === 2) {
       lTitle = 'Waypoints';
       icon = { name: 'location_on' };
-      const wptIds = this.gItem.waypoints.map((i) => i.id);
-      rList = this.wpts.filter((i) => !wptIds.includes(i.id));
+      const wptIds = new Set(this.gItem.waypoints.map((i) => i.id));
+      rList = this.wpts.filter((i) => !wptIds.has(i.id));
     }
     if (this.selTab === 3) {
       lTitle = 'Regions';
       icon = { name: 'tab_unselected' };
-      const regIds = this.gItem.regions.map((i) => i.id);
-      rList = this.regions.filter((i) => !regIds.includes(i.id));
+      const regIds = new Set(this.gItem.regions.map((i) => i.id));
+      rList = this.regions.filter((i) => !regIds.has(i.id));
     }
     if (this.selTab === 4) {
       lTitle = 'Charts';
       icon = { name: 'map' };
-      const chtIds = this.gItem.charts.map((i) => i.id);
-      rList = this.charts.filter((i) => !chtIds.includes(i.id));
+      const chtIds = new Set(this.gItem.charts.map((i) => i.id));
+      rList = this.charts.filter((i) => !chtIds.has(i.id));
     }
 
     this.dialog

@@ -1,20 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  SimpleChanges
-} from '@angular/core';
+import type { ChangeDetectorRef, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Stroke, Fill, Circle, RegularShape } from 'ol/style';
 import { LineString, Point } from 'ol/geom';
 import { toLonLat } from 'ol/proj';
-import { MapComponent } from '../map.component';
+import type { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { getRhumbLineBearing } from 'geolib';
-import { GeolibInputCoordinates } from 'geolib/es/types';
+import type { GeolibInputCoordinates } from 'geolib/es/types';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
-import { FBRoutes } from 'src/app/types';
+import type { FBRoutes } from 'src/app/types';
 
 // ** Freeboard resource collection format **
 @Component({
@@ -24,7 +19,7 @@ import { FBRoutes } from 'src/app/types';
   standalone: false
 })
 export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
-  @Input() routeStyles: { [key: string]: Style };
+  @Input() routeStyles: Record<string, Style>;
   @Input() activeRoute: string;
   @Input() routes: FBRoutes = [];
 
@@ -46,10 +41,10 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     if (!this.source) return;
     if ('routes' in changes) {
       this.source.clear();
-      this.parseFBRoutes(changes['routes'].currentValue);
+      this.parseFBRoutes(changes.routes.currentValue);
     } else if ('activeRoute' in changes) {
       this.onActivateRoute(
-        changes['activeRoute'].previousValue as string | undefined
+        changes.activeRoute.previousValue as string | undefined
       );
     }
   }
@@ -65,9 +60,7 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
 
   private restyleRouteById(id: string | undefined) {
     if (!id) return;
-    const feature = this.source.getFeatureById(
-      'route.' + id
-    ) as Feature | null;
+    const feature = this.source.getFeatureById('route.' + id) as Feature | null;
     if (feature) {
       feature.setStyle(this.buildStyle(feature));
     }

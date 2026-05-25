@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
+import type { OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -9,15 +10,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { SignalKClient } from 'signalk-client-angular';
+import type { SignalKClient } from 'signalk-client-angular';
 import { FileInputComponent } from 'src/app/lib/components/file-input.component';
-import { AppFacade } from 'src/app/app.facade';
+import type { AppFacade } from 'src/app/app.facade';
 
 //** Resources upload dialog **
 @Component({
@@ -39,8 +37,8 @@ import { AppFacade } from 'src/app/app.facade';
     FileInputComponent
   ]
 })
-export class ResourceImportDialog implements OnInit {
-  public resPaths: Array<string> = [];
+export class ResourceImportDialog implements OnInit, OnDestroy {
+  public resPaths: string[] = [];
   public targetPath: string = null;
   public source = { type: null, name: null, data: null };
 
@@ -55,7 +53,7 @@ export class ResourceImportDialog implements OnInit {
     public skclient: SignalKClient,
     public dialogRef: MatDialogRef<ResourceImportDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: { [key: string]: any }
+    @Inject(MAT_DIALOG_DATA) public data: Record<string, any>
   ) {}
 
   ngOnInit() {

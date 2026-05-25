@@ -1,3 +1,4 @@
+import type { OnInit, OnChanges } from '@angular/core';
 import {
   Component,
   Input,
@@ -13,8 +14,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { AppFacade } from 'src/app/app.facade';
-import { Position } from 'src/app/types';
-import { FBNotes, FBNote, FBResourceSelect, SKPosition } from 'src/app/types';
+import type {
+  Position,
+  FBNotes,
+  FBNote,
+  FBResourceSelect,
+  SKPosition
+} from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
 
 interface GroupChip {
@@ -50,7 +56,7 @@ const GROUP_PALETTE = [
     ScrollingModule
   ]
 })
-export class NoteListComponent {
+export class NoteListComponent implements OnInit, OnChanges {
   @Input() notes: FBNotes;
   select = output<FBResourceSelect>();
   refresh = output<void>();
@@ -195,7 +201,7 @@ export class NoteListComponent {
       if (text) {
         const name = (n[1].name || '').toLowerCase();
         const description = (n[1].description || '').toLowerCase();
-        if (name.indexOf(text) === -1 && description.indexOf(text) === -1) {
+        if (!name.includes(text) && !description.includes(text)) {
           return false;
         }
       }
@@ -238,8 +244,7 @@ export class NoteListComponent {
     if (!timestamp) {
       return '';
     }
-    const t =
-      typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
+    const t = typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
     if (isNaN(t)) {
       return '';
     }

@@ -18,9 +18,7 @@
     "baseUrl": "./",
     "sourceMap": true,
     "declaration": false,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "typeRoots": ["node_modules/@types"],
     "paths": {}
   },
   "angularCompilerOptions": {

@@ -1,19 +1,19 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 
 import { SignalKClient } from 'signalk-client-angular';
 import { AppFacade } from 'src/app/app.facade';
 import { GeoUtils } from 'src/app/lib/geoutils';
 
+import type { SKInfoLayer } from '.';
 import {
   RegionDialog,
   RouteDialog,
   WaypointDialog,
   RelatedNotesDialog,
   TrackDialog,
-  SKInfoLayer,
   ChartPropertiesDialog
 } from '.';
 import type { NoteDialog } from './components/notes/note-dialog';
@@ -28,7 +28,7 @@ import {
   SKTrack,
   SKVessel
 } from './resource-classes';
-import {
+import type {
   Routes,
   Waypoints,
   Notes,
@@ -55,9 +55,10 @@ import {
   FBWaypoint,
   FBTracks,
   FBTrack,
-  FBVessels
+  FBVessels,
+  ActionResult,
+  PathValue
 } from 'src/app/types';
-import { ActionResult, PathValue } from 'src/app/types';
 import { groupBy } from 'rxjs/operators';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { ChartSeedJobDialog } from './components/charts/chart-seedjob-dialog';
@@ -454,7 +455,7 @@ export class SKResourceService {
    * @description Handle worker.resource$ message
    * @param msg Array of PathValue objects
    */
-  private processResourceMessage(msg: Array<PathValue>) {
+  private processResourceMessage(msg: PathValue[]) {
     if (!Array.isArray(msg)) {
       return;
     }
@@ -486,19 +487,19 @@ export class SKResourceService {
       }
     });
 
-    if (action['routes']) {
+    if (action.routes) {
       this.refreshRoutes();
     }
-    if (action['waypoints']) {
+    if (action.waypoints) {
       this.refreshWaypoints();
     }
-    if (action['regions']) {
+    if (action.regions) {
       this.refreshRegions();
     }
-    if (action['notes']) {
+    if (action.notes) {
       this.refreshNotes();
     }
-    if (action['charts']) {
+    if (action.charts) {
       this.refreshCharts();
     }
   }
@@ -582,7 +583,7 @@ export class SKResourceService {
    * @param query Filter criteria for charts in placed in the cache
    */
   public async refreshCharts(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshCharts(): ${query}`);
@@ -721,11 +722,11 @@ export class SKResourceService {
       }
     });
 
-    const chtIds = chartList.map((c: FBChart) => c[0]);
-    const refList = chartOrder.filter((i: string) => chtIds.includes(i));
+    const chtIds = new Set(chartList.map((c: FBChart) => c[0]));
+    const refList = chartOrder.filter((i: string) => chtIds.has(i));
 
     for (let destidx = 0; destidx < refList.length; destidx++) {
-      let srcidx = chartList.findIndex(
+      const srcidx = chartList.findIndex(
         (c: FBChart) => c[0] === refList[destidx]
       );
       if (srcidx !== -1) {
@@ -969,7 +970,7 @@ export class SKResourceService {
    * @param query Filter criteria for routes in placed in the cache
    */
   public async refreshRoutes(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshRoutes(): ${query}`);
@@ -978,7 +979,7 @@ export class SKResourceService {
         this.selectionAdd('routes', this.app.data.activeRoute);
       }
       const rtes = await this.listFromServer<FBRoute>('routes', query);
-      let flist = rtes.filter((route: FBRoute) => route[2]);
+      const flist = rtes.filter((route: FBRoute) => route[2]);
       this.routeCacheSignal.set(flist);
     } catch (err) {
       this.app.debug('** refreshRoutes:', err);
@@ -1109,7 +1110,7 @@ export class SKResourceService {
    */
   public newRouteAt(
     coordinates: LineString,
-    meta?: Array<{ href?: string; name?: string }>
+    meta?: { href?: string; name?: string }[]
   ) {
     if (!coordinates) {
       return;
@@ -1231,21 +1232,20 @@ export class SKResourceService {
    */
   public updateRouteCoords(
     id: string,
-    coords: Array<Position>,
+    coords: Position[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    coordsMeta?: Array<any>
+    coordsMeta?: any[]
   ) {
     const r = this.fromCache('routes', id);
     if (!r) {
       return;
     }
     const rte = r[1];
-    rte['feature']['geometry']['coordinates'] =
-      GeoUtils.normaliseCoords(coords);
+    rte.feature.geometry.coordinates = GeoUtils.normaliseCoords(coords);
     rte.distance = GeoUtils.routeLength(rte.feature.geometry.coordinates);
 
     if (coordsMeta) {
-      rte['feature']['properties']['coordinatesMeta'] = coordsMeta;
+      rte.feature.properties.coordinatesMeta = coordsMeta;
     }
     this.putToServer('routes', id, rte).catch((err) => {
       this.app.parseHttpErrorResponse(err);
@@ -1262,7 +1262,7 @@ export class SKResourceService {
    * @param query Filter criteria for wapoints in placed in the cache
    */
   public async refreshWaypoints(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshWaypoints(): ${query}`);
@@ -1271,7 +1271,7 @@ export class SKResourceService {
         this.selectionAdd('waypoints', this.app.data.activeWaypoint);
       }
       const wpts = await this.listFromServer<FBWaypoint>('waypoints', query);
-      let flist = wpts.filter((waypoint: FBWaypoint) => waypoint[2]);
+      const flist = wpts.filter((waypoint: FBWaypoint) => waypoint[2]);
       this.waypointCacheSignal.set(flist);
     } catch (err) {
       this.app.debug('** refreshWaypoints:', err);
@@ -1509,11 +1509,10 @@ export class SKResourceService {
       return;
     }
     const wpt = w[1];
-    wpt['feature']['geometry']['coordinates'] =
-      GeoUtils.normaliseCoords(position);
-    wpt['position'] = {
-      latitude: wpt['feature']['geometry']['coordinates'][1],
-      longitude: wpt['feature']['geometry']['coordinates'][0]
+    wpt.feature.geometry.coordinates = GeoUtils.normaliseCoords(position);
+    wpt.position = {
+      latitude: wpt.feature.geometry.coordinates[1],
+      longitude: wpt.feature.geometry.coordinates[0]
     };
     this.putToServer('waypoints', id, wpt).catch((err) => {
       this.app.parseHttpErrorResponse(err);
@@ -1530,7 +1529,7 @@ export class SKResourceService {
    * @param query Filter criteria for regions placed in the cache
    */
   public async refreshRegions(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshRegions->query: ${query}`);
@@ -1681,7 +1680,7 @@ export class SKResourceService {
    * @param id Region identifier
    * @param coords Coordinates to assign to region
    */
-  public updateRegionCoords(id: string, coords: Array<Position[]>) {
+  public updateRegionCoords(id: string, coords: Position[][]) {
     if (!id || !coords) {
       return;
     }
@@ -1690,8 +1689,7 @@ export class SKResourceService {
       return;
     }
     const region = r[1];
-    region['feature']['geometry']['coordinates'] =
-      GeoUtils.normaliseCoords(coords);
+    region.feature.geometry.coordinates = GeoUtils.normaliseCoords(coords);
     this.putToServer('regions', id, region).catch((err) => {
       this.app.parseHttpErrorResponse(err);
     });
@@ -1779,7 +1777,7 @@ export class SKResourceService {
         this.app.config.resources.notes.rootFilter,
         this.app.config
       );
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshNotes->query: ${query}`);
@@ -1801,32 +1799,32 @@ export class SKResourceService {
   private transformNote(note: NoteResource, id: string): SKNote {
     // replace title with name
     if (!note.name) {
-      note.name = note['title'] ?? 'Note-' + id.slice(-6);
-      if (note['title']) {
-        delete note['title'];
+      note.name = note.title ?? 'Note-' + id.slice(-6);
+      if (note.title) {
+        delete note.title;
       }
     }
     if (!note.href) {
-      note.href = note['region'] ?? '';
-      if (note['region']) {
-        delete note['region'];
+      note.href = note.region ?? '';
+      if (note.region) {
+        delete note.region;
       }
-      if (note.href && note.href.indexOf('resources/') !== -1) {
+      if (note.href && note.href.includes('resources/')) {
         const a = note.href.split('/');
         const h = a[a.length - 1].split(':').slice(-1)[0];
         a[a.length - 1] = h;
         note.href = a.join('/');
       }
     }
-    if (typeof note['properties'] === 'undefined') {
-      note['properties'] = {};
+    if (typeof note.properties === 'undefined') {
+      note.properties = {};
     }
     if (typeof note.position === 'undefined') {
-      if (typeof note['geohash'] !== 'undefined') {
+      if (typeof note.geohash !== 'undefined') {
         // replace geohash with position
-        const gh = GeoUtils.geohashDecode(note['geohash']);
+        const gh = GeoUtils.geohashDecode(note.geohash);
         note.position = { latitude: gh.latitude, longitude: gh.longitude };
-        delete note['geohash'];
+        delete note.geohash;
       }
     }
     return new SKNote(note);
@@ -1872,9 +1870,8 @@ export class SKResourceService {
     }
   */
   private async openNoteForEdit(e: any) {
-    const { NoteDialog } = await import(
-      'src/app/modules/skresources/components/notes/note-dialog'
-    );
+    const { NoteDialog } =
+      await import('src/app/modules/skresources/components/notes/note-dialog');
     this.dialog
       .open(NoteDialog, {
         disableClose: true,
@@ -1961,12 +1958,12 @@ export class SKResourceService {
    */
   public async showRelatedNotes(
     id: string,
-    relatedBy: string = 'region',
-    readOnly: boolean = false
+    relatedBy = 'region',
+    readOnly = false
   ) {
     let paramName: string;
     if (!['group', 'destination'].includes(relatedBy)) {
-      id = id.indexOf(relatedBy) === -1 ? `/resources/${relatedBy}s/${id}` : id;
+      id = !id.includes(relatedBy) ? `/resources/${relatedBy}s/${id}` : id;
       paramName = 'href';
     } else {
       paramName = relatedBy;
@@ -2078,10 +2075,9 @@ export class SKResourceService {
     } else if (!e.id && e.href) {
       // add note to exisitng resource or new/existing region
       note = new SKNote();
-      note.href =
-        e.href.id.indexOf(e.type) === -1
-          ? `/resources/${e.type}s/${e.href.id}`
-          : e.href.id;
+      note.href = !e.href.id.includes(e.type)
+        ? `/resources/${e.type}s/${e.href.id}`
+        : e.href.id;
       note.name = '';
       note.description = '';
 
@@ -2130,9 +2126,8 @@ export class SKResourceService {
       this.app.showAlert('ERROR', 'Unable to retrieve Note!');
       return;
     }
-    const { NoteDialog } = await import(
-      'src/app/modules/skresources/components/notes/note-dialog'
-    );
+    const { NoteDialog } =
+      await import('src/app/modules/skresources/components/notes/note-dialog');
     this.dialog
       .open(NoteDialog, {
         disableClose: true,
@@ -2143,7 +2138,7 @@ export class SKResourceService {
         if (r.result) {
           if (r.data === 'url') {
             // ** open url in new tab **
-            window.open(note['url'], 'note');
+            window.open(note.url, 'note');
           }
           if (r.data === 'edit') {
             this.showNoteEditor({ id: id });
@@ -2202,7 +2197,7 @@ export class SKResourceService {
     }
     const note = t[1];
     position = GeoUtils.normaliseCoords(position);
-    note['position'] = { latitude: position[1], longitude: position[0] };
+    note.position = { latitude: position[1], longitude: position[0] };
     try {
       await this.putToServer('notes', id, note);
       this.reopenRelatedDialog();
@@ -2221,13 +2216,13 @@ export class SKResourceService {
    * @param query Filter criteria for tracks in placed in the cache
    */
   public async refreshTracks(query?: string) {
-    if (query && query[0] !== '?') {
+    if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
     this.app.debug(`** refreshTracks(): ${query}`);
     try {
       const trks = await this.listFromServer<FBTrack>('tracks', query);
-      let flist = trks.filter((track: FBTrack) => track[2]);
+      const flist = trks.filter((track: FBTrack) => track[2]);
       this.trackCacheSignal.set(flist);
     } catch (err) {
       this.app.debug('** refreshTracks:', err);

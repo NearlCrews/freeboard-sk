@@ -3,41 +3,40 @@
     <div class="head-row">
       <div class="detail-icon-wrap" aria-hidden="true">
         @if (!icon.svgIcon) {
-          <mat-icon [class]="icon.class">{{ icon.name }}</mat-icon>
+        <mat-icon [class]="icon.class">{{ icon.name }}</mat-icon>
         } @else {
-          <mat-icon [svgIcon]="icon.svgIcon"></mat-icon>
+        <mat-icon [svgIcon]="icon.svgIcon"></mat-icon>
         }
       </div>
       <div class="detail-title-block">
         <h1 class="detail-title">{{ _note()?.name || 'Untitled note' }}</h1>
-        @if (_note()?.position || _note()?.group || _note()?.properties?.draft || _note()?.timestamp) {
-          <div class="detail-meta-row">
-            @if (_note()?.properties?.draft) {
-              <span class="pill draft" aria-label="Draft note">Draft</span>
-            }
-            @if (_note()?.group) {
-              <span
-                class="pill group"
-                [style.--pill-color]="groupColor(_note()?.group)"
-              >
-                <span class="dot" aria-hidden="true"></span>{{ _note()?.group }}
-              </span>
-            }
-            @if (_note()?.position) {
-              <span class="pill pos">
-                <mat-icon aria-hidden="true">place</mat-icon>
-                {{ _note()?.position?.latitude | coords : app.config.units.positionFormat : true }}
-                ·
-                {{ _note()?.position?.longitude | coords : app.config.units.positionFormat : false }}
-              </span>
-            }
-            @if (_note()?.timestamp) {
-              <span class="pill">
-                <mat-icon aria-hidden="true">schedule</mat-icon>
-                {{ timeAgo(_note()?.timestamp) }}
-              </span>
-            }
-          </div>
+        @if (_note()?.position || _note()?.group || _note()?.properties?.draft
+        || _note()?.timestamp) {
+        <div class="detail-meta-row">
+          @if (_note()?.properties?.draft) {
+          <span class="pill draft" aria-label="Draft note">Draft</span>
+          } @if (_note()?.group) {
+          <span
+            class="pill group"
+            [style.--pill-color]="groupColor(_note()?.group)"
+          >
+            <span class="dot" aria-hidden="true"></span>{{ _note()?.group }}
+          </span>
+          } @if (_note()?.position) {
+          <span class="pill pos">
+            <mat-icon aria-hidden="true">place</mat-icon>
+            {{ _note()?.position?.latitude | coords :
+            app.config.units.positionFormat : true }} · {{
+            _note()?.position?.longitude | coords :
+            app.config.units.positionFormat : false }}
+          </span>
+          } @if (_note()?.timestamp) {
+          <span class="pill">
+            <mat-icon aria-hidden="true">schedule</mat-icon>
+            {{ timeAgo(_note()?.timestamp) }}
+          </span>
+          }
+        </div>
         }
       </div>
     </div>
@@ -56,35 +55,34 @@
         Edit
       </button>
       @if (_note()?.url) {
-        <button
-          mat-stroked-button
-          class="action-btn"
-          (click)="openNoteUrl()"
-          matTooltip="Open linked URL in a new tab"
-        >
-          <mat-icon>open_in_new</mat-icon>
-          Link
-        </button>
-      }
-      @if (_note()?.position) {
-        <button
-          mat-stroked-button
-          class="action-btn"
-          (click)="onGoto()"
-          matTooltip="Navigate to this position"
-        >
-          <mat-icon>near_me</mat-icon>
-          Go to
-        </button>
-        <button
-          mat-stroked-button
-          class="action-btn"
-          (click)="onPanTo()"
-          matTooltip="Centre the map on this note"
-        >
-          <mat-icon>center_focus_strong</mat-icon>
-          Centre
-        </button>
+      <button
+        mat-stroked-button
+        class="action-btn"
+        (click)="openNoteUrl()"
+        matTooltip="Open linked URL in a new tab"
+      >
+        <mat-icon>open_in_new</mat-icon>
+        Link
+      </button>
+      } @if (_note()?.position) {
+      <button
+        mat-stroked-button
+        class="action-btn"
+        (click)="onGoto()"
+        matTooltip="Navigate to this position"
+      >
+        <mat-icon>near_me</mat-icon>
+        Go to
+      </button>
+      <button
+        mat-stroked-button
+        class="action-btn"
+        (click)="onPanTo()"
+        matTooltip="Centre the map on this note"
+      >
+        <mat-icon>center_focus_strong</mat-icon>
+        Centre
+      </button>
       }
     </div>
     <button
@@ -101,24 +99,21 @@
 
   <div class="detail-body">
     @if (note().mimeType?.includes('markdown')) {
-      <remark [markdown]="note().description">
-        <ng-template remarkTemplate="heading" let-node>
-          @if (node.depth === 1) {
-            <h1 [remarkNode]="node"></h1>
-          }
-          @if (node.depth === 2) {
-            <h2 [remarkNode]="node"></h2>
-          }
-          @if (node.depth === 3) {
-            <h3 [remarkNode]="node"></h3>
-          }
-          @if (node.depth === 4) {
-            <h4 [remarkNode]="node"></h4>
-          }
-        </ng-template>
-      </remark>
+    <remark [markdown]="note().description">
+      <ng-template remarkTemplate="heading" let-node>
+        @if (node.depth === 1) {
+        <h1 [remarkNode]="node"></h1>
+        } @if (node.depth === 2) {
+        <h2 [remarkNode]="node"></h2>
+        } @if (node.depth === 3) {
+        <h3 [remarkNode]="node"></h3>
+        } @if (node.depth === 4) {
+        <h4 [remarkNode]="node"></h4>
+        }
+      </ng-template>
+    </remark>
     } @else {
-      <div [innerHTML]="_note().description | addTarget: '_notes'"></div>
+    <div [innerHTML]="_note().description | addTarget: '_notes'"></div>
     }
   </div>
 </section>

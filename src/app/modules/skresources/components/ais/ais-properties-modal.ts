@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal
+} from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -10,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AppFacade } from 'src/app/app.facade';
-import { SKVessel } from 'src/app/modules/skresources/resource-classes';
+import type { SKVessel } from 'src/app/modules/skresources/resource-classes';
 import { getAisIcon } from 'src/app/modules/icons';
 
 @Component({

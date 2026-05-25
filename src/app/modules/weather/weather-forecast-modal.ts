@@ -1,7 +1,14 @@
 /** Weather Forecast Component **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, DestroyRef, Inject, OnInit, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,15 +20,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import type { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import {
   MatBottomSheetModule,
-  MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'signalk-client-angular';
-import { Convert, SI_BASE_UNIT } from 'src/app/lib/convert';
-import { Position } from 'src/app/types';
+import type { AppFacade } from 'src/app/app.facade';
+import type { SignalKClient } from 'signalk-client-angular';
+import type { SI_BASE_UNIT } from 'src/app/lib/convert';
+import { Convert } from 'src/app/lib/convert';
+import type { Position } from 'src/app/types';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
 interface WeatherData {
@@ -331,8 +339,8 @@ export class WeatherForecastModal implements OnInit {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .forEach((v: any) => {
               const forecastData: WeatherData = { wind: {} };
-              forecastData.description = v['description'] ?? '';
-              const d = new Date(v['date']);
+              forecastData.description = v.description ?? '';
+              const d = new Date(v.date);
               forecastData.time = d
                 ? `${d.getHours()}:${('00' + d.getMinutes()).slice(-2)}`
                 : '';

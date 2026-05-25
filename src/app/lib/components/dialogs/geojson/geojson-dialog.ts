@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, Inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import type { OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { GeoJSONLoadFacade } from './geojson-dialog.facade';
-import { AppFacade } from 'src/app/app.facade';
+import type { GeoJSONLoadFacade } from './geojson-dialog.facade';
+import type { AppFacade } from 'src/app/app.facade';
 
 //** GeoJSON import dialog **
 @Component({
@@ -39,7 +37,7 @@ import { AppFacade } from 'src/app/app.facade';
   templateUrl: './geojson-dialog.html',
   styleUrls: ['./geojson-dialog.css']
 })
-export class GeoJSONImportDialog implements OnInit {
+export class GeoJSONImportDialog implements OnInit, OnDestroy {
   public geoData = {
     name: '',
     routes: [],

@@ -1,34 +1,23 @@
 /**
- * dependency-cruiser config, Phase 0 floor.
+ * dependency-cruiser config. Phase 0 ships no forbidden rules: the only
+ * architectural gate is the god-component LOC ceiling, which depcruise
+ * 17 cannot express, so it runs as tools/check-god-components.mjs in the
+ * `cruise` script. This file is the home for Phase 1+ rules (no-circular,
+ * no-orphans, layered access, storeless-component).
  *
- * Scope: this file is the home for architectural dependency rules. The
- * Phase 0 charter ships exactly one architectural gate: no god-components
- * (per-file LOC ceiling of 1500). Because dependency-cruiser 17.4.2 does
- * not expose per-module LOC as a matchable attribute, that rule lives in
- * tools/check-god-components.mjs and is chained via the `cruise` script.
- *
- * This file scaffolds the cruiser config so later phases (Phase 1+) can
- * land forbidden rules like no-circular, no-orphans, layered access, and
- * the storeless-component pattern as they come online.
- *
- * Roadmap: MODERNIZATION_ROADMAP.md sections 3, 4.
+ * See MODERNIZATION_ROADMAP.md sections 3 and 4.
  */
 
 module.exports = {
-  forbidden: [
-    // Phase 0 ships no forbidden dependency rules. The god-component LOC
-    // gate runs in tools/check-god-components.mjs ahead of depcruise inside
-    // the `cruise` script. Future rules land here.
-  ],
+  forbidden: [],
   options: {
     doNotFollow: {
-      path: ['node_modules', '\\.spec\\.ts$']
+      path: ['node_modules']
     },
     exclude: {
       path: [
         'node_modules',
         '\\.spec\\.ts$',
-        '\\.test\\.ts$',
         '^public/',
         '^dist/',
         '^\\.angular/',

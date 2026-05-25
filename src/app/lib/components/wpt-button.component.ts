@@ -1,9 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SKResourceService } from 'src/app/modules';
-import { Position } from 'src/app/types';
+import type { Position } from 'src/app/types';
 
 @Component({
   selector: 'wpt-button',

@@ -1,0 +1,21 @@
+name: Setup pnpm + Node
+description: Set up Node via .nvmrc (or an explicit version), enable corepack, and install pnpm deps from the frozen lockfile. Caller must run actions/checkout first.
+
+inputs:
+  node-version:
+    description: Explicit Node version. Leave blank to use .nvmrc.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version == '' && '.nvmrc' || '' }}
+        cache: pnpm
+    - run: corepack enable
+      shell: bash
+    - run: pnpm install --frozen-lockfile
+      shell: bash

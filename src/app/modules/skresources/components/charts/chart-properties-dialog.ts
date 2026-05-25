@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  resource,
+  signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   MatDialogModule,
@@ -13,16 +20,15 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { AppFacade } from 'src/app/app.facade';
-import { SKChart } from 'src/app/modules/skresources/resource-classes';
+import type { SKChart } from 'src/app/modules/skresources/resource-classes';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import {
+import type {
   LayerNode,
   WMSCapabilitiesDef,
-  wmsCapabilitiesInWorker,
   WMTSCapabilitiesDef,
-  wmtsCapabilitiesInWorker,
   WMTSLayerDef
 } from './maplib';
+import { wmsCapabilitiesInWorker, wmtsCapabilitiesInWorker } from './maplib';
 import { NodeTreeSelect } from './node-tree-select';
 import { NodeListSelect } from './node-list-select';
 
@@ -271,16 +277,16 @@ import { NodeListSelect } from './node-list-select';
     `
   ]
 })
-export class ChartPropertiesDialog {
+export class ChartPropertiesDialog implements OnInit {
   protected icon: string;
   protected wmsLayers = signal<LayerNode[]>([]);
   protected wmtsLayers = signal<
-    Array<{
+    {
       name: string;
       description: string;
       format?: string;
       bounds?: [number, number, number, number];
-    }>
+    }[]
   >([]);
   protected isEditable = signal<boolean>(false);
   protected layerErrorText = '';
@@ -318,7 +324,7 @@ export class ChartPropertiesDialog {
   }
 
   isLocal(url: string) {
-    return url && url.indexOf('signalk') !== -1 ? 'map' : 'language';
+    return url && url.includes('signalk') ? 'map' : 'language';
   }
 
   /**
