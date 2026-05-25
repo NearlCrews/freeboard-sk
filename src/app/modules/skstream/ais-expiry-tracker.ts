@@ -51,7 +51,7 @@ export class AisExpiryTracker {
         : DEFAULT_STALE_AGE_MS;
   }
 
-  /** Record that the given target ids were observed at the current clock time. */
+  /** Stamp each id with the injected clock's current time and re-arm staleness. */
   touch(ids: readonly string[]): void {
     if (ids.length === 0) {
       return;
@@ -63,19 +63,17 @@ export class AisExpiryTracker {
     }
   }
 
-  /** Drop a single target (e.g., explicit unsubscribe). */
   remove(id: string): void {
     this.lastSeen.delete(id);
     this.reportedStale.delete(id);
   }
 
-  /** Drop every tracked target. */
   clear(): void {
     this.lastSeen.clear();
     this.reportedStale.clear();
   }
 
-  /** Update TTL thresholds at runtime; preserves already-tracked targets. */
+  /** Update TTL thresholds at runtime; already-tracked targets are preserved. */
   setConfig(next: Partial<AisExpiryConfig>): void {
     if (typeof next.maxAge === 'number' && next.maxAge >= MIN_TTL_MS) {
       this.maxAge = next.maxAge;
@@ -85,7 +83,6 @@ export class AisExpiryTracker {
     }
   }
 
-  /** Number of tracked targets. Exposed for tests and diagnostics. */
   size(): number {
     return this.lastSeen.size;
   }

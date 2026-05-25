@@ -25,7 +25,7 @@ import {
 } from './signalk-delta-processor';
 import { VesselTrailFetcher } from './vessel-trail.fetcher';
 
-interface IWorkerCommand {
+interface StreamServiceCommand {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: any;
   cmd: string;
@@ -107,7 +107,6 @@ export class SKWorkerService {
   terminate() {
     if (this.worker) {
       this.close(true);
-      console.log('Terminating Worker....');
       this.worker.postMessage({ cmd: 'close' });
       this.worker.terminate();
       this.worker = undefined;
@@ -115,11 +114,10 @@ export class SKWorkerService {
   }
 
   close(terminate = false) {
-    console.log('Closing Worker Stream....');
     this.postMessage({ cmd: 'close', options: { terminate } });
   }
 
-  postMessage(msg: IWorkerCommand) {
+  postMessage(msg: StreamServiceCommand) {
     if (!msg || !msg.cmd) {
       return;
     }

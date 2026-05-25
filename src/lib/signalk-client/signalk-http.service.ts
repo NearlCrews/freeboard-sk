@@ -2,9 +2,11 @@
 // Pure ESM, named exports, tree-shakable.
 //
 // Loose response types preserved during inline. Public surface still uses
-// `any` for upstream-API parity; the file compiles under tsconfig.strict.json
-// (Phase 1 ratchet). Public-surface tightening (replacing `any` with narrower
-// observable types) is roadmap Phase 6. See MODERNIZATION_ROADMAP.md.
+// `any` for upstream-API parity. The file-level eslint disable below
+// suppresses the no-unsafe-* family for that legacy `any` shape; the file
+// already compiles cleanly under tsconfig.strict.json (Phase 1 ratchet).
+// Public-surface tightening (replacing `any` with narrower observable
+// types) is roadmap Phase 6. See MODERNIZATION_ROADMAP.md.
 
 /* eslint-disable
    @typescript-eslint/no-explicit-any,

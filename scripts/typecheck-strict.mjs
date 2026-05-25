@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// SCOPE_PREFIXES widens per phase as each modernization track lands its strict
-// ratchet step. See MODERNIZATION_ROADMAP.md sections 3 (Phases 0, 1, 2+), 5.
+// Scope prefixes widen per phase as each modernization track lands its strict
+// ratchet step. See MODERNIZATION_ROADMAP.md sections 3 (Phases 0, 1, and 2+), 5.
 //
 // Two scope sets:
-//   NEW_PREFIXES   - surfaces required to be strict-clean (gating).
-//   LEGACY_PREFIXES - surfaces with pre-existing strict errors (info only).
+//   NEW_PREFIXES:    surfaces required to be strict-clean (gating).
+//   LEGACY_PREFIXES: surfaces with pre-existing strict errors (info only).
 //
 // Flags:
 //   --raw     pass tsc output through unchanged (debugging).
 //   --legacy  report errors under LEGACY_PREFIXES only, info-only mode.
-//             without --legacy, the script gates on NEW_PREFIXES.
+//             Without --legacy, the script gates on NEW_PREFIXES.
 //   --all     report combined in-scope (new + legacy), gates on new being zero.
 
 import { spawnSync } from 'node:child_process';

@@ -164,7 +164,6 @@ export default tseslint.config(
       '@typescript-eslint/no-base-to-string': 'warn',
       '@typescript-eslint/prefer-promise-reject-errors': 'warn',
       '@typescript-eslint/require-await': 'warn',
-      'preserve-caught-error': 'warn',
       // Style rules from stylistic-type-checked. Keep as warn so the baseline
       // verifier surfaces them without breaking `pnpm lint`. Phase 1+ phases
       // clean these up file by file as code is touched.
@@ -206,6 +205,7 @@ export default tseslint.config(
       'no-case-declarations': 'warn',
       'no-empty': 'warn',
       'no-unsafe-finally': 'warn',
+      'preserve-caught-error': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
       '@typescript-eslint/prefer-find': 'warn'

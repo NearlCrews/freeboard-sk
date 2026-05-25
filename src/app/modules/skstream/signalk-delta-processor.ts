@@ -127,15 +127,15 @@ export interface DeltaProcessorEvents {
 }
 
 export class SignalKDeltaProcessor {
-  // ** AIS target management state (mirrored from main thread; the slim
-  //   worker tracks TTLs for eviction notifications).
+  // AIS target filter and freshness state live here on the main thread.
+  // The slim worker mirrors only target ids so it can fire TTL-based
+  // stale and expired notifications back.
   private targetFilter: AisFilter = { signalk: {}, aisState: [] };
   private targetExtent: Extent = [0, 0, 0, 0];
   private extRecalcInterval = DEFAULT_EXT_RECALC_BASE_INTERVAL_S;
   private extRecalcCounter = 0;
   private targetStatus: AisStatus = { updated: {}, stale: {}, expired: {} };
 
-  // ** settings **
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private preferredPaths: Record<string, any> = {};
   private msgInterval = DEFAULT_MSG_INTERVAL_MS;
@@ -152,7 +152,6 @@ export class SignalKDeltaProcessor {
     aisCogLine: 10
   };
 
-  // ** stream + watchdog **
   private vessels!: ResultPayload;
   private stream: SKStreamAPI | null = null;
   private skToken = '';
@@ -183,7 +182,7 @@ export class SignalKDeltaProcessor {
 
   // ************ public command surface ************
 
-  setAuthToken(token: string): void {
+  setAuthToken(token: string | undefined): void {
     if (typeof token === 'string') {
       this.skToken = token;
     }
@@ -455,12 +454,14 @@ export class SignalKDeltaProcessor {
         }
         this.$source = u.$source;
         this.$timestamp = u.timestamp;
+        this.playbackTime = u.timestamp;
+        // Context is set on every well-formed master delta; drop the whole
+        // update if a producer sent it without one.
+        if (!data.context) {
+          return;
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         u.values.forEach((v: any) => {
-          this.playbackTime = u.timestamp;
-          if (!data.context) {
-            return;
-          }
           this.dispatchValue(data, v, touchedAisIds);
         });
       });
@@ -581,25 +582,28 @@ export class SignalKDeltaProcessor {
       }
       return;
     }
-    let obj = group.get(context);
-    if (obj && state.includes(obj?.state)) {
+    const obj = group.get(context);
+    if (!obj) {
+      return;
+    }
+    if (state.includes(obj.state)) {
       this.targetStatus.expired[context] = true;
       this.worker.postAisRemove(context);
-      obj = null as never;
+      return;
     }
-    if (obj && this.targetFilter.signalk.maxRadius) {
-      if (
-        obj.positionReceived &&
-        GeoUtils.inBounds(obj.position, this.targetExtent)
-      ) {
-        this.targetStatus.updated[context] = true;
-      } else {
-        group.delete(context);
-        this.targetStatus.expired[context] = true;
-        this.worker.postAisRemove(context);
-      }
-    } else if (obj) {
+    if (!this.targetFilter.signalk.maxRadius) {
       this.targetStatus.updated[context] = true;
+      return;
+    }
+    if (
+      obj.positionReceived &&
+      GeoUtils.inBounds(obj.position, this.targetExtent)
+    ) {
+      this.targetStatus.updated[context] = true;
+    } else {
+      group.delete(context);
+      this.targetStatus.expired[context] = true;
+      this.worker.postAisRemove(context);
     }
   }
 
@@ -1105,47 +1109,37 @@ export class SignalKDeltaProcessor {
 
   // ************ AIS track refresh ************
 
+  // Returns undefined synchronously when a request is already in flight so the
+  // caller can short-circuit; otherwise returns the parsed JSON promise.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private apiGet(url: string): Promise<any> | undefined {
     if (this.isFetching) {
       return undefined;
     }
-    return new Promise((resolve, reject) => {
-      this.isFetching = true;
-      fetch(`${url}`)
-        .then((r) => {
-          this.isFetching = false;
-          r.json()
-            .then((j) => resolve(j))
-            .catch((err) => reject(err));
-        })
-        .catch((err) => {
-          this.isFetching = false;
-          reject(err);
-        });
-    });
+    this.isFetching = true;
+    return fetch(url)
+      .then((r) => r.json())
+      .finally(() => {
+        this.isFetching = false;
+      });
   }
 
   private getAISTracks(): void {
     const radius = this.targetFilter?.signalk?.maxRadius ?? DEFAULT_AIS_RADIUS;
-    const filter = `?radius=${radius}`;
-    const promise = this.apiGet(this.apiUrl + '/tracks' + filter);
+    const promise = this.apiGet(`${this.apiUrl}/tracks?radius=${radius}`);
     if (!promise) {
       return;
     }
     promise
-      .then((r) => {
+      .then((r: Record<string, { coordinates: [number, number][][] }>) => {
         this.hasTrackPlugin = true;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Object.entries(r).forEach((t: any) => {
-          if (this.vessels.aisTargets.has(t[0])) {
-            const v = this.vessels.aisTargets.get(t[0]);
-            if (v) {
-              v.track = t[1].coordinates;
-              this.appendTrack(v);
-            }
+        for (const [id, payload] of Object.entries(r)) {
+          const v = this.vessels.aisTargets.get(id);
+          if (v) {
+            v.track = payload.coordinates;
+            this.appendTrack(v);
           }
-        });
+        }
       })
       .catch(() => {
         this.hasTrackPlugin = false;

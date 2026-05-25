@@ -105,11 +105,9 @@ export class VesselTrailFetcher {
         }
         if (idx !== lastIdx) {
           // > 1hr: simplify via worker, then segment for OL rendering
-          let coords: [number, number][] = [];
-          r.coordinates.forEach((line) => {
-            coords = coords.concat(line);
-          });
-          coords = await this.simplify(coords);
+          let coords: [number, number][] = await this.simplify(
+            r.coordinates.flat()
+          );
           while (coords.length > SEGMENT_LEN) {
             const ls = coords.slice(0, SEGMENT_LEN);
             trail.push(ls);

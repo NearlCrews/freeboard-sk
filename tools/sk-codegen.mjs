@@ -8,7 +8,7 @@
  *   - `KnownPath` string-literal and template-literal union of every Signal K
  *     path declared under `vessels.*`
  *   - `PathValueOf<P>` conditional type mapping a subset of known paths to
- *     their leaf value shapes (number, string, position, attitude, datetime)
+ *     their leaf value shapes (number, string, position, attitude, and datetime)
  *
  * Run with `pnpm codegen`. The generated file is committed so CI does not
  * need to invoke the codegen; PRs show drift when a contributor forgets.
@@ -211,7 +211,7 @@ push('// branded values with the as* helpers below or with `as Path` casts at');
 push('// trust boundaries (delta ingestion, REST request handlers, and WS).');
 push('//');
 push(
-  `// Coverage: ${literalPaths.length} literal paths, ${templatePaths.length} template paths, ${typedEntries.length} typed leaves.`
+  `// Coverage: ${literalPaths.length} literal paths, ${templatePaths.length} template paths, and ${typedEntries.length} typed leaves.`
 );
 push('');
 push('// ---- Brand helpers ----');

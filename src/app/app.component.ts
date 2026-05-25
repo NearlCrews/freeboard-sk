@@ -90,16 +90,8 @@ import {
   RegionPanel
 } from 'src/app/modules';
 
-import { ResourceImportDialog } from 'src/app/modules/skresources/components/resourcesets/resource-upload-dialog';
-import { SettingsDialog } from 'src/app/modules/settings/components/settings-dialog';
-import { GPXImportDialog } from 'src/app/modules/gpx/gpxload-dialog';
-import { GPXExportDialog } from 'src/app/modules/gpx/gpxsave-dialog';
-
-import { AboutDialog } from 'src/app/lib/components/dialogs/about-dialog';
-import { LoginDialog } from 'src/app/lib/components/dialogs/login-dialog';
-import { PlaybackDialog } from 'src/app/lib/components/dialogs/playback-dialog';
-import { GeoJSONImportDialog } from 'src/app/lib/components/dialogs/geojson/geojson-dialog';
-import { Trail2RouteDialog } from 'src/app/lib/components/dialogs/trail2route-dialog';
+// Dialogs below are lazy-loaded via `await import(...)` at their call sites.
+// No static import here, so they stay out of the eager main chunk.
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { compareSemver, parseSemver } from 'src/app/lib/semver';
@@ -399,7 +391,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         })
       );
     });
-    document.addEventListener('fullscreenerror', (e) => {
+    document.addEventListener('fullscreenerror', () => {
       this.displayFullscreen.update((current) =>
         Object.assign({}, current, { active: false })
       );
@@ -1721,13 +1713,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       case 'route':
         this.skres.newRouteAt(e.coordinates as LineString);
         break;
-      case 'region':
+      case 'region': {
         const region = new SKRegion();
         region.feature.geometry.coordinates = [
           GeoUtils.normaliseCoords(e.coordinates as Polygon)
         ];
         this.skres.newRegion(region);
         break;
+      }
     }
   }
 

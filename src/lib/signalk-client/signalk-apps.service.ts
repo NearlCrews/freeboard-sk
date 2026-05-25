@@ -1,8 +1,9 @@
 // Vendored from signalk-client-angular ^2.1.0 (Apache 2.0, AdrianP).
 // Pure ESM, named exports, tree-shakable.
 //
-// Loose response types preserved during inline. Phase 6 (TS strict ratchet)
-// will tighten the public surface. See MODERNIZATION_ROADMAP.md.
+// Loose response types preserved during inline. Public-surface tightening
+// (replacing `any` with narrower observable types) is roadmap Phase 6.
+// See MODERNIZATION_ROADMAP.md.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

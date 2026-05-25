@@ -7,7 +7,7 @@
 // branded values with the as* helpers below or with `as Path` casts at
 // trust boundaries (delta ingestion, REST request handlers, and WS).
 //
-// Coverage: 258 literal paths, 320 template paths, 264 typed leaves.
+// Coverage: 258 literal paths, 320 template paths, and 264 typed leaves.
 
 // ---- Brand helpers ----
 

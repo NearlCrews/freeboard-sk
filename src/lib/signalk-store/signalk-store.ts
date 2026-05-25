@@ -44,11 +44,10 @@ export interface SignalKStoreOptions {
  *
  * Buffering of WS deltas lives in the WS bridge, not in this class:
  * applyDeltas() is synchronous and exists to be called from a bufferTime
- * flush.
+ * flush. The class is intentionally plain (no @Injectable) so it stays
+ * usable from worker scope; Angular DI wiring lands in a later phase via
+ * an InjectionToken or factory provider.
  */
-// Phase 1 ships the store as a plain class. Phase 3 wires it into Angular
-// DI via an InjectionToken (or a factory provider) so callers can read
-// configurable thresholds without coupling to the constructor.
 export class SignalKStore {
   private readonly raw = new Map<Path, WritableSignal<RawState>>();
   private readonly selectors = new Map<Path, Signal<PathState<unknown>>>();
