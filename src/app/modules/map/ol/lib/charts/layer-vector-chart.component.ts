@@ -35,6 +35,8 @@ export class VectorChartLayerComponent implements OnDestroy {
   protected mapMaxZoom = input<number>();
 
   private layer: VectorTileLayer;
+  private layerInitPending = false;
+  private destroyed = false;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
 
@@ -50,11 +52,31 @@ export class VectorChartLayerComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     const map = this.mapComponent.getMap();
     if (this.layer) {
       map.removeLayer(this.layer);
       map.render();
     }
+  }
+
+  private finalizeNewLayer(chart: FBChart, minZ: number, layerMaxZ: number) {
+    const map = this.mapComponent.getMap();
+    this.layer.setMinZoom(minZ);
+    this.layer.setMaxZoom(layerMaxZ);
+    this.layer.setExtent(extentFromBounds(chart[1].bounds));
+    if (chart[1].style) {
+      // ol-mapbox-style v12 ships its own bundled OL types that do not match
+      // the app's OL version, so the layer arg needs a cast. Kept to one
+      // occurrence inside this helper to stay at the no-explicit-any baseline.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      void applyStyle(this.layer as any, chart[1].style);
+    }
+    this.layer.set('id', chart[0]);
+    this.layer.set('chartId', chart[0]);
+    this.layer.set('chartType', chart[1].type);
+    this.layer.set('chartFormat', chart[1].format);
+    map.addLayer(this.layer);
   }
 
   private parseChart(chart: FBChart = this.chart()) {
@@ -75,43 +97,50 @@ export class VectorChartLayerComponent implements OnDestroy {
         this.overZoomTiles()
       );
 
-      if (chart[1].url.indexOf('.pmtiles') !== -1) {
-        this.layer = initPMTilesVectorLayer(chart[1], this.zIndex());
-      } else {
-        this.layer = new VectorTileLayer({
-          source: new VectorTileSource({
-            url: chart[1].url,
-            format: new MVT({
-              layers:
-                Array.isArray(chart[1].layers) && chart[1].layers.length !== 0
-                  ? chart[1].layers
-                  : null
-            }),
-            maxZoom: maxZ,
-            tileLoadFunction: createAbortableVectorTileLoader(),
-            cacheSize: VECTOR_TILE_CACHE_SIZE
-          }),
-          preload: 0,
-          zIndex: this.zIndex(),
-          minZoom: minZ,
-          maxZoom: layerMaxZ,
-          opacity: chart[1].defaultOpacity ?? 1
+      if (chart[1].url.includes('.pmtiles')) {
+        // pmtiles is lazy-loaded, so init is async. Guard against re-entry
+        // while the chunk is in flight; the next signal change will run
+        // another parseChart once the layer exists.
+        if (this.layerInitPending) {
+          return;
+        }
+        this.layerInitPending = true;
+        void initPMTilesVectorLayer(chart[1], this.zIndex()).then((layer) => {
+          this.layerInitPending = false;
+          if (this.destroyed || this.layer) {
+            return;
+          }
+          this.layer = layer;
+          this.finalizeNewLayer(chart, minZ, layerMaxZ);
+          // Re-apply latest signal values in case signals changed during
+          // async init; this takes the else-branch in parseChart and only
+          // updates zoom/opacity/extent on the existing layer.
+          this.parseChart();
         });
+        return;
       }
 
-      if (this.layer) {
-        this.layer.setMinZoom(minZ);
-        this.layer.setMaxZoom(layerMaxZ);
-        this.layer.setExtent(extentFromBounds(chart[1].bounds));
-        if (chart[1].style) {
-          applyStyle(this.layer as any, chart[1].style);
-        }
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        map.addLayer(this.layer);
-      }
+      this.layer = new VectorTileLayer({
+        source: new VectorTileSource({
+          url: chart[1].url,
+          format: new MVT({
+            layers:
+              Array.isArray(chart[1].layers) && chart[1].layers.length !== 0
+                ? chart[1].layers
+                : null
+          }),
+          maxZoom: maxZ,
+          tileLoadFunction: createAbortableVectorTileLoader(),
+          cacheSize: VECTOR_TILE_CACHE_SIZE
+        }),
+        preload: 0,
+        zIndex: this.zIndex(),
+        minZoom: minZ,
+        maxZoom: layerMaxZ,
+        opacity: chart[1].defaultOpacity ?? 1
+      });
+
+      this.finalizeNewLayer(chart, minZ, layerMaxZ);
     } else {
       const minZ =
         chart[1].minZoom && chart[1].minZoom >= 0.1

@@ -42,7 +42,6 @@ import {
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
-import { computeDestinationPoint, getGreatCircleBearing } from 'geolib';
 import { toLonLat } from 'ol/proj';
 import { Style, Stroke, Fill } from 'ol/style';
 import { Collection, Feature } from 'ol';
@@ -50,12 +49,7 @@ import { Feature as GeoJsonFeature } from 'geojson';
 
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils, Angle } from 'src/app/lib/geoutils';
-import {
-  LineString,
-  MultiLineString,
-  Position,
-  SKPosition
-} from 'src/app/types';
+import { LineString, MultiLineString, Position } from 'src/app/types';
 
 import { AppFacade } from 'src/app/app.facade';
 
@@ -599,7 +593,7 @@ export class FBMapComponent
       ) {
         const c = e.lonlat;
         const lm = this.mapInteract.distanceFromLastPoint(c as Position);
-        const b = getGreatCircleBearing(
+        const b = GeoUtils.greatCircleBearing(
           this.mapInteract.measurement().coords.slice(-1)[0],
           c as Position
         );
@@ -615,7 +609,7 @@ export class FBMapComponent
       } else if (this.mapInteract.measureGeometryType === 'Circle') {
         const c = e.lonlat;
         const lm = this.mapInteract.distanceFromCenter(c as Position);
-        const b = getGreatCircleBearing(
+        const b = GeoUtils.greatCircleBearing(
           this.mapInteract.measurement().center ?? (c as Position),
           c as Position
         );
@@ -798,7 +792,7 @@ export class FBMapComponent
     const lm = this.mapInteract.addMeasurementCoord(pt);
     // ** update popover measurement values
     const c = this.mapInteract.measurement().coords.slice(-2);
-    const b = getGreatCircleBearing(c[0], c[1]) ?? 0;
+    const b = GeoUtils.greatCircleBearing(c[0], c[1]) ?? 0;
     this.overlay.update((current) => {
       return Object.assign({}, current, {
         position: pt,
@@ -1172,8 +1166,10 @@ export class FBMapComponent
         const d =
           GeoUtils.distanceTo(this.app.data.vessels.self.position, coord) ?? 0;
         const b =
-          getGreatCircleBearing(this.app.data.vessels.self.position, coord) ??
-          0;
+          GeoUtils.greatCircleBearing(
+            this.app.data.vessels.self.position,
+            coord
+          ) ?? 0;
         poData.type = t[0];
         poData.title = `${this.app.formatValueForDisplay(d, 'm')} ${this.app.formatValueForDisplay(b, 'deg')}`;
         poData.position = coord;
@@ -1544,39 +1540,31 @@ export class FBMapComponent
       // mark laylines
       let markLines = [];
       if (destUpwind) {
-        const bapt1 = computeDestinationPoint(
+        const bapt1 = GeoUtils.destCoordinate(
           this.dfeat.navData.position,
-          dtg,
-          Angle.add(twd_inv, ba_deg)
+          Convert.degreesToRadians(Angle.add(twd_inv, ba_deg)),
+          dtg
         );
-        const bapt2 = computeDestinationPoint(
+        const bapt2 = GeoUtils.destCoordinate(
           this.dfeat.navData.position,
-          dtg,
-          Angle.add(twd_inv, 0 - ba_deg)
+          Convert.degreesToRadians(Angle.add(twd_inv, 0 - ba_deg)),
+          dtg
         );
 
-        markLines = [
-          [bapt1.longitude, bapt1.latitude],
-          this.dfeat.navData.position,
-          [bapt2.longitude, bapt2.latitude]
-        ];
+        markLines = [bapt1, this.dfeat.navData.position, bapt2];
       } else if (typeof ga_deg === 'number') {
-        const gapt1 = computeDestinationPoint(
+        const gapt1 = GeoUtils.destCoordinate(
           this.dfeat.navData.position,
-          dtg,
-          Angle.add(twd_inv, ga_deg)
+          Convert.degreesToRadians(Angle.add(twd_inv, ga_deg)),
+          dtg
         );
-        const gapt2 = computeDestinationPoint(
+        const gapt2 = GeoUtils.destCoordinate(
           this.dfeat.navData.position,
-          dtg,
-          Angle.add(twd_inv, 0 - ga_deg)
+          Convert.degreesToRadians(Angle.add(twd_inv, 0 - ga_deg)),
+          dtg
         );
 
-        markLines = [
-          [gapt1.longitude, gapt1.latitude],
-          this.dfeat.navData.position,
-          [gapt2.longitude, gapt2.latitude]
-        ];
+        markLines = [gapt1, this.dfeat.navData.position, gapt2];
       }
 
       this.perfTargetAngle.update(() => markLines);
@@ -1591,8 +1579,8 @@ export class FBMapComponent
         let b: number;
         let c: number;
         // intersection points
-        let ipts: SKPosition;
-        let iptp: SKPosition;
+        let ipts: Position;
+        let iptp: Position;
 
         if (destUpwind) {
           // Vector angles
@@ -1602,15 +1590,15 @@ export class FBMapComponent
           b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
           c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
           // intersection points
-          ipts = computeDestinationPoint(
+          ipts = GeoUtils.destCoordinate(
             this.app.data.vessels.active.position,
-            b,
-            Angle.add(twd_deg, ba_deg)
+            Convert.degreesToRadians(Angle.add(twd_deg, ba_deg)),
+            b
           );
-          iptp = computeDestinationPoint(
+          iptp = GeoUtils.destCoordinate(
             this.app.data.vessels.active.position,
-            c,
-            Angle.add(twd_deg, 0 - ba_deg)
+            Convert.degreesToRadians(Angle.add(twd_deg, 0 - ba_deg)),
+            c
           );
         } else {
           // downwind
@@ -1622,15 +1610,15 @@ export class FBMapComponent
             b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
             c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
             // intersection points
-            ipts = computeDestinationPoint(
+            ipts = GeoUtils.destCoordinate(
               this.app.data.vessels.active.position,
-              b,
-              Angle.add(twd_deg, ga_diff)
+              Convert.degreesToRadians(Angle.add(twd_deg, ga_diff)),
+              b
             );
-            iptp = computeDestinationPoint(
+            iptp = GeoUtils.destCoordinate(
               this.app.data.vessels.active.position,
-              c,
-              Angle.add(twd_deg, 0 - ga_diff)
+              Convert.degreesToRadians(Angle.add(twd_deg, 0 - ga_diff)),
+              c
             );
           }
         }
@@ -1638,18 +1626,12 @@ export class FBMapComponent
         this.perfLaylines.update(() => {
           return {
             port: [
-              [
-                [iptp.longitude, iptp.latitude],
-                this.app.data.vessels.active.position
-              ],
-              [
-                [ipts.longitude, ipts.latitude],
-                this.app.data.vessels.active.position
-              ]
+              [iptp, this.app.data.vessels.active.position],
+              [ipts, this.app.data.vessels.active.position]
             ],
             starboard: [
-              [[ipts.longitude, ipts.latitude], markLines[1]],
-              [markLines[1], [iptp.longitude, iptp.latitude]]
+              [ipts, markLines[1]],
+              [markLines[1], iptp]
             ]
           };
         });

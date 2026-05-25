@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { decimalToSexagesimal } from 'geolib';
+import { GeoUtils } from '../geoutils';
 
 @Pipe({
   name: 'coords'
@@ -67,12 +67,12 @@ export class CoordsPipe implements PipeTransform {
 
   // returns H D°M'S"sss
   private toHDMS(value: number, hemisphere: string): string {
-    return `${hemisphere} ${decimalToSexagesimal(value)}`;
+    return `${hemisphere} ${GeoUtils.decimalToSexagesimal(value)}`;
   }
 
   // returns DHM'S"sss
   private toDHMS(value: number, hemisphere: string): string {
-    let c = decimalToSexagesimal(value);
+    let c = GeoUtils.decimalToSexagesimal(value);
     c =
       c.slice(0, c.indexOf(' ') - 1) + hemisphere + c.slice(c.indexOf(' ') + 1);
     return c;

@@ -19,8 +19,8 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { AsyncSubject } from 'rxjs';
-import { getRhumbLineBearing, getCenter } from 'geolib';
-import { SKPosition } from 'src/app/types';
+import { GeoUtils } from 'src/app/lib/geoutils';
+import { Position } from 'src/app/types';
 
 // ** Freeboard direction of travel component **
 @Component({
@@ -34,15 +34,15 @@ export class DirectionOfTravelComponent
 {
   protected layer: Layer;
   public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() points: Array<Coordinate> = [];
+  @Input() points: Coordinate[] = [];
   @Input() reverse = false;
   @Input() pointIndex = 0;
   @Input() mapZoom = 10;
@@ -53,7 +53,7 @@ export class DirectionOfTravelComponent
   @Input() minResolution: number;
   @Input() maxResolution: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -81,7 +81,7 @@ export class DirectionOfTravelComponent
   ngOnChanges(changes: SimpleChanges) {
     if (this.layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
         if (key === 'points' || key === 'reverse' || key === 'pointIndex') {
@@ -124,11 +124,11 @@ export class DirectionOfTravelComponent
       }
 
       arrows.forEach((idx: number) => {
-        const pctr: SKPosition = getCenter(
-          this.points.slice(idx, idx + 2)
-        ) as SKPosition;
+        const pctr = GeoUtils.geographicCenter(
+          this.points.slice(idx, idx + 2) as Position[]
+        );
         const f = new Feature({
-          geometry: new Point(fromLonLat([pctr.longitude, pctr.latitude]))
+          geometry: new Point(fromLonLat(pctr))
         });
         f.setId(`dot.${idx}`);
         f.setStyle(this.buildStyle(idx));
@@ -173,8 +173,14 @@ export class DirectionOfTravelComponent
 
   getOrientation(idx: number) {
     const o = this.reverse
-      ? getRhumbLineBearing(this.points[idx + 1], this.points[idx])
-      : getRhumbLineBearing(this.points[idx], this.points[idx + 1]);
+      ? GeoUtils.rhumbLineBearing(
+          this.points[idx + 1] as Position,
+          this.points[idx] as Position
+        )
+      : GeoUtils.rhumbLineBearing(
+          this.points[idx] as Position,
+          this.points[idx + 1] as Position
+        );
     return (Math.PI / 180) * o;
   }
 

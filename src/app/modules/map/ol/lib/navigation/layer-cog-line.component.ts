@@ -24,7 +24,7 @@ import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray } from '../util';
 import { AsyncSubject } from 'rxjs';
-import { getDistance } from 'geolib';
+import { getDistance } from 'ol/sphere';
 import { Convert } from 'src/app/lib/convert';
 import { DarkTheme } from '../themes';
 import { DistanceUnitDef } from 'src/app/types';
@@ -46,14 +46,14 @@ const LightTheme = {
 export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   protected layer: Layer;
   public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected features: Feature[] = [];
   private theme = LightTheme;
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   protected coords = input<Coordinate[]>();
   protected cogTime = input<number>();
@@ -70,10 +70,10 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   @Input() minResolution: number;
   @Input() maxResolution: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties: Record<string, any>;
 
   private labelText = signal<string>('');
-  protected mapifiedLine: Array<Coordinate> = [];
+  protected mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -121,7 +121,7 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (this.layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
         if (key === 'mapZoom') {

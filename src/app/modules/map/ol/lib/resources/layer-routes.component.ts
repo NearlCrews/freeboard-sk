@@ -11,10 +11,9 @@ import { LineString, Point } from 'ol/geom';
 import { toLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
-import { getRhumbLineBearing } from 'geolib';
-import type { GeolibInputCoordinates } from 'geolib/es/types';
+import { GeoUtils } from 'src/app/lib/geoutils';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
-import type { FBRoutes } from 'src/app/types';
+import type { FBRoutes, Position } from 'src/app/types';
 
 // ** Freeboard resource collection format **
 @Component({
@@ -164,9 +163,9 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
             })
           );
         } else {
-          const d = getRhumbLineBearing(
-            toLonLat(start) as GeolibInputCoordinates,
-            toLonLat(end) as GeolibInputCoordinates
+          const d = GeoUtils.rhumbLineBearing(
+            toLonLat(start) as Position,
+            toLonLat(end) as Position
           );
           const rotation = (d * Math.PI) / 180;
           styles.push(

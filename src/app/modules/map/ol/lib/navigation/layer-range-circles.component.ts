@@ -22,7 +22,7 @@ import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { AsyncSubject } from 'rxjs';
 import { Convert, TARGET_UNIT } from '../../../../../lib/convert';
-import { computeDestinationPoint } from 'geolib';
+import { GeoUtils } from 'src/app/lib/geoutils';
 import { DarkTheme } from '../themes';
 import { circular } from 'ol/geom/Polygon';
 
@@ -42,7 +42,7 @@ const LightTheme = {
 export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   protected layer: Layer;
   public source: VectorSource;
-  protected features: Array<Feature>;
+  protected features: Feature[];
   private theme = LightTheme;
 
   protected darkMode = input<boolean>(false);
@@ -53,7 +53,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   @Input() position: Coordinate;
   @Input() maxCircles = 4;
@@ -67,7 +67,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   @Input() minResolution: number;
   @Input() maxResolution: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -105,7 +105,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (this.layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
         if (
@@ -173,10 +173,10 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
         const f = new Feature({ geometry: geodesicCircle });
         f.setStyle(st);
         fa.push(f);
-        // point for text display
-        const tp = computeDestinationPoint(this.position, d, 180);
+        // point for text display: south (180 degrees = π radians)
+        const tp = GeoUtils.destCoordinate(this.position, Math.PI, d);
         const p = new Feature({
-          geometry: new Point(fromLonLat([tp.longitude, tp.latitude]))
+          geometry: new Point(fromLonLat(tp))
         });
         p.setStyle(this.buildTextStyle(d));
         fa.push(p);

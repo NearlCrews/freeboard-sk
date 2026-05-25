@@ -35,13 +35,12 @@ import { MatStepperModule } from '@angular/material/stepper';
 
 import { NSEWButtonsComponent } from './nsew-buttons.component';
 
-import { computeDestinationPoint } from 'geolib';
-
 import { AnchorService } from '../anchor.service';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Convert, SI_BASE_UNIT, TARGET_UNIT } from 'src/app/lib/convert';
+import { GeoUtils } from 'src/app/lib/geoutils';
 
 @Component({
   selector: 'anchor-watch',
@@ -326,16 +325,14 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
    */
   shiftAnchor(direction: number) {
     const inc = 1;
-    const position = computeDestinationPoint(
+    const position = GeoUtils.destCoordinate(
       this.anchor.position(),
-      inc,
-      direction
+      Convert.degreesToRadians(direction),
+      inc
     );
-    this.anchor
-      .setAnchorPosition([position.longitude, position.latitude])
-      .catch((err: HttpErrorResponse) => {
-        this.app.parseHttpErrorResponse(err);
-      });
+    this.anchor.setAnchorPosition(position).catch((err: HttpErrorResponse) => {
+      this.app.parseHttpErrorResponse(err);
+    });
   }
 
   close() {

@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
 import { Position } from 'src/app/types';
-import { getGreatCircleBearing } from 'geolib';
 import { GeoUtils } from '../geoutils';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
@@ -175,7 +174,7 @@ export class Measurements implements OnChanges {
       this.init(true);
     } else {
       const ld = GeoUtils.distanceTo(leg[0], leg[1]);
-      const lb = getGreatCircleBearing(leg[0], leg[1]);
+      const lb = GeoUtils.greatCircleBearing(leg[0], leg[1]);
       this.legDistance = this.app.formatValueForDisplay(ld, 'm');
       this.legBearing = this.app.formatValueForDisplay(lb, 'deg');
     }

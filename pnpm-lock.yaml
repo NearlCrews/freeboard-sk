@@ -11,9 +11,6 @@ importers:
       '@signalk/server-api':
         specifier: ^2.24.0
         version: 2.24.0
-      geolib:
-        specifier: ^3.3.3
-        version: 3.3.14
       google-protobuf:
         specifier: ^4.0.1
         version: 4.0.2
@@ -199,8 +196,8 @@ importers:
         specifier: ^12.3.5
         version: 12.6.1(ol@10.9.0)
       pmtiles:
-        specifier: ^2.7.0
-        version: 2.11.0
+        specifier: ^4.4.1
+        version: 4.4.1
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -3391,9 +3388,6 @@ packages:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
 
-  geolib@3.3.14:
-    resolution: {integrity: sha512-uQ1772h3OjhWvL/HhSRZTMjBKIKoc4wFksLDqzqOkuG/2TgBbTwFamU0Disx3sNFk/BOweHyhKoVaYDuLIpsxQ==}
-
   geotiff@3.0.5:
     resolution: {integrity: sha512-OWcL9S9+yDZ6iAlXMt32T1iwUApJM8UiD47xbm6ZP1h33d10fqkPs14EG/ttT5EnefpZSx3G15iDFC5FxUNUwA==}
     engines: {node: '>=10.19'}
@@ -4694,8 +4688,8 @@ packages:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
 
-  pmtiles@2.11.0:
-    resolution: {integrity: sha512-dU9SzzaqmCGpdEuTnIba6bDHT6j09ZJFIXxwGpvkiEnce3ZnBB1VKt6+EOmJGueriweaZLAMTUmKVElU2CBe0g==}
+  pmtiles@4.4.1:
+    resolution: {integrity: sha512-5oTeQc/yX/ft1evbpIlnoCZugQuug/iYIAj/ZTqIqzdGek4uZEho99En890EE6NOSI3JTI3IG8R7r8+SltphxA==}
 
   pn@1.1.0:
     resolution: {integrity: sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==}
@@ -8967,8 +8961,6 @@ snapshots:
 
   gensync@1.0.0-beta.2: {}
 
-  geolib@3.3.14: {}
-
   geotiff@3.0.5:
     dependencies:
       '@petamoriken/float16': 3.9.3
@@ -10465,7 +10457,7 @@ snapshots:
 
   pluralize@8.0.0: {}
 
-  pmtiles@2.11.0:
+  pmtiles@4.4.1:
     dependencies:
       fflate: 0.8.3
 

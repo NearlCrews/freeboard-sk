@@ -2,7 +2,11 @@ import DataTile from 'ol/source/DataTile';
 import TileLayer from 'ol/layer/Tile';
 import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { XYZ } from 'ol/source';
-import * as pmtiles from 'pmtiles';
+import TileState from 'ol/TileState';
+import type ImageTile from 'ol/ImageTile';
+import type VectorTile from 'ol/VectorTile';
+import type { Extent } from 'ol/extent';
+import type { default as Projection } from 'ol/proj/Projection';
 import type { SKChart } from 'src/app/modules/skresources';
 import {
   RASTER_TILE_CACHE_SIZE,
@@ -12,16 +16,32 @@ import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { MVT } from 'ol/format';
 
+// Lazy-load pmtiles so the v4 decoder stays out of the eager main bundle.
+// The first call to any PMTiles initializer triggers the chunk; the module
+// promise is cached so subsequent calls reuse the same resolved module.
+let pmtilesModulePromise: Promise<typeof import('pmtiles')> | undefined;
+function loadPmtilesModule(): Promise<typeof import('pmtiles')> {
+  if (pmtilesModulePromise === undefined) {
+    pmtilesModulePromise = import('pmtiles');
+  }
+  return pmtilesModulePromise;
+}
+
+// OpenLayers builds the tile URL via the template, so we have to parse z/x/y
+// back out here. Hoisted to module scope to avoid recompiling per tile load.
+const PMTILES_URL_PATTERN = /pmtiles:\/\/(.+)\/(\d+)\/(\d+)\/(\d+)/;
+
 // create a PMTile WebGLtile layer
-export function initPMTilesWebGLLayer(
+export async function initPMTilesWebGLLayer(
   url: string,
   minZoom: number,
   maxZoom: number,
   zIndex: number
-): WebGLTileLayer {
-  const tiles = new pmtiles.PMTiles(url);
+): Promise<WebGLTileLayer> {
+  const { PMTiles } = await loadPmtilesModule();
+  const tiles = new PMTiles(url);
 
-  function loadImage(src: string) {
+  function loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.addEventListener('load', () => resolve(img));
@@ -30,14 +50,22 @@ export function initPMTilesWebGLLayer(
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function loader(z, x, y): Promise<any> {
+  async function loader(
+    z: number,
+    x: number,
+    y: number
+  ): Promise<HTMLImageElement> {
     const response = await tiles.getZxy(z, x, y);
+    if (!response) {
+      throw new Error('pmtiles tile not found');
+    }
     const blob = new Blob([response.data]);
     const src = URL.createObjectURL(blob);
-    const image = await loadImage(src);
-    URL.revokeObjectURL(src);
-    return image;
+    try {
+      return await loadImage(src);
+    } finally {
+      URL.revokeObjectURL(src);
+    }
   }
 
   return new WebGLTileLayer({
@@ -53,30 +81,32 @@ export function initPMTilesWebGLLayer(
 }
 
 // create a PMTile XYZ source TileLayer
-export function initPMTilesXYZLayer(
+export async function initPMTilesXYZLayer(
   chart: SKChart,
   zIndex: number
-): TileLayer<XYZ> {
-  const tiles = new pmtiles.PMTiles(chart.url);
+): Promise<TileLayer<XYZ>> {
+  const { PMTiles } = await loadPmtilesModule();
+  const tiles = new PMTiles(chart.url);
 
-  function loader(tile, url) {
-    tile.setState(1); // LOADING
-    // the URL construction is done internally by OL, so we need to parse it
-    // back out here using a hacky regex
-    const re = new RegExp(/pmtiles:\/\/(.+)\/(\d+)\/(\d+)\/(\d+)/);
-    const result = url.match(re);
+  function loader(tile: ImageTile, url: string): void {
+    tile.setState(TileState.LOADING);
+    const result = PMTILES_URL_PATTERN.exec(url);
+    if (!result) {
+      tile.setState(TileState.ERROR);
+      return;
+    }
     const z = +result[2];
     const x = +result[3];
     const y = +result[4];
 
-    tiles.getZxy(z, x, y).then((tile_result) => {
+    void tiles.getZxy(z, x, y).then((tile_result) => {
       if (tile_result) {
         const blob = new Blob([tile_result.data]);
-        const imageUrl = window.URL.createObjectURL(blob);
-        tile.getImage().src = imageUrl;
-        tile.setState(2); // LOADED
+        const imageUrl = URL.createObjectURL(blob);
+        (tile.getImage() as HTMLImageElement).src = imageUrl;
+        tile.setState(TileState.LOADED);
       } else {
-        tile.setState(4); // EMPTY
+        tile.setState(TileState.EMPTY);
       }
     });
   }
@@ -97,37 +127,41 @@ export function initPMTilesXYZLayer(
 }
 
 // create a PMTile Vector layer
-export function initPMTilesVectorLayer(
+export async function initPMTilesVectorLayer(
   chart: SKChart,
   zIndex: number
-): VectorTileLayer {
-  const tiles = new pmtiles.PMTiles(chart.url);
+): Promise<VectorTileLayer> {
+  const { PMTiles } = await loadPmtilesModule();
+  const tiles = new PMTiles(chart.url);
 
-  function loader(tile, url) {
-    // the URL construction is done internally by OL, so we need to parse it
-    // back out here using a hacky regex
-    const re = new RegExp(/pmtiles:\/\/(.+)\/(\d+)\/(\d+)\/(\d+)/);
-    const result = url.match(re);
+  function loader(tile: VectorTile<never>, url: string): void {
+    const result = PMTILES_URL_PATTERN.exec(url);
+    if (!result) {
+      tile.setState(TileState.ERROR);
+      return;
+    }
     const z = +result[2];
     const x = +result[3];
     const y = +result[4];
 
-    tile.setLoader((extent, resolution, projection) => {
-      tile.setState(1); // LOADING
-      tiles.getZxy(z, x, y).then((tile_result) => {
-        if (tile_result) {
-          const format = tile.getFormat();
-          const features = format.readFeatures(tile_result.data, {
-            extent: extent,
-            featureProjection: projection
-          });
-          tile.setFeatures(features);
-          tile.setState(2); // LOADED
-        } else {
-          tile.setState(4); // EMPTY
-        }
-      });
-    });
+    tile.setLoader(
+      (extent: Extent, _resolution: number, projection: Projection) => {
+        tile.setState(TileState.LOADING);
+        void tiles.getZxy(z, x, y).then((tile_result) => {
+          if (tile_result) {
+            const format = tile.getFormat();
+            const features = format.readFeatures(tile_result.data, {
+              extent: extent,
+              featureProjection: projection
+            });
+            tile.setFeatures(features as never[]);
+            tile.setState(TileState.LOADED);
+          } else {
+            tile.setState(TileState.EMPTY);
+          }
+        });
+      }
+    );
   }
 
   return new VectorTileLayer({

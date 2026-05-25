@@ -15,8 +15,40 @@ import {
 } from '@signalk/server-api';
 import { FreeboardHelperApp } from '../index';
 import * as uuid from 'uuid';
-import { isPointWithinRadius, isPointInPolygon } from 'geolib';
 import { Point } from 'geojson';
+
+// Helpers replacing geolib (dropped Phase 4a). Server-side, low frequency,
+// so haversine and ray-casting beat pulling OL's sphere helpers into Node.
+const EARTH_R = 6371008.8;
+const toRad = (d: number) => (d * Math.PI) / 180;
+
+function isPointWithinRadius(p: Position, c: Position, r: number): boolean {
+  const dLat = toRad(p.latitude - c.latitude);
+  const dLon = toRad(p.longitude - c.longitude);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(c.latitude)) *
+      Math.cos(toRad(p.latitude)) *
+      Math.sin(dLon / 2) ** 2;
+  const d = 2 * EARTH_R * Math.asin(Math.sqrt(a));
+  return d <= r;
+}
+
+function isPointInPolygon(p: Position, poly: Position[]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const pi = poly[i];
+    const pj = poly[j];
+    const intersect =
+      pi.latitude > p.latitude !== pj.latitude > p.latitude &&
+      p.longitude <
+        ((pj.longitude - pi.longitude) * (p.latitude - pi.latitude)) /
+          (pj.latitude - pi.latitude) +
+          pi.longitude;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
 
 type AlarmTrigger = 'entry' | 'exit';
 type AlarmGeometry = 'polygon' | 'circle' | 'region';
@@ -24,14 +56,14 @@ type AlarmGeometry = 'polygon' | 'circle' | 'region';
 interface AreaAlarmDef {
   geometry: AlarmGeometry;
   trigger: AlarmTrigger;
-  coords?: Array<Position>;
+  coords?: Position[];
   center?: Position;
   radius?: number;
   name?: string;
 }
 
-const AREA_TRIGGERS: Array<AlarmTrigger> = ['entry', 'exit'];
-const AREA_GEOMETRIES: Array<AlarmGeometry> = ['polygon', 'circle', 'region'];
+const AREA_TRIGGERS: AlarmTrigger[] = ['entry', 'exit'];
+const AREA_GEOMETRIES: AlarmGeometry[] = ['polygon', 'circle', 'region'];
 
 const ALARM_API_PATH = '/signalk/v2/api/alarms';
 
@@ -174,7 +206,7 @@ let server: FreeboardHelperApp;
 let pluginId: string;
 let unsubscribes = [];
 
-const alarmAreas: Map<string, AreaAlarmDef> = new Map();
+const alarmAreas = new Map<string, AreaAlarmDef>();
 const alarmManager: AreaAlarmManager = new AreaAlarmManager();
 
 const getSelfPathValue = <T>(path: string): { value?: T } | undefined => {
