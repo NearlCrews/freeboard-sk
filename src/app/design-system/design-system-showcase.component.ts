@@ -11,6 +11,8 @@ import { FbDialogService } from './primitives/dialog/dialog.service';
 import { FbSheetComponent } from './primitives/sheet/sheet.component';
 import { FbSheetService } from './primitives/sheet/sheet.service';
 
+type Theme = 'light' | 'dark' | 'night-red';
+
 /**
  * Demo dialog body for the showcase. Standalone component so the CDK
  * Dialog service can portal it into the overlay container.
@@ -76,15 +78,11 @@ export class FbDemoSheetBodyComponent {
 }
 
 /**
- * /design-system showcase page. Lazy-loaded entry: main.ts detects the
- * /design-system URL and dynamically imports this module, which gives
- * esbuild a natural code-split point so the primitives never reach the
- * AppComponent bundle.
- *
- * Renders each Tier-1 primitive in this batch with all variants visible
- * plus an inline a11y check note. Includes a theme switcher (light, dark,
- * and night-red) so reviewers can validate token-driven theme parity in
- * one click without restarting the app.
+ * /design-system showcase page. Renders each Tier-1 primitive with all
+ * variants visible plus an inline a11y check note, and a theme switcher
+ * (light, dark, and night-red) so reviewers can validate token-driven
+ * theme parity in one click. Lazy-loaded by main.ts on the /design-system
+ * route so this chunk never reaches the AppComponent bundle.
  */
 @Component({
   selector: 'fb-design-system-showcase',
@@ -98,11 +96,11 @@ export class DesignSystemShowcaseComponent {
   private readonly dialog = inject(FbDialogService);
   private readonly sheet = inject(FbSheetService);
 
-  readonly theme = signal<'light' | 'dark' | 'night-red'>('light');
+  readonly theme = signal<Theme>('light');
   readonly lastDialogResult = signal<string>('');
   readonly sheetOpenCount = signal<number>(0);
 
-  setTheme(t: 'light' | 'dark' | 'night-red'): void {
+  setTheme(t: Theme): void {
     this.theme.set(t);
     document.documentElement.setAttribute('data-theme', t);
   }

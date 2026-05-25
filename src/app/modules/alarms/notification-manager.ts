@@ -34,7 +34,7 @@ export class NotificationManager {
   // surface. AppFacade kept for config + data access; remove once those
   // migrate too.
   private alarm = inject(AlarmStore);
-  private settingsStore = inject(SettingsStore);
+  private settings = inject(SettingsStore);
   private worker = inject(SKWorkerService);
   private signalk = inject(SignalKClient);
   private bottomSheet = inject(MatBottomSheet);
@@ -120,7 +120,7 @@ export class NotificationManager {
     let alert: AlertData;
 
     // Test for Notifications API
-    if (this.settingsStore.featureFlags().notificationApi) {
+    if (this.settings.featureFlags().notificationApi) {
       const v: SKNotification = msg.value as SKNotification;
       alert = {
         id: v.id,
@@ -281,7 +281,7 @@ export class NotificationManager {
    */
   public acknowledge(path: string) {
     if (this.alertMap.has(path)) {
-      if (this.settingsStore.featureFlags().notificationApi) {
+      if (this.settings.featureFlags().notificationApi) {
         const alert = this.alertMap.get(path);
         this.signalk.api
           .post(
@@ -308,7 +308,7 @@ export class NotificationManager {
   public silence(path: string) {
     if (this.alertMap.has(path)) {
       const alert = this.alertMap.get(path);
-      if (this.settingsStore.featureFlags().notificationApi) {
+      if (this.settings.featureFlags().notificationApi) {
         this.signalk.api
           .post(this.app.skApiVersion, `notifications/${alert.id}/silence`, {})
           .subscribe(
@@ -327,7 +327,7 @@ export class NotificationManager {
    * @description Silence All alerts
    */
   public silenceAll() {
-    if (this.settingsStore.featureFlags().notificationApi) {
+    if (this.settings.featureFlags().notificationApi) {
       this.signalk.api
         .post(this.app.skApiVersion, `notifications/silenceAll`, {})
         .subscribe(
@@ -348,7 +348,7 @@ export class NotificationManager {
   public clear(path: string) {
     if (this.alertMap.has(path)) {
       const alert = this.alertMap.get(path);
-      if (this.settingsStore.featureFlags().notificationApi) {
+      if (this.settings.featureFlags().notificationApi) {
         this.signalk.api
           .delete(this.app.skApiVersion, `notifications/${alert.id}`)
           .subscribe(
@@ -368,7 +368,7 @@ export class NotificationManager {
    * @param path Alarm type to raise
    */
   public raiseServerAlarm(alarmType: string, message?: string) {
-    if (this.settingsStore.featureFlags().notificationApi) {
+    if (this.settings.featureFlags().notificationApi) {
       this.signalk.api
         .post(this.app.skApiVersion, `notifications/mob`, { message: message })
         .subscribe(
@@ -388,7 +388,7 @@ export class NotificationManager {
    * @returns Observable
    */
   public cancelServerAlarm(alert: AlertData) {
-    if (this.settingsStore.featureFlags().notificationApi) {
+    if (this.settings.featureFlags().notificationApi) {
       this.signalk.api
         .delete(this.app.skApiVersion, `notifications/${alert.id}`)
         .subscribe(

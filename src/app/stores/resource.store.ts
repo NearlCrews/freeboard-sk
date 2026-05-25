@@ -47,13 +47,13 @@ export class ResourceStore {
   ];
 
   /** Resources Freeboard owns the UI for and therefore filters out of the
-   * "custom paths" picker. */
-  get IGNORE_RESOURCES(): string[] {
-    return this.STANDARD_RESOURCES.concat(
-      this.CUSTOM_RESOURCES.map((i) => i.name),
-      ['buddies']
-    );
-  }
+   * "custom paths" picker. Computed once at construction since
+   * STANDARD_RESOURCES and CUSTOM_RESOURCES are readonly. */
+  readonly IGNORE_RESOURCES: readonly string[] = [
+    ...this.STANDARD_RESOURCES,
+    ...this.CUSTOM_RESOURCES.map((i) => i.name),
+    'buddies'
+  ];
 
   /**
    * Align selected custom resource paths with those enabled on the server:

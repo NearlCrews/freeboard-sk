@@ -385,8 +385,7 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  openExperiment(e: { choice: string; value?: any }): void {
+  openExperiment(e: { choice: string; value?: unknown }): void {
     if (e.choice === 'debugCapture') {
       this.captureDebugToClipboard();
       return;
@@ -530,12 +529,14 @@ export class DialogOrchestrator {
     id: string;
     type: string;
   }): Promise<void> {
-    const id =
-      e.type === 'self'
-        ? e.type
-        : e.id.includes('vessels.')
-          ? e.id.split('.')[1]
-          : e.id;
+    let id: string;
+    if (e.type === 'self') {
+      id = e.type;
+    } else if (e.id.includes('vessels.')) {
+      id = e.id.split('.')[1];
+    } else {
+      id = e.id;
+    }
     let v: SKVessel | null;
     try {
       this.settings.sIsFetching.set(true);

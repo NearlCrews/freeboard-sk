@@ -205,7 +205,7 @@ export class AppFacade extends InfoService {
       if (res.action === 'db_init') {
         if (res.value && this.config.vessels.trail) {
           this.db.getTrail().then((t) => {
-            this.vessel.setSelfTrail(t && t.value ? t.value : []);
+            this.vessel.setSelfTrail(t?.value ?? []);
           });
         }
       } else if (res.action === 'trail_save' && !res.value) {
@@ -221,12 +221,10 @@ export class AppFacade extends InfoService {
     if (typeof this.hostDef.params.token !== 'undefined') {
       this.persistToken(this.hostDef.params.token);
     }
-    this.kioskMode.update(
-      () => typeof this.hostDef.params.kiosk !== 'undefined'
-    );
+    this.kioskMode.set(typeof this.hostDef.params.kiosk !== 'undefined');
     this.debug('host:', this.hostDef);
 
-    this.instrumentPanelAvailable.update(() => isTopWindow());
+    this.instrumentPanelAvailable.set(isTopWindow());
     if (!isTopWindow()) {
       window.addEventListener('message', (event) => {
         this.parseMessageFromParent(event);
@@ -314,7 +312,7 @@ export class AppFacade extends InfoService {
 
   /** Initialise post-config-load state and emit config$.ready. */
   private doPostConfigLoad(): void {
-    this.uiConfig.update(() => this.config.ui);
+    this.uiConfig.set(this.config.ui);
     if (this.config.vessels.fixedLocationMode) {
       this.data.vessels.self.position = [
         ...this.config.vessels.fixedPosition
@@ -323,27 +321,25 @@ export class AppFacade extends InfoService {
       this.config.map.center = [...this.config.vessels.fixedPosition];
     }
 
-    this.selfLines.update(() => {
-      const cog = this.config.vessels.selfLines.cog;
-      const heading = this.config.vessels.selfLines.heading;
-      return {
-        cog: {
-          fill: { color: cog.color },
-          stroke: {
-            color: cog.color,
-            width: cog.weight,
-            lineDash: this.formatLineDashArray(cog.dash)
-          }
-        },
-        heading: {
-          fill: { color: heading.color },
-          stroke: {
-            color: heading.color,
-            width: heading.weight,
-            lineDash: this.formatLineDashArray(heading.dash)
-          }
+    const cog = this.config.vessels.selfLines.cog;
+    const heading = this.config.vessels.selfLines.heading;
+    this.selfLines.set({
+      cog: {
+        fill: { color: cog.color },
+        stroke: {
+          color: cog.color,
+          width: cog.weight,
+          lineDash: this.formatLineDashArray(cog.dash)
         }
-      };
+      },
+      heading: {
+        fill: { color: heading.color },
+        stroke: {
+          color: heading.color,
+          width: heading.weight,
+          lineDash: this.formatLineDashArray(heading.dash)
+        }
+      }
     });
 
     this.sTrueMagChoice.set(this.config.units.headingAttribute);

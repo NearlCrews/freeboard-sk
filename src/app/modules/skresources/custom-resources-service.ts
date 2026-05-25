@@ -33,7 +33,7 @@ export class FBCustomResourceService {
   );
 
   // Phase 3 Batch 3: direct store injection for the custom-resources taxonomy.
-  private resourceStore = inject(ResourceStore);
+  private resource = inject(ResourceStore);
 
   constructor(
     public dialog: MatDialog,
@@ -53,7 +53,7 @@ export class FBCustomResourceService {
   public async initCustomCollections() {
     const rcs = {};
     await Promise.all(
-      this.resourceStore.CUSTOM_RESOURCES.map(async (cr) => {
+      this.resource.CUSTOM_RESOURCES.map(async (cr) => {
         rcs[cr.featureKey] = await this.checkCustomCollection(
           cr.name,
           cr.description
@@ -218,7 +218,7 @@ export class FBCustomResourceService {
    * @param query Filter criteria for ResourceSets in placed in the cache
    */
   private async refreshResourceSets(collection: string, query?: string) {
-    if (this.resourceStore.IGNORE_RESOURCES.includes(collection)) {
+    if (this.resource.IGNORE_RESOURCES.includes(collection)) {
       return;
     }
     this.app.debug(`** refreshResourceSets() query: ${query}`);
@@ -255,12 +255,12 @@ export class FBCustomResourceService {
     };
 
     if (collection) {
-      if (!this.resourceStore.IGNORE_RESOURCES.includes(collection)) {
+      if (!this.resource.IGNORE_RESOURCES.includes(collection)) {
         doRefresh(collection);
       }
     } else {
       Object.keys(this.app.config.selections.resourceSets)
-        .filter((r) => !this.resourceStore.IGNORE_RESOURCES.includes(r))
+        .filter((r) => !this.resource.IGNORE_RESOURCES.includes(r))
         .forEach(async (collection: string) => doRefresh(collection));
     }
   }
@@ -293,7 +293,7 @@ export class FBCustomResourceService {
   public anyResourceSetSelection(): boolean {
     let result = false;
     Object.entries(this.app.config.selections.resourceSets)
-      .filter((r) => !this.resourceStore.IGNORE_RESOURCES.includes(r[0]))
+      .filter((r) => !this.resource.IGNORE_RESOURCES.includes(r[0]))
       .forEach((r) => {
         if (r[1].length > 0) {
           result = true;

@@ -170,7 +170,6 @@ export type FbButtonSize = 'sm' | 'md' | 'lg';
   ]
 })
 export class FbButtonComponent {
-  // signal inputs (Angular 17.1+)
   readonly variant = input<FbButtonVariant>('primary');
   readonly size = input<FbButtonSize>('md');
   readonly disabled = input<boolean>(false);

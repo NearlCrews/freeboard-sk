@@ -63,9 +63,11 @@ export class AppShellService {
     });
   }
 
-  /** Trigger the map component to take keyboard focus. */
+  /** Trigger the map component to take keyboard focus. Uses millisecond
+   * resolution so two calls within the same second still emit a fresh
+   * signal value to the FBMap input binding. */
   focusMap(): void {
-    this._mapSetFocus.set(String(Date().valueOf()));
+    this._mapSetFocus.set(String(Date.now()));
   }
 
   // ----- toolbar toggles -----
@@ -167,13 +169,9 @@ export class AppShellService {
         this.app.data.vessels.self.environment.mode === 'night') ||
       cfg.source === -1;
 
-    const el = this.overlayContainer.getContainerElement();
-    if (wantDark) {
-      el.classList.add('dark-theme');
-      cfg.enabled = true;
-    } else {
-      el.classList.remove('dark-theme');
-      cfg.enabled = false;
-    }
+    this.overlayContainer
+      .getContainerElement()
+      .classList.toggle('dark-theme', wantDark);
+    cfg.enabled = wantDark;
   }
 }

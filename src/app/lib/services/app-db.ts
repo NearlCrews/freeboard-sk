@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Observable, Subject } from 'rxjs';
 
 import { IndexedDB } from './indexeddb';
@@ -7,6 +6,11 @@ import type { LineString } from 'src/app/types';
 export interface AppDBUpdate {
   action: 'db_init' | 'trail_save';
   value: unknown;
+}
+
+interface StoredTrail {
+  uuid: string;
+  value: LineString;
 }
 
 /**
@@ -40,8 +44,10 @@ export class AppDB {
     this.dbUpdateSource.next(value);
   }
 
-  getTrail(id = 'self'): Promise<any> {
-    return this.db.getByIndex('trail', 'uuid_idx', id);
+  getTrail(id = 'self'): Promise<StoredTrail | undefined> {
+    return this.db.getByIndex('trail', 'uuid_idx', id) as Promise<
+      StoredTrail | undefined
+    >;
   }
 
   saveTrail(id = 'self', trailData: LineString): void {

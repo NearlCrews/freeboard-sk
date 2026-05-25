@@ -1,15 +1,16 @@
 /*
  * Tailwind v4 CSS-first config.
  *
- * Token-to-utility mapping is intentionally minimal here. Phase 3 Batch 2
- * (design-system showcase) and Batch 3 (15 hand-rolled CDK primitives)
- * will extend @theme with explicit references to --color-*, --space-*,
- * --font-*, and --touch-* tokens defined in src/tokens.css.
+ * The design-system primitives consume tokens.css custom properties directly
+ * (e.g. var(--color-primary), var(--space-md)) rather than through Tailwind
+ * utility classes, so this @theme block only registers what utilities like
+ * `font-sans` need to resolve. tokens.css remains the source of truth for
+ * color, spacing, typography, and touch-target tokens.
  *
- * Per the roadmap, no tailwind.config.js: the @theme block below is the
- * source of truth for Tailwind's design-system generation. tailwindcss is
- * loaded via `@import 'tailwindcss';`, which Tailwind v4's PostCSS plugin
- * expands into the preflight, base, components, and utilities layers.
+ * Per the roadmap, no tailwind.config.js: the @theme block below is the only
+ * Tailwind-side configuration. tailwindcss is loaded via `@import 'tailwindcss';`,
+ * which Tailwind v4's PostCSS plugin expands into the preflight, base,
+ * components, and utilities layers.
  */
 @import 'tailwindcss';
 

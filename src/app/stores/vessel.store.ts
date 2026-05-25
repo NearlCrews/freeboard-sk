@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Extent } from 'ol/extent';
 
 import type { IAppConfig, LineString, Position } from 'src/app/types';
@@ -63,11 +63,6 @@ export class VesselStore {
   readonly mapViewTopCenter = signal<Position>([0, 0]);
   readonly mapViewRightCenter = signal<Position>([0, 0]);
   readonly mapViewRotation = signal<number>(0);
-
-  /** Read-only views useful for templates that should not mutate state. */
-  readonly selfTrailReadonly: Signal<LineString> = this._selfTrail.asReadonly();
-  readonly selfTrailFromServerReadonly: Signal<LineString> =
-    this._selfTrailFromServer.asReadonly();
 
   /** Append a point to the self trail; no-ops on duplicate of last point. */
   addToSelfTrail(pt: Position): void {

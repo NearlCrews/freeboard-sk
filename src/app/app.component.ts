@@ -424,8 +424,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected openCourseSettings() {
     this.dialogs.openCourseSettings();
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected openExperiment(e: { choice: string; value?: any }) {
+  protected openExperiment(e: { choice: string; value?: unknown }) {
     this.dialogs.openExperiment(e);
   }
   protected featureProperties(e: { id: string; type: string }) {
@@ -949,7 +948,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.app.selfTrail.set([]);
     } else {
       this.app.db.getTrail('self').then((t) => {
-        this.app.selfTrail.update(() => (t && t.value ? t.value : []));
+        this.app.selfTrail.set(t?.value ?? []);
       });
     }
     this.switchActiveVessel();

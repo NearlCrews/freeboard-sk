@@ -1,7 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FbButtonComponent } from './button.component';
+import {
+  FbButtonComponent,
+  type FbButtonSize,
+  type FbButtonVariant
+} from './button.component';
 
 /**
  * Host wrapper drives signal inputs through the template. Backing host
@@ -24,8 +28,8 @@ import { FbButtonComponent } from './button.component';
   `
 })
 class HostComponent {
-  variant = signal<'primary' | 'secondary' | 'ghost' | 'danger'>('primary');
-  size = signal<'sm' | 'md' | 'lg'>('md');
+  variant = signal<FbButtonVariant>('primary');
+  size = signal<FbButtonSize>('md');
   disabled = signal(false);
   loading = signal(false);
   ariaLabel = signal('');

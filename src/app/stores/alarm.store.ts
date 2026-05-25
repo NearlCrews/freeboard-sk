@@ -21,6 +21,12 @@ export type LaunchResult =
   | 'patch'
   | 'current';
 
+interface WelcomeContentItem {
+  type?: string;
+  title: string;
+  message: string;
+}
+
 /**
  * Phase 3 Batch 3: owns the cross-cutting alert and notification surface:
  * the dialog primitives (AlertDialog, ConfirmDialog, MsgBox, ErrorListDialog,
@@ -32,6 +38,27 @@ export type LaunchResult =
  * AppFacade.audio + AudioAlarmService for Batch 2 backward compatibility.
  * Single-fire highest-severity selection over a unified alarm queue lands
  * in Phase 7.
+ *
+ * Phase 7 wiring gap (intentional, not a regression):
+ *
+ *   Phase 3 Batch 2 introduced --safety-alert-emergency, --safety-alert-alarm,
+ *   --safety-alert-warn, and --safety-alert-caution in src/tokens.css. These
+ *   are theme-invariant by design so a Signal K `state: 'alarm'` notification
+ *   stays red, and a `state: 'warn'` stays yellow, in dark mode and night-red
+ *   (IEC 62288 / IMO MSC.302(87)). AlarmStore deliberately does NOT consume
+ *   them: the SK severity is classified inside NotificationManager and the
+ *   resulting CSS class is applied by alert-list.component.ts (currently the
+ *   legacy `red-text` and `amber-text` literals at lines 117 to 122) and by
+ *   alert.component.ts. Those files are out of Phase 3 scope.
+ *
+ *   When Phase 7 unifies the alarm queue, it should: (a) replace the
+ *   `red-text` and `amber-text` classes with token-backed classes that read
+ *   from `var(--safety-alert-*)`, (b) map the full ALARM_STATE enum
+ *   (nominal | normal | alert | warn | alarm | emergency) to the token set
+ *   (alert maps to --safety-alert-caution, warn maps to --safety-alert-warn,
+ *   alarm and emergency map to their same-name tokens; nominal and normal
+ *   stay untokenised), and (c) close the present rendering gap where
+ *   `priority === 'warn'` falls through with no severity class at all.
  */
 @Injectable({ providedIn: 'root' })
 export class AlarmStore {
@@ -120,27 +147,26 @@ export class AlarmStore {
       return undefined;
     }
     let buttonText = 'Get Started';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const content: any[] = [];
+    const content: WelcomeContentItem[] = [];
     let showPrefs = false;
+    const serverId = data.server?.id as string | undefined;
 
     if (launchResult === 'first_run' && !suppressFirstRun) {
       content.push(WELCOME_MESSAGES.welcome);
-      if (data.server?.id) {
-        content.push(WELCOME_MESSAGES[data.server.id]);
+      if (serverId) {
+        const serverMsg = (WELCOME_MESSAGES as Record<string, unknown>)[
+          serverId
+        ] as WelcomeContentItem | undefined;
+        if (serverMsg) {
+          content.push(serverMsg);
+        }
         showPrefs = true;
       }
     } else {
       const news = WELCOME_MESSAGES['whats-new'];
-      if (news && news.length > 0) {
-        for (const msg of news) {
-          if (msg.type) {
-            if (data.server?.id && msg.type === data.server.id) {
-              content.push(msg);
-            }
-          } else {
-            content.push(msg);
-          }
+      for (const msg of news ?? []) {
+        if (!msg.type || msg.type === serverId) {
+          content.push(msg);
         }
       }
       buttonText = 'Got it';

@@ -1,4 +1,4 @@
-import { Injectable, Signal, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 
 import { SignalKClient } from 'src/lib/signalk-client';
 import { Convert, SI_BASE_UNIT, TARGET_UNIT } from 'src/app/lib/convert';
@@ -152,9 +152,6 @@ export class SettingsStore {
     unitPreferences: signal<SKServerUnitPrefs | undefined>(undefined)
   };
 
-  /** Read-only view used by templates that should not mutate UI state. */
-  readonly uiConfigReadonly: Signal<UiConfigState> = this.uiConfig.asReadonly();
-
   // ----- line-dash style helpers -----
   get lineDashMap(): Map<string, string> {
     return LINE_DASH_MAP;
@@ -164,9 +161,7 @@ export class SettingsStore {
     if (value === 'none') return null;
     const raw = LINE_DASH_MAP.get(value);
     if (!raw) return null;
-    return Array.from(raw)
-      .filter((i) => i !== ' ')
-      .map((i) => Number(i));
+    return raw.split(' ').map(Number);
   }
 
   /** Retrieve unit preferences from the Signal K server. */
@@ -252,13 +247,11 @@ export class SettingsStore {
     }
   ): string {
     if (typeof value !== 'number') {
-      if (typeof value === 'string') {
-        const s = value as string;
-        if (s.endsWith('Z') && s[10] === 'T') {
-          return new Date(s).toLocaleString();
-        }
+      const s = value as string;
+      if (typeof s === 'string' && s.endsWith('Z') && s[10] === 'T') {
+        return new Date(s).toLocaleString();
       }
-      return `${String(value)}${sourceUnit}`;
+      return `${s}${sourceUnit}`;
     }
     const precision = options?.precision ?? 1;
     let symbol = '';
@@ -377,12 +370,11 @@ export class SettingsStore {
    * `'---'` (trimmed to the requested precision) for non-finite inputs.
    */
   formatNumericDisplay(value: number, precision?: number): string {
-    precision = Number.isFinite(precision) ? precision : 1;
-    return !Number.isFinite(value)
-      ? '---'.slice(0 - precision)
-      : Number.isFinite(precision)
-        ? value.toFixed(precision)
-        : `${value}`;
+    const p = Number.isFinite(precision) ? (precision as number) : 1;
+    if (!Number.isFinite(value)) {
+      return '---'.slice(-p);
+    }
+    return value.toFixed(p);
   }
 
   /** Convert a speed value to the configured unit. */
