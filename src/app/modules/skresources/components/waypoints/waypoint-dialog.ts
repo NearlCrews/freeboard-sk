@@ -300,7 +300,7 @@ interface DialogData {
 })
 export class WaypointDialog {
   protected dialogIcon: string; // dialog add / edit icon
-  protected wptIcon = signal<AppIconDef | undefined>();
+  protected wptIcon = signal<AppIconDef | undefined>(undefined);
   protected waypointTypeSelections: Map<string, any[]>;
   protected wptIconDisplayName!: string;
 

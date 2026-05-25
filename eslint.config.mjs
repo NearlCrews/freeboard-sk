@@ -121,7 +121,11 @@ export default tseslint.config(
       'unicorn/no-null': 'off',
       'unicorn/prefer-module': 'off',
       'unicorn/prefer-top-level-await': 'off',
-      'unicorn/no-useless-undefined': 'warn',
+      // Disabled: Angular signal<T>() requires an explicit initial value.
+      // `signal<X | undefined>(undefined)` is the idiomatic "no initial yet"
+      // shape, and the auto-fix here strips the undefined argument leaving
+      // a zero-arg call that fails typecheck.
+      'unicorn/no-useless-undefined': 'off',
       'unicorn/prefer-set-has': 'warn',
       'unicorn/prefer-string-starts-ends-with': 'warn',
       'unicorn/prefer-includes': 'warn',

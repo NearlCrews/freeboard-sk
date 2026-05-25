@@ -130,7 +130,7 @@ export class AppFacade extends InfoService {
   }
 
   public serverConfig = {
-    unitPreferences: signal<SKServerUnitPrefs | undefined>()
+    unitPreferences: signal<SKServerUnitPrefs | undefined>(undefined)
   };
 
   // controls map zoom limits
@@ -153,7 +153,7 @@ export class AppFacade extends InfoService {
   hasAuthToken = signal<boolean>(false); // auth token has been presented
   isLoggedIn = signal<boolean>(false); // logged in to SK Server
   instrumentPanelAvailable = signal<boolean>(true); // show instrument panel button
-  skAuthChange = signal<string | undefined>(); // Signal K cookie change event
+  skAuthChange = signal<string | undefined>(undefined); // Signal K cookie change event
 
   sIsFetching = signal<boolean>(false); // show progress for fetching data from server
   sTrueMagChoice = signal<string>(''); // preferred path True / Magnetic
