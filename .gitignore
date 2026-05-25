@@ -4,3 +4,11 @@
 node_modules
 package-lock.json
 .angular
+
+# Phase 0 test + coverage artifacts
+coverage
+playwright-report
+playwright-results
+test-results
+out-tsc
+.lighthouseci

@@ -1,0 +1,23 @@
+{
+  "//": "Parallel strict tsconfig for the Phase 0 ratchet (roadmap §3 Phase 0, §5).",
+  "//1": "Phase 0 scope: src/app/lib/ only. Other folders ratchet in later phases:",
+  "//2": "  Phase 1: src/lib/, src/types/",
+  "//3": "  Phase 2: src/app/lib/services/",
+  "//4": "  Phase 3: src/app/modules/skstream/",
+  "//5": "  Phase 4: src/app/modules/map/, src/app/modules/skresources/",
+  "//6": "  Phase 6: everything else + flip strict:true in root tsconfig.json.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/strict",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "files": [],
+  "include": ["src/app/lib/**/*.ts"],
+  "exclude": ["src/app/lib/**/*.spec.ts", "src/app/lib/**/*.worker.ts"]
+}

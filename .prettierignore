@@ -1,0 +1,15 @@
+node_modules
+public
+dist
+coverage
+.angular
+font_resources
+out-tsc
+helper/openApi.json
+*.lock
+*-lock.json
+pnpm-lock.yaml
+package.json
+src/assets
+*.min.js
+*.min.css

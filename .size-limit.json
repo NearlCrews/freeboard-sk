@@ -1,0 +1,42 @@
+[
+  {
+    "name": "initial transfer (entry)",
+    "path": [
+      "public/main-*.js",
+      "public/polyfills-*.js",
+      "public/styles-*.css"
+    ],
+    "limit": "68 KB",
+    "gzip": true
+  },
+  {
+    "name": "main",
+    "path": "public/main-*.js",
+    "limit": "32 KB",
+    "gzip": true
+  },
+  {
+    "name": "polyfills",
+    "path": "public/polyfills-*.js",
+    "limit": "16 KB",
+    "gzip": true
+  },
+  {
+    "name": "styles",
+    "path": "public/styles-*.css",
+    "limit": "21 KB",
+    "gzip": true
+  },
+  {
+    "name": "vendor + lazy chunks (sum)",
+    "path": "public/chunk-*.js",
+    "limit": "1100 KB",
+    "gzip": true
+  },
+  {
+    "name": "workers (sum)",
+    "path": "public/worker-*.js",
+    "limit": "207 KB",
+    "gzip": true
+  }
+]
