@@ -111,7 +111,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   @Input() setFocus = '';
   @Input() hitTolerance = 5;
 
-  private _pointerDown = signal<MouseEvent>();
+  private _pointerDown = signal<MouseEvent | undefined>();
   public pointerDownSignal = this._pointerDown.asReadonly();
 
   protected changeDetectorRef = inject(ChangeDetectorRef);

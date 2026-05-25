@@ -130,7 +130,7 @@ export class AppFacade extends InfoService {
   }
 
   public serverConfig = {
-    unitPreferences: signal<SKServerUnitPrefs>()
+    unitPreferences: signal<SKServerUnitPrefs | undefined>()
   };
 
   // controls map zoom limits

@@ -498,7 +498,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   /** fullscreen mode */
   protected toggleFullscreen() {
-    const docel = document.documentElement;
+    const docel = document.documentElement as HTMLElement & {
+      webkitRequestFullScreen?: () => Promise<void>;
+      mozRequestFullscreen?: () => Promise<void>;
+      msRequestFullscreen?: () => Promise<void>;
+    };
     const fscreen =
       docel.requestFullscreen ||
       docel.webkitRequestFullScreen ||
@@ -910,7 +914,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   /** Handle setting change events
    * @param e setting change identifier
    */
-  private handleSettingChangeEvent(e: string[]) {
+  private handleSettingChangeEvent(e: string[] = []) {
     if (e?.includes('darkTheme')) {
       this.setDarkTheme();
     }
@@ -1701,13 +1705,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected handleDrawEnded(e: DrawFeatureInfo) {
     this.mapInteract.isDrawing();
     switch (this.mapInteract.draw.resourceType) {
-      case 'note':
-        const params = { position: e.coordinates };
+      case 'note': {
+        const params: { position: unknown; group?: unknown } = {
+          position: e.coordinates
+        };
         if (this.mapInteract.draw.properties.group) {
           params.group = this.mapInteract.draw.properties.group;
         }
         this.skres.showNoteEditor(params);
         break;
+      }
       case 'waypoint':
         this.skres.newWaypointAt(e.coordinates as Position);
         break;

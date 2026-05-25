@@ -13,3 +13,4 @@ package.json
 src/assets
 *.min.js
 *.min.css
+src/types/signalk-generated.ts
