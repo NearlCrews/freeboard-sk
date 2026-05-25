@@ -198,6 +198,19 @@ export default tseslint.config(
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-debugger': 'error',
+      // Phase 2 zoneless gate: no code may pull zone.js back in.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'zone.js',
+              message:
+                'zone.js is removed in Phase 2 (zoneless change detection). Use provideZonelessChangeDetection() and rely on signals.'
+            }
+          ]
+        }
+      ],
       'no-useless-assignment': 'warn',
       // Legacy patterns flagged below are pre-existing and migrate when the
       // owning phase touches each file. Downgrading so the lint-staged

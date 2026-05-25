@@ -150,7 +150,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "8.59.4",
     "vitest": "^4.1.7",
-    "xml2js": "^0.6.2",
-    "zone.js": "~0.15.0"
+    "xml2js": "^0.6.2"
   }
 }

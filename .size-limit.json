@@ -1,24 +1,14 @@
 [
   {
     "name": "initial transfer (entry)",
-    "path": [
-      "public/main-*.js",
-      "public/polyfills-*.js",
-      "public/styles-*.css"
-    ],
-    "limit": "68 KB",
+    "path": ["public/main-*.js", "public/styles-*.css"],
+    "limit": "52 KB",
     "gzip": true
   },
   {
     "name": "main",
     "path": "public/main-*.js",
     "limit": "32 KB",
-    "gzip": true
-  },
-  {
-    "name": "polyfills",
-    "path": "public/polyfills-*.js",
-    "limit": "16 KB",
     "gzip": true
   },
   {
