@@ -39,7 +39,9 @@ if (
   ).ResizeObserver = ResizeObserverStub;
 }
 
-// Stub `AudioContext` so the alarm audio service can be constructed under jsdom.
+// Stub `AudioContext` so the alarm audio service can be constructed under
+// jsdom. The facade reads `window.AudioContext`, so set it on both `window`
+// (the jsdom DOM object) and `globalThis` (workers and bare references).
 class AudioContextStub {
   createOscillator(): Record<string, unknown> {
     return {};
@@ -51,9 +53,15 @@ class AudioContextStub {
     };
   }
 }
-(
-  globalThis as unknown as { AudioContext: typeof AudioContextStub }
-).AudioContext = AudioContextStub;
-(
-  globalThis as unknown as { webkitAudioContext: typeof AudioContextStub }
-).webkitAudioContext = AudioContextStub;
+for (const target of [
+  globalThis,
+  typeof window === 'undefined' ? null : window
+]) {
+  if (!target) continue;
+  (
+    target as unknown as { AudioContext: typeof AudioContextStub }
+  ).AudioContext = AudioContextStub;
+  (
+    target as unknown as { webkitAudioContext: typeof AudioContextStub }
+  ).webkitAudioContext = AudioContextStub;
+}
