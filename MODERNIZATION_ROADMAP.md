@@ -171,37 +171,90 @@ Phase 4c (perf, weeks 14 to 15):
 
 ### Phase 5: TS strict ratchet completion (weeks 6 to 14, qa-lead + everyone, parallel)
 
-7 ratchet PRs over the modernization runway. Each lands a folder into strict scope:
+Status (2026-05-26): the .ts surface is fully strict-clean. Every
+`src/**/*.ts` file outside specs, workers, and the generated proto
+compiles under the strict-mode preset (strict, noUncheckedIndexedAccess,
+exactOptionalPropertyTypes, noImplicitOverride,
+noPropertyAccessFromIndexSignature, noImplicitReturns,
+noFallthroughCasesInSwitch). The strict include list in
+`tsconfig.strict.json` covers:
 
-- `src/lib/` (Phase 1)
-- `src/types/` (Phase 1)
-- `src/app/lib/services/` (Phase 2)
-- `src/app/modules/skstream/` (Phase 3)
-- `src/app/modules/map/` (Phase 4)
-- `src/app/modules/skresources/` (Phase 4)
-- everything else + flip `strict: true` in root `tsconfig.json` (Phase 6)
+- `src/lib/`, `src/types/`, `src/app/lib/`
+- `src/app/modules/skstream/`, `src/app/modules/map/`,
+  `src/app/modules/skresources/`
+- `src/app/modules/alarms/`, `src/app/modules/course/`,
+  `src/app/modules/icons/`, `src/app/modules/autopilot/`,
+  `src/app/modules/radar/`, `src/app/modules/settings/`,
+  `src/app/modules/info-panel/`, `src/app/modules/weather/`,
+  `src/app/modules/gpx/`
+- `src/app/stores/`, `src/app/shell/`
+- `src/app/app.config.ts`, `src/app/app.facade.ts`,
+  `src/app/app.bootstrap.ts`, `src/app/app.component.ts`
+
+Pre-push hook gates on `pnpm typecheck:strict`. Root
+`tsconfig.json strict: true` deferred to Phase 5e (template TCB
+sweep) because Angular template type-check propagates strict TS
+compiler options into the template type-check block and uncovers
+~218 cascading template errors.
+
+#### Phase 5e: template-strict TCB sweep (deferred)
+
+When the root flips `strict: true`, Angular's template TCB will
+reject roughly 218 sites. The recurring patterns are: SKNote.position
+and SKVessel.position truthy-guards needing strict-null narrowing in
+the template, `app.hostDef.params.token` style dot access where the
+underlying type is `Record<string, T>`, `infoPanel.item().X` reads
+where `item()` is `T | undefined`, and showLogin / null literal
+passes through templates. Estimated work: 1 to 2 days of mechanical
+template edits.
 
 ### Phase 6: Forms, settings, weather, PWA (weeks 15 to 18, ux-lead + build-lead)
 
-- signal-forms across remaining ReactiveForms
-- Settings, Weather rebuilt on tier-2 primitives
-- `@angular/service-worker` runtime, cacheFirst chart tiles (200 MB default, 2 GB max), networkFirst SignalK API (3 s timeout), install prompt after ≥3 sessions
-- Offline banner + stale-data fade visible across UI
-- Sentry SDK shipped, source maps uploaded in CI on tag builds
+Status (2026-05-26): PWA scaffolding landed. The remaining bullets stay
+open for the ux-lead and build-lead sprint.
+
+- [ ] signal-forms across remaining ReactiveForms (deferred: every dialog
+      form needs migration; multi-day surface)
+- [ ] Settings, Weather rebuilt on tier-2 primitives (deferred: UX-track)
+- [x] PWA scaffolding: `ngsw-config.json` with cacheFirst chart tiles (200
+      MB default, 2 GB max) and networkFirst SignalK API (3 s timeout); the
+      `PwaService` runtime wrapper (`src/app/lib/services/pwa.service.ts`)
+      surfaces `online` + `updateAvailable` signals and a deferred
+      `wireSwUpdate` hook for when the `@angular/service-worker` peer dep
+      lands and `provideServiceWorker(...)` is wired in `main.ts`.
+- [ ] Offline banner + stale-data fade (deferred: ux-lead; consumes the
+      `PwaService.online` signal)
+- [ ] Sentry SDK + source maps in CI on tag builds (deferred)
 
 ### Phase 7: Theming + a11y burndown (weeks 19 to 21, ux-lead + qa-lead)
 
-- Final pass on all 12 surfaces against design tokens
-- Axe-core grandfathered baseline burndown
-- 4 hard-fail rules active: touch-target floor (56 px primary, 44 px secondary), no keyboard traps, reduced-motion respected on chrome, no color-only signals for safety states
-- Lighthouse upgraded from info-only to gating
+Status (2026-05-26): Lighthouse promoted from info-only to gating.
+
+- [ ] Final pass on all 12 surfaces against design tokens (deferred:
+      ux-lead)
+- [ ] Axe-core grandfathered baseline burndown (deferred: qa-lead)
+- [ ] 4 hard-fail rules: touch-target floor (56 px primary, 44 px
+      secondary), no keyboard traps, reduced-motion respected on chrome, no
+      color-only signals for safety states (deferred)
+- [x] Lighthouse upgraded from info-only to gating: `lighthouserc.json`
+      now asserts categories:accessibility >= 0.85 (error), CLS <= 0.1
+      (error), perf and best-practices >= 0.8/0.85 (warn). The CI job
+      drops `continue-on-error` so a regression fails the build.
 
 ### Phase 8: Cleanup + perf validation (week 22)
 
-- `ais-burst.skstream` fixture gate: 200 AIS targets at 10 Hz for 60 s, p95 frame time ≤ 16 ms
-- If fails, fall back to coarse Map signal (documented in roadmap as risk)
-- size-limit budgets at destination: main JS ≤ 250 kB gz, OL chunk ≤ 250 kB gz, total initial transfer ≤ 350 kB gz (from current ~620 kB gz transfer)
-- Final dependency-cruiser + ESLint baseline zero
+Status (2026-05-26): infrastructure in place; perf gating still in
+size-limit baseline.
+
+- [ ] `ais-burst.skstream` fixture gate: 200 AIS targets at 10 Hz for 60
+      s, p95 frame time <= 16 ms (deferred: needs a Playwright trace harness)
+- [ ] size-limit budgets at destination: main JS <= 250 kB gz, OL chunk
+      <= 250 kB gz, total initial transfer <= 350 kB gz (current size-limit
+      configured; budgets stay at the Phase 0 floor until the destination
+      budget swap lands)
+- [x] Dependency-cruiser stays green (verified each gate)
+- [x] ESLint baseline: any 106 (from 157, -51); rxjs-x 26 (unchanged).
+      Per-file regressions block via `scripts/verify-baseline.mjs`.
 
 ---
 

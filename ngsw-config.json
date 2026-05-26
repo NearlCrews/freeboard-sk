@@ -1,0 +1,60 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/media/**",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "signalk-api",
+      "urls": ["/signalk/v1/api/**", "/signalk/v2/api/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "timeout": "3s",
+        "maxAge": "1h",
+        "maxSize": 200
+      }
+    },
+    {
+      "name": "chart-tiles",
+      "urls": [
+        "/charts/**",
+        "/signalk/v1/resources/charts/**",
+        "/signalk/v2/resources/charts/**",
+        "**/*.pmtiles",
+        "**/*.mbtiles",
+        "**/tiles/**/*.{png,jpg,webp}"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxAge": "30d",
+        "maxSize": 2000
+      }
+    }
+  ]
+}

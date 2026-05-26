@@ -182,12 +182,14 @@ jobs:
           script: pnpm size-limit --json
 
   lighthouse:
-    # Phase 0: info-only per roadmap section 5, plus section 3 Phase 7.
-    # Upgrades to gating once the Phase 7 a11y burndown completes.
-    name: lighthouse (info)
+    # Phase 7: gating. a11y minScore 0.85 hard-fails; cumulative-layout-shift
+    # caps at 0.1; perf and best-practices warn at 0.8 / 0.85; FCP / LCP /
+    # TBT warn-only until the a11y burndown finishes. Assertions live in
+    # lighthouserc.json.
+    name: lighthouse
     needs: [build]
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: false
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-pnpm

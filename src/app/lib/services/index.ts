@@ -8,3 +8,4 @@ export * from './indexeddb';
 export * from './app-db';
 
 export * from './wakelock.service';
+export * from './pwa.service';
