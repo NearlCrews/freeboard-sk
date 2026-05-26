@@ -31,33 +31,29 @@ export class FileInputComponent {
   readonly chosen = output<{ name: string; data: any }>();
   readonly invalid = output<{
     type: string;
-    value: string;
+    value: string | number;
     message: string;
   }>();
   readonly cleared = output<void>();
 
-  public avatar = null;
+  public avatar: string | ArrayBuffer | null = null;
 
   private changeDetectorRef = inject(ChangeDetectorRef);
 
-  constructor() {}
-
   //** detect file change event handler **
-  fileChange(input) {
+  fileChange(input: HTMLInputElement) {
     //** read all file in file list array **
-    this.readFiles(input.files);
+    if (input.files) this.readFiles(input.files);
   }
 
-  dragOver(e) {
+  dragOver(e: Event) {
     e.preventDefault();
   }
 
-  drop(ev) {
+  drop(ev: DragEvent) {
     ev.preventDefault();
-    if (ev.dataTransfer.files) {
-      if (ev.dataTransfer.files.length > 0) {
-        this.readFiles(ev.dataTransfer.files);
-      }
+    if (ev.dataTransfer?.files && ev.dataTransfer.files.length > 0) {
+      this.readFiles(ev.dataTransfer.files);
     }
   }
 
@@ -67,16 +63,21 @@ export class FileInputComponent {
   }
 
   //** process file list array **
-  readFiles(files, index = 0) {
+  readFiles(files: FileList, index = 0) {
     const reader = new FileReader();
-    const errmsg = { type: '', value: '', message: '' };
+    const errmsg: { type: string; value: string | number; message: string } = {
+      type: '',
+      value: '',
+      message: ''
+    };
 
     //** If there is a file **
-    if (index in files) {
+    const current = files.item(index);
+    if (current) {
       // ** Check file size **
-      if (this.maxfilesize && files[index].size > this.maxfilesize) {
+      if (this.maxfilesize && current.size > this.maxfilesize) {
         errmsg.type = 'SIZE';
-        errmsg.value = files[index].size;
+        errmsg.value = current.size;
         errmsg.message = `File size exceeds the accepted maximum size of ${this.maxfilesize}`;
         this.invalid.emit(errmsg); //** fire invalid size event
         return;
@@ -84,13 +85,10 @@ export class FileInputComponent {
       // ** Check file type **
       if (this.accept.includes('/*')) {
         // ** if <filetype>/* used in accept attribute
-        const ftype = files[index].type.substring(
-          0,
-          files[index].type.indexOf('/')
-        );
+        const ftype = current.type.substring(0, current.type.indexOf('/'));
         if (!this.accept.includes(ftype)) {
           errmsg.type = 'TYPE';
-          errmsg.value = files[index].type;
+          errmsg.value = current.type;
           errmsg.message = `File type does not match the accepted type (${this.accept}) specified.`;
           this.invalid.emit(errmsg); //** fire invalid type event
           return;
@@ -98,12 +96,12 @@ export class FileInputComponent {
       }
 
       // Start reading this file
-      this.readFile(files[index], reader, (result) => {
+      this.readFile(current, reader, (result: string | ArrayBuffer | null) => {
         // ** callback function **
         if (index === 0 && this.preview) {
           this.avatar = result;
         }
-        this.chosen.emit({ name: files[index].name, data: result }); //** fire chosen event
+        this.chosen.emit({ name: current.name, data: result }); //** fire chosen event
 
         this.readFiles(files, index + 1);
         // ****** resize image? **
@@ -133,7 +131,11 @@ export class FileInputComponent {
   }
 
   // ** read file contents **
-  readFile(file, reader, callback) {
+  readFile(
+    file: File,
+    reader: FileReader,
+    callback: (result: string | ArrayBuffer | null) => void
+  ) {
     reader.onload = () => {
       callback(reader.result);
     };
@@ -147,7 +149,12 @@ export class FileInputComponent {
   }
 
   // ** resize image file **
-  resize(img, MAX_WIDTH: number, MAX_HEIGHT: number, callback) {
+  resize(
+    img: HTMLImageElement,
+    MAX_WIDTH: number,
+    MAX_HEIGHT: number,
+    callback: (dataUrl: string, before: number, after: number) => void
+  ) {
     // This will wait until the img is loaded before calling this function
     return (img.onload = () => {
       // Get the images current width and height
@@ -174,6 +181,7 @@ export class FileInputComponent {
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
       ctx.drawImage(img, 0, 0, width, height);
 

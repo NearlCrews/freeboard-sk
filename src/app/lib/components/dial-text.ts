@@ -5,7 +5,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  OnChanges
 } from '@angular/core';
 
 /*********** Text Dial ***************
@@ -32,10 +33,10 @@ units: "<string>" dsisplay units,
   styleUrls: ['./dial-text.css']
 })
 export class TextDialComponent {
-  @Input() title: string;
-  @Input() subTitle: string;
-  @Input() value: string;
-  @Input() units: string;
+  @Input() title = '';
+  @Input() subTitle = '';
+  @Input() value = '';
+  @Input() units = '';
 }
 
 /*********** TTG Text Dial ***************
@@ -59,15 +60,15 @@ value: "<number>" TTG value in minutes
   `,
   styleUrls: ['./dial-text.css']
 })
-export class TTGDialComponent {
-  @Input() value: number;
-  @Input() subTitle: string;
-  protected ttg: string = '--';
-  protected units: string = 'min';
+export class TTGDialComponent implements OnChanges {
+  @Input() value: number | undefined;
+  @Input() subTitle = '';
+  protected ttg = '--';
+  protected units = 'min';
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.value) {
-      const cv = changes.value.currentValue;
+    if (changes['value']) {
+      const cv = changes['value'].currentValue as unknown;
       if (typeof cv !== 'number') {
         this.ttg = '--';
         this.units = 'min';
@@ -114,17 +115,19 @@ value: "<Date>" ETA date
   `,
   styleUrls: ['./dial-text.css']
 })
-export class ETADialComponent {
-  @Input() subTitle: string;
-  @Input() value: Date;
-  protected etaTime: string = '--';
-  protected etaDate: string = '--';
+export class ETADialComponent implements OnChanges {
+  @Input() subTitle = '';
+  @Input() value: Date | undefined;
+  protected etaTime = '--';
+  protected etaDate = '--';
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.value) {
-      const cv = changes.value.currentValue;
-      this.etaTime = cv.toLocaleTimeString().split(':').slice(0, 2).join(':');
-      this.etaDate = cv.toLocaleDateString();
+    if (changes['value']) {
+      const cv = changes['value'].currentValue as Date | undefined;
+      if (cv instanceof Date) {
+        this.etaTime = cv.toLocaleTimeString().split(':').slice(0, 2).join(':');
+        this.etaDate = cv.toLocaleDateString();
+      }
     }
   }
 }

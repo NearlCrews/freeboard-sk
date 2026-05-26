@@ -5,7 +5,8 @@ import {
   ViewChild,
   Input,
   output,
-  OnChanges
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,17 +47,17 @@ interface PiPVideoElement extends HTMLVideoElement {
   styles: [``]
 })
 export class PiPVideoComponent implements OnInit, OnChanges {
-  private pipVideo: PiPVideoElement;
+  private pipVideo!: PiPVideoElement;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pipWindow: any;
   pipMode = false;
-  vidUrl: string;
-  @Input() src: string;
+  vidUrl = '';
+  @Input() src = '';
   @Input() muted = true;
   readonly resize = output<[number, number]>();
   readonly change = output<boolean>();
   readonly click = output<boolean>();
-  @ViewChild('vid', { static: true }) vid: ElementRef;
+  @ViewChild('vid', { static: true }) vid!: ElementRef;
 
   //constructor() {}
 
@@ -87,8 +88,8 @@ export class PiPVideoComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnChanges(changes) {
-    if (changes.src && changes.src.currentValue) {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['src'] && changes['src'].currentValue) {
       this.vidUrl = this.src;
     }
   }
