@@ -72,7 +72,7 @@ export class SKNote {
   url: string;
   group: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authors: Array<any>;
+  authors: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>;
 
@@ -122,8 +122,8 @@ export class SKChart {
   description: string;
   region: string;
   scale = 250000;
-  layers: Array<string>;
-  bounds: Array<number>;
+  layers: string[];
+  bounds: number[];
   format: string;
   minZoom = 0;
   maxZoom = 24;
@@ -181,18 +181,19 @@ export class SKTrack {
 
 // ** SK Target Base class **
 class SKTargetBase {
-  id: string;
-  name: string;
-  mmsi: string;
-  position: Position = [0, 0];
+  id = '';
+  name = '';
+  mmsi = '';
+  position: Position | null = null;
   positionReceived = false;
-  positionTimestamp: string = '';
-  state: string;
+  positionTimestamp = '';
+  state = '';
   type: { id: number; name: string } = { id: -1, name: '' };
-  properties: { [key: string]: any } = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: Record<string, any> = {};
   lastUpdated = new Date();
-  callsignVhf: string;
-  callsignHf: string;
+  callsignVhf = '';
+  callsignHf = '';
   orientation = 0;
   virtual?: boolean;
 }
@@ -223,7 +224,7 @@ export class SKVessel extends SKTargetBase {
     nextPoint: {},
     previousPoint: {}
   };
-  courseCalcs: { [key: string]: any } = {};
+  courseCalcs: Record<string, any> = {};
   distanceToSelf: number;
   environment = {
     mode: null, // day | night
@@ -236,11 +237,11 @@ export class SKVessel extends SKTargetBase {
     beatAngle: null,
     gybeAngle: null
   };
-  racing: { [key: string]: string };
-  registrations: { [key: string]: string } = {};
+  racing: Record<string, string>;
+  registrations: Record<string, string> = {};
   resourceUpdates = []; // resource deltas
   sog: number;
-  track: Array<Position[]> = [];
+  track: Position[][] = [];
   vectors = {
     cog: [] // cog vector
   };
@@ -284,7 +285,7 @@ export class SKSaR extends SKTargetBase {
 // ** Aircraft Data **
 export class SKAircraft extends SKTargetBase {
   sog = 0;
-  track: Array<Position[]> = [];
+  track: Position[][] = [];
   constructor() {
     super();
   }
