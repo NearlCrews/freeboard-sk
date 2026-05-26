@@ -100,10 +100,10 @@ export async function initPMTilesXYZLayer(
     const x = +result[3];
     const y = +result[4];
 
-    void tiles.getZxy(z, x, y).then((tile_result) => {
+    void tiles.getZxy(z, x, y).then(async (tile_result) => {
       if (tile_result) {
         const blob = new Blob([tile_result.data]);
-        assignImageBlob(tile.getImage() as HTMLImageElement, blob);
+        await assignImageBlob(tile.getImage() as HTMLImageElement, blob);
         tile.setState(TileState.LOADED);
       } else {
         tile.setState(TileState.EMPTY);

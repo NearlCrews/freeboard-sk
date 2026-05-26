@@ -71,8 +71,8 @@ export function createAbortableRasterTileLoader(): (
 
     fetch(src, { signal: controller.signal })
       .then((r) => r.blob())
-      .then((blob) => {
-        assignImageBlob(img, blob);
+      .then((blob) => assignImageBlob(img, blob))
+      .then(() => {
         tile.setState(TileState.LOADED);
       })
       .catch((err) => {

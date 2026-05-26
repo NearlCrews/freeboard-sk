@@ -1,5 +1,6 @@
 import { Extent } from 'ol/extent';
 import { transformExtent } from 'ol/proj';
+import { applyChartNightFilter } from './night-mode-filter';
 
 /**
  * Assign a Blob to an image element via a temporary object URL, then revoke
@@ -7,9 +8,18 @@ import { transformExtent } from 'ol/proj';
  * the browser keeps the underlying Blob alive for the lifetime of the
  * document, which on tile-heavy maps quickly accumulates into hundreds of
  * megabytes of leaked memory.
+ *
+ * When chart night-mode is active and the runtime supports OffscreenCanvas,
+ * the blob is first tinted via `applyChartNightFilter` so the GPU sees
+ * already-red pixels. When night-mode is off the filter returns the original
+ * blob immediately, so the only added per-tile cost is one microtask hop.
  */
-export function assignImageBlob(img: HTMLImageElement, blob: Blob): string {
-  const objectUrl = URL.createObjectURL(blob);
+export async function assignImageBlob(
+  img: HTMLImageElement,
+  blob: Blob
+): Promise<void> {
+  const tinted = await applyChartNightFilter(blob);
+  const objectUrl = URL.createObjectURL(tinted);
   let revoked = false;
   const cleanup = () => {
     if (revoked) return;
@@ -19,7 +29,6 @@ export function assignImageBlob(img: HTMLImageElement, blob: Blob): string {
   img.addEventListener('load', cleanup, { once: true });
   img.addEventListener('error', cleanup, { once: true });
   img.src = objectUrl;
-  return objectUrl;
 }
 
 export function resolveLayerMaxZoom(

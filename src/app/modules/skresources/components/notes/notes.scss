@@ -1,8 +1,9 @@
 // Shared tokens + list-card styles for the notes module.
 // High-contrast palette targeted at chartplotter use: outdoor sunlight
-// readability in light mode and dim-cabin readability in dark mode. The
-// freeboard `app-night` filter overlays a red-tint on top of these
-// regardless, so we don't need a separate night-mode palette here.
+// readability in light mode and dim-cabin readability in dark mode.
+// Night-mode chrome is handled globally by the Phase 3 night-red OKLCH
+// tokens in tokens.css, so we don't need a separate night-mode palette
+// here.
 
 :host {
   --notes-bg: #ffffff;

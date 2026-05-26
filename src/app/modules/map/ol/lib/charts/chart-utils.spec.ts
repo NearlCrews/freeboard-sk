@@ -4,6 +4,7 @@ import {
   extentFromBounds,
   resolveLayerMaxZoom
 } from './chart-utils';
+import { chartNightMode } from './night-mode-filter';
 
 describe('resolveLayerMaxZoom', () => {
   it('returns chart max when over-zoom disabled', () => {
@@ -44,6 +45,9 @@ describe('assignImageBlob', () => {
   const FAKE_URL = 'blob:assignImageBlob-test';
 
   beforeEach(() => {
+    // Default to night-mode off so the filter is a pass-through. Tests
+    // that care about the night-mode branch flip it explicitly.
+    chartNightMode.set(false);
     createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue(FAKE_URL);
     revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
   });
@@ -53,34 +57,33 @@ describe('assignImageBlob', () => {
     revokeSpy.mockRestore();
   });
 
-  it('points the image at the freshly minted object URL', () => {
+  it('points the image at the freshly minted object URL', async () => {
     const img = new Image();
-    const result = assignImageBlob(img, new Blob(['x']));
+    await assignImageBlob(img, new Blob(['x']));
     expect(createSpy).toHaveBeenCalledTimes(1);
-    expect(result).toBe(FAKE_URL);
     expect(img.src).toContain(FAKE_URL);
     expect(revokeSpy).not.toHaveBeenCalled();
   });
 
-  it('revokes the object URL after the image load event', () => {
+  it('revokes the object URL after the image load event', async () => {
     const img = new Image();
-    assignImageBlob(img, new Blob(['x']));
+    await assignImageBlob(img, new Blob(['x']));
     img.dispatchEvent(new Event('load'));
     expect(revokeSpy).toHaveBeenCalledTimes(1);
     expect(revokeSpy).toHaveBeenCalledWith(FAKE_URL);
   });
 
-  it('revokes the object URL after the image error event', () => {
+  it('revokes the object URL after the image error event', async () => {
     const img = new Image();
-    assignImageBlob(img, new Blob(['x']));
+    await assignImageBlob(img, new Blob(['x']));
     img.dispatchEvent(new Event('error'));
     expect(revokeSpy).toHaveBeenCalledTimes(1);
     expect(revokeSpy).toHaveBeenCalledWith(FAKE_URL);
   });
 
-  it('only revokes once even if both events fire', () => {
+  it('only revokes once even if both events fire', async () => {
     const img = new Image();
-    assignImageBlob(img, new Blob(['x']));
+    await assignImageBlob(img, new Blob(['x']));
     img.dispatchEvent(new Event('load'));
     img.dispatchEvent(new Event('error'));
     expect(revokeSpy).toHaveBeenCalledTimes(1);

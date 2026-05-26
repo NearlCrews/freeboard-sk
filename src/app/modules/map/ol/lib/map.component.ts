@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   inject,
   Input,
@@ -17,6 +18,8 @@ import { Map, MapBrowserEvent } from 'ol';
 import MapEvent from 'ol/MapEvent';
 import ObjectEvent from 'ol/Object';
 import RenderEvent from 'ol/render/Event';
+import TileSource from 'ol/source/Tile';
+import type Layer from 'ol/layer/Layer';
 import { MapService } from './map.service';
 import { MapReadyEvent } from './models';
 import { AsyncSubject } from 'rxjs';
@@ -24,6 +27,7 @@ import { toLonLat, transformExtent } from 'ol/proj';
 import { Coordinate } from 'ol/coordinate';
 import { FeatureLike } from 'ol/Feature';
 import { Extent } from 'ol/extent';
+import { chartNightMode } from './charts/night-mode-filter';
 
 export interface FBMapEvent extends MapEvent {
   lonlat: Coordinate;
@@ -120,6 +124,26 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor() {
     this.changeDetectorRef.detach();
+    // Phase 4a Batch 3: when chart night-mode toggles, invalidate raster
+    // tile caches so subsequent fetches run through the OffscreenCanvas
+    // filter in `assignImageBlob`. Narrowing to TileSource avoids touching
+    // VectorSource feature layers (which would clear vessel/AIS state).
+    effect(() => {
+      chartNightMode();
+      if (!this.map) {
+        return;
+      }
+      this.map.getLayers().forEach((layer) => {
+        const tileLayer = layer as Layer<TileSource>;
+        if (typeof tileLayer.getSource !== 'function') {
+          return;
+        }
+        const source = tileLayer.getSource();
+        if (source instanceof TileSource) {
+          source.refresh();
+        }
+      });
+    });
   }
 
   ngOnInit() {
