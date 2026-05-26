@@ -693,7 +693,10 @@ export class FBMapComponent
 
   protected onMapPointerDown(e: FBPointerEvent) {
     this.mouse.coords = GeoUtils.normaliseCoords(e.lonlat as Position);
-    const orig = e.originalEvent as PointerEvent;
+    // OL fires MapBrowserEvent synthetically in some interaction states
+    // (e.g. drag-recovery, autopan) with no originalEvent.
+    const orig = e.originalEvent as PointerEvent | undefined;
+    if (!orig) return;
     this.contextMenuPosition.x = orig.clientX + 'px';
     this.contextMenuPosition.y = orig.clientY + 'px';
   }
