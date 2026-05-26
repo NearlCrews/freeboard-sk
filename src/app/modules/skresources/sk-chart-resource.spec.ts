@@ -107,16 +107,20 @@ describe('SKChart constructor preserves Signal K chart-resource fields', () => {
     expect(chart.url.includes('.pmtiles')).toBe(true);
   });
 
-  it('returns undefined fields for an empty constructor so consumers can detect missing metadata', () => {
+  it('returns falsy defaults for an empty constructor so consumers can detect missing metadata', () => {
+    // After the Phase 5 strict ratchet, string fields default to '' (empty)
+    // and bounds defaults to []. Both remain falsy / length-0 for the same
+    // `if (chart.url)` and `chart.bounds.length` checks consumers used to
+    // make against the prior undefined defaults.
     const chart = new SKChart();
-    expect(chart.url).toBeUndefined();
-    expect(chart.identifier).toBeUndefined();
-    expect(chart.name).toBeUndefined();
-    expect(chart.type).toBeUndefined();
-    expect(chart.format).toBeUndefined();
-    expect(chart.bounds).toBeUndefined();
-    expect(chart.style).toBeUndefined();
-    expect(chart.source).toBeUndefined();
+    expect(chart.url).toBe('');
+    expect(chart.identifier).toBe('');
+    expect(chart.name).toBe('');
+    expect(chart.type).toBe('');
+    expect(chart.format).toBe('');
+    expect(chart.bounds).toEqual([]);
+    expect(chart.style).toBe('');
+    expect(chart.source).toBe('');
   });
 
   it('pins array, scale, and zoom defaults so consumers can rely on non-null fallbacks', () => {

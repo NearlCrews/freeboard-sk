@@ -16,7 +16,6 @@ import {
   TrackDialog,
   ChartPropertiesDialog
 } from '.';
-import { NoteDialog } from './components/notes/note-dialog';
 import { processUrlTokens } from 'src/app/app.config';
 
 import {
@@ -56,10 +55,10 @@ import type {
   FBTracks,
   FBTrack,
   FBVessels,
+  FBVessel,
   ActionResult,
   PathValue
 } from 'src/app/types';
-import { groupBy } from 'rxjs/operators';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { ChartSeedJobDialog } from './components/charts/chart-seedjob-dialog';
 
@@ -72,6 +71,53 @@ export type SKResourceType =
   | 'tracks';
 
 export type SKSelection = SKResourceType | 'aisTargets' | 'infolayers';
+
+interface ReOpenState {
+  key?: string;
+  value?: string;
+  readOnly?: boolean;
+}
+
+// Typed bracket access into IAppConfig.selections without losing the
+// discriminated keys. selections.tracks is the only string[] | null entry;
+// the others are string[]. Array.isArray() guards the null case. SKSelection
+// includes 'notes' but IAppConfig.selections has no notes field (no caller
+// passes 'notes' here), so the Record reuses the string[] shape.
+type SelectionsRecord = Record<SKSelection, string[] | null>;
+
+// Server response shape for the v1 /vessels endpoint, narrowed to the
+// fields transformVessel reads. All nested values are best-effort; the
+// SK delta model marks every leaf optional.
+interface RawVesselValue<T> {
+  value?: T | null;
+}
+interface RawVessel {
+  mmsi?: string;
+  name?: string;
+  flag?: RawVesselValue<string>;
+  port?: RawVesselValue<string>;
+  navigation?: {
+    position?: RawVesselValue<{ longitude: number; latitude: number }>;
+    destination?: {
+      commonName?: RawVesselValue<string>;
+      eta?: RawVesselValue<string>;
+    };
+    state?: RawVesselValue<string>;
+  };
+  design?: {
+    aisShipType?: RawVesselValue<{ id: number | null; name: string }>;
+    length?: RawVesselValue<unknown>;
+    beam?: RawVesselValue<unknown>;
+    draft?: RawVesselValue<unknown>;
+    airHeight?: RawVesselValue<unknown>;
+  };
+  communication?: {
+    callsignVhf?: string;
+    callsignHf?: string;
+  };
+  registrations?: Record<string, string>;
+}
+type RawVessels = Record<string, RawVessel>;
 
 // Hoisted so `fromCache()` does not re-allocate a 6-element array
 // per call (called on every per-feature interaction lookup).
@@ -87,12 +133,19 @@ const CACHED_COLLECTIONS: ReadonlySet<SKResourceType> = new Set([
 // ** Signal K resource operations
 @Injectable({ providedIn: 'root' })
 export class SKResourceService {
-  private reOpen: { key?: string; value?: string; readOnly?: boolean };
+  private reOpen: ReOpenState = {};
 
   private app = inject(AppFacade);
   private dialog = inject(MatDialog);
   private signalk = inject(SignalKClient);
   private worker = inject(SKWorkerService);
+
+  // IAppConfig.selections is typed with discriminated property keys (no index
+  // signature) so direct `selections[key]` reads trip TS4111 under
+  // noPropertyAccessFromIndexSignature. Narrow it to a Record view here.
+  private selections(): SelectionsRecord {
+    return this.app.config.selections as unknown as SelectionsRecord;
+  }
 
   constructor() {
     this.worker
@@ -107,7 +160,7 @@ export class SKResourceService {
    * @returns true: is filtered, false: not filtered.
    */
   public selectionIsFiltered(collection: SKSelection): boolean {
-    return Array.isArray(this.app.config.selections[collection]);
+    return Array.isArray(this.selections()[collection]);
   }
 
   /**
@@ -116,31 +169,28 @@ export class SKResourceService {
    * @id Resource identifier.
    * @returns true if identifier is in the selection list.
    */
-  public selectionHas(collection: SKSelection, id: string) {
-    if (
-      !this.app.config.selections[collection] ||
-      !this.selectionIsFiltered(collection)
-    ) {
+  public selectionHas(collection: SKSelection, id: string): boolean {
+    const list = this.selections()[collection];
+    if (!Array.isArray(list)) {
       return false;
     }
-    return this.app.config.selections[collection].includes(id);
+    return list.includes(id);
   }
   /**
    * @description Add resource ids to selection list
    * @param collection
    * @id Resource identifier or array of identifiers to add to selection list
    */
-  public selectionAdd(collection: SKSelection, id: string | string[]) {
-    if (typeof this.app.config.selections[collection] === 'undefined') {
+  public selectionAdd(collection: SKSelection, id: string | string[]): void {
+    const sel = this.selections();
+    const current = sel[collection];
+    if (typeof current === 'undefined') {
       return;
     }
-    if (this.selectionIsFiltered(collection)) {
-      let ids = typeof id === 'string' ? [id] : id;
-      ids = ids.filter(
-        (s) => !this.app.config.selections[collection].includes(s)
-      );
-      this.app.config.selections[collection] =
-        this.app.config.selections[collection].concat(ids);
+    if (Array.isArray(current)) {
+      const ids = typeof id === 'string' ? [id] : id;
+      const added = ids.filter((s) => !current.includes(s));
+      sel[collection] = current.concat(added);
       this.app.saveConfig();
     }
   }
@@ -150,15 +200,15 @@ export class SKResourceService {
    * @param collection
    * @id Resource identifier or array of identifiers to remove from selection list
    */
-  public selectionRemove(collection: SKSelection, id: string | string[]) {
-    if (typeof this.app.config.selections[collection] === 'undefined') {
+  public selectionRemove(collection: SKSelection, id: string | string[]): void {
+    const sel = this.selections();
+    const current = sel[collection];
+    if (typeof current === 'undefined') {
       return;
     }
-    if (this.selectionIsFiltered(collection)) {
+    if (Array.isArray(current)) {
       const ids = typeof id === 'string' ? [id] : id;
-      this.app.config.selections[collection] = this.app.config.selections[
-        collection
-      ].filter((s: string) => !ids.includes(s));
+      sel[collection] = current.filter((s: string) => !ids.includes(s));
       this.app.saveConfig();
     }
   }
@@ -167,8 +217,8 @@ export class SKResourceService {
    * @description Sets selection list to null to indicate list is unfiltered.
    * @param collection
    */
-  public selectionUnfilter(collection: SKSelection) {
-    this.app.config.selections[collection] = null;
+  public selectionUnfilter(collection: SKSelection): void {
+    this.selections()[collection] = null;
     this.app.saveConfig();
   }
 
@@ -176,8 +226,8 @@ export class SKResourceService {
    * @description Empties the selection list.
    * @param collection
    */
-  public selectionClear(collection: SKSelection) {
-    this.app.config.selections[collection] = [];
+  public selectionClear(collection: SKSelection): void {
+    this.selections()[collection] = [];
     this.app.saveConfig();
   }
 
@@ -186,13 +236,13 @@ export class SKResourceService {
    * @param collection
    * @param fullList Array of resource identifiers
    */
-  public selectionClean(collection: SKSelection, fullList: string[]) {
-    if (!Array.isArray(this.app.config.selections[collection])) {
+  public selectionClean(collection: SKSelection, fullList: string[]): void {
+    const sel = this.selections();
+    const current = sel[collection];
+    if (!Array.isArray(current)) {
       return;
     }
-    this.app.config.selections[collection] = this.app.config.selections[
-      collection
-    ].filter((i) => fullList.includes(i));
+    sel[collection] = current.filter((i) => fullList.includes(i));
     this.app.saveConfig();
   }
 
@@ -213,7 +263,7 @@ export class SKResourceService {
         'notes',
         `href=/resources/${collection}/${id}`
       );
-    } catch (err) {
+    } catch {
       return [];
     }
   }
@@ -246,24 +296,36 @@ export class SKResourceService {
    * @params id Resource identifier
    * @returns resource entry
    */
-  public fromCache(collection: SKResourceType, id: string) {
+  public fromCache(c: 'routes', id: string): FBRoute | undefined;
+  public fromCache(c: 'waypoints', id: string): FBWaypoint | undefined;
+  public fromCache(c: 'notes', id: string): FBNote | undefined;
+  public fromCache(c: 'regions', id: string): FBRegion | undefined;
+  public fromCache(c: 'tracks', id: string): FBTrack | undefined;
+  public fromCache(c: 'charts', id: string): FBChart | undefined;
+  public fromCache(
+    collection: SKResourceType,
+    id: string
+  ): FBRoute | FBWaypoint | FBNote | FBRegion | FBTrack | FBChart | undefined;
+  public fromCache(
+    collection: SKResourceType,
+    id: string
+  ): FBRoute | FBWaypoint | FBNote | FBRegion | FBTrack | FBChart | undefined {
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
         this.app.showAlert('Error', 'Collection not found!');
-        return;
+        return undefined;
       }
-      return cache().find((r) => r[0] === id);
-    } else {
-      if (
-        !this.app.data[collection] ||
-        !Array.isArray(this.app.data[collection])
-      ) {
-        return;
-      }
-      const item = this.app.data[collection].find((i) => i[0] === id);
-      return item ?? undefined;
+      return cache().find((r) => r[0] === id) as
+        | FBRoute
+        | FBWaypoint
+        | FBNote
+        | FBRegion
+        | FBTrack
+        | FBChart
+        | undefined;
     }
+    return undefined;
   }
 
   // ******** SK Resource operations ********************
@@ -291,15 +353,28 @@ export class SKResourceService {
       );
       skf?.subscribe(
         (res: Routes | Waypoints | Regions | Notes | Charts | Tracks) => {
-          const list: any = [];
-          Object.keys(res).forEach((id: string) => {
+          const list: T[] = [];
+          const bag = res as Record<
+            string,
+            | RouteResource
+            | WaypointResource
+            | RegionResource
+            | NoteResource
+            | ChartResource
+            | TrackResource
+          >;
+          Object.keys(bag).forEach((id: string) => {
+            const entry = bag[id];
+            if (!entry) {
+              return;
+            }
             list.push([
               id,
-              this.transform(collection, res[id], id),
+              this.transform(collection, entry, id),
               !this.selectionIsFiltered(collection)
                 ? true
                 : this.selectionHas(collection, id)
-            ]);
+            ] as unknown as T);
           });
           resolve(list);
         },
@@ -312,9 +387,12 @@ export class SKResourceService {
    * @description Fetch resource with specified identifier from Signal K server.
    * @param collection The resource collection to which the resource belongs e.g. routes, waypoints, etc.
    * @param id  Resource identifier
-   * @returns Promise<any> (rejects with HTTPErrorResponse)
+   * @returns Promise<SK resource class> (rejects with HTTPErrorResponse)
    */
-  public fromServer(collection: SKResourceType, id: string): Promise<any> {
+  public fromServer(
+    collection: SKResourceType,
+    id: string
+  ): Promise<SKRoute | SKWaypoint | SKRegion | SKNote | SKChart | SKTrack> {
     return new Promise((resolve, reject) => {
       this.signalk.api
         .get(this.app.skApiVersion, `/resources/${collection}/${id}`)
@@ -326,6 +404,7 @@ export class SKResourceService {
               | RegionResource
               | NoteResource
               | ChartResource
+              | TrackResource
           ) => resolve(this.transform(collection, res, id)),
           (err: HttpErrorResponse) => reject(err)
         );
@@ -408,7 +487,7 @@ export class SKResourceService {
       | SKTrack
       | SKInfoLayer,
     provider?: string
-  ): Promise<any> {
+  ): Promise<ActionResult> {
     const p = provider ? `?provider=${provider}` : '';
     return new Promise((resolve, reject) => {
       this.signalk.api
@@ -440,12 +519,12 @@ export class SKResourceService {
       | SKChart
       | SKTrack
       | SKInfoLayer
-  ): Promise<any> {
+  ): Promise<ActionResult & { id?: string }> {
     return new Promise((resolve, reject) => {
       this.signalk.api
         .post(this.app.skApiVersion, `/resources/${collection}`, data)
         .subscribe(
-          (res: ActionResult) => resolve(res),
+          (res: ActionResult & { id?: string }) => resolve(res),
           (err: HttpErrorResponse) => reject(err)
         );
     });
@@ -455,34 +534,38 @@ export class SKResourceService {
    * @description Handle worker.resource$ message
    * @param msg Array of PathValue objects
    */
-  private processResourceMessage(msg: PathValue[]) {
+  private processResourceMessage(msg: PathValue[]): void {
     if (!Array.isArray(msg)) {
       return;
     }
-    const action = {
+    type ActionKey = 'routes' | 'waypoints' | 'notes' | 'regions' | 'charts';
+    const action: Record<ActionKey, boolean> = {
       routes: false,
       waypoints: false,
       notes: false,
       regions: false,
       charts: false
     };
-    msg.forEach((item) => {
+    const sel = this.selections();
+    msg.forEach((item: PathValue) => {
       const p = item.path.split('.');
-      if (p.length === 3) {
-        const collection = p[1] as SKResourceType;
-        const id = p[2];
-        if (collection in action) {
-          action[collection] = true;
-        }
-        if (this.selectionIsFiltered(collection) && !item.value) {
-          // deleted - remove from selections
-          if (this.app.config.selections[collection].includes(id)) {
-            this.app.config.selections[collection].splice(
-              this.app.config.selections[collection].indexOf(id),
-              1
-            );
-            this.app.saveConfig();
-          }
+      if (p.length !== 3) {
+        return;
+      }
+      const collection = p[1] as SKResourceType;
+      const id = p[2];
+      if (id === undefined) {
+        return;
+      }
+      if (collection in action) {
+        action[collection as ActionKey] = true;
+      }
+      if (this.selectionIsFiltered(collection) && !item.value) {
+        // delete event from server: drop the id from the selection list
+        const list = sel[collection];
+        if (Array.isArray(list) && list.includes(id)) {
+          list.splice(list.indexOf(id), 1);
+          this.app.saveConfig();
         }
       }
     });
@@ -540,41 +623,39 @@ export class SKResourceService {
    * @param chtList List of FBChart objects
    * @returns Updated FBChart array
    */
-  public appendOSM(chtList: FBCharts) {
-    // ** default OSM charts **
-    const OSM: FBCharts = [
-      [
-        'openstreetmap',
-        new SKChart({
-          name: 'World Map',
-          description: 'Open Street Map'
-        }),
-        !this.app
-          ? true
-          : !this.selectionIsFiltered('charts')
-            ? true
-            : this.app.config.selections.charts.includes('openstreetmap')
-      ],
-      [
-        'openseamap',
-        new SKChart({
-          name: 'Sea Map',
-          description: 'Open Sea Map',
-          url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
-          minzoom: 1,
-          maxzoom: 24,
-          bounds: [-180, -90, 180, 90],
-          type: 'tilelayer'
-        }),
-        !this.app
-          ? true
-          : !this.selectionIsFiltered('charts')
-            ? true
-            : this.app.config.selections.charts.includes('openseamap')
-      ]
+  public appendOSM(chtList: FBCharts): FBCharts {
+    const isChartSelected = (id: string): boolean => {
+      if (!this.app) {
+        return true;
+      }
+      if (!this.selectionIsFiltered('charts')) {
+        return true;
+      }
+      return this.selectionHas('charts', id);
+    };
+    const openStreetMap: FBChart = [
+      'openstreetmap',
+      new SKChart({
+        name: 'World Map',
+        description: 'Open Street Map'
+      }),
+      isChartSelected('openstreetmap')
     ];
-    chtList.push(OSM[1]);
-    chtList.unshift(OSM[0]);
+    const openSeaMap: FBChart = [
+      'openseamap',
+      new SKChart({
+        name: 'Sea Map',
+        description: 'Open Sea Map',
+        url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
+        minzoom: 1,
+        maxzoom: 24,
+        bounds: [-180, -90, 180, 90],
+        type: 'tilelayer'
+      }),
+      isChartSelected('openseamap')
+    ];
+    chtList.push(openSeaMap);
+    chtList.unshift(openStreetMap);
     return chtList;
   }
 
@@ -623,13 +704,17 @@ export class SKResourceService {
     }
     if (chart.type) {
       // ensure host is in url
-      if (chart.url.startsWith('/') || !chart.url.startsWith('http')) {
-        chart.url = this.app.hostDef.url + chart.url;
+      if (
+        chart.url &&
+        (chart.url.startsWith('/') || !chart.url.startsWith('http'))
+      ) {
+        chart.url = (this.app.hostDef.url ?? '') + chart.url;
       }
     }
-    // map local chart opacity
-    if (this.app.config.selections.chartOpacity[id]) {
-      chart.defaultOpacity = this.app.config.selections.chartOpacity[id];
+    // map local chart opacity (chartOpacity is a Record<string, number>)
+    const localOpacity = this.app.config.selections.chartOpacity[id];
+    if (typeof localOpacity === 'number') {
+      chart.defaultOpacity = localOpacity;
     }
     return new SKChart(chart);
   }
@@ -638,7 +723,7 @@ export class SKResourceService {
    * @description Calculate the aggregated min / max zoom from the selected charts
    * @param useDefault Uses the default extent when true
    */
-  public setMapZoomRange(useDefault?: boolean) {
+  public setMapZoomRange(useDefault?: boolean): void {
     const defaultExtent = {
       min: 2,
       max: 28
@@ -651,7 +736,7 @@ export class SKResourceService {
         min: 1000,
         max: -1
       };
-      this.chartCacheSignal().forEach((c) => {
+      this.chartCacheSignal().forEach((c: FBChart) => {
         if (c[2]) {
           // selected
           if (c[1].minZoom < derivedExtent.min) {
@@ -699,8 +784,8 @@ export class SKResourceService {
    * @param chartList FBChart array
    * @returns Sorted FBChart array
    */
-  private sortByScaleDesc(chartList: FBCharts) {
-    return chartList.sort((a: [string, SKChart], b: [string, SKChart]) => {
+  private sortByScaleDesc(chartList: FBCharts): FBCharts {
+    return chartList.sort((a: FBChart, b: FBChart) => {
       return b[1].scale - a[1].scale;
     });
   }
@@ -800,14 +885,14 @@ export class SKResourceService {
    * @param id Chart identifier
    * @param value Opacity value to set (0-1)
    */
-  public chartSetOpacity(id: string, value: number) {
+  public chartSetOpacity(id: string, value: number): void {
     if (!id || !Number.isFinite(value)) {
       return;
     }
     const idx = this.chartCacheSignal().findIndex((c: FBChart) => c[0] === id);
     if (idx !== -1) {
       this.chartCacheSignal.update((current: FBCharts) => {
-        return current.map((c: FBChart) => {
+        return current.map((c: FBChart): FBChart => {
           if (c[0] !== id) {
             return c;
           }
@@ -839,7 +924,7 @@ export class SKResourceService {
    * @description Create new Chart and save to server
    * @param chart
    */
-  public newChart(chart: SKChart) {
+  public newChart(chart: SKChart): void {
     if (!chart) {
       return;
     }
@@ -853,9 +938,11 @@ export class SKResourceService {
         if (r.save) {
           try {
             const cht = await this.postToServer('charts', r.chart);
-            this.selectionAdd('charts', cht.id);
+            if (cht.id) {
+              this.selectionAdd('charts', cht.id);
+            }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -865,7 +952,7 @@ export class SKResourceService {
    * @description Fetch Chart with supplied id and display edit dialog
    * @param id chart identifier
    */
-  public async editChartInfo(id: string) {
+  public async editChartInfo(id: string): Promise<void> {
     if (!id) {
       return;
     }
@@ -883,7 +970,7 @@ export class SKResourceService {
     } else {
       try {
         this.app.sIsFetching.set(true);
-        chart = await this.fromServer('charts', id);
+        chart = (await this.fromServer('charts', id)) as SKChart;
         this.app.sIsFetching.set(false);
       } catch (err) {
         this.app.sIsFetching.set(false);
@@ -900,7 +987,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; chart: SKChart }) => {
         if (r.save) {
           this.putToServer('charts', id, r.chart).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
           );
         }
       });
@@ -908,26 +995,30 @@ export class SKResourceService {
 
   /**
    * @description Seed chart cache for the selected area (charts-plugin)
-   * @param chart SKChart object
-   * @param bbox Bounding box
+   * @param chart FBChart tuple [id, SKChart, selected]
+   * @param bbox Bounding box [southwest, northeast]
    */
-  public async seedChartCache(chart: SKChart, bbox: Position[]) {
+  public async seedChartCache(chart: FBChart, bbox: Position[]): Promise<void> {
     if (!chart || !Array.isArray(bbox)) {
       this.app.showAlert('Selection Error', 'Invalid selection data!');
       return;
     }
-    const parseBbox = (coords: Position[]) => {
-      return {
-        minLon: coords[0][0],
-        minLat: coords[0][1],
-        maxLon: coords[1][0],
-        maxLat: coords[1][1]
-      };
-    };
     if (bbox.length !== 2) {
       this.app.showAlert('Selection Error', 'Invalid selection!');
       return;
     }
+    const sw = bbox[0];
+    const ne = bbox[1];
+    if (!sw || !ne) {
+      this.app.showAlert('Selection Error', 'Invalid selection!');
+      return;
+    }
+    const parsedBbox = {
+      minLon: sw[0],
+      minLat: sw[1],
+      maxLon: ne[0],
+      maxLat: ne[1]
+    };
     // confirm cache seeding job submission
     this.dialog
       .open(ChartSeedJobDialog, {
@@ -937,7 +1028,7 @@ export class SKResourceService {
       .subscribe((maxZoom: number) => {
         if (maxZoom > 0) {
           const req = {
-            bbox: parseBbox(bbox),
+            bbox: parsedBbox,
             maxZoom: maxZoom
           };
           this.app.debug(
@@ -946,13 +1037,13 @@ export class SKResourceService {
           this.signalk
             .post(`/signalk/chart-tiles/cache/${chart[0]}`, req)
             .subscribe({
-              next: (res) => {
+              next: () => {
                 this.app.showAlert(
                   'Chart Cache',
                   `Tile cache seed job created successfully.`
                 );
               },
-              error: (err) => {
+              error: (err: HttpErrorResponse) => {
                 this.app.parseHttpErrorResponse(err);
               }
             });
@@ -969,7 +1060,7 @@ export class SKResourceService {
    * @description Refresh Route cache with entries fetched from sk server
    * @param query Filter criteria for routes in placed in the cache
    */
-  public async refreshRoutes(query?: string) {
+  public async refreshRoutes(query?: string): Promise<void> {
     if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
@@ -994,16 +1085,14 @@ export class SKResourceService {
    * @returns SKRoute object
    */
   private transformRoute(rte: RouteResource, id: string): SKRoute {
-    // parse as v2
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof (rte as any).start !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (rte as any).start;
+    // parse as v2: legacy servers ship start/end at the top level
+    const rteWithLegacy = rte as RouteResource &
+      Partial<{ start: unknown; end: unknown }>;
+    if (typeof rteWithLegacy.start !== 'undefined') {
+      delete rteWithLegacy.start;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof (rte as any).end !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (rte as any).end;
+    if (typeof rteWithLegacy.end !== 'undefined') {
+      delete rteWithLegacy.end;
     }
     if (typeof rte.name === 'undefined') {
       rte.name = 'Rte-' + id.slice(-6);
@@ -1011,34 +1100,35 @@ export class SKResourceService {
     if (rte.feature && !rte.feature.properties) {
       rte.feature.properties = {};
     }
-    if (typeof rte.feature?.properties?.points !== 'undefined') {
+    const props = rte.feature?.properties as
+      | Record<string, unknown>
+      | undefined;
+    if (props && typeof props['points'] !== 'undefined') {
       // check for v2 array
-      if (!Array.isArray(rte.feature.properties.points)) {
+      if (!Array.isArray(props['points'])) {
         // legacy format
-        if (
-          rte.feature.properties.points.names &&
-          Array.isArray(rte.feature.properties.points.names)
-        ) {
-          const pts = [];
-          rte.feature.properties.points.names.forEach((pt: string) => {
-            if (pt) {
-              pts.push({ name: pt });
-            } else {
-              pts.push({ name: '' });
-            }
+        const legacyPoints = props['points'] as {
+          names?: unknown;
+        };
+        if (Array.isArray(legacyPoints.names)) {
+          const pts: { name: string }[] = [];
+          (legacyPoints.names as string[]).forEach((pt: string) => {
+            pts.push({ name: pt ?? '' });
           });
-          rte.feature.properties.coordinatesMeta = pts;
-          delete rte.feature.properties.points;
+          props['coordinatesMeta'] = pts;
+          delete props['points'];
         }
       }
     }
     // ensure coords & coordsMeta array lengths are aligned
-    if (
-      rte.feature?.properties?.coordinatesMeta &&
-      rte.feature.properties.coordinatesMeta.length !==
-        rte.feature.geometry.coordinates.length
-    ) {
-      delete rte.feature.properties.coordinatesMeta;
+    if (rte.feature && props) {
+      const cm = props['coordinatesMeta'];
+      if (
+        Array.isArray(cm) &&
+        cm.length !== rte.feature.geometry.coordinates.length
+      ) {
+        delete props['coordinatesMeta'];
+      }
     }
     return new SKRoute(rte);
   }
@@ -1111,13 +1201,16 @@ export class SKResourceService {
   public newRouteAt(
     coordinates: LineString,
     meta?: { href?: string; name?: string }[]
-  ) {
+  ): void {
     if (!coordinates) {
       return;
     }
     const rte = this.buildRoute(coordinates);
     if (meta && Array.isArray(meta)) {
-      rte[1].feature.properties.coordinatesMeta = meta;
+      if (!rte[1].feature.properties) {
+        rte[1].feature.properties = {};
+      }
+      rte[1].feature.properties['coordinatesMeta'] = meta;
     }
     this.newRoute(rte[1]);
   }
@@ -1126,7 +1219,7 @@ export class SKResourceService {
    * @description Create new Route and save to server
    * @param route
    */
-  private newRoute(route: SKRoute) {
+  private newRoute(route: SKRoute): void {
     if (!route) {
       return;
     }
@@ -1143,9 +1236,11 @@ export class SKResourceService {
         if (r.save) {
           try {
             const rte = await this.postToServer('routes', r.route);
-            this.selectionAdd('routes', rte.id);
+            if (rte.id) {
+              this.selectionAdd('routes', rte.id);
+            }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -1155,14 +1250,14 @@ export class SKResourceService {
    * @description Fetch Route with supplied id and display edit dialog
    * @param id route identifier
    */
-  public async editRouteInfo(id: string) {
+  public async editRouteInfo(id: string): Promise<void> {
     if (!id) {
       return;
     }
     let rte: SKRoute;
     try {
       this.app.sIsFetching.set(true);
-      rte = await this.fromServer('routes', id);
+      rte = (await this.fromServer('routes', id)) as SKRoute;
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
@@ -1182,7 +1277,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; route: SKRoute }) => {
         if (r.save) {
           this.putToServer('routes', id, r.route).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
           );
         }
       });
@@ -1192,7 +1287,7 @@ export class SKResourceService {
    * @description Confirm deletion of Route with supplied id
    * @param id Route identifier
    */
-  public async deleteRoute(id: string) {
+  public async deleteRoute(id: string): Promise<void> {
     if (!id) {
       return;
     }
@@ -1217,7 +1312,7 @@ export class SKResourceService {
               });
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -1233,9 +1328,8 @@ export class SKResourceService {
   public updateRouteCoords(
     id: string,
     coords: Position[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    coordsMeta?: any[]
-  ) {
+    coordsMeta?: { name?: string; href?: string }[]
+  ): void {
     const r = this.fromCache('routes', id);
     if (!r) {
       return;
@@ -1245,10 +1339,13 @@ export class SKResourceService {
     rte.distance = GeoUtils.routeLength(rte.feature.geometry.coordinates);
 
     if (coordsMeta) {
-      rte.feature.properties.coordinatesMeta = coordsMeta;
+      if (!rte.feature.properties) {
+        rte.feature.properties = {};
+      }
+      rte.feature.properties['coordinatesMeta'] = coordsMeta;
     }
     this.putToServer('routes', id, rte).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     });
   }
 
@@ -1261,7 +1358,7 @@ export class SKResourceService {
    * @description Refresh Waypoint cache with entries fetched from sk server
    * @param query Filter criteria for wapoints in placed in the cache
    */
-  public async refreshWaypoints(query?: string) {
+  public async refreshWaypoints(query?: string): Promise<void> {
     if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
@@ -1286,34 +1383,37 @@ export class SKResourceService {
    * @returns SKWaypoint object
    */
   private transformWaypoint(wpt: WaypointResource, id: string): SKWaypoint {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof (wpt as any).position !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (wpt as any).position;
+    // legacy servers ship a top-level `position` outside the GeoJSON feature
+    const wptWithLegacy = wpt as WaypointResource &
+      Partial<{ position: unknown }>;
+    if (typeof wptWithLegacy.position !== 'undefined') {
+      delete wptWithLegacy.position;
     }
     if (wpt.feature && !wpt.feature.properties) {
       wpt.feature.properties = {};
     }
+    const props = wpt.feature?.properties as
+      | Record<string, unknown>
+      | undefined;
     if (!wpt.name) {
-      if (wpt.feature.properties.name) {
-        wpt.name = wpt.feature.properties.name;
-        delete wpt.feature.properties.name;
+      if (props && typeof props['name'] === 'string') {
+        wpt.name = props['name'] as string;
+        delete props['name'];
       } else {
-        const name = 'Wpt-' + id.slice(-6);
-        wpt.name = name;
+        wpt.name = 'Wpt-' + id.slice(-6);
       }
     }
-    if (!wpt.description) {
-      if (wpt.feature.properties.description) {
-        wpt.description = wpt.feature.properties.description;
-        delete wpt.feature.properties.description;
-      } else if (wpt.feature.properties.cmt) {
-        wpt.description = wpt.feature.properties.cmt;
+    if (!wpt.description && props) {
+      if (typeof props['description'] === 'string') {
+        wpt.description = props['description'] as string;
+        delete props['description'];
+      } else if (typeof props['cmt'] === 'string') {
+        wpt.description = props['cmt'] as string;
       }
     }
-    if (wpt.feature.properties.skType) {
-      wpt.type = wpt.feature.properties.skType;
-      delete wpt.feature.properties.skType;
+    if (props && typeof props['skType'] === 'string') {
+      wpt.type = props['skType'] as string;
+      delete props['skType'];
     }
     if (wpt.type) {
       wpt.type = wpt.type.toLowerCase();
@@ -1398,7 +1498,7 @@ export class SKResourceService {
    * @description Create new Waypoint and save to server
    * @param waypoint
    */
-  private newWaypoint(waypoint: SKWaypoint) {
+  private newWaypoint(waypoint: SKWaypoint): void {
     if (!waypoint) {
       return;
     }
@@ -1415,9 +1515,11 @@ export class SKResourceService {
         if (r.save) {
           try {
             const w = await this.postToServer('waypoints', r.waypoint);
-            this.selectionAdd('routes', w.id);
+            if (w.id) {
+              this.selectionAdd('routes', w.id);
+            }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -1427,14 +1529,14 @@ export class SKResourceService {
    * @description Fetch Waypoint with supplied id and display edit dialog
    * @param id waypoint identifier
    */
-  public async editWaypointInfo(id: string) {
+  public async editWaypointInfo(id: string): Promise<void> {
     if (!id) {
       return;
     }
     let wpt: SKWaypoint;
     try {
       this.app.sIsFetching.set(true);
-      wpt = await this.fromServer('waypoints', id);
+      wpt = (await this.fromServer('waypoints', id)) as SKWaypoint;
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
@@ -1454,7 +1556,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; waypoint: SKWaypoint }) => {
         if (r.save) {
           this.putToServer('waypoints', id, r.waypoint).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
           );
         }
       });
@@ -1464,7 +1566,7 @@ export class SKResourceService {
    * @description Confirm deletion of Waypoint with supplied id
    * @param id Waypoint identifier
    */
-  public async deleteWaypoint(id: string) {
+  public async deleteWaypoint(id: string): Promise<void> {
     if (!id) {
       return;
     }
@@ -1489,7 +1591,7 @@ export class SKResourceService {
               });
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -1500,7 +1602,7 @@ export class SKResourceService {
    * @param id Waypoint identifier
    * @param position Position to assign to waypoint
    */
-  public updateWaypointPosition(id: string, position: Position) {
+  public updateWaypointPosition(id: string, position: Position): void {
     if (!id || !position) {
       return;
     }
@@ -1510,12 +1612,17 @@ export class SKResourceService {
     }
     const wpt = w[1];
     wpt.feature.geometry.coordinates = GeoUtils.normaliseCoords(position);
-    wpt.position = {
+    // SK v1 servers expect a sibling `position` block alongside the feature.
+    // SKWaypoint does not declare it, so attach via a typed widening.
+    const wptWithLegacyPos = wpt as SKWaypoint & {
+      position?: { latitude: number; longitude: number };
+    };
+    wptWithLegacyPos.position = {
       latitude: wpt.feature.geometry.coordinates[1],
       longitude: wpt.feature.geometry.coordinates[0]
     };
     this.putToServer('waypoints', id, wpt).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     });
   }
 
@@ -1528,7 +1635,7 @@ export class SKResourceService {
    * @description Fill cache with regions fetched from sk server
    * @param query Filter criteria for regions placed in the cache
    */
-  public async refreshRegions(query?: string) {
+  public async refreshRegions(query?: string): Promise<void> {
     if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
@@ -1549,16 +1656,12 @@ export class SKResourceService {
    * @returns SKRegion object
    */
   private transformRegion(region: RegionResource, id: string): SKRegion {
-    if (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      typeof (region as any).geohash !== 'undefined' &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      typeof (region as any).geohash === 'string'
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const gh = GeoUtils.geohashDecodeBbox((region as any).geohash);
+    const legacy = region as RegionResource & { geohash?: unknown };
+    if (typeof legacy.geohash === 'string') {
+      const gh = GeoUtils.geohashDecodeBbox(legacy.geohash);
       const reg = new SKRegion();
       reg.name = 'Region-' + id.slice(-6);
+      // Polygon: outer ring of [lon,lat] pairs, closed
       reg.feature.geometry.coordinates = [
         [
           [gh[1], gh[0]],
@@ -1569,16 +1672,15 @@ export class SKResourceService {
         ]
       ];
       return reg;
-    } else {
-      return new SKRegion(region);
     }
+    return new SKRegion(region);
   }
 
   /**
    * @description Create new Region and save to server
    * @param region
    */
-  public newRegion(region: SKRegion) {
+  public newRegion(region: SKRegion): void {
     if (!region) {
       return;
     }
@@ -1594,9 +1696,11 @@ export class SKResourceService {
         if (r.save) {
           try {
             const reg = await this.postToServer('regions', r.region);
-            this.selectionAdd('regions', reg.id);
+            if (reg.id) {
+              this.selectionAdd('regions', reg.id);
+            }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -1606,14 +1710,14 @@ export class SKResourceService {
    * @description Fetch Region with supplied id and display edit dialog
    * @param id region identifier
    */
-  public async editRegionInfo(id: string) {
+  public async editRegionInfo(id: string): Promise<void> {
     if (!id) {
       return;
     }
     let region: SKRegion;
     try {
       this.app.sIsFetching.set(true);
-      region = await this.fromServer('regions', id);
+      region = (await this.fromServer('regions', id)) as SKRegion;
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
@@ -1631,7 +1735,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; region: SKRegion }) => {
         if (r.save) {
           this.putToServer('regions', id, r.region).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
           );
         }
       });
@@ -1641,7 +1745,7 @@ export class SKResourceService {
    * @description Confirm deletion of Region with supplied id
    * @param id Region identifier
    */
-  public async deleteRegion(id: string) {
+  public async deleteRegion(id: string): Promise<void> {
     if (!id) {
       return;
     }
@@ -1680,7 +1784,7 @@ export class SKResourceService {
    * @param id Region identifier
    * @param coords Coordinates to assign to region
    */
-  public updateRegionCoords(id: string, coords: Position[][]) {
+  public updateRegionCoords(id: string, coords: Position[][]): void {
     if (!id || !coords) {
       return;
     }
@@ -1689,9 +1793,13 @@ export class SKResourceService {
       return;
     }
     const region = r[1];
-    region.feature.geometry.coordinates = GeoUtils.normaliseCoords(coords);
+    const normalised = GeoUtils.normaliseCoords(coords);
+    // SKRegion.feature is Polygon | MultiPolygon; updateRegionCoords callers
+    // always feed Polygon-shape coords. Widen the field for assignment.
+    const feature = region.feature as { geometry: { coordinates: unknown } };
+    feature.geometry.coordinates = normalised;
     this.putToServer('regions', id, region).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     });
   }
 
@@ -1770,7 +1878,7 @@ export class SKResourceService {
    * @description Fill cache with notes fetched from sk server
    * @param query Filter criteria for notes placed in the cache
    */
-  public async refreshNotes(query?: string) {
+  public async refreshNotes(query?: string): Promise<void> {
     query =
       query ??
       processUrlTokens(
@@ -1811,9 +1919,15 @@ export class SKResourceService {
       }
       if (note.href && note.href.includes('resources/')) {
         const a = note.href.split('/');
-        const h = a[a.length - 1].split(':').slice(-1)[0];
-        a[a.length - 1] = h;
-        note.href = a.join('/');
+        const last = a[a.length - 1];
+        if (typeof last === 'string') {
+          const segments = last.split(':');
+          const h = segments[segments.length - 1];
+          if (typeof h === 'string') {
+            a[a.length - 1] = h;
+            note.href = a.join('/');
+          }
+        }
       }
     }
     if (typeof note.properties === 'undefined') {
@@ -1836,7 +1950,7 @@ export class SKResourceService {
    * @param showRelated true = show related notes dialog, false = show Note information
    * @returns SKNote object
    */
-  public noteSelected(id: string, showRelated: boolean) {
+  public noteSelected(id: string, showRelated: boolean): void {
     if (showRelated) {
       this.showRelatedNotes(id, 'group');
     } else {
@@ -1848,28 +1962,29 @@ export class SKResourceService {
    * @description Create note resource on the server
    * @param note SKNote object
    */
-  private async createNote(note: SKNote) {
+  private async createNote(note: SKNote): Promise<void> {
     try {
       await this.postToServer('notes', note);
       this.reopenRelatedDialog();
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 
-  /** 
-   * @description Open Note editing dialog
-   * @param e {
-      noteId: string,
-      note: SKNote,
-      editable: boolean,
-      addNote: boolean,
-      title: string,
-      region: string,
-      createRegion: boolean
-    }
-  */
-  private async openNoteForEdit(e: any) {
+  /**
+   * @description Open Note editing dialog. `data` carries the dialog inputs
+   *   that NoteDialog reads (noteId is used by the caller to dispatch to
+   *   create vs update, and is not passed to the dialog itself).
+   */
+  private async openNoteForEdit(e: {
+    noteId: string | null;
+    note: SKNote | null;
+    editable: boolean;
+    addNote: boolean;
+    title: string | null;
+    region?: { id: string; exists: boolean } | null;
+    createRegion?: boolean | null;
+  }): Promise<void> {
     const { NoteDialog } =
       await import('src/app/modules/skresources/components/notes/note-dialog');
     this.dialog
@@ -1885,8 +2000,8 @@ export class SKResourceService {
         }
       })
       .afterClosed()
-      .subscribe(async (r) => {
-        if (r.result) {
+      .subscribe(async (r: { result?: boolean; data?: SKNote } | undefined) => {
+        if (r?.result && r.data) {
           // ** save / update **
           const note = r.data;
           if (!e.noteId) {
@@ -1895,13 +2010,13 @@ export class SKResourceService {
           } else {
             // update note
             if (typeof note.href !== 'undefined' && !note.href) {
-              delete note.href;
+              delete (note as Partial<SKNote>).href;
             }
             try {
               await this.putToServer('notes', e.noteId, note);
               this.reopenRelatedDialog();
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         } else {
@@ -1915,8 +2030,8 @@ export class SKResourceService {
    * @description Reopen last related notes dialog
    * @param noReset true = does not reset reOpen object
    */
-  private reopenRelatedDialog(noReset = false) {
-    if (this.reOpen && this.reOpen.key) {
+  private reopenRelatedDialog(noReset = false): void {
+    if (this.reOpen.key && this.reOpen.value) {
       this.showRelatedNotes(
         this.reOpen.value,
         this.reOpen.key,
@@ -1924,9 +2039,8 @@ export class SKResourceService {
       );
       if (noReset) {
         return;
-      } else {
-        this.reOpen = { key: null, value: null, readOnly: undefined };
       }
+      this.reOpen = {};
     }
   }
 
@@ -1944,7 +2058,7 @@ export class SKResourceService {
         'notes',
         `href=/resources/${collection}/${id}`
       );
-    } catch (err) {
+    } catch {
       return [];
     }
   }
@@ -1960,7 +2074,7 @@ export class SKResourceService {
     id: string,
     relatedBy = 'region',
     readOnly = false
-  ) {
+  ): Promise<void> {
     let paramName: string;
     if (!['group', 'destination'].includes(relatedBy)) {
       id = !id.includes(relatedBy) ? `/resources/${relatedBy}s/${id}` : id;
@@ -1981,8 +2095,11 @@ export class SKResourceService {
           data: { notes: notes, relatedBy: relatedBy, readOnly: readOnly }
         })
         .afterClosed()
-        .subscribe((r) => {
-          if (r.result) {
+        .subscribe(
+          (r: { result?: boolean; data?: string; id?: string } | undefined) => {
+            if (!r?.result) {
+              return;
+            }
             if (relatedBy) {
               this.reOpen = {
                 key: relatedBy,
@@ -1990,11 +2107,13 @@ export class SKResourceService {
                 readOnly: readOnly
               };
             } else {
-              this.reOpen = { key: null, value: null, readOnly: undefined };
+              this.reOpen = {};
             }
             switch (r.data) {
               case 'edit':
-                this.showNoteEditor({ id: r.id });
+                if (r.id) {
+                  this.showNoteEditor({ id: r.id });
+                }
                 break;
               case 'add':
                 if (relatedBy === 'group') {
@@ -2007,35 +2126,45 @@ export class SKResourceService {
                 }
                 break;
               case 'delete':
-                this.deleteNote(r.id);
+                if (r.id) {
+                  this.deleteNote(r.id);
+                }
                 break;
             }
           }
-        });
+        );
     } catch (err) {
       this.app.sIsFetching.set(false);
+      void err;
       this.app.showAlert(
         'ERROR',
-        `Unable to retrieve Notes for specified ${groupBy}!`
+        `Unable to retrieve Notes for specified ${relatedBy}!`
       );
     }
   }
 
-  /** 
+  /**
    * @description Display Add / Update Note Dialog
-   * @param e {
-      noteId: string,
-      note: SKNote,
-      editable: boolean,
-      addNote: boolean,
-      title: string,
-      region: string,
-      createRegion: boolean
-    }
    */
-  public async showNoteEditor(e = null) {
+  public async showNoteEditor(
+    e: {
+      id?: string;
+      position?: Position;
+      group?: string;
+      type?: string;
+      href?: { id: string; exists: boolean };
+    } | null = null
+  ): Promise<void> {
     let note: SKNote;
-    const data = {
+    const data: {
+      noteId: string | null;
+      note: SKNote | null;
+      editable: boolean;
+      addNote: boolean;
+      title: string | null;
+      region: { id: string; exists: boolean } | null;
+      createRegion: boolean | null;
+    } = {
       noteId: null,
       note: null,
       editable: true,
@@ -2055,8 +2184,8 @@ export class SKResourceService {
       if (e.group) {
         note.group = e.group;
       }
-      e.position = GeoUtils.normaliseCoords(e.position);
-      note.position = { latitude: e.position[1], longitude: e.position[0] };
+      const pos = GeoUtils.normaliseCoords(e.position);
+      note.position = { latitude: pos[1], longitude: pos[0] };
       note.name = '';
       note.description = '';
       data.note = note;
@@ -2065,15 +2194,13 @@ export class SKResourceService {
       // add note in provided group with no position
       data.title = 'Add Note to Group';
       note = new SKNote();
-      if (e.group) {
-        note.group = e.group;
-      }
+      note.group = e.group;
       note.name = '';
       note.description = '';
       data.note = note;
       this.openNoteForEdit(data);
-    } else if (!e.id && e.href) {
-      // add note to exisitng resource or new/existing region
+    } else if (!e.id && e.href && e.type) {
+      // add note to existing resource or new/existing region
       note = new SKNote();
       note.href = !e.href.id.includes(e.type)
         ? `/resources/${e.type}s/${e.href.id}`
@@ -2084,17 +2211,13 @@ export class SKResourceService {
       data.title = `Add Note to ${e.type}`;
       data.region = e.href;
       data.note = note;
-      data.createRegion = e.href.exists
-        ? false
-        : e.type === 'region'
-          ? true
-          : false;
+      data.createRegion = e.href.exists ? false : e.type === 'region';
       this.openNoteForEdit(data);
-    } else {
+    } else if (e.id) {
       // edit selected note details
       this.app.sIsFetching.set(true);
       try {
-        const res = await this.fromServer('notes', e.id);
+        const res = (await this.fromServer('notes', e.id)) as SKNote;
         this.app.sIsFetching.set(false);
         data.noteId = e.id;
         data.title = 'Edit Note';
@@ -2103,6 +2226,7 @@ export class SKResourceService {
         this.openNoteForEdit(data);
       } catch (err) {
         this.app.sIsFetching.set(false);
+        void err;
         this.app.showAlert('ERROR', 'Unable to retrieve Note!');
       }
     }
@@ -2112,17 +2236,18 @@ export class SKResourceService {
    * @description Fetch note with supplied id and display details dialog
    * @param id note identifier
    */
-  public async showNoteDetails(id: string) {
+  public async showNoteDetails(id: string): Promise<void> {
     if (!id) {
       return;
     }
     let note: SKNote;
     try {
       this.app.sIsFetching.set(true);
-      note = await this.fromServer('notes', id);
+      note = (await this.fromServer('notes', id)) as SKNote;
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
+      void err;
       this.app.showAlert('ERROR', 'Unable to retrieve Note!');
       return;
     }
@@ -2134,8 +2259,13 @@ export class SKResourceService {
         data: { note: note, editable: false }
       })
       .afterClosed()
-      .subscribe((r) => {
-        if (r.result) {
+      .subscribe(
+        (
+          r: { result?: boolean; data?: string; value?: string } | undefined
+        ) => {
+          if (!r?.result) {
+            return;
+          }
           if (r.data === 'url') {
             // ** open url in new tab **
             window.open(note.url, 'note');
@@ -2146,18 +2276,18 @@ export class SKResourceService {
           if (r.data === 'delete') {
             this.deleteNote(id);
           }
-          if (r.data === 'group') {
+          if (r.data === 'group' && r.value) {
             this.showRelatedNotes(r.value, r.data);
           }
         }
-      });
+      );
   }
 
   /**
    * @description Confirm Note Deletion
    * @param id Note identifier
    */
-  public deleteNote(id: string) {
+  public deleteNote(id: string): void {
     if (!id) {
       return;
     }
@@ -2168,13 +2298,14 @@ export class SKResourceService {
         'YES',
         'NO'
       )
-      .subscribe(async (ok) => {
-        if (ok) {
+      .subscribe(async (ok: { ok: boolean } | boolean | undefined) => {
+        const confirmed = typeof ok === 'boolean' ? ok : Boolean(ok && ok.ok);
+        if (confirmed) {
           try {
             await this.deleteFromServer('notes', id);
             this.reopenRelatedDialog();
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         } else {
           this.reopenRelatedDialog();
@@ -2187,7 +2318,10 @@ export class SKResourceService {
    * @param id Note identifier
    * @param position New note position coordinates
    */
-  public async updateNotePosition(id: string, position: Position) {
+  public async updateNotePosition(
+    id: string,
+    position: Position
+  ): Promise<void> {
     if (!id) {
       return;
     }
@@ -2202,7 +2336,7 @@ export class SKResourceService {
       await this.putToServer('notes', id, note);
       this.reopenRelatedDialog();
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 
@@ -2215,7 +2349,7 @@ export class SKResourceService {
    * @description Refresh Track cache with entries fetched from sk server
    * @param query Filter criteria for tracks in placed in the cache
    */
-  public async refreshTracks(query?: string) {
+  public async refreshTracks(query?: string): Promise<void> {
     if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
@@ -2292,14 +2426,14 @@ export class SKResourceService {
    * @description Fetch Track with supplied id and display edit dialog
    * @param id track identifier
    */
-  public async editTrackInfo(id: string) {
+  public async editTrackInfo(id: string): Promise<void> {
     if (!id) {
       return;
     }
     let trk: SKTrack;
     try {
       this.app.sIsFetching.set(true);
-      trk = await this.fromServer('tracks', id);
+      trk = (await this.fromServer('tracks', id)) as SKTrack;
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
@@ -2325,7 +2459,7 @@ export class SKResourceService {
    * @description Confirm deletion of Track with supplied id
    * @param id Track identifier
    */
-  public async deleteTrack(id: string) {
+  public async deleteTrack(id: string): Promise<void> {
     if (!id) {
       return;
     }
@@ -2341,7 +2475,7 @@ export class SKResourceService {
           try {
             await this.deleteFromServer('tracks', id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -2362,16 +2496,21 @@ export class SKResourceService {
     return new Promise((resolve, reject) => {
       const skf = this.signalk.api.get(`/vessels${query}`);
       skf?.subscribe(
-        (res) => {
-          const list: any = [];
+        (res: RawVessels) => {
+          const list: FBVessels = [];
           Object.keys(res).forEach((id: string) => {
-            list.push([
+            const raw = res[id];
+            if (!raw) {
+              return;
+            }
+            const entry: FBVessel = [
               id,
-              this.transformVessel(res[id], id),
+              this.transformVessel(raw, id),
               !this.selectionIsFiltered('aisTargets')
                 ? true
                 : this.selectionHas('aisTargets', id)
-            ]);
+            ];
+            list.push(entry);
           });
           resolve(list);
         },
@@ -2382,37 +2521,34 @@ export class SKResourceService {
 
   /** Transform response to SKVessel
    * @param vessel server vessel response object
-   * @param id Vessel identifier
    * @returns SKVessel object
    */
-  private transformVessel(vessel: any, id: string): SKVessel {
+  private transformVessel(vessel: RawVessel, _id: string): SKVessel {
     const v = new SKVessel();
     v.mmsi = vessel.mmsi ?? '';
     v.name = vessel.name ?? '';
-    v.position = vessel.navigation?.position?.value
-      ? [
-          vessel.navigation?.position.value.longitude,
-          vessel.navigation?.position.value.latitude
-        ]
-      : [0, 0];
-    v.flag = vessel.flag?.value ?? undefined;
-    v.port = vessel.port?.value ?? undefined;
-    v.type = vessel.design?.aisShipType?.value ?? null;
-    v.design.length = vessel.design?.length?.value ?? null;
-    v.design.beam = vessel.design?.beam?.value ?? null;
-    v.design.draft = vessel.design?.draft?.value ?? null;
-    v.design.airHeight = vessel.design?.airHeight?.value ?? null;
-    v.callsignVhf = vessel.communication?.callsignVhf ?? null;
-    v.callsignHf = vessel.communication?.callsignHf ?? null;
+    const posValue = vessel.navigation?.position?.value;
+    v.position = posValue ? [posValue.longitude, posValue.latitude] : [0, 0];
+    v.flag = vessel.flag?.value ?? '';
+    v.port = vessel.port?.value ?? '';
+    v.type = vessel.design?.aisShipType?.value ?? { id: -1, name: '' };
+    // design.length / beam / draft / airHeight ship as { value: ... } leaves
+    // on the wire; the SKVessel.design Record<string, any> is permissive.
+    v.design['length'] = vessel.design?.length?.value ?? null;
+    v.design['beam'] = vessel.design?.beam?.value ?? null;
+    v.design['draft'] = vessel.design?.draft?.value ?? null;
+    v.design['airHeight'] = vessel.design?.airHeight?.value ?? null;
+    v.callsignVhf = vessel.communication?.callsignVhf ?? '';
+    v.callsignHf = vessel.communication?.callsignHf ?? '';
     v.destination.name =
       vessel.navigation?.destination?.commonName?.value ?? null;
     v.destination.eta = null;
-    if (vessel.navigation?.destination?.eta?.value) {
-      const d = new Date(vessel.navigation?.destination?.eta?.value);
-      v.destination.eta = d.toUTCString();
+    const etaValue = vessel.navigation?.destination?.eta?.value;
+    if (etaValue) {
+      v.destination.eta = new Date(etaValue).toUTCString();
     }
     v.state = vessel.navigation?.state?.value ?? '';
-    v.registrations = vessel.registrations ?? null;
+    v.registrations = vessel.registrations ?? {};
 
     return v;
   }
@@ -2424,7 +2560,7 @@ export class SKResourceService {
   public vesselFromServer(id: string): Promise<SKVessel> {
     return new Promise((resolve, reject) => {
       this.signalk.api.get(`/vessels/${id}`).subscribe(
-        (res) => resolve(this.transformVessel(res, id)),
+        (res: RawVessel) => resolve(this.transformVessel(res, id)),
         (err: HttpErrorResponse) => reject(err)
       );
     });

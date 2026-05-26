@@ -25,7 +25,9 @@ import {
   StreamOptions,
   WeatherForecastModal
 } from 'src/app/modules';
-import { ErrorList, FBRoute } from 'src/app/types';
+import { ErrorList } from 'src/app/types';
+import { SKRoute } from 'src/app/modules/skresources';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface DialogHooks {
   fetchResources: () => void;
@@ -433,12 +435,12 @@ export class DialogOrchestrator {
   }
 
   private async openRouteProperties(id: string): Promise<void> {
-    let v: FBRoute | null;
+    let v: SKRoute | null = null;
     try {
       this.settings.sIsFetching.set(true);
-      v = (await this.skres.fromServer('routes', id)) as FBRoute | null;
+      v = (await this.skres.fromServer('routes', id)) as SKRoute;
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
       return;
     } finally {
       this.settings.sIsFetching.set(false);

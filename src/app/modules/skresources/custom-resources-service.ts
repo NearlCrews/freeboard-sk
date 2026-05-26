@@ -16,21 +16,26 @@ import {
 import { processUrlTokens } from 'src/app/app.config';
 import { HttpErrorResponse } from '@angular/common/http';
 
-type FBResourceSets = Map<string, SKResourceSet[]>;
+// Each ResourceSet collection caches an array of [id, instance, selected]
+// tuples (matching FBResourceSet shape elsewhere). The Map key is the
+// collection name (e.g. 'fishing', 'myExtras').
+type ResSetTuple = [string, SKResourceSet, boolean];
+type FBResourceSetsMap = Map<string, ResSetTuple[]>;
+type InfoLayerTuple = [string, SKInfoLayer, boolean];
 type CustomResourceType = 'InfoLayer' | 'ResourceSet';
 
 // ** Signal K custom / other resource(s) operations
 @Injectable({ providedIn: 'root' })
 export class FBCustomResourceService {
-  private resSetCacheSignal = signal<FBResourceSets>(new Map());
+  private resSetCacheSignal = signal<FBResourceSetsMap>(new Map());
   readonly resourceSets = this.resSetCacheSignal.asReadonly();
 
   private infoLayerCacheSignal = signal<FBInfoLayers>([]);
   readonly infoLayers = this.infoLayerCacheSignal.asReadonly();
 
-  public infoLayerParams = signal<{ id: string; param: Record<string, any> }[]>(
-    []
-  );
+  public infoLayerParams = signal<
+    { id: string; param: Record<string, unknown> }[]
+  >([]);
 
   // Phase 3 Batch 3: direct store injection for the custom-resources taxonomy.
   private resource = inject(ResourceStore);
@@ -50,8 +55,8 @@ export class FBCustomResourceService {
    * @description Check status and initialise custom resource paths required for Freeboard features
    * @returns object items to be added to this.app.featureFlags
    */
-  public async initCustomCollections() {
-    const rcs = {};
+  public async initCustomCollections(): Promise<Record<string, boolean>> {
+    const rcs: Record<string, boolean> = {};
     await Promise.all(
       this.resource.CUSTOM_RESOURCES.map(async (cr) => {
         rcs[cr.featureKey] = await this.checkCustomCollection(
@@ -120,28 +125,35 @@ export class FBCustomResourceService {
           const list = Object.entries(res);
           if (list.length === 0) {
             resolve([]);
+            return;
           }
-          list.forEach((i) => (i[1].id = i[0]));
-          let flist: any[];
+          list.forEach(([id, entry]) => {
+            entry.id = id;
+          });
+          let flist: (InfoLayerTuple | ResSetTuple)[] = [];
           if (type === 'InfoLayer') {
-            flist = list
-              .filter((i) => this.isInfoLayer(i[1]))
-              .map((i) => [
-                i[0],
-                new SKInfoLayer(i[1]),
-                this.isSelected(collection as SKSelection, i[1].type, i[0])
-              ]);
+            flist = (list as [string, InfoLayerResource][])
+              .filter(([, item]) => this.isInfoLayer(item))
+              .map(
+                ([id, item]): InfoLayerTuple => [
+                  id,
+                  new SKInfoLayer(item),
+                  this.isSelected(collection as SKSelection, item.type, id)
+                ]
+              );
           } else if (type === 'ResourceSet') {
-            flist = list
-              .filter((i) => this.isResourceSet(i[1]))
-              .map((i) => [
-                i[0],
-                new SKResourceSet(i[1]),
-                this.isSelected(collection as SKSelection, i[1].type, i[0])
-              ]);
+            flist = (list as [string, ResourceSet][])
+              .filter(([, item]) => this.isResourceSet(item))
+              .map(
+                ([id, item]): ResSetTuple => [
+                  id,
+                  new SKResourceSet(item),
+                  this.isSelected(collection as SKSelection, item.type, id)
+                ]
+              );
           }
-          flist = onlySelected ? flist.filter((i) => i[2]) : flist;
-          resolve(flist);
+          const filtered = onlySelected ? flist.filter((i) => i[2]) : flist;
+          resolve(filtered as unknown as T[]);
         },
         (err: HttpErrorResponse) => reject(err)
       );
@@ -163,12 +175,10 @@ export class FBCustomResourceService {
       return !this.skres.selectionIsFiltered(collection)
         ? true
         : this.skres.selectionHas(collection, id);
-    } else if (type === 'ResourceSet') {
-      if (Array.isArray(this.app.config.selections.resourceSets[collection])) {
-        return this.app.config.selections.resourceSets[collection].includes(id);
-      } else {
-        return false;
-      }
+    }
+    if (type === 'ResourceSet') {
+      const list = this.app.config.selections.resourceSets[collection];
+      return Array.isArray(list) ? list.includes(id) : false;
     }
     return false;
   }
@@ -182,7 +192,7 @@ export class FBCustomResourceService {
    * @param item Item to test
    * @returns true on success
    */
-  private isResourceSet(item: ResourceSet) {
+  private isResourceSet(item: ResourceSet): boolean {
     if (typeof item.type === 'undefined') return false;
     if (item.type !== 'ResourceSet') return false;
     if (typeof item.values === 'undefined') return false;
@@ -195,21 +205,36 @@ export class FBCustomResourceService {
    * @params getFeature  true = return Feature entry, false = return whole RecordSet
    * @returns Feature OR Resource Set.
    */
-  public fromResourceSetCache(mapFeatureId: string, getFeature?: boolean) {
+  public fromResourceSetCache(
+    mapFeatureId: string,
+    getFeature?: boolean
+  ): ResourceSet['values']['features'][number] | SKResourceSet | undefined {
     const t = mapFeatureId.split('.');
     if (t[0] !== 'rset') {
-      return;
+      return undefined;
     }
     const collection = t[1];
     const rSetId = t[2];
-    const index = Number(t[t.length - 1]);
-    if (!Array.isArray(this.resSetCacheSignal().get(collection))) {
-      return;
+    if (!collection || !rSetId) {
+      return undefined;
     }
-    const item = this.resSetCacheSignal()
-      .get(collection)
-      .filter((i: SKResourceSet) => i[0] === rSetId)[0];
-    return getFeature ? item[1].values.features[index] : item[1];
+    const lastSegment = t[t.length - 1] ?? '';
+    const index = Number(lastSegment);
+    const bucket = this.resSetCacheSignal().get(collection);
+    if (!Array.isArray(bucket)) {
+      return undefined;
+    }
+    const match = bucket.find((i: ResSetTuple) => i[0] === rSetId);
+    if (!match) {
+      return undefined;
+    }
+    if (!getFeature) {
+      return match[1];
+    }
+    if (!Number.isFinite(index)) {
+      return undefined;
+    }
+    return match[1].values.features[index];
   }
 
   /**
@@ -217,25 +242,28 @@ export class FBCustomResourceService {
    * @param collection ResourceSet collection name
    * @param query Filter criteria for ResourceSets in placed in the cache
    */
-  private async refreshResourceSets(collection: string, query?: string) {
+  private async refreshResourceSets(
+    collection: string,
+    query?: string
+  ): Promise<void> {
     if (this.resource.IGNORE_RESOURCES.includes(collection)) {
       return;
     }
     this.app.debug(`** refreshResourceSets() query: ${query}`);
     try {
-      const items = await this.customListFromServer<SKResourceSet>(
+      const items = await this.customListFromServer<ResSetTuple>(
         collection,
         'ResourceSet',
         query,
         true
       );
-      this.resSetCacheSignal.update((current: FBResourceSets) => {
+      this.resSetCacheSignal.update((current: FBResourceSetsMap) => {
         current.set(collection, items);
         return current;
       });
     } catch (err) {
       this.app.debug('** refreshResourceSets()', err);
-      this.resSetCacheSignal.update((current: FBResourceSets) => {
+      this.resSetCacheSignal.update((current: FBResourceSetsMap) => {
         current.set(collection, []);
         return current;
       });
@@ -245,8 +273,8 @@ export class FBCustomResourceService {
   /**
    * Refresh ResourceSet cache with "in bounds" items for all active ResourceSet collections
    */
-  public refreshResourceSetsInBounds(collection?: string) {
-    const doRefresh = async (c: string) => {
+  public refreshResourceSetsInBounds(collection?: string): void {
+    const doRefresh = async (c: string): Promise<void> => {
       if (!Array.isArray(this.app.config.selections.resourceSets[c])) {
         return;
       }
@@ -261,7 +289,9 @@ export class FBCustomResourceService {
     } else {
       Object.keys(this.app.config.selections.resourceSets)
         .filter((r) => !this.resource.IGNORE_RESOURCES.includes(r))
-        .forEach(async (collection: string) => doRefresh(collection));
+        .forEach((c: string) => {
+          doRefresh(c);
+        });
     }
   }
 
@@ -269,7 +299,7 @@ export class FBCustomResourceService {
    * Build resource filter query to return in bounds entries.
    * @returns query string
    */
-  private buildResourceSetFilterQuery() {
+  private buildResourceSetFilterQuery(): string {
     let q = '';
     if (
       this.app.config.resources.fetchRadius !== 0 &&
@@ -294,8 +324,8 @@ export class FBCustomResourceService {
     let result = false;
     Object.entries(this.app.config.selections.resourceSets)
       .filter((r) => !this.resource.IGNORE_RESOURCES.includes(r[0]))
-      .forEach((r) => {
-        if (r[1].length > 0) {
+      .forEach((r: [string, unknown]) => {
+        if (Array.isArray(r[1]) && r[1].length > 0) {
           result = true;
         }
       });
@@ -311,7 +341,7 @@ export class FBCustomResourceService {
    * @param item Item to test
    * @returns true on success
    */
-  private isInfoLayer(item: InfoLayerResource) {
+  private isInfoLayer(item: InfoLayerResource): boolean {
     if (typeof item.type === 'undefined') return false;
     if (item.type !== 'InfoLayer') return false;
     if (typeof item.values === 'undefined') return false;
@@ -322,7 +352,7 @@ export class FBCustomResourceService {
    * @description Refresh InfoLayer cache with entries fetched from sk server
    * @param query Filter criteria for items in placed in the cache
    */
-  public async refreshInfoLayers(query?: string) {
+  public async refreshInfoLayers(query?: string): Promise<void> {
     if (query && !query.startsWith('?')) {
       query = '?' + query;
     }
@@ -335,7 +365,6 @@ export class FBCustomResourceService {
         true
       );
       const flist = layers.filter((layer: FBInfoLayer) => layer[2]);
-      //flist = this.arrangeLayers(flist);
       this.infoLayerCacheSignal.set(flist);
     } catch (err) {
       this.app.debug('** refreshInfoLayers:', err);

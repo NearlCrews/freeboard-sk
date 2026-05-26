@@ -1003,11 +1003,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.mapInteract.isDrawing();
     switch (this.mapInteract.draw.resourceType) {
       case 'note': {
-        const params: { position: unknown; group?: unknown } = {
-          position: e.coordinates
+        const params: { position: Position; group?: string } = {
+          position: e.coordinates as Position
         };
-        if (this.mapInteract.draw.properties.group) {
-          params.group = this.mapInteract.draw.properties.group;
+        const group = this.mapInteract.draw.properties.group;
+        if (typeof group === 'string') {
+          params.group = group;
         }
         this.skres.showNoteEditor(params);
         break;

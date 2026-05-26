@@ -14,10 +14,12 @@ import {
   SKMeteo,
   SKNote,
   SKRegion,
+  SKResourceSet,
   SKRoute,
   SKVessel,
   SKWaypoint
 } from '../skresources';
+import type { ResourceSet } from 'src/app/types';
 import { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { AlertData } from '../alarms';
 
@@ -34,6 +36,8 @@ export interface IPopover {
   resource:
     | [string, SKRoute | SKWaypoint | SKNote | SKRegion]
     | GeoJSONFeature
+    | ResourceSet['values']['features'][number]
+    | SKResourceSet
     | undefined;
   vessel?: SKVessel;
   isSelf?: boolean;
