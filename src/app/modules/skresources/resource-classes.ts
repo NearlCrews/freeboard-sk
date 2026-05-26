@@ -18,164 +18,171 @@ import {
 
 // ** Signal K route class
 export class SKRoute {
-  name: string;
-  description: string;
+  name = '';
+  description = '';
   distance = 0;
-  feature: LineStringFeature;
+  feature: LineStringFeature = {
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: []
+    },
+    properties: {},
+    id: ''
+  };
 
   constructor(route?: RouteResource) {
-    this.name = route?.name ? route.name : '';
-    this.description = route?.description ? route.description : '';
-    this.distance = route?.distance ? route.distance : 0;
-    this.feature = route?.feature ?? {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: []
-      },
-      properties: {},
-      id: ''
-    };
+    if (route) {
+      this.name = route.name ?? '';
+      this.description = route.description ?? '';
+      this.distance = route.distance ?? 0;
+      if (route.feature) this.feature = route.feature;
+    }
   }
 }
 
 // ** Signal K waypoint
 export class SKWaypoint {
-  name: string;
-  description: string;
-  feature: PointFeature;
-  type: string;
+  name = '';
+  description = '';
+  type = '';
+  feature: PointFeature = {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [0, 0]
+    },
+    properties: {},
+    id: ''
+  };
 
   constructor(wpt?: WaypointResource) {
-    this.name = wpt?.name ? wpt.name : '';
-    this.description = wpt?.description ? wpt.description : '';
-    this.type = wpt?.type ? wpt.type : '';
-    this.feature = wpt?.feature ?? {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [0, 0]
-      },
-      properties: {},
-      id: ''
-    };
+    if (wpt) {
+      this.name = wpt.name ?? '';
+      this.description = wpt.description ?? '';
+      this.type = wpt.type ?? '';
+      if (wpt.feature) this.feature = wpt.feature;
+    }
   }
 }
 
 // ** Signal K Note
 export class SKNote {
-  name: string;
-  description: string;
-  position: SKPosition;
-  href: string;
-  mimeType: string;
-  url: string;
-  group: string;
+  name = '';
+  description = '';
+  position: SKPosition = { latitude: 0, longitude: 0 };
+  href = '';
+  mimeType = '';
+  url = '';
+  group = '';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authors: any[];
+  authors: any[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: Record<string, any>;
+  properties: Record<string, any> = {};
 
   constructor(note?: NoteResource) {
-    this.name = note?.name ?? '';
-    this.description = note?.description ?? '';
-    this.position = note?.position;
-    this.href = note?.href;
-    this.mimeType = note?.mimeType ?? '';
-    this.url = note?.url ?? '';
-    // ca reports
-    this.group = note?.group;
-    this.authors =
-      note?.authors && Array.isArray(note?.authors) ? note.authors : [];
-    this.properties =
-      note?.properties && typeof note?.properties === 'object'
-        ? note.properties
-        : {};
+    if (note) {
+      this.name = note.name ?? '';
+      this.description = note.description ?? '';
+      if (note.position) this.position = note.position;
+      this.href = note.href ?? '';
+      this.mimeType = note.mimeType ?? '';
+      this.url = note.url ?? '';
+      // ca reports
+      this.group = note.group ?? '';
+      this.authors = Array.isArray(note.authors) ? note.authors : [];
+      this.properties =
+        note.properties && typeof note.properties === 'object'
+          ? note.properties
+          : {};
+    }
   }
 }
 
 // ** Signal K Region **
 export class SKRegion {
-  name: string;
-  description: string;
-  feature: PolygonFeature | MultiPolygonFeature;
+  name = '';
+  description = '';
+  feature: PolygonFeature | MultiPolygonFeature = {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: []
+    },
+    properties: {},
+    id: ''
+  };
 
   constructor(region?: RegionResource) {
-    this.name = region?.name ? region.name : '';
-    this.description = region?.description ? region.description : '';
-    this.feature = region?.feature ?? {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: []
-      },
-      properties: {},
-      id: ''
-    };
+    if (region) {
+      this.name = region.name ?? '';
+      this.description = region.description ?? '';
+      if (region.feature) this.feature = region.feature;
+    }
   }
 }
 
 // ** Signal K chart
 export class SKChart {
-  identifier: string;
-  name: string;
-  description: string;
-  region: string;
+  identifier = '';
+  name = '';
+  description = '';
+  region = '';
   scale = 250000;
-  layers: string[];
-  bounds: number[];
-  format: string;
+  layers: string[] = [];
+  bounds: number[] = [];
+  format = '';
   minZoom = 0;
   maxZoom = 24;
-  type: string;
-  url: string;
-  source: string;
-  style: string;
-  defaultOpacity: number;
-  proxy: boolean;
+  type = '';
+  url = '';
+  source = '';
+  style = '';
+  defaultOpacity = 1;
+  proxy = false;
 
   constructor(chart?: ChartResource) {
-    this.identifier = chart?.identifier ? chart.identifier : undefined;
-    this.name = chart?.name ? chart.name : undefined;
-    this.description = chart?.description ? chart.description : undefined;
-    this.layers = chart?.layers ? chart.layers : [];
-    this.bounds = chart?.bounds ? chart.bounds : undefined;
-    this.format = chart?.format ? chart.format : undefined;
-    this.minZoom =
-      typeof chart?.minzoom !== 'undefined' ? chart.minzoom : this.minZoom;
-    this.maxZoom =
-      typeof chart?.maxzoom !== 'undefined' ? chart.maxzoom : this.maxZoom;
-    this.type = chart?.type ? chart.type : undefined;
-    this.url = chart?.url ? chart.url : undefined;
-    this.scale =
-      typeof chart?.scale !== 'undefined' && !isNaN(chart?.scale)
-        ? chart.scale
-        : this.scale;
-    this.style = chart?.style ?? undefined;
-    this.source = chart?.$source ?? undefined;
-    this.defaultOpacity = chart?.defaultOpacity ?? 1;
-    this.proxy = chart?.proxy ?? false;
+    if (chart) {
+      this.identifier = chart.identifier ?? '';
+      this.name = chart.name ?? '';
+      this.description = chart.description ?? '';
+      this.layers = chart.layers ?? [];
+      this.bounds = chart.bounds ?? [];
+      this.format = chart.format ?? '';
+      if (typeof chart.minzoom !== 'undefined') this.minZoom = chart.minzoom;
+      if (typeof chart.maxzoom !== 'undefined') this.maxZoom = chart.maxzoom;
+      this.type = chart.type ?? '';
+      this.url = chart.url ?? '';
+      if (typeof chart.scale !== 'undefined' && !isNaN(chart.scale)) {
+        this.scale = chart.scale;
+      }
+      this.style = chart.style ?? '';
+      this.source = chart.$source ?? '';
+      this.defaultOpacity = chart.defaultOpacity ?? 1;
+      this.proxy = chart.proxy ?? false;
+    }
   }
 }
 
 // ** Signal K Track
 export class SKTrack {
-  name: string;
-  description: string;
-  feature: MultiLineStringFeature;
+  name = '';
+  description = '';
+  feature: MultiLineStringFeature = {
+    type: 'Feature',
+    geometry: {
+      type: 'MultiLineString',
+      coordinates: []
+    },
+    properties: {},
+    id: ''
+  };
 
   constructor(trk?: TrackResource) {
-    this.feature = trk?.feature ?? {
-      type: 'Feature',
-      geometry: {
-        type: 'MultiLineString',
-        coordinates: []
-      },
-      properties: {},
-      id: ''
-    };
-    this.name = this.feature.properties?.name ?? '';
-    this.description = this.feature.properties?.description ?? '';
+    if (trk?.feature) this.feature = trk.feature;
+    this.name = (this.feature.properties?.['name'] as string) ?? '';
+    this.description =
+      (this.feature.properties?.['description'] as string) ?? '';
   }
 }
 
@@ -340,9 +347,9 @@ export class SKAtoN extends SKTargetBase {
 
 // ** Meteo / weather class **
 export class SKMeteo extends SKAtoN {
-  twd: number;
-  tws: number;
-  temperature: number;
+  twd = 0;
+  tws = 0;
+  temperature = 0;
   constructor() {
     super();
   }

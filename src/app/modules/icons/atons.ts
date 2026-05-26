@@ -73,17 +73,22 @@ const WeatherStation: MapIconDef = {
 /**
  * @description Build MapIcon definitions for use by MapImageRegistry
  */
+type AtoNGroup = Record<string, MapIconDef>;
+type AtoNList = Record<string, AtoNGroup>;
+
 export const getAtoNDefs = () => {
-  const atonList = {};
+  const atonList: AtoNList = {};
 
   const addToList = (list: AppIconSet) => {
     list.files.forEach((file: string) => {
       const gid = file.slice(0, file.lastIndexOf('-'));
       const id = file.slice(file.lastIndexOf('-') + 1, file.indexOf('.'));
-      if (!atonList[gid]) {
-        atonList[gid] = {};
+      let group = atonList[gid];
+      if (!group) {
+        group = {};
+        atonList[gid] = group;
       }
-      atonList[gid][id] = {
+      group[id] = {
         path: `${list.path}/${file}`,
         scale: list.scale,
         anchor: list.anchor
@@ -92,7 +97,9 @@ export const getAtoNDefs = () => {
   };
   addToList(AtoNsType1);
   addToList(AtoNsType2);
-  atonList.real.weatherStation = WeatherStation;
-  atonList.virtual.weatherStation = WeatherStation;
+  const real = atonList['real'] ?? (atonList['real'] = {});
+  const virtual = atonList['virtual'] ?? (atonList['virtual'] = {});
+  real['weatherStation'] = WeatherStation;
+  virtual['weatherStation'] = WeatherStation;
   return atonList;
 };

@@ -3,32 +3,33 @@ import { ResourceSet, CustomStyles, InfoLayerResource } from 'src/app/types';
 
 // ** Freeboard / SK ResourceSet
 export class SKResourceSet {
-  id: string;
-  name: string;
-  description: string;
-  values;
-  styles: CustomStyles;
+  id = '';
+  name = '';
+  description = '';
+  values: ResourceSet['values'] = {
+    type: 'FeatureCollection',
+    features: []
+  };
+  styles: CustomStyles = {};
   type = 'ResourceSet';
 
   constructor(resSet?: ResourceSet) {
     if (resSet) {
-      this.id = resSet.id ? resSet.id : null;
-      this.name = resSet.name ? resSet.name : null;
-      this.description = resSet.description ? resSet.description : null;
-      this.styles = resSet.styles ? resSet.styles : {};
-      this.values = resSet.values ?? {
-        type: 'FeatureCollection',
-        features: []
-      };
+      this.id = resSet.id ?? '';
+      this.name = resSet.name ?? '';
+      this.description = resSet.description ?? '';
+      this.styles = resSet.styles ?? {};
+      this.values = resSet.values ?? this.values;
     }
   }
 }
 
 // ** Freeboard / SK Information Layer
 export class SKInfoLayer {
-  id: string;
-  name: string;
-  description: string;
+  id = '';
+  name = '';
+  description = '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any = {
     url: null,
     sourceType: null,
@@ -48,9 +49,9 @@ export class SKInfoLayer {
 
   constructor(info?: InfoLayerResource) {
     if (info) {
-      this.id = info.id ? info.id : null;
-      this.name = info.name ? info.name : null;
-      this.description = info.description ? info.description : null;
+      this.id = info.id ?? '';
+      this.name = info.name ?? '';
+      this.description = info.description ?? '';
       this.values = info.values ?? this.values;
     }
   }
