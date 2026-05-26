@@ -2,13 +2,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
-  inject
+  inject,
+  input
 } from '@angular/core';
 import { Layer } from 'ol/layer';
 import { Feature } from 'ol';
@@ -40,17 +40,17 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
    */
   @Output() layerReady = new AsyncSubject<Layer>();
 
-  @Input() localTrail?: Coordinate[];
-  @Input() serverTrail?: Coordinate[][];
-  @Input() trailStyles?: Record<string, Style>;
-  @Input() opacity?: number;
-  @Input() visible?: boolean;
-  @Input() extent?: Extent;
-  @Input() zIndex?: number;
-  @Input() minResolution?: number;
-  @Input() maxResolution?: number;
+  readonly localTrail = input<Coordinate[] | undefined>(undefined);
+  readonly serverTrail = input<Coordinate[][] | undefined>(undefined);
+  readonly trailStyles = input<Record<string, Style> | undefined>(undefined);
+  readonly opacity = input<number | undefined>(undefined);
+  readonly visible = input<boolean | undefined>(undefined);
+  readonly extent = input<Extent | undefined>(undefined);
+  readonly zIndex = input<number | undefined>(undefined);
+  readonly minResolution = input<number | undefined>(undefined);
+  readonly maxResolution = input<number | undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties?: Record<string, any>;
+  readonly layerProperties = input<Record<string, any> | undefined>(undefined);
 
   trailLocal?: Feature;
   trailServer?: Feature;
@@ -74,9 +74,17 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
       fa.push(this.trailServer);
     }
     this.source = new VectorSource({ features: fa });
-    this.layer = new VectorLayer(
-      Object.assign(this, { ...this.layerProperties })
-    );
+    const props = this.layerProperties() ?? {};
+    this.layer = new VectorLayer({
+      source: this.source,
+      opacity: this.opacity(),
+      visible: this.visible(),
+      extent: this.extent(),
+      zIndex: this.zIndex(),
+      minResolution: this.minResolution(),
+      maxResolution: this.maxResolution(),
+      ...props
+    });
 
     const map = this.mapComponent.getMap();
     if (this.layer && map) {
@@ -135,10 +143,11 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   parseLocalTrail() {
-    if (!this.localTrail) {
+    const localTrail = this.localTrail();
+    if (!localTrail) {
       return;
     }
-    const c = fromLonLatArray(mapifyCoords(this.localTrail)) as Coordinate[];
+    const c = fromLonLatArray(mapifyCoords(localTrail)) as Coordinate[];
     if (!this.trailLocal) {
       // create feature
       this.trailLocal = new Feature(new LineString(c));
@@ -153,7 +162,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
       this.trailLocal = existing;
-      if (this.localTrail && Array.isArray(this.localTrail)) {
+      if (Array.isArray(localTrail)) {
         const g = this.trailLocal.getGeometry();
         if (g) {
           (g as LineString).setCoordinates(c);
@@ -163,10 +172,11 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   parseServerTrail() {
-    if (!this.serverTrail) {
+    const serverTrail = this.serverTrail();
+    if (!serverTrail) {
       return;
     }
-    const ca = this.serverTrail.map((t: Coordinate[]) => {
+    const ca = serverTrail.map((t: Coordinate[]) => {
       return fromLonLatArray(mapifyCoords(t)) as Coordinate[];
     });
     if (!this.trailServer) {
@@ -183,7 +193,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
       this.trailServer = existing;
-      if (this.serverTrail && Array.isArray(this.serverTrail)) {
+      if (Array.isArray(serverTrail)) {
         const g = this.trailServer.getGeometry();
         if (g) {
           (g as MultiLineString).setCoordinates(ca);
@@ -195,9 +205,10 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
   // build target style
   buildStyle(type = 'local'): Style {
     const trailColor = this.theme.palette().trailSelf;
+    const trailStyles = this.trailStyles();
     let cs: Style;
     if (type === 'server') {
-      const server = this.trailStyles?.['server'];
+      const server = trailStyles?.['server'];
       if (server) {
         cs = server;
       } else {
@@ -211,7 +222,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
         });
       }
     } else {
-      const local = this.trailStyles?.['local'];
+      const local = trailStyles?.['local'];
       if (local) {
         cs = local;
       } else {

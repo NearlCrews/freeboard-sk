@@ -51,7 +51,7 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
     }
 
     const offset =
-      zoomOffsetLevel[Math.floor(this.mapZoom)] ?? zoomOffsetLevel[0];
+      zoomOffsetLevel[Math.floor(this.mapZoom())] ?? zoomOffsetLevel[0];
     if (typeof offset !== 'number') {
       return [];
     }

@@ -117,8 +117,9 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     const routeColor = isActive ? palette.routeActive : palette.routeInactive;
 
     if (typeof this.routeStyles === 'undefined') {
-      if (this.layerProperties?.['style']) {
-        return this.layerProperties['style'] as Style;
+      const props = this.layerProperties();
+      if (props?.['style']) {
+        return props['style'] as Style;
       } else {
         styles.push(
           new Style({

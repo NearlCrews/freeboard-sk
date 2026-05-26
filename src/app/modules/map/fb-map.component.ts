@@ -8,6 +8,7 @@ import {
   ViewChild,
   SimpleChanges,
   signal,
+  computed,
   input,
   effect,
   inject,
@@ -97,6 +98,9 @@ import {
   zoomOffsetLevel,
   MapComponent
 } from './ol/lib/map.component';
+import WebGLTileLayer from 'ol/layer/WebGLTile';
+import { chartNightMode } from './ol/lib/charts/night-mode-filter';
+import { applyNightMode, removeNightMode } from './ol/lib/webgl';
 import { FeatureLike } from 'ol/Feature';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
@@ -218,6 +222,16 @@ export class FBMapComponent
   protected mapCenterPositon = signal<Position>([0, 0]);
   protected mapRotation = signal<number>(0);
 
+  // Tracks `dfeat.ais.size` reactively; `dfeat` itself is a plain object so the
+  // template's WebGL-swap guard needs a signal mirror that updates on each
+  // `onVessels()` pass to drive change detection at the @if boundary.
+  protected aisCount = signal<number>(0);
+  protected useWebGLAIS = computed<boolean>(
+    () =>
+      this.app.config.ui.showAisTargets &&
+      this.aisCount() > this.app.config.ui.webglAISThreshold
+  );
+
   protected showNoteslayer = signal<boolean>(false); //control notes layer display
 
   // ** map feature styles
@@ -284,6 +298,30 @@ export class FBMapComponent
       if (this.scaleUnits()) {
         this.setScaleUnits();
       }
+    });
+    // WebGL night-mode is an opt-in alternate to the OffscreenCanvas tile
+    // filter. Only `WebGLTileLayer` instances (currently PMTiles) carry the
+    // shader; non-WebGL `TileLayer` paths continue to rely on the
+    // OffscreenCanvas pipeline, so they remain tinted correctly. The
+    // trade-off: a WebGLTileLayer whose tile loader still runs through
+    // `applyChartNightFilter` will compose both tints, producing a darker
+    // red than the OffscreenCanvas-only default.
+    effect(() => {
+      const tintEnabled =
+        this.app.uiConfig().useWebGLNightMode && chartNightMode();
+      const map = this.olMap?.getMap();
+      if (!map) {
+        return;
+      }
+      map.getLayers().forEach((layer) => {
+        if (layer instanceof WebGLTileLayer) {
+          if (tintEnabled) {
+            applyNightMode(layer);
+          } else {
+            removeNightMode(layer);
+          }
+        }
+      });
     });
     this.toggleDblClickZoom(); // init olMapinterations
   }
@@ -422,6 +460,7 @@ export class FBMapComponent
       this.dfeat.self.position = lastPos;
     }
     this.dfeat.ais = this.app.data.vessels.aisTargets;
+    this.aisCount.set(this.dfeat.ais.size);
     this.dfeat.aircraft = this.app.data.aircraft;
     this.dfeat.sar = this.app.data.sar;
     this.dfeat.meteo = this.app.data.meteo;

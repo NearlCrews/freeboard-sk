@@ -76,7 +76,7 @@ export class RacingStartLineLayerComponent
     const styles: Style[] = [];
 
     if (typeof this.racecourseStyles === 'undefined') {
-      const lpStyle = this.layerProperties?.['style'] as
+      const lpStyle = this.layerProperties()?.['style'] as
         | Style
         | Style[]
         | undefined;

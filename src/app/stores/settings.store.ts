@@ -46,6 +46,10 @@ export interface UiConfigState {
   /** show / hide Notes */
   showNotes: boolean;
   autoNightMode: boolean;
+  /** AIS vessel count past which the WebGL points layer replaces the canvas layer */
+  webglAISThreshold: number;
+  /** opt-in WebGL fragment-shader night-mode for WebGLTileLayer raster chart layers */
+  useWebGLNightMode: boolean;
 }
 
 export interface FeatureFlagsState {
@@ -99,7 +103,9 @@ export class SettingsStore {
     showCourseData: true,
     showAisTargets: true,
     showNotes: true,
-    autoNightMode: false
+    autoNightMode: false,
+    webglAISThreshold: 50,
+    useWebGLNightMode: false
   });
 
   // ----- non-persisted UI state -----

@@ -53,22 +53,23 @@ export class WebGLAISLayerComponent extends AISBaseLayerComponent {
 
   override ngOnInit() {
     this.source = new VectorSource();
-    this.theme = this.darkMode ? DarkTheme : LightTheme;
+    this.theme = this.darkMode() ? DarkTheme : LightTheme;
     const map = this.mapComponent.getMap();
     if (!map) {
       return;
     }
 
+    const props = this.layerProperties() ?? {};
     this.webglLayer = new WebGLPointsLayer<VectorSource>({
       source: this.source,
       style: buildAisPointsStyle(),
-      opacity: this.opacity,
-      visible: this.visible,
-      extent: this.extent,
-      zIndex: this.zIndex,
-      minResolution: this.minResolution,
-      maxResolution: this.maxResolution,
-      properties: { ...(this.layerProperties ?? {}) }
+      opacity: this.opacity(),
+      visible: this.visible(),
+      extent: this.extent(),
+      zIndex: this.zIndex(),
+      minResolution: this.minResolution(),
+      maxResolution: this.maxResolution(),
+      properties: { ...props }
     });
     this.assignLayer(this.webglLayer);
 

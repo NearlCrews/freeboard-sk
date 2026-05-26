@@ -104,11 +104,11 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
       } else if (this.regionStyles['default']) {
         theStyle = this.setTextLabel(this.regionStyles['default'], reg.name);
       }
-    } else if (this.layerProperties?.['style']) {
-      theStyle = this.setTextLabel(
-        this.layerProperties['style'] as Style,
-        reg.name
-      );
+    } else {
+      const layerProps = this.layerProperties();
+      if (layerProps?.['style']) {
+        theStyle = this.setTextLabel(layerProps['style'] as Style, reg.name);
+      }
     }
 
     return theStyle;

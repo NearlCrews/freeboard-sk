@@ -369,24 +369,44 @@
         [darkMode]="app.uiConfig().invertColor"
       >
       </sk-ais-flags>
-      <sk-ais-vessels
-        [darkMode]="app.uiConfig().invertColor"
-        [targets]="dfeat.ais"
-        targetContext="vessels"
-        [labelMinZoom]="this.app.config.map.labelsMinZoom"
-        [mapZoom]="mapZoomLevel()"
-        [updateIds]="skstream.aisStatus().updated"
-        [staleIds]="skstream.aisStatus().stale"
-        [removeIds]="skstream.aisStatus().expired"
-        [inactiveTime]="app.config.vessels.aisStaleAge"
-        [zIndex]="980"
-        [focusId]="app.data.vessels.activeId"
-        [filterIds]="app.config.selections.aisTargets"
-        [filterByShipType]="app.config.selections.aisFilterByShipType"
-        [filterShipTypes]="app.config.selections.aisTargetTypes"
-        [cogLineLength]="app.config.vessels.aisCogLine"
-      >
-      </sk-ais-vessels>
+      @if (useWebGLAIS()) {
+        <sk-ais-webglpoints
+          [darkMode]="app.uiConfig().invertColor"
+          [targets]="dfeat.ais"
+          targetContext="vessels"
+          [labelMinZoom]="this.app.config.map.labelsMinZoom"
+          [mapZoom]="mapZoomLevel()"
+          [updateIds]="skstream.aisStatus().updated"
+          [staleIds]="skstream.aisStatus().stale"
+          [removeIds]="skstream.aisStatus().expired"
+          [inactiveTime]="app.config.vessels.aisStaleAge"
+          [zIndex]="980"
+          [focusId]="app.data.vessels.activeId"
+          [filterIds]="app.config.selections.aisTargets"
+          [filterByShipType]="app.config.selections.aisFilterByShipType"
+          [filterShipTypes]="app.config.selections.aisTargetTypes"
+        >
+        </sk-ais-webglpoints>
+      } @else {
+        <sk-ais-vessels
+          [darkMode]="app.uiConfig().invertColor"
+          [targets]="dfeat.ais"
+          targetContext="vessels"
+          [labelMinZoom]="this.app.config.map.labelsMinZoom"
+          [mapZoom]="mapZoomLevel()"
+          [updateIds]="skstream.aisStatus().updated"
+          [staleIds]="skstream.aisStatus().stale"
+          [removeIds]="skstream.aisStatus().expired"
+          [inactiveTime]="app.config.vessels.aisStaleAge"
+          [zIndex]="980"
+          [focusId]="app.data.vessels.activeId"
+          [filterIds]="app.config.selections.aisTargets"
+          [filterByShipType]="app.config.selections.aisFilterByShipType"
+          [filterShipTypes]="app.config.selections.aisTargetTypes"
+          [cogLineLength]="app.config.vessels.aisCogLine"
+        >
+        </sk-ais-vessels>
+      }
     </div>
   }
 

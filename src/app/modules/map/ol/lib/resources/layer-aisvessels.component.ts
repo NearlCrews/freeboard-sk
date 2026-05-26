@@ -209,10 +209,11 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
           s = ts['default'];
         }
       }
-    } else if (this.layerProperties?.['style']) {
-      s = this.layerProperties['style'] as Style;
     } else {
-      if (target.id === this.focusId) {
+      const layerProps = this.layerProperties();
+      if (layerProps?.['style']) {
+        s = layerProps['style'] as Style;
+      } else if (target.id === this.focusId) {
         s = new Style({
           image: new RegularShape({
             points: 3,
@@ -346,6 +347,6 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
 
   // ok to show cog lines
   okToRenderCogLines() {
-    return this.cogLineLength !== 0 && this.mapZoom >= this.labelMinZoom;
+    return this.cogLineLength !== 0 && this.mapZoom() >= this.labelMinZoom();
   }
 }

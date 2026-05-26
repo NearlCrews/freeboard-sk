@@ -138,21 +138,24 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
       } else {
         s = this.targetStyles['default'];
       }
-    } else if (this.layerProperties?.['style']) {
-      s = this.layerProperties['style'] as Style;
     } else {
-      s = new Style({
-        image: new RegularShape({
-          points: 3,
-          radius: 7,
-          fill: new Fill({ color: 'magenta' }),
-          stroke: new Stroke({
-            color: 'black',
-            width: 1
-          }),
-          rotateWithView: true
-        })
-      });
+      const layerProps = this.layerProperties();
+      if (layerProps?.['style']) {
+        s = layerProps['style'] as Style;
+      } else {
+        s = new Style({
+          image: new RegularShape({
+            points: 3,
+            radius: 7,
+            fill: new Fill({ color: 'magenta' }),
+            stroke: new Stroke({
+              color: 'black',
+              width: 1
+            }),
+            rotateWithView: true
+          })
+        });
+      }
     }
     return s;
   }

@@ -72,6 +72,8 @@ export interface IAppConfig {
     showAisTargets: boolean; // show/hide AIS targets
     showNotes: boolean; // show/hide notes
     autoNightMode: boolean;
+    webglAISThreshold: number; // AIS vessel count past which the WebGL points layer replaces the canvas layer
+    useWebGLNightMode: boolean; // opt-in WebGL fragment-shader night-mode for WebGLTileLayer raster chart layers
   };
   display: {
     fab: MFBAction; // FAB button selection

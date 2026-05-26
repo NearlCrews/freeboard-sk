@@ -25,7 +25,6 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() tracks = new Map<string, any>();
   @Input() tracksMinZoom = 10;
-  @Input() override mapZoom = 10;
   @Input() showTracks = true;
 
   private readonly mapTheme = inject(MapThemeService);
@@ -52,23 +51,19 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
         this.reloadTracks();
       } else {
         if (tracksMinZoomChange) {
-          if (typeof this.mapZoom !== 'undefined') {
-            this.reloadTracks();
-          }
+          this.reloadTracks();
         }
         if (mapZoomChange) {
-          if (typeof this.tracksMinZoom !== 'undefined') {
-            if (
-              mapZoomChange.currentValue >= this.tracksMinZoom &&
-              mapZoomChange.previousValue < this.tracksMinZoom
-            ) {
-              this.reloadTracks();
-            } else if (
-              mapZoomChange.currentValue < this.tracksMinZoom &&
-              mapZoomChange.previousValue >= this.tracksMinZoom
-            ) {
-              this.source.clear();
-            }
+          if (
+            mapZoomChange.currentValue >= this.tracksMinZoom &&
+            mapZoomChange.previousValue < this.tracksMinZoom
+          ) {
+            this.reloadTracks();
+          } else if (
+            mapZoomChange.currentValue < this.tracksMinZoom &&
+            mapZoomChange.previousValue >= this.tracksMinZoom
+          ) {
+            this.source.clear();
           }
         }
       }
@@ -76,7 +71,7 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   }
 
   okToRenderTracks() {
-    return this.mapZoom >= this.tracksMinZoom;
+    return this.mapZoom() >= this.tracksMinZoom;
   }
 
   reloadTracks() {
@@ -147,8 +142,9 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
       ? 'rgb(0, 0, 255)'
       : this.mapTheme.palette().trailAis;
     const color = this.showTracks ? baseColor : 'transparent';
-    if (this.layerProperties?.['style']) {
-      const cs = (this.layerProperties['style'] as Style).clone();
+    const layerProps = this.layerProperties();
+    if (layerProps?.['style']) {
+      const cs = (layerProps['style'] as Style).clone();
       const ls = cs.getStroke();
       if (ls) {
         ls.setColor(color);

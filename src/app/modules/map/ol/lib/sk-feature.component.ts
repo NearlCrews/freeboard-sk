@@ -6,12 +6,12 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  input
 } from '@angular/core';
 import { Layer } from 'ol/layer';
 import { Feature } from 'ol';
@@ -41,17 +41,17 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
    */
   @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() darkMode = false;
-  @Input() labelMinZoom = 10;
-  @Input() mapZoom = 10;
-  @Input() opacity?: number;
-  @Input() visible?: boolean;
-  @Input() extent?: Extent;
-  @Input() zIndex?: number;
-  @Input() minResolution?: number;
-  @Input() maxResolution?: number;
+  readonly darkMode = input(false);
+  readonly labelMinZoom = input(10);
+  readonly mapZoom = input(10);
+  readonly opacity = input<number | undefined>(undefined);
+  readonly visible = input<boolean | undefined>(undefined);
+  readonly extent = input<Extent | undefined>(undefined);
+  readonly zIndex = input<number | undefined>(undefined);
+  readonly minResolution = input<number | undefined>(undefined);
+  readonly maxResolution = input<number | undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties?: Record<string, any>;
+  readonly layerProperties = input<Record<string, any> | undefined>(undefined);
 
   constructor(
     protected mapComponent: MapComponent,
@@ -62,11 +62,19 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
     this.source = new VectorSource();
-    this.layer = new VectorLayer(
-      Object.assign(this, { ...this.layerProperties })
-    );
+    const props = this.layerProperties() ?? {};
+    this.layer = new VectorLayer({
+      source: this.source,
+      opacity: this.opacity(),
+      visible: this.visible(),
+      extent: this.extent(),
+      zIndex: this.zIndex(),
+      minResolution: this.minResolution(),
+      maxResolution: this.maxResolution(),
+      ...props
+    });
 
-    this.theme = this.darkMode ? DarkTheme : LightTheme;
+    this.theme = this.darkMode() ? DarkTheme : LightTheme;
 
     const map = this.mapComponent.getMap();
     if (this.layer && map) {
@@ -110,21 +118,21 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
     const darkChange = changes['darkMode'];
     const minZoomChange = changes['labelMinZoom'];
     const mapZoomChange = changes['mapZoom'];
+    const labelMinZoom = this.labelMinZoom();
+    const mapZoom = this.mapZoom();
     if (darkChange) {
       this.theme = darkChange.currentValue ? DarkTheme : LightTheme;
       this.onDarkMode(darkChange.currentValue);
-    } else if (minZoomChange && typeof this.mapZoom !== 'undefined') {
+    } else if (minZoomChange && typeof mapZoom !== 'undefined') {
       this.onLabelMinZoomSet(minZoomChange.currentValue);
-    } else if (mapZoomChange && typeof this.labelMinZoom !== 'undefined') {
+    } else if (mapZoomChange && typeof labelMinZoom !== 'undefined') {
       if (
-        (mapZoomChange.currentValue >= this.labelMinZoom &&
-          mapZoomChange.previousValue < this.labelMinZoom) ||
-        (mapZoomChange.currentValue < this.labelMinZoom &&
-          mapZoomChange.previousValue >= this.labelMinZoom)
+        (mapZoomChange.currentValue >= labelMinZoom &&
+          mapZoomChange.previousValue < labelMinZoom) ||
+        (mapZoomChange.currentValue < labelMinZoom &&
+          mapZoomChange.previousValue >= labelMinZoom)
       ) {
-        this.onLabelZoomThreshold(
-          mapZoomChange.currentValue >= this.labelMinZoom
-        );
+        this.onLabelZoomThreshold(mapZoomChange.currentValue >= labelMinZoom);
       }
     }
   }
@@ -185,7 +193,7 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
       ts = style.getText() ?? null;
     }
     if (ts) {
-      ts.setText(Math.abs(this.mapZoom) >= this.labelMinZoom ? text : '');
+      ts.setText(Math.abs(this.mapZoom()) >= this.labelMinZoom() ? text : '');
       ts.setFill(new Fill({ color: this.theme.labelText.color }));
       if (Array.isArray(style)) {
         (style[0] as Style).setText(ts);

@@ -31,7 +31,9 @@ export function cleanConfig(
       showCourseData: true,
       showAisTargets: true,
       showNotes: true,
-      autoNightMode: false
+      autoNightMode: false,
+      webglAISThreshold: 50,
+      useWebGLNightMode: false
     };
   } else {
     if (typeof settings.ui.showCourseData === 'undefined') {
@@ -42,6 +44,12 @@ export function cleanConfig(
     }
     if (typeof settings.ui.showNotes === 'undefined') {
       settings.ui.showNotes = true;
+    }
+    if (typeof settings.ui.webglAISThreshold === 'undefined') {
+      settings.ui.webglAISThreshold = 50;
+    }
+    if (typeof settings.ui.useWebGLNightMode === 'undefined') {
+      settings.ui.useWebGLNightMode = false;
     }
   }
 
@@ -378,7 +386,9 @@ export function defaultConfig(): IAppConfig {
       showCourseData: true, // show/hide course data
       showAisTargets: true, // show/hide ais targets
       showNotes: true, // show/hide notes
-      autoNightMode: false
+      autoNightMode: false,
+      webglAISThreshold: 50,
+      useWebGLNightMode: false
     },
     display: {
       fab: 'wpt', // default FAB button

@@ -81,12 +81,11 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
           name ?? ''
         );
       }
-    } else if (this.layerProperties?.['style']) {
-      return this.setTextLabel(
-        this.layerProperties['style'] as Style,
-        name ?? ''
-      );
     } else {
+      const layerProps = this.layerProperties();
+      if (layerProps?.['style']) {
+        return this.setTextLabel(layerProps['style'] as Style, name ?? '');
+      }
       // default styles
       const s = new Style({
         stroke: new Stroke({

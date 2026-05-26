@@ -118,12 +118,11 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
         this.waypointStyles['default'] ?? new Style(),
         wpt.name
       );
-    } else if (this.layerProperties?.['style']) {
-      return this.setTextLabel(
-        this.layerProperties['style'] as Style,
-        wpt.name
-      );
     } else {
+      const layerProps = this.layerProperties();
+      if (layerProps?.['style']) {
+        return this.setTextLabel(layerProps['style'] as Style, wpt.name);
+      }
       // default styles
       const palette = this.mapTheme.palette();
       const fillColor =
