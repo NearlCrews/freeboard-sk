@@ -108,9 +108,9 @@ interface DialogData {
   ]
 })
 export class RegionDialog implements OnInit {
-  protected name: string;
-  protected description: string;
-  protected isHazard: boolean;
+  protected name = '';
+  protected description = '';
+  protected isHazard = false;
   protected readOnly = false;
 
   private dialogRef = inject(MatDialogRef<RegionDialog>);
@@ -121,10 +121,9 @@ export class RegionDialog implements OnInit {
   ngOnInit() {
     this.name = this.data.region.name ?? '';
     this.description = this.data.region.description ?? '';
-    this.isHazard =
-      (this.data.region.feature as any).properties?.skIcon === 'hazard';
-    this.readOnly =
-      (this.data.region.feature as any)?.properties?.readOnly ?? false;
+    const props = this.data.region.feature.properties;
+    this.isHazard = props?.['skIcon'] === 'hazard';
+    this.readOnly = (props?.['readOnly'] as boolean) ?? false;
   }
 
   protected doHazard(checked: boolean) {
@@ -135,11 +134,13 @@ export class RegionDialog implements OnInit {
     if (save) {
       this.data.region.name = this.name;
       this.data.region.description = this.description;
+      const props = this.data.region.feature.properties ?? {};
       if (this.isHazard) {
-        (this.data.region.feature as any).properties.skIcon = 'hazard';
+        props['skIcon'] = 'hazard';
       } else {
-        delete (this.data.region.feature as any).properties.skIcon;
+        delete props['skIcon'];
       }
+      this.data.region.feature.properties = props;
     }
     this.dialogRef.close({ save: save, region: this.data.region });
   }

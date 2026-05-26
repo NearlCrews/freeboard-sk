@@ -45,13 +45,13 @@ export class SKResourceGroupService {
       );
       skf?.subscribe(
         (res: GroupResponse) => {
-          const list: any = [];
+          const list: FBResourceGroups = [];
           Object.entries(res).forEach((item) => {
             list.push([item[0], item[1], false]);
           });
           list.sort((a, b) => {
-            const x = a[1].name?.toLowerCase();
-            const y = b[1].name?.toLowerCase();
+            const x = a[1].name?.toLowerCase() ?? '';
+            const y = b[1].name?.toLowerCase() ?? '';
             return x > y ? 1 : -1;
           });
           resolve(list);
@@ -165,11 +165,11 @@ export class SKResourceGroupService {
         }
       })
       .afterClosed()
-      .subscribe((r: { save: boolean; group: SKResourceGroup }) => {
-        if (r.save) {
+      .subscribe((r: { save: boolean; group: SKResourceGroup } | undefined) => {
+        if (r?.save) {
           if (id) {
             this.putToServer(id, r.group).catch((err) =>
-              this.app.parseHttpErrorResponse(err)
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse)
             );
           } else {
             this.postToServer(r.group);
@@ -193,12 +193,12 @@ export class SKResourceGroupService {
         'YES',
         'NO'
       )
-      .subscribe(async (result: { ok: boolean }) => {
-        if (result && result.ok) {
+      .subscribe(async (result: { ok: boolean } | undefined) => {
+        if (result?.ok) {
           try {
             await this.deleteFromServer(id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           }
         }
       });
@@ -225,32 +225,24 @@ export class SKResourceGroupService {
     const grp = await this.fromServer(grpId);
 
     if (resType === 'route') {
-      if (!Array.isArray(grp.routes)) {
-        grp.routes = [];
-      }
-      const newids = resId.filter((i) => !grp.routes.includes(i));
-      grp.routes = grp.routes.concat(newids);
+      const current = Array.isArray(grp.routes) ? grp.routes : [];
+      const newids = resId.filter((i) => !current.includes(i));
+      grp.routes = current.concat(newids);
     }
     if (resType === 'waypoint') {
-      if (!Array.isArray(grp.waypoints)) {
-        grp.waypoints = [];
-      }
-      const newids = resId.filter((i) => !grp.waypoints.includes(i));
-      grp.waypoints = grp.waypoints.concat(newids);
+      const current = Array.isArray(grp.waypoints) ? grp.waypoints : [];
+      const newids = resId.filter((i) => !current.includes(i));
+      grp.waypoints = current.concat(newids);
     }
     if (resType === 'region') {
-      if (!Array.isArray(grp.regions)) {
-        grp.regions = [];
-      }
-      const newids = resId.filter((i) => !grp.regions.includes(i));
-      grp.regions = grp.regions.concat(newids);
+      const current = Array.isArray(grp.regions) ? grp.regions : [];
+      const newids = resId.filter((i) => !current.includes(i));
+      grp.regions = current.concat(newids);
     }
     if (resType === 'chart') {
-      if (!Array.isArray(grp.charts)) {
-        grp.charts = [];
-      }
-      const newids = resId.filter((i) => !grp.charts.includes(i));
-      grp.charts = grp.charts.concat(newids);
+      const current = Array.isArray(grp.charts) ? grp.charts : [];
+      const newids = resId.filter((i) => !current.includes(i));
+      grp.charts = current.concat(newids);
     }
     await this.putToServer(grpId, grp);
   }
@@ -266,6 +258,7 @@ export class SKResourceGroupService {
     return new Promise((resolve, reject) => {
       if (!collection || !id) {
         resolve([]);
+        return;
       }
       const skf = this.signalk.api.get(
         this.app.skApiVersion,
@@ -273,16 +266,19 @@ export class SKResourceGroupService {
       );
       skf?.subscribe(
         (res: GroupResponse) => {
-          const list = Object.entries(res).filter((item) => {
-            if (Array.isArray(item[1][collection])) {
-              return item[1][collection].includes(id);
-            } else {
-              return false;
-            }
-          });
+          const list: FBResourceGroups = Object.entries(res)
+            .filter((item) => {
+              const idsForCollection = (
+                item[1] as unknown as Record<string, string[] | undefined>
+              )[collection];
+              return (
+                Array.isArray(idsForCollection) && idsForCollection.includes(id)
+              );
+            })
+            .map(([gid, grp]): FBResourceGroup => [gid, grp, false]);
           list.sort((a, b) => {
-            const x = a[1].name?.toLowerCase();
-            const y = b[1].name?.toLowerCase();
+            const x = a[1].name?.toLowerCase() ?? '';
+            const y = b[1].name?.toLowerCase() ?? '';
             return x > y ? 1 : -1;
           });
           resolve(list);

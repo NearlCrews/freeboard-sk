@@ -72,6 +72,12 @@ interface DialogData {
   waypoint: SKWaypoint; // Waypoint resource
 }
 
+interface WaypointTypeOption {
+  type: string;
+  name: string;
+  icon: AppIconDef;
+}
+
 @Component({
   selector: 'ap-waypointdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -299,10 +305,10 @@ interface DialogData {
   ]
 })
 export class WaypointDialog {
-  protected dialogIcon: string; // dialog add / edit icon
-  protected wptIcon = signal<AppIconDef | undefined>(undefined);
-  protected waypointTypeSelections: Map<string, any[]>;
-  protected wptIconDisplayName!: string;
+  protected dialogIcon: string;
+  protected wptIcon = signal<AppIconDef>({});
+  protected waypointTypeSelections: Map<string, WaypointTypeOption[]>;
+  protected wptIconDisplayName = '';
 
   protected wptType: string;
   protected wptDescription: string;
@@ -310,10 +316,10 @@ export class WaypointDialog {
   protected wptLat: number;
   protected wptLon: number;
 
-  protected skIcon: string;
-  protected inpLat: FormControl;
-  protected inpLon: FormControl;
-  protected inpName: FormControl;
+  protected skIcon: string | undefined;
+  protected inpLat: FormControl<number | null>;
+  protected inpLon: FormControl<number | null>;
+  protected inpName: FormControl<string | null>;
 
   protected errorMessage = signal('');
   protected iconsForSelection = signal<AppIconDef[]>([]);
@@ -331,16 +337,22 @@ export class WaypointDialog {
 
     this.wptType = this.data.waypoint.type ?? '';
     this.wptDescription = this.data.waypoint.description ?? '';
-    this.wptReadOnly = this.data.waypoint.feature.properties?.readOnly ?? false;
+    this.wptReadOnly =
+      (this.data.waypoint.feature.properties?.['readOnly'] as boolean) ?? false;
     const coords = this.data.waypoint.feature.geometry.coordinates ?? [0, 0];
-    this.wptLat = coords[1];
-    this.wptLon = coords[0];
+    this.wptLat = coords[1] ?? 0;
+    this.wptLon = coords[0] ?? 0;
 
-    this.inpLat = new FormControl(this.wptLat, [Validators.required]);
-    this.inpLon = new FormControl(this.wptLon, [Validators.required]);
-    this.inpName = new FormControl(this.data.waypoint.name ?? '', [
+    this.inpLat = new FormControl<number | null>(this.wptLat, [
       Validators.required
     ]);
+    this.inpLon = new FormControl<number | null>(this.wptLon, [
+      Validators.required
+    ]);
+    this.inpName = new FormControl<string | null>(
+      this.data.waypoint.name ?? '',
+      [Validators.required]
+    );
 
     this.waypointTypeSelections = this.buildWptSelections();
 
@@ -372,33 +384,37 @@ export class WaypointDialog {
 
   protected handleClose(save: boolean) {
     if (save) {
-      this.data.waypoint.name = this.inpName.value;
+      this.data.waypoint.name = this.inpName.value ?? '';
       this.data.waypoint.description = this.wptDescription;
       this.data.waypoint.type = this.wptType;
       this.data.waypoint.feature.geometry.coordinates = [
-        this.inpLon.value,
-        this.inpLat.value
+        this.inpLon.value ?? 0,
+        this.inpLat.value ?? 0
       ];
+      const props = this.data.waypoint.feature.properties ?? {};
       if (this.skIcon) {
-        this.data.waypoint.feature.properties.skIcon = this.skIcon;
+        props['skIcon'] = this.skIcon;
       } else {
-        delete this.data.waypoint.feature.properties.skIcon;
+        delete props['skIcon'];
       }
+      this.data.waypoint.feature.properties = props;
     }
     this.dialogRef.close({ save: save, waypoint: this.data.waypoint });
   }
 
-  private buildWptSelections() {
+  private buildWptSelections(): Map<string, WaypointTypeOption[]> {
     const wt = Object.entries(waypointTypeDef);
-    const groups = new Map();
-    wt.forEach((i: any) => {
-      if (!groups.has(i[1].group)) {
-        groups.set(i[1].group, []);
+    const groups = new Map<string, WaypointTypeOption[]>();
+    wt.forEach(([key, def]) => {
+      let bucket = groups.get(def.group);
+      if (!bucket) {
+        bucket = [];
+        groups.set(def.group, bucket);
       }
-      groups.get(i[1].group).push({
-        type: i[0] === 'default' ? '' : i[0],
-        name: i[1].displayName,
-        icon: i[1].icon
+      bucket.push({
+        type: key === 'default' ? '' : key,
+        name: def.displayName,
+        icon: def.icon
       });
     });
     return groups;
@@ -452,11 +468,11 @@ export class WaypointDialog {
   }
 
   private getFriendlyIconName(w: SKWaypoint): string {
-    if (!w.feature.properties.skIcon) {
+    const skIcon = w.feature.properties?.['skIcon'] as string | undefined;
+    if (!skIcon) {
       return !w.type ? 'Waypoint' : w.type.replaceAll('-', ' ');
-    } else {
-      return w.feature.properties.skIcon.replaceAll('-', ' ');
     }
+    return skIcon.replaceAll('-', ' ');
   }
 
   /** return the waypoint icon definition */
@@ -464,10 +480,12 @@ export class WaypointDialog {
     return getResourceIcon('waypoints', wpt ?? this.data.waypoint);
   }
 
-  protected handleWptTypeChange(e) {
-    const w = Object.assign({}, this.data.waypoint);
+  protected handleWptTypeChange(_e: unknown) {
+    const w: SKWaypoint = { ...this.data.waypoint };
     w.type = this.wptType;
-    delete w.feature.properties.skIcon;
+    if (w.feature.properties) {
+      delete w.feature.properties['skIcon'];
+    }
     this.wptIconDisplayName = this.getFriendlyIconName(w);
     this.wptIcon.update(() => this.getIconDef(w));
     this.iconsForSelection.set([]);
@@ -478,12 +496,12 @@ export class WaypointDialog {
   private handleChangeIcon() {
     if (this.wptType === 'pseudoaton') {
       const { svgIcon } = getResourceIcon('waypoints', 'pseudoaton');
-      const d = getSvgList()
+      const d: AppIconDef[] = getSvgList()
         .filter((i) => i.id.includes('virtual-'))
-        .map((i) => {
-          return { svgIcon: i.id };
-        });
-      d.unshift({ svgIcon: svgIcon });
+        .map((i) => ({ svgIcon: i.id }));
+      if (svgIcon) {
+        d.unshift({ svgIcon });
+      }
       this.iconsForSelection.update(() => d);
     } else {
       this.iconsForSelection.set([]);
@@ -492,8 +510,10 @@ export class WaypointDialog {
 
   protected handleIconSelected(skIcon: string) {
     this.skIcon = skIcon;
-    const w = Object.assign({}, this.data.waypoint);
-    w.feature.properties.skIcon = skIcon;
+    const w: SKWaypoint = { ...this.data.waypoint };
+    const props = w.feature.properties ?? {};
+    props['skIcon'] = skIcon;
+    w.feature.properties = props;
     this.wptIconDisplayName = this.getFriendlyIconName(w);
     this.wptIcon.update(() => this.getIconDef(w));
   }

@@ -2,11 +2,11 @@ import { WMSCapabilities, WMTSCapabilities } from 'ol/format';
 import { SKInfoLayer } from '../../custom-resource-classes';
 import { ChartProvider } from 'src/app/types';
 
-type CapabilitiesBaseDef = {
+interface CapabilitiesBaseDef {
   name: string;
   description: string;
   url: string;
-};
+}
 
 export interface WMSCapabilitiesDef extends CapabilitiesBaseDef {
   type: 'WMS';
@@ -18,14 +18,14 @@ export interface WMTSCapabilitiesDef extends CapabilitiesBaseDef {
   layers: WMTSLayerDef[];
 }
 
-export type WMTSLayerDef = {
+export interface WMTSLayerDef {
   name: string;
   description: string;
   id: string;
   bounds: [number, number, number, number];
   format: 'jpg' | 'png';
   time?: TimeDef;
-};
+}
 
 export interface TimeDimension {
   from: string;
@@ -56,8 +56,8 @@ export interface LayerNode {
 export const getLayerNodeByName = (
   name: string,
   data: LayerNode[]
-): LayerNode => {
-  let result: LayerNode;
+): LayerNode | undefined => {
+  let result: LayerNode | undefined;
 
   const parseNode = (n: LayerNode) => {
     if (result) return;
@@ -70,7 +70,7 @@ export const getLayerNodeByName = (
     }
   };
 
-  for (let node of data) {
+  for (const node of data) {
     parseNode(node);
     if (result) {
       break;

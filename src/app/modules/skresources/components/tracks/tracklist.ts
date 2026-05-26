@@ -4,7 +4,8 @@ import {
   signal,
   effect,
   output,
-  inject
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +19,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SKResourceService, SKResourceType } from 'src/app/modules/skresources';
 import { FBTrack, FBTracks, Position } from 'src/app/types';
 import { SKWorkerService } from 'src/app/modules';
@@ -42,7 +44,7 @@ import { RemarkModule } from 'ngx-remark';
     RemarkModule
   ]
 })
-export class TrackListComponent extends ResourceListBase {
+export class TrackListComponent extends ResourceListBase implements OnInit {
   closed = output<void>();
   center = output<Position>();
 
@@ -94,7 +96,7 @@ export class TrackListComponent extends ResourceListBase {
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -121,10 +123,14 @@ export class TrackListComponent extends ResourceListBase {
     const idx = this.toggleItem(checked, id);
     // update cache
     if (idx !== -1) {
+      const entry = this.filteredList()[idx];
+      if (!entry) {
+        return;
+      }
       if (checked) {
-        this.skres.trackAdd([this.filteredList()[idx]]);
+        this.skres.trackAdd([entry]);
       } else {
-        this.skres.trackRemove([this.filteredList()[idx][0]]);
+        this.skres.trackRemove([entry[0]]);
       }
     }
   }

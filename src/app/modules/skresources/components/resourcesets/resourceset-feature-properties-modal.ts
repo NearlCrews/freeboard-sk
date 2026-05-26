@@ -1,13 +1,8 @@
 /** Resource Dialog Components **
  ********************************/
 
-import {
-  OnInit,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
-  Component,
-  Inject
-} from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +15,14 @@ import {
 } from '@angular/material/bottom-sheet';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKResourceSet } from '../../custom-resource-classes';
+
+interface ResourceSetFeatureProperties {
+  name: string;
+  description: string;
+  'resourceset.name': string;
+  'resourceset.description': string;
+  'resourceset.collection': string;
+}
 
 /********* ResourceSetFeatureModal **********
  * Displays information about a ResourceSet feature
@@ -104,13 +107,17 @@ import type { SKResourceSet } from '../../custom-resource-classes';
   ]
 })
 export class ResourceSetFeatureModal implements OnInit {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected properties: any = {};
+  protected properties: ResourceSetFeatureProperties = {
+    name: '',
+    description: '',
+    'resourceset.name': '',
+    'resourceset.description': '',
+    'resourceset.collection': ''
+  };
   protected title = 'ResourceSet Feature: ';
 
   constructor(
     public app: AppFacade,
-    private cdr: ChangeDetectorRef,
     public modalRef: MatBottomSheetRef<ResourceSetFeatureModal>,
     @Inject(MAT_BOTTOM_SHEET_DATA)
     public data: {
@@ -131,17 +138,21 @@ export class ResourceSetFeatureModal implements OnInit {
     const t = this.data.id.split('.');
     const fIndex = Number(t[t.length - 1]);
     const features = this.data.item.values.features;
-    const feature = fIndex < features.length ? features[fIndex] : features[0];
+    if (!features || features.length === 0) {
+      return;
+    }
+    const feature = fIndex < features.length ? features[fIndex]! : features[0]!;
 
-    this.title = feature.properties.name ?? 'Feature';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props = (feature.properties ?? {}) as Record<string, any>;
+
+    this.title = (props['name'] as string) ?? 'Feature';
     this.properties = {
-      name: feature.properties.name ?? '',
-      description: feature.properties.description ?? '',
-      'position.latitude': feature.geometry.coordinates[1],
-      'position.longitude': feature.geometry.coordinates[0],
+      name: (props['name'] as string) ?? '',
+      description: (props['description'] as string) ?? '',
       'resourceset.name': this.data.item.name,
       'resourceset.description': this.data.item.description,
-      'resourceset.collection': t[1]
+      'resourceset.collection': t[1] ?? ''
     };
   }
 }

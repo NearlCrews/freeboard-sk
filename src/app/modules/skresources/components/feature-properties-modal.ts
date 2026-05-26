@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  AfterViewInit
+} from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -113,8 +118,8 @@ import { Feature } from 'geojson';
     `
   ]
 })
-export class FeaturePropertiesModal {
-  protected display = [];
+export class FeaturePropertiesModal implements AfterViewInit {
+  protected display: Feature['properties'][] = [];
   protected currentPage = 1;
 
   protected modalRef = inject(MatBottomSheetRef<FeaturePropertiesModal>);
@@ -130,6 +135,9 @@ export class FeaturePropertiesModal {
     const sh = document.getElementsByClassName(
       'mat-horizontal-stepper-header-container'
     );
-    sh[0]['style']['display'] = 'none';
+    const header = sh[0] as HTMLElement | undefined;
+    if (header) {
+      header.style.display = 'none';
+    }
   }
 }

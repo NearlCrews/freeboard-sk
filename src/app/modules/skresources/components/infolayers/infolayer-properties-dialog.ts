@@ -106,7 +106,7 @@ import { SKInfoLayer } from '../../custom-resource-classes';
   ]
 })
 export class InfoLayerPropertiesDialog {
-  protected icon: string;
+  protected icon = '';
 
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<InfoLayerPropertiesDialog>);

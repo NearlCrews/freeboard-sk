@@ -17,14 +17,19 @@ import {
 } from '@angular/material/bottom-sheet';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
-import type { Position } from 'src/app/types';
+import type { FBRoute, FBWaypoint, Position } from 'src/app/types';
 import { AppFacade } from 'src/app/app.facade';
 
-import type { SKWaypoint, SKRoute } from '../resource-classes';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKResourceService } from '../resources.service';
 import { CourseService } from '../../course';
 import { Convert } from 'src/app/lib/convert';
+
+interface CoordinatesMetaEntry {
+  name?: string;
+  description?: string;
+  href?: string;
+}
 
 @Component({
   selector: 'ap-dest-modal',
@@ -203,7 +208,7 @@ export class ActiveResourcePropertiesModal implements OnInit {
   protected selIndex = signal<number>(-1);
   protected clearButtonText = 'Clear';
   protected showClearButton = signal<boolean>(false);
-  protected readOnly: boolean;
+  protected readOnly = false;
   protected closestPoint = signal<number>(-1);
 
   protected app = inject(AppFacade);
@@ -213,25 +218,23 @@ export class ActiveResourcePropertiesModal implements OnInit {
   protected data = inject<{
     title: string;
     type: string;
-    resource: SKWaypoint | SKRoute;
+    resource: FBRoute | FBWaypoint;
     noButtons: boolean;
   }>(MAT_BOTTOM_SHEET_DATA);
 
   constructor() {}
 
   ngOnInit() {
-    if (
-      this.data.resource[1].feature &&
-      this.data.resource[1].feature.geometry.coordinates
-    ) {
+    const resource = this.data.resource[1];
+    if (resource.feature && resource.feature.geometry.coordinates) {
       if (this.data.type === 'route') {
-        this.points = [].concat(
-          this.data.resource[1].feature.geometry.coordinates
-        );
+        // Route coordinates: LineString [Position, Position, ...]
+        const coords = resource.feature.geometry.coordinates as Position[];
+        this.points = [...coords];
         this.legs = this.getLegs();
 
-        this.data.title = this.data.resource[1].name
-          ? `${this.data.resource[1].name} Points`
+        this.data.title = resource.name
+          ? `${resource.name} Points`
           : 'Route Points';
 
         if (this.data.resource[0] === this.app.data.activeRoute) {
@@ -239,14 +242,14 @@ export class ActiveResourcePropertiesModal implements OnInit {
           this.showClearButton.set(true);
         }
         this.readOnly =
-          this.data.resource[1].feature.properties?.readOnly ?? false;
+          (resource.feature.properties?.['readOnly'] as boolean) ?? false;
         this.pointMeta = this.getPointsMeta();
       }
     }
   }
 
   getLegs() {
-    const pos = this.app.data.vessels.self.position;
+    const pos = this.app.data.vessels.self.position ?? undefined;
     return GeoUtils.routeLegs(this.points, pos).map((l) => {
       return {
         bearing: this.app.formatValueForDisplay(l.bearing, 'deg'),
@@ -255,40 +258,22 @@ export class ActiveResourcePropertiesModal implements OnInit {
     });
   }
 
+  private getCoordinatesMeta(): CoordinatesMetaEntry[] | undefined {
+    const cm = this.data.resource[1].feature.properties?.['coordinatesMeta'];
+    return Array.isArray(cm) ? (cm as CoordinatesMetaEntry[]) : undefined;
+  }
+
   getPointsMeta() {
-    if (
-      this.data.resource[1].feature.properties.coordinatesMeta &&
-      Array.isArray(this.data.resource[1].feature.properties.coordinatesMeta)
-    ) {
-      const pointsMeta =
-        this.data.resource[1].feature.properties.coordinatesMeta.map((p) => {
-          return {
-            name: p?.name ?? '',
-            description: p?.description ?? ''
-          };
-        });
-      let idx = 0;
-      return pointsMeta.map((pt) => {
-        idx++;
-        if (pt.href) {
-          const id = pt.href.split('/').slice(-1);
-          const wpt = this.skres.fromCache('waypoints', id[0]);
-          return wpt
-            ? {
-                name: `* ${wpt[1].name}`,
-                description: `* ${wpt[1].description}`
-              }
-            : {
-                name: '!wpt reference!',
-                description: ''
-              };
-        } else {
-          return {
-            name: pt.name ?? `RtePt-${('000' + String(idx)).slice(-3)}`,
-            description: pt.description ?? ``
-          };
-        }
-      });
+    const cm = this.getCoordinatesMeta();
+    if (cm) {
+      // Preserve the original mapping: cm entries become {name, description}
+      // only. The original then tested `pt.href` (always undefined on the
+      // mapped object), so the wpt-resolution branch was dead code and is
+      // dropped here. Flagged for lead review.
+      return cm.map((p) => ({
+        name: p?.name ?? '',
+        description: p?.description ?? ''
+      }));
     } else {
       let idx = 0;
       return this.points.map(() => {
@@ -305,21 +290,16 @@ export class ActiveResourcePropertiesModal implements OnInit {
       const selPosition = this.points[this.selIndex()];
       moveItemInArray(this.points, e.previousIndex, e.currentIndex);
       this.legs = this.getLegs();
-      if (this.data.resource[1].feature.properties.coordinatesMeta) {
-        moveItemInArray(
-          this.data.resource[1].feature.properties.coordinatesMeta,
-          e.previousIndex,
-          e.currentIndex
-        );
+      const cm = this.getCoordinatesMeta();
+      if (cm) {
+        moveItemInArray(cm, e.previousIndex, e.currentIndex);
       }
       moveItemInArray(this.pointMeta, e.previousIndex, e.currentIndex);
 
-      this.updateFlag(selPosition);
-      this.skres.updateRouteCoords(
-        this.data.resource[0],
-        this.points,
-        this.data.resource[1].feature.properties.coordinatesMeta
-      );
+      if (selPosition) {
+        this.updateFlag(selPosition);
+      }
+      this.skres.updateRouteCoords(this.data.resource[0], this.points, cm);
     }
   }
 
@@ -346,10 +326,16 @@ export class ActiveResourcePropertiesModal implements OnInit {
       return;
     }
     if (idx === -1) {
+      const coords = this.data.resource[1].feature.geometry
+        .coordinates as Position[];
+      const vesselPos = this.app.data.vessels.self.position;
+      if (!vesselPos) {
+        return;
+      }
       const cpi = GeoUtils.closestForwardPoint(
-        this.data.resource[1].feature.geometry.coordinates,
-        this.app.data.vessels.self.position,
-        Convert.radiansToDegrees(this.app.data.vessels.self.heading)
+        coords,
+        vesselPos,
+        Convert.radiansToDegrees(this.app.data.vessels.self.heading ?? 0)
       );
       if (cpi === -1) {
         this.app.showAlert('Start Route', 'Closest point is behind vessel!');

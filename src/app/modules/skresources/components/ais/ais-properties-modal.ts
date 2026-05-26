@@ -18,6 +18,14 @@ import { AppFacade } from 'src/app/app.facade';
 import type { SKVessel } from 'src/app/modules/skresources/resource-classes';
 import { getAisIcon } from 'src/app/modules/icons';
 
+interface AISDisplay {
+  length: string | null;
+  beam: string | null;
+  airHeight: string | null;
+  draftMax: string | null;
+  draftCurrent: string | null;
+}
+
 @Component({
   selector: 'ap-ais-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -189,9 +197,9 @@ import { getAisIcon } from 'src/app/modules/icons';
   ]
 })
 export class AISPropertiesModal {
-  protected flagIcon: string;
+  protected flagIcon = '';
   protected showFlag = signal<boolean>(true);
-  protected display: any = {
+  protected display: AISDisplay = {
     length: null,
     beam: null,
     airHeight: null,
@@ -208,30 +216,25 @@ export class AISPropertiesModal {
 
   constructor() {
     this.flagIcon = `${this.app.hostDef.url}/signalk/v2/api/resources/flags/mmsi/${this.data.target.mmsi}`;
+    const design = this.data.target.design;
     this.display = {
-      length: this.app.formatValueForDisplay(
-        this.data.target.design.length?.overall,
-        'm',
-        { category: 'length' }
-      ),
-      beam: this.app.formatValueForDisplay(this.data.target.design.beam, 'm', {
+      length: this.app.formatValueForDisplay(design['length']?.overall, 'm', {
         category: 'length'
       }),
-      draftMax: this.app.formatValueForDisplay(
-        this.data.target.design.draft?.maximum,
-        'm',
-        { category: 'length' }
-      ),
+      beam: this.app.formatValueForDisplay(design['beam'], 'm', {
+        category: 'length'
+      }),
+      draftMax: this.app.formatValueForDisplay(design['draft']?.maximum, 'm', {
+        category: 'length'
+      }),
       draftCurrent: this.app.formatValueForDisplay(
-        this.data.target.design.draft?.current,
+        design['draft']?.current,
         'm',
         { category: 'length' }
       ),
-      airHeight: this.app.formatValueForDisplay(
-        this.data.target.design.airHeight,
-        'm',
-        { category: 'length' }
-      )
+      airHeight: this.app.formatValueForDisplay(design['airHeight'], 'm', {
+        category: 'length'
+      })
     };
   }
 
@@ -247,7 +250,7 @@ export class AISPropertiesModal {
    * @param id AIS shipType identifier
    * @returns mat-icon svgIcon value
    */
-  protected getShipIcon(id: number): string {
-    return getAisIcon(id).svgIcon;
+  protected getShipIcon(id: number | null | undefined): string {
+    return getAisIcon(id ?? -1).svgIcon ?? '';
   }
 }

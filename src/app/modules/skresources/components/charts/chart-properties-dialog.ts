@@ -278,7 +278,7 @@ import { NodeListSelect } from './node-list-select';
   ]
 })
 export class ChartPropertiesDialog implements OnInit {
-  protected icon: string;
+  protected icon = '';
   protected wmsLayers = signal<LayerNode[]>([]);
   protected wmtsLayers = signal<
     {
@@ -293,8 +293,8 @@ export class ChartPropertiesDialog implements OnInit {
   private capabilities!: WMTSCapabilitiesDef | WMSCapabilitiesDef;
 
   protected capabilitiesParam = signal<{ url: string; type: string }>({
-    url: null,
-    type: null
+    url: '',
+    type: ''
   });
 
   protected capabilitiesResource = resource({
@@ -349,7 +349,7 @@ export class ChartPropertiesDialog implements OnInit {
 
   protected handleLayerSelection(e: string[]) {
     if (this.data.type?.toLowerCase() === 'wmts') {
-      const l: WMTSLayerDef = (this.capabilities.layers as WMTSLayerDef[]).find(
+      const l = (this.capabilities.layers as WMTSLayerDef[]).find(
         (i: WMTSLayerDef) => i.id === e[0]
       );
       if (l) {

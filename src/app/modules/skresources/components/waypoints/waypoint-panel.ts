@@ -35,6 +35,7 @@ import {
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
 import { CourseService } from 'src/app/modules/course';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'waypoint-panel',
@@ -55,8 +56,8 @@ import { CourseService } from 'src/app/modules/course';
 })
 export class WaypointPanel {
   waypoint = input<SKWaypoint>(new SKWaypoint());
-  id = input<string>(undefined);
-  related = input<string>(undefined);
+  id = input<string | undefined>(undefined);
+  related = input<string | undefined>(undefined);
 
   protected _waypoint = linkedSignal(() => this.waypoint());
   protected notes = signal<FBNotes>([]);
@@ -65,10 +66,10 @@ export class WaypointPanel {
   edit = output<string>();
   panTo = output<{
     center: Position;
-    zoomLevel: number;
+    zoomLevel: number | null;
   }>();
 
-  protected icon: AppIconDef;
+  protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
   // Phase 3 Batch 3: direct AlarmStore for showMessage and parseHttpErrorResponse.
   private alarm = inject(AlarmStore);
@@ -105,29 +106,46 @@ export class WaypointPanel {
   }
 
   protected async getRelatedNotes() {
-    const n = await this.skres.getRelatedNotes('waypoints', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const n = await this.skres.getRelatedNotes('waypoints', id);
     this.notes.set(n);
   }
 
   protected async getRelatedGroups() {
-    const g = await this.skgroups.with('waypoints', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const g = await this.skgroups.with('waypoints', id);
     this.groups.set(g);
   }
 
   protected onEdit() {
-    this.edit.emit(this.id());
+    const id = this.id();
+    if (id) {
+      this.edit.emit(id);
+    }
   }
 
   protected onGoto(clear?: boolean) {
     if (clear) {
       this.course.clearCourse();
-    } else {
-      this.course.setDestination(`/resources/waypoints/${this.id()}`);
+      return;
+    }
+    const id = this.id();
+    if (id) {
+      this.course.setDestination(`/resources/waypoints/${id}`);
     }
   }
 
   protected onDelete() {
-    this.skres.deleteWaypoint(this.id());
+    const id = this.id();
+    if (id) {
+      this.skres.deleteWaypoint(id);
+    }
   }
 
   protected onPanTo() {
@@ -137,7 +155,7 @@ export class WaypointPanel {
         : null;
 
     this.panTo.emit({
-      center: this._waypoint().feature.geometry.coordinates,
+      center: this._waypoint().feature.geometry.coordinates as Position,
       zoomLevel: zoomTo
     });
   }
@@ -151,6 +169,10 @@ export class WaypointPanel {
    * @param id waypoint identifier
    */
   protected async addToGroup() {
+    const wptId = this.id();
+    if (!wptId) {
+      return;
+    }
     try {
       const groups = await this.skgroups.listFromServer();
       const glist = groups.map((g) => {
@@ -183,15 +205,15 @@ export class WaypointPanel {
         .subscribe(async (selGrp) => {
           if (selGrp) {
             try {
-              await this.skgroups.addToGroup(selGrp.id, 'waypoint', this.id());
+              await this.skgroups.addToGroup(selGrp.id, 'waypoint', wptId);
               this.alarm.showMessage(`Waypoint added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

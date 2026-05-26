@@ -32,6 +32,7 @@ import {
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
 import { MatDialog } from '@angular/material/dialog';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'region-panel',
@@ -51,8 +52,8 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class RegionPanel {
   region = input<SKRegion>(new SKRegion());
-  id = input<string>(undefined);
-  related = input<string>(undefined);
+  id = input<string | undefined>(undefined);
+  related = input<string | undefined>(undefined);
 
   protected _region = linkedSignal(() => this.region());
   protected notes = signal<FBNotes>([]);
@@ -61,10 +62,10 @@ export class RegionPanel {
   edit = output<string>();
   panTo = output<{
     center: Position;
-    zoomLevel: number;
+    zoomLevel: number | null;
   }>();
 
-  protected icon: AppIconDef;
+  protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
   private skres = inject(SKResourceService);
   protected skgroups = inject(SKResourceGroupService);
@@ -78,9 +79,13 @@ export class RegionPanel {
     });
 
     effect(() => {
-      if (this.related().includes('groups')) {
+      const related = this.related();
+      if (!related) {
+        return;
+      }
+      if (related.includes('groups')) {
         this.getRelatedGroups();
-      } else if (this.related().includes('notes')) {
+      } else if (related.includes('notes')) {
         this.getRelatedNotes();
       }
     });
@@ -98,21 +103,35 @@ export class RegionPanel {
   }
 
   protected async getRelatedNotes() {
-    const n = await this.skres.getRelatedNotes('regions', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const n = await this.skres.getRelatedNotes('regions', id);
     this.notes.set(n);
   }
 
   protected async getRelatedGroups() {
-    const g = await this.skgroups.with('regions', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const g = await this.skgroups.with('regions', id);
     this.groups.set(g);
   }
 
   protected onEdit() {
-    this.edit.emit(this.id());
+    const id = this.id();
+    if (id) {
+      this.edit.emit(id);
+    }
   }
 
   protected onDelete() {
-    this.skres.deleteRegion(this.id());
+    const id = this.id();
+    if (id) {
+      this.skres.deleteRegion(id);
+    }
   }
 
   protected onPanTo() {
@@ -121,13 +140,15 @@ export class RegionPanel {
         ? this.app.config.resources.notes.minZoom
         : null;
 
-    let position: any;
-    const coords = this._region().feature.geometry.coordinates;
-    if (Array.isArray(coords) && coords.length) {
-      position =
-        this._region().feature.geometry.type === 'MultiPolygon'
-          ? coords[0][0][0]
-          : coords[0][0];
+    const geometry = this._region().feature.geometry;
+    let position: Position | undefined;
+    if (geometry.type === 'MultiPolygon') {
+      position = geometry.coordinates[0]?.[0]?.[0] as Position | undefined;
+    } else {
+      position = geometry.coordinates[0]?.[0] as Position | undefined;
+    }
+    if (!position) {
+      return;
     }
     this.panTo.emit({
       center: position,
@@ -144,6 +165,10 @@ export class RegionPanel {
    * @param id region identifier
    */
   protected async addToGroup() {
+    const regionId = this.id();
+    if (!regionId) {
+      return;
+    }
     try {
       const groups = await this.skgroups.listFromServer();
       const glist = groups.map((g) => {
@@ -176,15 +201,15 @@ export class RegionPanel {
         .subscribe(async (selGrp) => {
           if (selGrp) {
             try {
-              await this.skgroups.addToGroup(selGrp.id, 'region', this.id());
+              await this.skgroups.addToGroup(selGrp.id, 'region', regionId);
               this.app.showMessage(`Region added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

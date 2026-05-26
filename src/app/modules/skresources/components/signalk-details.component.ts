@@ -2,12 +2,21 @@ import {
   Component,
   ChangeDetectionStrategy,
   inject,
-  input
+  input,
+  OnChanges
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from '../../../lib/pipes';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DetailsTree = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FlatEntry = [string, any];
+// [depth, label, value | null]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SectionedItem = [number, string, any];
 
 @Component({
   selector: 'signalk-details-list',
@@ -51,71 +60,73 @@ import { CoordsPipe } from '../../../lib/pipes';
     </div>
   `
 })
-export class SignalKDetailsComponent {
+export class SignalKDetailsComponent implements OnChanges {
   title = input<string>('');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  details = input<any>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public items: any;
+  details = input<DetailsTree | undefined>();
+  public items: SectionedItem[] = [];
 
   protected app = inject(AppFacade);
 
   constructor() {}
 
   ngOnChanges() {
-    if (this.details()) {
-      this.parseEntries();
+    const d = this.details();
+    if (d) {
+      this.parseEntries(d);
     } else {
       this.items = [];
     }
   }
 
   // ** parse items
-  parseEntries() {
-    const u = Object.entries(this.details());
+  parseEntries(details: DetailsTree) {
+    const u = Object.entries(details);
     u.sort((a, b) => {
       return a[0] < b[0] ? -1 : 1;
     });
     this.items = this.section(this.flatten(u));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private section(u: Array<any>): Array<any> {
-    const result = [];
+  private section(u: FlatEntry[]): SectionedItem[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: [number, string, string, any][] = [];
     u.forEach((i) => {
       const p = i[0].split('.');
       if (p.length === 1) {
-        result.push([0, '', p[0], typeof i[1] !== 'object' ? i[1] : null]);
+        result.push([
+          0,
+          '',
+          p[0] ?? '',
+          typeof i[1] !== 'object' ? i[1] : null
+        ]);
       } else {
         const pp = p.slice(0, p.length - 1).join('.');
-        result.push([p.length - 1, pp, p[p.length - 1], i[1]]);
+        result.push([p.length - 1, pp, p[p.length - 1] ?? '', i[1]]);
       }
     });
     // ** sort **
     result.sort((a, b) => {
       return a[1] < b[1] ? -1 : 1;
     });
-    let prevParent: string = null;
-    const processedParents = [];
-    u = [];
+    let prevParent: string | null = null;
+    const processedParents: string[] = [];
+    const out: SectionedItem[] = [];
     result.forEach((i) => {
       if (i[1] !== prevParent) {
         prevParent = i[1];
-        if (processedParents.indexOf(i[1]) === -1) {
-          //
+        if (!processedParents.includes(i[1])) {
           processedParents.push(i[1]);
-          u.push([0, i[1], null]);
+          out.push([0, i[1], null]);
         }
       }
-      u.push([i[0], i[2], i[3]]);
+      out.push([i[0], i[2], i[3]]);
     });
-    return u;
+    return out;
   }
 
   // ** flatten object values to .paths **
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private flatten(u: Array<any>): Array<any> {
-    let paths = [];
+  private flatten(u: FlatEntry[]): FlatEntry[] {
+    let paths: FlatEntry[] = [];
     u.forEach((i) => {
       if (typeof i[1] === 'object' && i[1] !== null) {
         paths = paths.concat(this.processObject(i[0], i[1]));
@@ -127,9 +138,8 @@ export class SignalKDetailsComponent {
   }
 
   // ** process object values **
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private processObject(parent: string, obj: any) {
-    let paths = [];
+  private processObject(parent: string, obj: DetailsTree): FlatEntry[] {
+    let paths: FlatEntry[] = [];
     const u = Object.entries(obj);
     u.sort((a, b) => {
       return a[0] < b[0] ? -1 : 1;

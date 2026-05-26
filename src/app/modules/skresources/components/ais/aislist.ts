@@ -3,7 +3,8 @@ import {
   ChangeDetectionStrategy,
   output,
   input,
-  inject
+  inject,
+  OnInit
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +19,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressBar } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SKResourceService } from 'src/app/modules';
 import { FBVessel, FBVessels, Position } from 'src/app/types';
 import { ResourceListBase } from '../resource-list-baseclass';
@@ -42,16 +44,16 @@ import { getAisIcon } from 'src/app/modules/icons';
     MatProgressBar
   ]
 })
-export class AISListComponent extends ResourceListBase {
-  focusId = input<string>();
+export class AISListComponent extends ResourceListBase implements OnInit {
+  focusId = input<string | undefined>(undefined);
   closed = output<void>();
   properties = output<string>();
-  focusVessel = output<string>();
+  focusVessel = output<string | undefined>();
   pan = output<{ center: Position; zoomLevel: number }>();
 
-  aisAvailable = [];
+  aisAvailable: FBVessel[] = [];
   onlyIMO = false;
-  filterList = [];
+  filterList: FBVessel[] = [];
   override filterText = '';
   override someSel = false;
   override allSel = false;
@@ -121,7 +123,7 @@ export class AISListComponent extends ResourceListBase {
    * @returns mat-icon svgIcon value
    */
   protected getShipIcon(id: number): string {
-    return getAisIcon(id).svgIcon;
+    return getAisIcon(id).svgIcon ?? '';
   }
 
   protected app = inject(AppFacade);
@@ -160,7 +162,7 @@ export class AISListComponent extends ResourceListBase {
       this.doFilter();
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }

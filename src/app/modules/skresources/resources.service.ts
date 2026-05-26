@@ -898,7 +898,7 @@ export class SKResourceService {
           }
           const updated = new SKChart(c[1]);
           updated.defaultOpacity = value;
-          return [c[0], updated, c[2]];
+          return c[2] === undefined ? [c[0], updated] : [c[0], updated, c[2]];
         });
       });
     }
@@ -1430,7 +1430,7 @@ export class SKResourceService {
       // add all waypoints retrieved from server
       this.selectionUnfilter('waypoints');
     } else {
-      if (this.selectionIsFiltered) {
+      if (this.selectionIsFiltered('waypoints')) {
         this.selectionAdd('waypoints', ids);
       }
     }
@@ -1812,7 +1812,7 @@ export class SKResourceService {
       // add all regions retrieved from server
       this.selectionUnfilter('regions');
     } else {
-      if (this.selectionIsFiltered) {
+      if (this.selectionIsFiltered('regions')) {
         this.selectionAdd('regions', ids);
       }
     }

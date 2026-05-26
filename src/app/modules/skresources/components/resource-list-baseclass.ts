@@ -10,7 +10,7 @@ export class ResourceListBase {
   protected filterText = '';
   protected someSel = false;
   protected allSel = false;
-  protected fullList: Array<any> = [];
+  protected fullList: any[] = [];
   protected filteredList = signal<any>([]);
 
   constructor(
@@ -33,20 +33,16 @@ export class ResourceListBase {
    * filter & sort resource entries
    */
   protected doFilter() {
-    const sortList = () => {
-      fl.sort((a, b) => a[1].name.localeCompare(b[1].name));
-    };
-    let fl: Array<FBResource>;
+    let fl: FBResource[];
     if (this.filterText.length === 0) {
       fl = this.fullList.slice(0);
     } else {
-      fl = this.fullList.filter((item) => {
-        return item[1].name
-          ?.toLowerCase()
-          .includes(this.filterText?.toLowerCase());
-      });
+      const filterLower = this.filterText.toLowerCase();
+      fl = this.fullList.filter((item) =>
+        item[1].name?.toLowerCase().includes(filterLower)
+      );
     }
-    sortList();
+    fl.sort((a, b) => (a[1].name ?? '').localeCompare(b[1].name ?? ''));
     this.filteredList.update(() => fl.slice(0));
     this.alignSelections();
   }
@@ -91,17 +87,22 @@ export class ResourceListBase {
    * @param checked Item is checked
    */
   protected toggleItem(checked: boolean, id: string): number {
-    let idx: number;
     // fullList update
-    idx = this.fullList.findIndex((item) => item[0] === id);
+    let idx = this.fullList.findIndex((item) => item[0] === id);
     if (idx !== -1) {
-      this.fullList[idx][2] = checked;
+      const entry = this.fullList[idx];
+      if (entry) {
+        entry[2] = checked;
+      }
     }
     // filteredList update
-    this.filteredList.update((fl) => {
+    this.filteredList.update((fl: FBResource[]) => {
       idx = fl.findIndex((item) => item[0] === id);
       if (idx !== -1) {
-        fl[idx][2] = checked;
+        const entry = fl[idx];
+        if (entry) {
+          entry[2] = checked;
+        }
       }
       return fl;
     });

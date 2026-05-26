@@ -164,13 +164,13 @@ export class JsonMapSourceDialog {
   protected fetchError = false;
   protected errorMsg = '';
   protected hostUrl = '';
-  protected provider!: ChartProvider;
+  protected provider: ChartProvider | undefined;
   protected details: {
     type: string;
     name: string;
     version: string;
     layers: string[];
-  };
+  } = { type: '', name: '', version: '', layers: [] };
 
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<JsonMapSourceDialog>);
@@ -190,8 +190,9 @@ export class JsonMapSourceDialog {
     this.fetchError = false;
     this.isFetching = true;
     this.provider = undefined;
+    this.details = { type: '', name: '', version: '', layers: [] };
     this.http
-      .get(uri)
+      .get<TileJson | MapboxStyle>(uri)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: TileJson | MapboxStyle) => {
@@ -201,17 +202,17 @@ export class JsonMapSourceDialog {
           } else {
             const c = this.parseFileContents(res, uri);
             if (c) {
-              this.provider = c as ChartProvider;
+              this.provider = c;
+              const vectorLayers = (res as TileJson).vector_layers;
               this.details = {
                 type: (res as TileJson).tilejson ? 'TileJSON' : 'Mapbox Style',
                 name: res.name,
-                version: (res as MapboxStyle).version
-                  ? (res as MapboxStyle).version
-                  : (res as TileJson).tilejson,
+                version:
+                  (res as MapboxStyle).version ?? (res as TileJson).tilejson,
                 layers: (res as MapboxStyle).layers
                   ? (res as MapboxStyle).layers.map((l) => l.id)
-                  : (res as TileJson).vector_layers
-                    ? (res as TileJson).vector_layers.map((l) => l.id)
+                  : vectorLayers
+                    ? vectorLayers.map((l) => l.id)
                     : []
               };
               this.dialogRef.close([this.provider]);
@@ -229,7 +230,10 @@ export class JsonMapSourceDialog {
       });
   }
 
-  parseFileContents(json: TileJson | MapboxStyle, uri: string): ChartProvider {
+  parseFileContents(
+    json: TileJson | MapboxStyle,
+    uri: string
+  ): ChartProvider | undefined {
     if ('tilejson' in json) {
       return {
         name: json.name ?? '',
@@ -248,8 +252,7 @@ export class JsonMapSourceDialog {
         type: 'mapstyleJSON',
         url: uri
       };
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 }

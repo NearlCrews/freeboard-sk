@@ -140,7 +140,7 @@ export class NoteDialog implements OnInit {
     toolbarHiddenButtons: this.editorHiddenButtons
   };
 
-  protected icon: AppIconDef;
+  protected icon: AppIconDef = {};
   protected poiIcons: { id: string; name: string }[] = [];
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
@@ -155,7 +155,7 @@ export class NoteDialog implements OnInit {
     if (typeof this.data.note.description === 'undefined') {
       this.data.note.description = '';
     }
-    if (this.data.note.properties.readOnly) {
+    if (this.data.note.properties['readOnly']) {
       this.data.editable = false;
     }
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
@@ -169,9 +169,9 @@ export class NoteDialog implements OnInit {
 
   onIconSelected(e: string) {
     if (e.startsWith('sk-')) {
-      this.data.note.properties.skIcon = e.slice(3);
+      this.data.note.properties['skIcon'] = e.slice(3);
     } else {
-      delete this.data.note.properties.skIcon;
+      delete this.data.note.properties['skIcon'];
     }
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
   }

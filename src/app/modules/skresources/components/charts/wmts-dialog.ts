@@ -14,8 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule, MatSelectionListChange } from '@angular/material/list';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
-import { WMTSLayerDef } from './maplib';
-import { wmtsCapabilitiesInWorker } from './maplib';
+import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
 
 @Component({
   selector: 'wmts-dialog',
@@ -121,8 +120,8 @@ export class WMTSDialog {
   protected fetchError = false;
   protected errorMsg = '';
   protected wmtsLayers: WMTSLayerDef[] = [];
-  protected selections: Array<number> = [];
-  protected selectionInfo: Array<{ name: string; description: string }> = [];
+  protected selections: number[] = [];
+  protected selectionInfo: { name: string; description: string }[] = [];
   protected hostUrl = '';
 
   protected app = inject(AppFacade);
@@ -138,9 +137,11 @@ export class WMTSDialog {
   }
 
   handleSave() {
-    let l: SKInfoLayer;
-    const layer = this.wmtsLayers[this.selections[0]];
-    l = new SKInfoLayer();
+    const idx = this.selections[0];
+    if (idx === undefined) return;
+    const layer = this.wmtsLayers[idx];
+    if (!layer) return;
+    const l = new SKInfoLayer();
     l.name = layer.name ?? 'Untitled layer';
     l.description = layer.description ?? '';
     l.values.layers = [layer.id];
@@ -183,7 +184,7 @@ export class WMTSDialog {
     } catch (err) {
       this.isFetching = false;
       this.fetchError = true;
-      this.errorMsg = err.message;
+      this.errorMsg = err instanceof Error ? err.message : String(err);
     }
   }
 }

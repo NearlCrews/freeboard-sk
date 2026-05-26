@@ -57,11 +57,11 @@ const GROUP_PALETTE = [
   ]
 })
 export class NoteListComponent implements OnInit, OnChanges {
-  @Input() notes: FBNotes;
+  @Input() notes: FBNotes = [];
   select = output<FBResourceSelect>();
   refresh = output<void>();
   closed = output<void>();
-  pan = output<{ center: Position; zoomLevel: number }>();
+  pan = output<{ center: Position; zoomLevel: number | null }>();
 
   filterList: FBNotes = [];
   filterText = '';
@@ -129,7 +129,7 @@ export class NoteListComponent implements OnInit, OnChanges {
 
   filterDraftOnly() {
     this.filterList = this.filterList.filter(
-      (i) => i[1].properties && i[1].properties.draft
+      (i) => i[1].properties && i[1].properties['draft']
     );
   }
 
@@ -236,7 +236,10 @@ export class NoteListComponent implements OnInit, OnChanges {
       hash = (hash << 5) - hash + name.charCodeAt(i);
       hash |= 0;
     }
-    return GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length];
+    return (
+      GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length] ??
+      'var(--notes-text-muted)'
+    );
   }
 
   /** Relative time formatter; falls back to '' if the timestamp is unparseable. */

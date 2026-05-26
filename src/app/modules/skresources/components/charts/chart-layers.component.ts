@@ -113,7 +113,7 @@ import { SKResourceService } from '../../resources.service';
 export class ChartLayers implements OnInit {
   charts = input.required<FBCharts>();
 
-  protected chartList = [];
+  protected chartList: FBCharts = [];
 
   public app = inject(AppFacade);
   private skres = inject(SKResourceService);

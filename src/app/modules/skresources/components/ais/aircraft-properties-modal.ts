@@ -102,7 +102,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 })
 export class AircraftPropertiesModal implements OnInit {
   protected showProperties = true;
-  protected properties: Record<string, string | number | null>;
+  protected properties: Record<string, string | number | null> = {};
 
   private sk = inject(SignalKClient);
   protected modalRef = inject(MatBottomSheetRef<AircraftPropertiesModal>);
@@ -130,17 +130,19 @@ export class AircraftPropertiesModal implements OnInit {
     this.sk.api
       .get(path)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((v) => {
+      .subscribe((v: unknown) => {
         this.properties = this.parseAircraft(v);
       });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseAircraft(data: any) {
-    const res = {};
-
-    if (data.navigation && data.navigation.position) {
-      res['navigation.position'] = data.navigation.position.value;
+  private parseAircraft(data: unknown): Record<string, string | number | null> {
+    const res: Record<string, string | number | null> = {};
+    const d = data as
+      | { navigation?: { position?: { value?: string | number | null } } }
+      | null
+      | undefined;
+    if (d?.navigation?.position) {
+      res['navigation.position'] = d.navigation.position.value ?? null;
     }
     return res;
   }

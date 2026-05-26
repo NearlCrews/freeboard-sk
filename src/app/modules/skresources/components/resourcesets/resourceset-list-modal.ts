@@ -168,17 +168,24 @@ export class ResourceSetModal implements OnInit {
 
   protected handleCheck(checked: boolean, id: string, idx: number) {
     this.resList.update((current) => {
-      current[idx][2] = checked;
+      const entry = current[idx];
+      if (entry) {
+        entry[2] = checked;
+      }
+      const selections =
+        (this.app.config.selections.resourceSets[this.data.path] as
+          | string[]
+          | undefined) ?? [];
       if (checked) {
-        this.app.config.selections.resourceSets[this.data.path].push(id);
+        selections.push(id);
       } else {
-        const i =
-          this.app.config.selections.resourceSets[this.data.path].indexOf(id);
+        const i = selections.indexOf(id);
         if (i !== -1) {
-          this.app.config.selections.resourceSets[this.data.path].splice(i, 1);
+          selections.splice(i, 1);
         }
       }
-      return [].concat(current);
+      this.app.config.selections.resourceSets[this.data.path] = selections;
+      return current.slice();
     });
     this.app.saveConfig();
     this.skresOther.refreshResourceSetsInBounds(this.data.path);

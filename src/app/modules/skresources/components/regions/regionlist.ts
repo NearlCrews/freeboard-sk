@@ -6,7 +6,9 @@ import {
   signal,
   effect,
   output,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -20,8 +22,8 @@ import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { AppFacade } from 'src/app/app.facade';
-import { Position } from 'src/app/types';
-import { FBRegions, FBRegion, FBResourceSelect } from 'src/app/types';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Position, FBRegions, FBRegion, FBResourceSelect } from 'src/app/types';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { ResourceListBase } from '../resource-list-baseclass';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
@@ -48,16 +50,19 @@ import { RemarkModule } from 'ngx-remark';
     RemarkModule
   ]
 })
-export class RegionListComponent extends ResourceListBase {
-  @Input() regions: FBRegions;
+export class RegionListComponent
+  extends ResourceListBase
+  implements OnInit, OnChanges
+{
+  @Input() regions: FBRegions = [];
   select = output<FBResourceSelect>();
   refresh = output<void>();
   closed = output<void>();
-  pan = output<{ center: Position; zoomLevel: number }>();
+  pan = output<{ center: Position; zoomLevel: number | null }>();
 
   protected override fullList: FBRegions = [];
   protected override filteredList = signal<FBRegions>([]);
-  filterList = [];
+  filterList: FBRegion[] = [];
 
   protected app = inject(AppFacade);
   private worker = inject(SKWorkerService);
@@ -109,7 +114,7 @@ export class RegionListComponent extends ResourceListBase {
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -124,13 +129,15 @@ export class RegionListComponent extends ResourceListBase {
         ? this.app.config.resources.notes.minZoom
         : null;
 
-    let position: any;
-    const coords = region.feature.geometry.coordinates;
-    if (Array.isArray(coords) && coords.length) {
-      position =
-        region.feature.geometry.type === 'MultiPolygon'
-          ? coords[0][0][0]
-          : coords[0][0];
+    const geometry = region.feature.geometry;
+    let position: Position | undefined;
+    if (geometry.type === 'MultiPolygon') {
+      position = geometry.coordinates[0]?.[0]?.[0];
+    } else {
+      position = geometry.coordinates[0]?.[0];
+    }
+    if (!position) {
+      return;
     }
     this.pan.emit({
       center: position,
@@ -160,10 +167,14 @@ export class RegionListComponent extends ResourceListBase {
     const idx = this.toggleItem(checked, id);
     // update cache
     if (idx !== -1) {
+      const entry = this.filteredList()[idx];
+      if (!entry) {
+        return;
+      }
       if (checked) {
-        this.skres.regionAdd([this.filteredList()[idx]]);
+        this.skres.regionAdd([entry]);
       } else {
-        this.skres.regionRemove([this.filteredList()[idx][0]]);
+        this.skres.regionRemove([entry[0]]);
       }
     }
   }
@@ -202,12 +213,12 @@ export class RegionListComponent extends ResourceListBase {
               await this.skgroups.addToGroup(selGrp.id, 'region', id);
               this.app.showMessage(`Region added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

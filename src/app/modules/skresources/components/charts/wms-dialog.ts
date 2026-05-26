@@ -14,9 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { AppFacade } from 'src/app/app.facade';
 import { ChartProvider } from 'src/app/types';
 import { SKInfoLayer } from '../../custom-resource-classes';
-import { LayerNode } from './maplib';
+import { LayerNode, wmsCapabilitiesInWorker } from './maplib';
 import { NodeTreeSelect } from './node-tree-select';
-import { wmsCapabilitiesInWorker } from './maplib';
 
 /********* WMSDialog **********
 	data: SKChart
@@ -117,9 +116,9 @@ export class WMSDialog {
   protected isFetching = false;
   protected fetchError = false;
   protected errorMsg = '';
-  protected selections: Array<string> = [];
-  protected wmsBase: ChartProvider;
-  protected wmsSources: { [key: string]: ChartProvider | SKInfoLayer } = {};
+  protected selections: string[] = [];
+  protected wmsBase: ChartProvider | undefined;
+  protected wmsSources: Record<string, ChartProvider | SKInfoLayer> = {};
   protected hostUrl = '';
 
   protected dataSource: LayerNode[] = [];
@@ -153,10 +152,9 @@ export class WMSDialog {
           this.selections.push(n.name);
           this.wmsSources[n.name] = this.buildSource(n);
         } else {
-          if (
-            this.wmsSources[n.name].description === this.wmsSources[n.name].name
-          ) {
-            this.wmsSources[n.name].description = n.description;
+          const existing = this.wmsSources[n.name];
+          if (existing && existing.description === existing.name) {
+            existing.description = n.description;
           }
         }
       }
@@ -180,14 +178,25 @@ export class WMSDialog {
       s.description = l.description;
       s.values.layers = [l.name];
       s.values.time = l.time;
-      s.values.url = this.wmsBase.url;
+      s.values.url = this.wmsBase?.url ?? '';
       s.values.sourceType = 'WMS';
       return s;
     } else {
-      const s = Object.assign({}, this.wmsBase);
-      s.name = l.name;
-      s.description = l.description;
-      s.layers = [l.name];
+      const base = this.wmsBase;
+      const s: ChartProvider = base
+        ? {
+            ...base,
+            name: l.name,
+            description: l.description,
+            layers: [l.name]
+          }
+        : {
+            name: l.name,
+            description: l.description,
+            type: 'WMS',
+            url: '',
+            layers: [l.name]
+          };
       return s;
     }
   }
@@ -233,7 +242,7 @@ export class WMSDialog {
     } catch (err) {
       this.isFetching = false;
       this.fetchError = true;
-      this.errorMsg = err.message;
+      this.errorMsg = err instanceof Error ? err.message : String(err);
     }
   }
 }

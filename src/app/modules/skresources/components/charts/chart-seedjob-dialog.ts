@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit
+} from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -12,12 +17,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppFacade } from 'src/app/app.facade';
-import { SKChart } from 'src/app/modules/skresources/resource-classes';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { Position } from 'src/app/types';
+import { FBChart, Position } from 'src/app/types';
 
 interface DialogData {
-  chart: SKChart;
+  chart: FBChart;
   bbox: [Position, Position];
 }
 
@@ -128,10 +132,10 @@ interface DialogData {
     `
   ]
 })
-export class ChartSeedJobDialog {
-  protected icon: string;
+export class ChartSeedJobDialog implements OnInit {
+  protected icon = '';
   protected zoomRange: number[] = [];
-  protected selZoom: number;
+  protected selZoom = 0;
 
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<ChartSeedJobDialog>);

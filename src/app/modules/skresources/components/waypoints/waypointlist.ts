@@ -6,7 +6,9 @@ import {
   effect,
   output,
   inject,
-  input
+  input,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -23,8 +25,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 import { AppFacade } from 'src/app/app.facade';
-import { Position } from 'src/app/types';
-import { FBWaypoints, FBWaypoint, FBResourceSelect } from 'src/app/types';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  Position,
+  FBWaypoints,
+  FBWaypoint,
+  FBResourceSelect
+} from 'src/app/types';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
 import { ResourceListBase } from '../resource-list-baseclass';
@@ -49,7 +56,10 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     MatProgressBarModule
   ]
 })
-export class WaypointListComponent extends ResourceListBase {
+export class WaypointListComponent
+  extends ResourceListBase
+  implements OnInit, OnChanges
+{
   activeWaypoint = input<string>();
   editingWaypointId = input<string>();
   select = output<FBResourceSelect>();
@@ -85,14 +95,8 @@ export class WaypointListComponent extends ResourceListBase {
 
   ngOnChanges() {
     this.initItems();
-    if (
-      this.editingWaypointId() &&
-      this.editingWaypointId().indexOf('waypoint') !== -1
-    ) {
-      this.disableRefresh = true;
-    } else {
-      this.disableRefresh = false;
-    }
+    const editingId = this.editingWaypointId();
+    this.disableRefresh = !!editingId && editingId.includes('waypoint');
   }
 
   /**
@@ -124,7 +128,7 @@ export class WaypointListComponent extends ResourceListBase {
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -151,10 +155,14 @@ export class WaypointListComponent extends ResourceListBase {
     const idx = this.toggleItem(checked, id);
     // update cache
     if (idx !== -1) {
+      const entry = this.filteredList()[idx];
+      if (!entry) {
+        return;
+      }
       if (checked) {
-        this.skres.waypointAdd([this.filteredList()[idx]]);
+        this.skres.waypointAdd([entry]);
       } else {
-        this.skres.waypointRemove([this.filteredList()[idx][0]]);
+        this.skres.waypointRemove([entry[0]]);
       }
     }
   }
@@ -196,7 +204,7 @@ export class WaypointListComponent extends ResourceListBase {
    * @description Clear waypoint as destination
    */
   protected itemClearActive() {
-    this.deactivate.emit({ id: null });
+    this.deactivate.emit({ id: '' });
   }
 
   /**
@@ -206,7 +214,7 @@ export class WaypointListComponent extends ResourceListBase {
   protected itemViewNotes(wpt: FBWaypoint) {
     this.notes.emit({
       id: wpt[0],
-      readOnly: wpt[1].feature?.properties?.readOnly ?? false
+      readOnly: (wpt[1].feature?.properties?.['readOnly'] as boolean) ?? false
     });
   }
 
@@ -236,12 +244,12 @@ export class WaypointListComponent extends ResourceListBase {
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', id);
               this.app.showMessage(`Waypoint added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

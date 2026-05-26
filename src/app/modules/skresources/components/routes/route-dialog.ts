@@ -99,8 +99,8 @@ interface DialogData {
   ]
 })
 export class RouteDialog implements OnInit {
-  protected name: string;
-  protected description: string;
+  protected name = '';
+  protected description = '';
   protected readOnly = false;
 
   private dialogRef = inject(MatDialogRef<RouteDialog>);
@@ -112,7 +112,7 @@ export class RouteDialog implements OnInit {
     this.name = this.data.route.name ?? '';
     this.description = this.data.route.description ?? '';
     this.readOnly =
-      (this.data.route.feature as any)?.properties?.readOnly ?? false;
+      (this.data.route.feature.properties?.['readOnly'] as boolean) ?? false;
   }
 
   handleClose(save: boolean) {

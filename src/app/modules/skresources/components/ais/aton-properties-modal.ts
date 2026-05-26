@@ -99,7 +99,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 })
 export class AtoNPropertiesModal implements OnInit {
   protected showProperties = true;
-  protected properties: Record<string, string | number | null>;
+  protected properties: Record<string, string | number | null> = {};
 
   private app = inject(AppFacade);
   private sk = inject(SignalKClient);
@@ -133,7 +133,7 @@ export class AtoNPropertiesModal implements OnInit {
     this.sk.api
       .get(path)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((v) => {
+      .subscribe((v: unknown) => {
         if (this.data.type === 'meteo') {
           this.properties = this.parseMeteo(v);
         } else {
@@ -143,14 +143,14 @@ export class AtoNPropertiesModal implements OnInit {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseMeteo(data: any) {
-    const res = {};
+  private parseMeteo(data: any): Record<string, string | number | null> {
+    const res: Record<string, string | number | null> = {};
 
-    if (data.navigation && data.navigation.position) {
+    if (data?.navigation?.position) {
       res['navigation.position'] = data.navigation.position.value;
     }
-    const bk = data.environment.observation ?? data.environment;
-    const pk = data.environment.observation
+    const bk = data?.environment?.observation ?? data?.environment;
+    const pk = data?.environment?.observation
       ? 'environment.observation'
       : 'environment';
     if (bk) {
@@ -197,9 +197,9 @@ export class AtoNPropertiesModal implements OnInit {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseAtoN(data: any) {
-    const res = {};
-    if (data.navigation && data.navigation.position) {
+  private parseAtoN(data: any): Record<string, string | number | null> {
+    const res: Record<string, string | number | null> = {};
+    if (data?.navigation?.position) {
       res['navigation.position'] = data.navigation.position.value;
     }
     return Object.assign(res, this.data.target.properties);

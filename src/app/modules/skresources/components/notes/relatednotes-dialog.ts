@@ -46,15 +46,20 @@ interface DialogData {
   styleUrls: ['notes.scss', 'relatednotes-dialog.scss']
 })
 export class RelatedNotesDialog implements OnInit {
-  protected relatedBy: string;
+  protected relatedBy = '';
 
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<RelatedNotesDialog>);
 
   ngOnInit() {
-    this.relatedBy =
-      this.data.relatedBy[0].toUpperCase() + this.data.relatedBy.slice(1);
+    const r = this.data.relatedBy;
+    if (!r) {
+      this.relatedBy = '';
+      return;
+    }
+    const first = r.charAt(0).toUpperCase();
+    this.relatedBy = first + r.slice(1);
   }
 
   openNoteUrl(url: string) {
@@ -92,7 +97,7 @@ export class RelatedNotesDialog implements OnInit {
       hash = (hash << 5) - hash + name.charCodeAt(i);
       hash |= 0;
     }
-    return palette[Math.abs(hash) % palette.length];
+    return palette[Math.abs(hash) % palette.length] ?? palette[0]!;
   }
 
   snippet(note: { description?: string; mimeType?: string }): string {

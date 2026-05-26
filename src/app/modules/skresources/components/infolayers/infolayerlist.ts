@@ -34,6 +34,7 @@ import { ResourceListBase } from '../resource-list-baseclass';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { MatSliderModule } from '@angular/material/slider';
 import {
@@ -72,7 +73,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     param: Record<string, any>;
   }>();
 
-  filterList = [];
+  filterList: FBInfoLayer[] = [];
   override filterText = '';
   override someSel = false;
   override allSel = false;
@@ -121,7 +122,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
       this.updateTimeDimensions();
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -137,7 +138,11 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
       try {
         if (!this.fetchedUrls.includes(url)) {
           this.fetchedUrls.push(url);
-          if (iLayers[0].values.sourceType.toLocaleLowerCase() === 'wms') {
+          const first = iLayers[0];
+          const firstSourceType = first?.values?.sourceType
+            ?.toString()
+            .toLowerCase();
+          if (firstSourceType === 'wms') {
             const capabilities = await wmsCapabilitiesInWorker(url);
             iLayers.forEach((il) => {
               const cl = getLayerNodeByName(il.name, capabilities.layers);
@@ -145,9 +150,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
                 this.timeDim.set(il.id, cl.time);
               }
             });
-          } else if (
-            iLayers[0].values.sourceType.toLocaleLowerCase() === 'wmts'
-          ) {
+          } else if (firstSourceType === 'wmts') {
             const capabilities = await wmtsCapabilitiesInWorker(url);
             capabilities.layers.forEach((cl) => {
               if (cl?.time) {
@@ -165,7 +168,10 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
         this.timeDim.forEach((v, k) => {
           const idx = this.fullList.findIndex((i) => i[0] === k);
           if (idx !== -1) {
-            this.fullList[idx][1].values.time = v;
+            const entry = this.fullList[idx];
+            if (entry) {
+              entry[1].values.time = v;
+            }
           }
         });
       }
@@ -180,14 +186,16 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     const capList = new Map<string, SKInfoLayer[]>();
     this.fullList.forEach((l) => {
       const values = l[1].values;
-      const sourceType = values.sourceType.toLowerCase();
-      if (['wms'].includes(sourceType)) {
-        if (!capList.has(values.url)) {
-          capList.set(values.url, [l[1]]);
+      const sourceType = (
+        values?.sourceType as string | undefined
+      )?.toLowerCase();
+      if (sourceType === 'wms') {
+        const url = values.url as string;
+        const existing = capList.get(url);
+        if (existing) {
+          existing.push(l[1]);
         } else {
-          const e = capList.get(values.url);
-          e.push(l[1]);
-          capList.set(values.url, e);
+          capList.set(url, [l[1]]);
         }
       }
     });
@@ -246,12 +254,12 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
         'NO'
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(async (result: { ok: boolean }) => {
-        if (result && result.ok) {
+      .subscribe(async (result: { ok: boolean } | undefined) => {
+        if (result?.ok) {
           try {
             await this.skres.deleteFromServer('infolayers', id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err);
+            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
           } finally {
             this.skresOther.refreshInfoLayers();
             this.initItems(true);
@@ -273,28 +281,30 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
   }
 
   protected formatDateTime(t: TimeDimension, e: number): string {
-    let d: Date;
+    let d: Date | undefined;
     if (t.interval) {
       const p = new Date(t.from).valueOf() + e * t.interval;
       d = new Date(p);
-    } else if (t.values.length) {
-      d = new Date(t.values[e]);
+    } else if (t.values?.length) {
+      const v = t.values[e];
+      if (v !== undefined) {
+        d = new Date(v);
+      }
     }
     return d ? `${d.toLocaleDateString()} ${d.toLocaleTimeString()}` : '';
   }
 
   protected maxIndexFrominterval(t: TimeDimension) {
-    const mi =
-      (new Date(t.to).valueOf() - new Date(t.from).valueOf()) / t.interval;
-    return mi;
+    if (!t.interval) {
+      return 0;
+    }
+    return (new Date(t.to).valueOf() - new Date(t.from).valueOf()) / t.interval;
   }
 
   protected handleSliderChange(layer: FBInfoLayer, index: number) {
-    if (layer[1].values.time?.interval) {
-      const p =
-        new Date(layer[1].values.time?.from).valueOf() +
-        index * layer[1].values.time?.interval;
-      const pd = new Date(p).toISOString();
+    const time = layer[1].values.time;
+    if (time?.interval) {
+      const p = new Date(time.from).valueOf() + index * time.interval;
       this.paramChanged.emit({
         id: layer[0],
         param: { TIME: new Date(p).toISOString() }
@@ -302,7 +312,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     } else {
       this.paramChanged.emit({
         id: layer[0],
-        param: { TIME: layer[1].values.time?.values[index] }
+        param: { TIME: time?.values?.[index] }
       });
     }
   }
@@ -324,7 +334,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     try {
       await this.skres.putToServer('infolayers', id, layer);
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     } finally {
       this.skresOther.refreshInfoLayers();
     }
@@ -353,7 +363,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
 
   /** Add new layer */
   protected addLayer(type: 'wms' | 'wmts') {
-    let dref: MatDialogRef<WMTSDialog | WMSDialog>;
+    let dref: MatDialogRef<WMTSDialog | WMSDialog> | undefined;
 
     if (type === 'wmts') {
       dref = this.dialog.open(WMTSDialog, {
@@ -374,28 +384,27 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     dref
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((sources) => {
+      .subscribe((sources: unknown[] | undefined) => {
         if (sources && sources.length !== 0) {
-          const req = [];
-          sources.forEach((cs) => {
-            req.push(
-              this.signalk.api.post(
-                this.app.skApiVersion,
-                `/resources/infolayers?provider=resources-provider`,
-                cs
-              )
-            );
-          });
+          // signalk-http post returns any; the array carries one request per source.
+          const req = sources.map((cs) =>
+            this.signalk.api.post(
+              this.app.skApiVersion,
+              `/resources/infolayers?provider=resources-provider`,
+              cs
+            )
+          );
 
           const r = forkJoin(req).pipe(
-            catchError((error) => of(error)),
+            catchError((error: unknown) => of(error)),
             takeUntilDestroyed(this.destroyRef)
           );
-          r.subscribe((r) => {
-            if (r.error) {
+          r.subscribe((res: unknown) => {
+            const errObj = (res as { error?: HttpErrorResponse })?.error;
+            if (errObj) {
               this.app.showAlert(
                 'Add Overlay',
-                `Error saving overlay source!\n(${r.error.statusCode}: ${r.error.message})`
+                `Error saving overlay source!\n(${errObj.status}: ${errObj.message})`
               );
             } else {
               this.app.showAlert(

@@ -24,6 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppFacade } from 'src/app/app.facade';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { ChartLayers } from './chart-layers.component';
@@ -65,7 +66,7 @@ import { SKChart } from '../../resource-classes';
 export class ChartListComponent extends ResourceListBase implements OnInit {
   closed = output<void>();
 
-  selectedCharts = input<string[]>();
+  selectedCharts = input<string[] | undefined>(undefined);
 
   protected override fullList: FBCharts = [];
   protected override filteredList = signal<FBCharts>([]);
@@ -138,7 +139,7 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
       );
     } catch (err) {
       this.settings.sIsFetching.set(false);
-      this.alarm.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -166,8 +167,9 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
 
   /** Handle selection change triggered externally */
   protected externalSelection() {
+    const selections = this.selectedCharts() ?? [];
     this.fullList.forEach(
-      (cht: FBChart) => (cht[2] = this.selectedCharts().includes(cht[0]))
+      (cht: FBChart) => (cht[2] = selections.includes(cht[0]))
     );
     this.doFilter();
   }
@@ -194,10 +196,14 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
     const idx = this.toggleItem(checked, id);
     // update cache
     if (idx !== -1) {
+      const entry = this.filteredList()[idx];
+      if (!entry) {
+        return;
+      }
       if (checked) {
-        this.skres.chartAdd([this.filteredList()[idx]]);
+        this.skres.chartAdd([entry]);
       } else {
-        this.skres.chartRemove([this.filteredList()[idx][0]]);
+        this.skres.chartRemove([entry[0]]);
       }
     }
   }
@@ -252,18 +258,17 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((result: SliderInputDialogResult) => {
+      .subscribe((result: SliderInputDialogResult | undefined) => {
         if (result?.apply) {
           const op = toRatio(result.value);
           this.app.config.selections.chartOpacity[chart[0]] = op;
           chart[1].defaultOpacity = op;
           this.updateFullList(chart);
           this.app.saveConfig();
-        } else {
-          // cancelled
-          this.skres.chartSetOpacity(chart[0], originalOpacity);
           return;
         }
+        // cancelled
+        this.skres.chartSetOpacity(chart[0], originalOpacity);
       });
   }
 
@@ -272,7 +277,11 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
     if (idx === -1) {
       return;
     }
-    this.fullList[idx] = [chart[0], new SKChart(chart[1]), chart[2]];
+    const updated = new SKChart(chart[1]);
+    this.fullList[idx] =
+      chart[2] === undefined
+        ? [chart[0], updated]
+        : [chart[0], updated, chart[2]];
     this.doFilter();
   }
 
@@ -290,7 +299,9 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
    * @description Add new chart source to resources
    * */
   addChartSource(type: 'wms' | 'wmts' | 'json') {
-    let dref: MatDialogRef<WMTSDialog | WMSDialog | JsonMapSourceDialog>;
+    let dref:
+      | MatDialogRef<WMTSDialog | WMSDialog | JsonMapSourceDialog>
+      | undefined;
 
     if (type === 'wmts') {
       dref = this.dialog.open(WMTSDialog, {
@@ -320,20 +331,22 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
     dref
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((sources) => {
-        if (sources && sources.length !== 0) {
-          if (['wmts', 'wms'].includes(type)) {
-            sources[0].source = 'resources-provider';
-            this.skres.newChart(sources[0]);
-            return;
-          }
-          if (['json'].includes(type)) {
-            sources[0].source = 'resources-provider';
-            const c = new SKChart(sources[0]);
-            c.source = 'resources-provider';
-            this.skres.newChart(c);
-            return;
-          }
+      .subscribe((sources: SKChart[] | undefined) => {
+        const first = sources?.[0];
+        if (!first) {
+          return;
+        }
+        if (type === 'wmts' || type === 'wms') {
+          first.source = 'resources-provider';
+          this.skres.newChart(first);
+          return;
+        }
+        if (type === 'json') {
+          first.source = 'resources-provider';
+          const c = new SKChart(first);
+          c.source = 'resources-provider';
+          this.skres.newChart(c);
+          return;
         }
       });
   }
@@ -353,6 +366,9 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
    */
   selectCacheArea(id: string) {
     const cht = this.fullList.find((cht: FBChart) => cht[0] === id);
+    if (!cht) {
+      return;
+    }
     this.app.data.chartBounds.charts = [cht];
     this.app.data.chartBounds.show = true;
     this.mapInteract.startBoxSelection('seedChart', cht);
@@ -384,12 +400,12 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
               await this.skgroups.addToGroup(selGrp.id, 'chart', id);
               this.app.showMessage(`Chart added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

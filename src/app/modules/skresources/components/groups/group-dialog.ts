@@ -34,6 +34,15 @@ interface RListEntry {
   name: string;
 }
 
+interface GroupItem {
+  name: string;
+  description: string;
+  routes: RListEntry[];
+  waypoints: RListEntry[];
+  regions: RListEntry[];
+  charts: RListEntry[];
+}
+
 @Component({
   selector: 'ap-resourcegroupdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -257,7 +266,14 @@ interface RListEntry {
   ]
 })
 export class ResourceGroupDialog implements OnInit, AfterViewInit {
-  protected gItem: any;
+  protected gItem: GroupItem = {
+    name: '',
+    description: '',
+    routes: [],
+    waypoints: [],
+    regions: [],
+    charts: []
+  };
   protected selTab = 0;
   protected wpts: RListEntry[] = [];
   protected rtes: RListEntry[] = [];
@@ -293,43 +309,47 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.mask.routes = this.data.group.routes ? true : false;
+    const groupRoutes = this.data.group.routes;
+    this.mask.routes = groupRoutes ? true : false;
     this.skres.listFromServer<FBRoute>('routes').then((r) => {
-      if (this.data.group.routes) {
+      if (groupRoutes) {
         r.forEach((rte) => {
-          if (this.data.group.routes.includes(rte[0])) {
+          if (groupRoutes.includes(rte[0])) {
             this.gItem.routes.push({ id: rte[0], name: rte[1].name });
           }
         });
         this.sortIt(this.gItem.routes);
       }
     });
-    this.mask.waypoints = this.data.group.waypoints ? true : false;
+    const groupWaypoints = this.data.group.waypoints;
+    this.mask.waypoints = groupWaypoints ? true : false;
     this.skres.listFromServer<FBWaypoint>('waypoints').then((w) => {
-      if (this.data.group.waypoints) {
+      if (groupWaypoints) {
         w.forEach((wpt) => {
-          if (this.data.group.waypoints.includes(wpt[0])) {
+          if (groupWaypoints.includes(wpt[0])) {
             this.gItem.waypoints.push({ id: wpt[0], name: wpt[1].name });
           }
         });
         this.sortIt(this.gItem.waypoints);
       }
     });
-    this.mask.regions = this.data.group.regions ? true : false;
+    const groupRegions = this.data.group.regions;
+    this.mask.regions = groupRegions ? true : false;
     this.skres.listFromServer<FBRegion>('regions').then((c) => {
-      if (this.data.group.regions) {
+      if (groupRegions) {
         c.forEach((region) => {
-          if (this.data.group.regions.includes(region[0])) {
+          if (groupRegions.includes(region[0])) {
             this.gItem.regions.push({ id: region[0], name: region[1].name });
           }
         });
         this.sortIt(this.gItem.regions);
       }
     });
+    const groupCharts = this.data.group.charts;
     this.skres.listFromServer<FBChart>('charts').then((c) => {
-      if (this.data.group.charts) {
+      if (groupCharts) {
         c.forEach((cht) => {
-          if (this.data.group.charts.includes(cht[0])) {
+          if (groupCharts.includes(cht[0])) {
             this.gItem.charts.push({ id: cht[0], name: cht[1].name });
           }
         });
@@ -341,7 +361,7 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
   }
 
   removeItem(itemType: string, id: string) {
-    const items =
+    const items: RListEntry[] =
       itemType === 'route'
         ? this.gItem.routes
         : itemType === 'waypoint'
@@ -414,8 +434,8 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
    */
   sortIt(l: RListEntry[]) {
     return l.sort((a, b) => {
-      const x = a.name?.toLowerCase();
-      const y = b.name?.toLowerCase();
+      const x = a.name?.toLowerCase() ?? '';
+      const y = b.name?.toLowerCase() ?? '';
       return x > y ? 1 : -1;
     });
   }
@@ -424,9 +444,9 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
    * Display list of resources for selection to add
    */
   addResources() {
-    let lTitle: string;
-    let icon: AppIconDef;
-    let rList: RListEntry[];
+    let lTitle: string | undefined;
+    let icon: AppIconDef | undefined;
+    let rList: RListEntry[] = [];
 
     if (this.selTab === 1) {
       lTitle = 'Routes';
@@ -463,26 +483,22 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((items: RListEntry[]) => {
+      .subscribe((items: RListEntry[] | undefined) => {
         if (items) {
-          // routes
           if (this.selTab === 1) {
-            this.gItem.routes = [].concat(this.gItem.routes, items);
+            this.gItem.routes = [...this.gItem.routes, ...items];
             this.sortIt(this.gItem.routes);
           }
-          // waypoints
           if (this.selTab === 2) {
-            this.gItem.waypoints = [].concat(this.gItem.waypoints, items);
+            this.gItem.waypoints = [...this.gItem.waypoints, ...items];
             this.sortIt(this.gItem.waypoints);
           }
-          // regions
           if (this.selTab === 3) {
-            this.gItem.regions = [].concat(this.gItem.regions, items);
+            this.gItem.regions = [...this.gItem.regions, ...items];
             this.sortIt(this.gItem.regions);
           }
-          // charts
           if (this.selTab === 4) {
-            this.gItem.charts = [].concat(this.gItem.charts, items);
+            this.gItem.charts = [...this.gItem.charts, ...items];
             this.sortIt(this.gItem.charts);
           }
         }
@@ -493,16 +509,20 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
    * Background load resource lists
    */
   bgLoadResources() {
-    ['routes', 'waypoints', 'regions', 'charts'].forEach((g) => {
-      this.skres.listFromServer(g as SKResourceType).then((entries) => {
-        const l = entries.map((i) => {
-          return { id: i[0], name: i[1].name };
+    type NamedEntry = [string, { name?: string }, boolean?];
+    (['routes', 'waypoints', 'regions', 'charts'] as SKResourceType[]).forEach(
+      (g) => {
+        this.skres.listFromServer<NamedEntry>(g).then((entries) => {
+          const l: RListEntry[] = entries.map((i) => ({
+            id: i[0],
+            name: i[1].name ?? ''
+          }));
+          if (g === 'routes') this.rtes = l;
+          else if (g === 'waypoints') this.wpts = l;
+          else if (g === 'regions') this.regions = l;
+          else if (g === 'charts') this.charts = l;
         });
-        if (g === 'routes') this.rtes = l;
-        else if (g === 'waypoints') this.wpts = l;
-        else if (g === 'regions') this.regions = l;
-        else if (g === 'charts') this.charts = l;
-      });
-    });
+      }
+    );
   }
 }

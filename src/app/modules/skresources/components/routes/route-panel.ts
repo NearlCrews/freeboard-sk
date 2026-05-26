@@ -39,6 +39,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { Convert } from 'src/app/lib/convert';
 import { ActiveResourcePropertiesModal } from '../active-resource-dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'route-panel',
@@ -59,14 +60,14 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 })
 export class RoutePanel {
   route = input<SKRoute>(new SKRoute());
-  id = input<string>(undefined);
-  related = input<string>(undefined);
+  id = input<string | undefined>(undefined);
+  related = input<string | undefined>(undefined);
 
   activate = output<string>();
   edit = output<string>();
   panTo = output<{
     center: Position;
-    zoomLevel: number;
+    zoomLevel: number | null;
   }>();
 
   protected _route = linkedSignal(() => this.route());
@@ -77,14 +78,14 @@ export class RoutePanel {
       index: number;
       name: string;
       description: string;
-      bearing: number;
-      distance: number;
+      bearing: string;
+      distance: string;
     }[]
   >([]);
 
   private routeReversed = false;
 
-  protected icon: AppIconDef;
+  protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
   // Phase 3 Batch 3: direct AlarmStore injection for showMessage and
   // parseHttpErrorResponse.
@@ -132,12 +133,20 @@ export class RoutePanel {
   }
 
   protected async getRelatedNotes() {
-    const n = await this.skres.getRelatedNotes('routes', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const n = await this.skres.getRelatedNotes('routes', id);
     this.notes.set(n);
   }
 
   protected async getRelatedGroups() {
-    const g = await this.skgroups.with('routes', this.id());
+    const id = this.id();
+    if (!id) {
+      return;
+    }
+    const g = await this.skgroups.with('routes', id);
     this.groups.set(g);
   }
 
@@ -146,21 +155,27 @@ export class RoutePanel {
       const legs = this.getLegInfo();
       const meta = this.getPointsMeta();
       this.points.update(() => {
-        let r = [];
+        const merged: {
+          index: number;
+          name: string;
+          description: string;
+          bearing: string;
+          distance: string;
+        }[] = [];
         for (let i = 0; i < legs.length; ++i) {
-          r.push(Object.assign({}, legs[i], meta[i]));
+          const leg = legs[i];
+          const m = meta[i];
+          if (!leg || !m) continue;
+          merged.push({ ...leg, ...m });
         }
-        if (this.app.data.activeRouteReversed) {
-          r = r.reverse();
-        }
-        return r;
+        return this.app.data.activeRouteReversed ? merged.reverse() : merged;
       });
     }
   }
 
   /** Get bearing and distance for each route leg */
   private getLegInfo() {
-    const pos = this.app.data.vessels.self.position;
+    const pos = this.app.data.vessels.self.position ?? undefined;
     return GeoUtils.routeLegs(
       this._route().feature.geometry.coordinates,
       pos
@@ -173,25 +188,27 @@ export class RoutePanel {
   }
 
   /** get route point metatdata */
-  private getPointsMeta() {
-    if (
-      this._route().feature.properties.coordinatesMeta &&
-      Array.isArray(this._route().feature.properties.coordinatesMeta)
-    ) {
-      const pointsMeta = this._route().feature.properties.coordinatesMeta.map(
-        (p) => {
-          return {
-            name: p?.name ?? '',
-            description: p?.description ?? ''
-          };
-        }
-      );
+  private getPointsMeta(): {
+    index: number;
+    name: string;
+    description: string;
+  }[] {
+    const properties = this._route().feature.properties;
+    const coordinatesMeta = properties?.['coordinatesMeta'] as
+      | { name?: string; description?: string; href?: string }[]
+      | undefined;
+    if (Array.isArray(coordinatesMeta)) {
+      const pointsMeta = coordinatesMeta.map((p) => ({
+        href: p?.href,
+        name: p?.name ?? '',
+        description: p?.description ?? ''
+      }));
       let idx = 0;
       return pointsMeta.map((pt) => {
         idx++;
         if (pt.href) {
-          const id = pt.href.split('/').slice(-1);
-          const wpt = this.skres.fromCache('waypoints', id[0]);
+          const id = pt.href.split('/').slice(-1)[0] ?? '';
+          const wpt = this.skres.fromCache('waypoints', id);
           return wpt
             ? {
                 index: idx,
@@ -203,28 +220,29 @@ export class RoutePanel {
                 name: '!wpt reference!',
                 description: ''
               };
-        } else {
-          return {
-            index: idx,
-            name: pt.name ?? `RtePt-${('000' + String(idx)).slice(-3)}`,
-            description: pt.description ?? ``
-          };
         }
-      });
-    } else {
-      let idx = 0;
-      return this._route().feature.geometry.coordinates.map(() => {
         return {
           index: idx,
-          name: `RtePt-${('000' + String(++idx)).slice(-3)}`,
-          description: ''
+          name: pt.name || `RtePt-${('000' + String(idx)).slice(-3)}`,
+          description: pt.description ?? ``
         };
       });
     }
+    let idx = 0;
+    return this._route().feature.geometry.coordinates.map(() => {
+      return {
+        index: idx,
+        name: `RtePt-${('000' + String(++idx)).slice(-3)}`,
+        description: ''
+      };
+    });
   }
 
   protected onEdit() {
-    this.edit.emit(this.id());
+    const id = this.id();
+    if (id) {
+      this.edit.emit(id);
+    }
   }
 
   protected onReverse() {
@@ -239,15 +257,22 @@ export class RoutePanel {
       this.course.clearCourse();
       return;
     }
+    const id = this.id();
+    if (!id) {
+      return;
+    }
     if (typeof index === 'undefined') {
-      this.activate.emit(this.id());
+      this.activate.emit(id);
     } else {
-      this.course.activateRoute(this.id(), index);
+      this.course.activateRoute(id, index);
     }
   }
 
   protected onDelete() {
-    this.skres.deleteRoute(this.id());
+    const id = this.id();
+    if (id) {
+      this.skres.deleteRoute(id);
+    }
   }
 
   protected onPanTo() {
@@ -256,8 +281,12 @@ export class RoutePanel {
         ? this.app.config.resources.notes.minZoom
         : null;
 
+    const center = this._route().feature.geometry.coordinates[0];
+    if (!center) {
+      return;
+    }
     this.panTo.emit({
-      center: this._route().feature.geometry.coordinates[0],
+      center: center as Position,
       zoomLevel: zoomTo
     });
   }
@@ -267,24 +296,23 @@ export class RoutePanel {
   }
 
   protected arrangePoints() {
+    const id = this.id();
+    if (!id) {
+      return;
+    }
     this.bottomSheet
       .open(ActiveResourcePropertiesModal, {
         disableClose: true,
         data: {
           title: 'Route Properties',
-          resource: [this.id(), this._route(), false],
+          resource: [id, this._route(), false],
           type: 'route',
           noButtons: true
         }
       })
       .afterDismissed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((deactivate: boolean) => {
-        if (deactivate) {
-          //this.clearDestination();
-        }
-        //this.focusMap();
-      });
+      .subscribe(() => {});
   }
 
   /**
@@ -292,6 +320,10 @@ export class RoutePanel {
    * @param id route identifier
    */
   protected async addToGroup() {
+    const routeId = this.id();
+    if (!routeId) {
+      return;
+    }
     try {
       const groups = await this.skgroups.listFromServer();
       const glist = groups.map((g) => {
@@ -324,15 +356,15 @@ export class RoutePanel {
         .subscribe(async (selGrp) => {
           if (selGrp) {
             try {
-              await this.skgroups.addToGroup(selGrp.id, 'route', this.id());
+              await this.skgroups.addToGroup(selGrp.id, 'route', routeId);
               this.alarm.showMessage(`Route added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err);
+              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err);
+      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 }

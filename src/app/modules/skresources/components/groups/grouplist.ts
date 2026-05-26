@@ -21,6 +21,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 
 import { AppFacade } from 'src/app/app.facade';
+import { HttpErrorResponse } from '@angular/common/http';
 import { SKResourceService } from '../../resources.service';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -56,7 +57,7 @@ export class GroupListComponent implements OnInit, OnChanges {
   protected fullList: FBResourceGroups = [];
   protected filteredList = signal<FBResourceGroups>([]);
   protected filterText = '';
-  selectedGroup!: string;
+  selectedGroup = '';
 
   protected app = inject(AppFacade);
   private worker = inject(SKWorkerService);
@@ -102,12 +103,14 @@ export class GroupListComponent implements OnInit, OnChanges {
       this.fullList = await this.skgroups.listFromServer();
       if (this.selectedGroup) {
         const g = this.fullList.find((item) => item[0] === this.selectedGroup);
-        g[2] = true;
+        if (g) {
+          g[2] = true;
+        }
       }
       this.doFilter();
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 
@@ -115,24 +118,20 @@ export class GroupListComponent implements OnInit, OnChanges {
    * filter & sort resource entries
    */
   protected doFilter() {
-    const sortList = () => {
-      fl.sort((a, b) => {
-        const x = a[1].name?.toLowerCase();
-        const y = b[1].name?.toLowerCase();
-        return x > y ? 1 : -1;
-      });
-    };
     let fl: FBResourceGroup[];
     if (this.filterText.length === 0) {
       fl = this.fullList.slice(0);
     } else {
-      fl = this.fullList.filter((item) => {
-        return item[1].name
-          ?.toLowerCase()
-          .includes(this.filterText?.toLowerCase());
-      });
+      const filterLower = this.filterText.toLowerCase();
+      fl = this.fullList.filter((item) =>
+        item[1].name?.toLowerCase().includes(filterLower)
+      );
     }
-    sortList();
+    fl.sort((a, b) => {
+      const x = a[1].name?.toLowerCase() ?? '';
+      const y = b[1].name?.toLowerCase() ?? '';
+      return x > y ? 1 : -1;
+    });
     this.filteredList.update(() => fl.slice(0));
   }
 
@@ -151,8 +150,8 @@ export class GroupListComponent implements OnInit, OnChanges {
    * @param id group identifier
    */
   protected itemSelect(checked: boolean, id: string) {
-    let idx: number;
-    let group: SKResourceGroup;
+    let idx = -1;
+    let group: SKResourceGroup | undefined;
 
     // fullList update
     this.fullList.forEach((item) => {
@@ -168,7 +167,10 @@ export class GroupListComponent implements OnInit, OnChanges {
     this.filteredList.update((fl) => {
       idx = fl.findIndex((item) => item[0] === id);
       if (idx !== -1) {
-        fl[idx][2] = checked;
+        const entry = fl[idx];
+        if (entry) {
+          entry[2] = checked;
+        }
       }
       fl.forEach((item) => (item[2] = item[0] === id));
       return fl;

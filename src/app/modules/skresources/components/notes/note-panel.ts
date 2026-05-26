@@ -53,17 +53,17 @@ const GROUP_PALETTE = [
 })
 export class NotePanel {
   note = input<SKNote>(new SKNote());
-  id = input<string>();
+  id = input<string | undefined>(undefined);
 
   protected _note = linkedSignal(() => this.note());
 
   edit = output<string>();
   panTo = output<{
     center: Position;
-    zoomLevel: number;
+    zoomLevel: number | null;
   }>();
 
-  protected icon: AppIconDef;
+  protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
   private course = inject(CourseService);
   private skres = inject(SKResourceService);
@@ -86,11 +86,17 @@ export class NotePanel {
   }
 
   onEdit() {
-    this.edit.emit(this.id());
+    const id = this.id();
+    if (id) {
+      this.edit.emit(id);
+    }
   }
 
   onDelete() {
-    this.skres.deleteNote(this.id());
+    const id = this.id();
+    if (id) {
+      this.skres.deleteNote(id);
+    }
   }
 
   onGoto() {
@@ -128,7 +134,10 @@ export class NotePanel {
       hash = (hash << 5) - hash + name.charCodeAt(i);
       hash |= 0;
     }
-    return GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length];
+    return (
+      GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length] ??
+      'var(--notes-text-muted)'
+    );
   }
 
   timeAgo(timestamp: string | number | undefined): string {

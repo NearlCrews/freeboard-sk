@@ -5,7 +5,8 @@ import {
   DestroyRef,
   signal,
   output,
-  inject
+  inject,
+  AfterViewInit
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -23,7 +24,14 @@ import {
   CdkDropList
 } from '@angular/cdk/drag-drop';
 import { SKResourceService } from '../../resources.service';
-import { FBWaypoint, LineString } from 'src/app/types';
+import { FBWaypoint, LineString, Position } from 'src/app/types';
+
+interface BuildRoutePoint {
+  id: string;
+  name: string;
+  position: Position;
+  href: string;
+}
 
 @Component({
   selector: 'route-builder',
@@ -139,13 +147,13 @@ import { FBWaypoint, LineString } from 'src/app/types';
     </mat-card>
   `
 })
-export class BuildRouteComponent {
-  wpts = signal([]);
-  rtepts = [];
+export class BuildRouteComponent implements AfterViewInit {
+  wpts = signal<BuildRoutePoint[]>([]);
+  rtepts: BuildRoutePoint[] = [];
 
   save = output<{
     coordinates: LineString;
-    meta?: Array<{ href?: string; name?: string }>;
+    meta?: { href?: string; name?: string }[];
   }>();
   close = output<void>();
 
@@ -183,8 +191,7 @@ export class BuildRouteComponent {
     this.rtepts.splice(index, 1);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dropEventHandler(event: CdkDragDrop<string[]>) {
+  dropEventHandler(event: CdkDragDrop<BuildRoutePoint[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -209,8 +216,8 @@ export class BuildRouteComponent {
           'Unsaved Changes'
         )
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((res: boolean) => {
-          if (res) {
+        .subscribe((res: { ok: boolean } | undefined) => {
+          if (res?.ok) {
             this.doSave();
           } else {
             this.close.emit();
@@ -222,7 +229,10 @@ export class BuildRouteComponent {
   }
 
   doSave() {
-    const rte = {
+    const rte: {
+      coordinates: LineString;
+      meta: { href?: string; name?: string }[];
+    } = {
       coordinates: [],
       meta: []
     };

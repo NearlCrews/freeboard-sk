@@ -6,7 +6,9 @@ import {
   effect,
   inject,
   output,
-  input
+  input,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -22,6 +24,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 import { AppFacade } from 'src/app/app.facade';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FBRoute,
   FBResourceSelect,
@@ -52,7 +55,10 @@ import { RemarkModule } from 'ngx-remark';
     RemarkModule
   ]
 })
-export class RouteListComponent extends ResourceListBase {
+export class RouteListComponent
+  extends ResourceListBase
+  implements OnInit, OnChanges
+{
   activeRoute = input<string>();
   editingRouteId = input<string>();
   select = output<FBResourceSelect>();
@@ -90,8 +96,8 @@ export class RouteListComponent extends ResourceListBase {
 
   ngOnChanges() {
     this.initItems();
-    this.disableRefresh =
-      this.editingRouteId() && this.editingRouteId().indexOf('route') !== -1;
+    const editingId = this.editingRouteId();
+    this.disableRefresh = !!editingId && editingId.includes('route');
   }
 
   /**
@@ -122,7 +128,7 @@ export class RouteListComponent extends ResourceListBase {
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
       this.fullList = [];
     }
   }
@@ -149,10 +155,14 @@ export class RouteListComponent extends ResourceListBase {
     const idx = this.toggleItem(checked, id);
     // update cache
     if (idx !== -1) {
+      const entry = this.filteredList()[idx];
+      if (!entry) {
+        return;
+      }
       if (checked) {
-        this.skres.routeAdd([this.filteredList()[idx]]);
+        this.skres.routeAdd([entry]);
       } else {
-        this.skres.routeRemove([this.filteredList()[idx][0]]);
+        this.skres.routeRemove([entry[0]]);
       }
     }
   }
@@ -205,7 +215,7 @@ export class RouteListComponent extends ResourceListBase {
   protected itemViewNotes(rte: FBRoute) {
     this.notes.emit({
       id: rte[0],
-      readOnly: rte[1].feature?.properties?.readOnly ?? false
+      readOnly: (rte[1].feature?.properties?.['readOnly'] as boolean) ?? false
     });
   }
 
@@ -235,12 +245,12 @@ export class RouteListComponent extends ResourceListBase {
               await this.skgroups.addToGroup(selGrp.id, 'route', id);
               this.app.showMessage(`Route added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err);
+              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err);
+      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
     }
   }
 
