@@ -89,7 +89,7 @@ export class WmsChartLayerComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.layer) {
+    if (this.layer && this.map) {
       this.map.removeLayer(this.layer);
       this.map.render();
     }

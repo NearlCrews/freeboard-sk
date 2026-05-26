@@ -68,7 +68,9 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
               if (!target) return;
               const label = this.buildLabel(target);
               if (target.position) {
-                f.setGeometry(new Point(fromLonLat(target.position)));
+                f.setGeometry(
+                  new Point(fromLonLat(target.position as [number, number]))
+                );
               }
               const built = this.buildVesselStyle(
                 target,
@@ -128,7 +130,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
     if (this.okToRenderTarget(id) && target.position) {
       const label = this.buildLabel(target);
       const f = new Feature({
-        geometry: new Point(fromLonLat(target.position)),
+        geometry: new Point(fromLonLat(target.position as [number, number])),
         name: target.name
       });
       f.setId('ais-' + id);
@@ -273,7 +275,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cogCoords = fromLonLatArray(target.vectors.cog) as any;
+    const cogCoords = fromLonLatArray(target.vectors.cog as any) as any;
     if (cf) {
       // update vector
       cf.setGeometry(new LineString(cogCoords));
@@ -294,7 +296,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
         this.parseCogLine(k, v as SKVessel);
       });
     } else {
-      this.source.forEachFeature((cl: Feature<LineString>) => {
+      this.source.forEachFeature((cl) => {
         const fid = cl.getId();
         if (typeof fid === 'string' && fid.includes('cog-')) {
           this.source.removeFeature(cl);

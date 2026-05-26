@@ -60,7 +60,10 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
       windDirection,
       offset
     );
-    return [fromLonLat(target.position), fromLonLat(windc)];
+    return [
+      fromLonLat(target.position as [number, number]),
+      fromLonLat(windc as [number, number])
+    ];
   }
 
   // add new wind vector feature

@@ -225,7 +225,7 @@ export class S57Style {
         void conrad;
         void bconrad;
         if (bconrad) {
-          if (conrad === 1) {
+          if ((conrad as number) === 1) {
             retval.push('LS(SOLD,3,CHMGF)');
             retval.push('LS(SOLD,1,CSTLN)');
           } else {

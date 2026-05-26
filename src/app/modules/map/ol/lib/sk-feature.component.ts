@@ -174,15 +174,15 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
    * @param text string containing
    */
   setTextLabel(style: Style, text: string): Style {
-    let ts: Text | undefined;
+    let ts: Text | null = null;
     if (!style || typeof style === 'function') {
       return style;
     } else if (Array.isArray(style)) {
       if (style.length !== 0) {
-        ts = (style[0] as Style).getText();
+        ts = (style[0] as Style).getText() ?? null;
       }
     } else {
-      ts = style.getText();
+      ts = style.getText() ?? null;
     }
     if (ts) {
       ts.setText(Math.abs(this.mapZoom) >= this.labelMinZoom ? text : '');

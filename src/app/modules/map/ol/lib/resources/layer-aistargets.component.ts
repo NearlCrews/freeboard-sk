@@ -51,7 +51,9 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
               if (!target) return;
               const label = this.buildLabel(target);
               if (target.position) {
-                f.setGeometry(new Point(fromLonLat(target.position)));
+                f.setGeometry(
+                  new Point(fromLonLat(target.position as [number, number]))
+                );
               }
               const built = this.buildStyle(target);
               if (!built) return;
@@ -96,7 +98,7 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
     const label = this.buildLabel(target);
     if (target.position) {
       const f = new Feature({
-        geometry: new Point(fromLonLat(target.position)),
+        geometry: new Point(fromLonLat(target.position as [number, number])),
         name: target.name
       });
       f.setId(id);

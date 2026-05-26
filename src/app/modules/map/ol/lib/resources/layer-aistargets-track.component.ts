@@ -80,14 +80,14 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
       return;
     }
     this.source.clear();
-    if (this.okToRenderTracks) {
+    if (this.okToRenderTracks()) {
       this.onUpdateTargets(this.extractKeys(this.tracks));
     }
   }
 
   // update track features
   override onUpdateTargets(ids: string[]) {
-    if (this.okToRenderTracks) {
+    if (this.okToRenderTracks()) {
       ids.forEach((id: string) => {
         if (id.includes(this.targetContext)) {
           const f = this.source.getFeatureById('track-' + id) as Feature | null;
@@ -169,7 +169,7 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
     const tc = trk.map((mls) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lines: any[] = [];
-      mls.forEach((line) => lines.push(mapifyCoords(line)));
+      mls.forEach((line: [number, number][]) => lines.push(mapifyCoords(line)));
       return lines;
     });
     return fromLonLatArray(tc);

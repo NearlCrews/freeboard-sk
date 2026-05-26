@@ -162,7 +162,7 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
       return this.source.getUrl() ?? '';
     }
     if (this.source instanceof WMTS) {
-      return this.source.getUrls()[0] ?? '';
+      return this.source.getUrls()?.[0] ?? '';
     }
     if (this.source instanceof TileWMS) {
       return this.source.getUrls()?.[0] ?? '';

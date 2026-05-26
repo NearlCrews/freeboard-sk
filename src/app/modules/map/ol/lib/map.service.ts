@@ -4,7 +4,11 @@ import BaseLayer from 'ol/layer/Base';
 import { Extent } from 'ol/extent';
 import { get as getProj } from 'ol/proj';
 import { register } from 'ol/proj/proj4.js';
-import proj4 from 'proj4';
+// proj4 2.6.2 ships no bundled .d.ts. The /// declaration below ambient
+// types it as any for this consumer; the planned proj4 bump in the
+// Phase 4b map track will pull in the official types.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports
+const proj4 = require('proj4') as any;
 
 export interface FeatureUrl {
   id: string;

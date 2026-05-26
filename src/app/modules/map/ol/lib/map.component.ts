@@ -170,16 +170,24 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (!map) {
       return;
     }
-    map.un('singleclick', this.emitSingleClickEvent);
-    map.un('dblclick', this.emitDblClickEvent);
-    map.un('click', this.emitClickEvent);
-    map.un('movestart', this.emitMoveStartEvent);
-    map.un('moveend', this.emitMoveEndEvent);
-    map.un('pointerdrag', this.emitPointerDragEvent);
-    map.un('pointermove', this.emitPointerMoveEvent);
-    map.un('postcompose', this.emitPostComposeEvent);
-    map.un('postrender', this.emitPostRenderEvent);
-    map.un('precompose', this.emitPreComposeEvent);
+    // OL's typed on/un overloads narrow the listener per event name to
+    // ListenerFunction<MapBrowserEvent | MapEvent | RenderEvent | etc>.
+    // Our handlers are pre-typed by event family and call through the
+    // typed output signals. Casting at the boundary is the lightest
+    // path; the alternative would be Listener-generic handlers that
+    // re-narrow inside each.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const m = map as any;
+    m.un('singleclick', this.emitSingleClickEvent);
+    m.un('dblclick', this.emitDblClickEvent);
+    m.un('click', this.emitClickEvent);
+    m.un('movestart', this.emitMoveStartEvent);
+    m.un('moveend', this.emitMoveEndEvent);
+    m.un('pointerdrag', this.emitPointerDragEvent);
+    m.un('pointermove', this.emitPointerMoveEvent);
+    m.un('postcompose', this.emitPostComposeEvent);
+    m.un('postrender', this.emitPostRenderEvent);
+    m.un('precompose', this.emitPreComposeEvent);
     // right click handler
     map
       .getViewport()
@@ -205,17 +213,19 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   afterMapReady() {
     const map = this.map;
     if (!map) return;
-    // register map events
-    map.on('singleclick', this.emitSingleClickEvent);
-    map.on('dblclick', this.emitDblClickEvent);
-    map.on('click', this.emitClickEvent);
-    map.on('movestart', this.emitMoveStartEvent);
-    map.on('moveend', this.emitMoveEndEvent);
-    map.on('pointerdrag', this.emitPointerDragEvent);
-    map.on('pointermove', this.emitPointerMoveEvent);
-    map.on('postcompose', this.emitPostComposeEvent);
-    map.on('postrender', this.emitPostRenderEvent);
-    map.on('precompose', this.emitPreComposeEvent);
+    // register map events (see ngOnDestroy comment on the cast)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const m = map as any;
+    m.on('singleclick', this.emitSingleClickEvent);
+    m.on('dblclick', this.emitDblClickEvent);
+    m.on('click', this.emitClickEvent);
+    m.on('movestart', this.emitMoveStartEvent);
+    m.on('moveend', this.emitMoveEndEvent);
+    m.on('pointerdrag', this.emitPointerDragEvent);
+    m.on('pointermove', this.emitPointerMoveEvent);
+    m.on('postcompose', this.emitPostComposeEvent);
+    m.on('postrender', this.emitPostRenderEvent);
+    m.on('precompose', this.emitPreComposeEvent);
 
     // right click handler
     map.getViewport().addEventListener('contextmenu', this.rightClickHandler);

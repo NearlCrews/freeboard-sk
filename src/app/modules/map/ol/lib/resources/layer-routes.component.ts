@@ -77,7 +77,9 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     for (const r of routes) {
       if (r[2]) {
         // selected
-        const mc = mapifyCoords(r[1].feature.geometry.coordinates);
+        const mc = mapifyCoords(
+          r[1].feature.geometry.coordinates as [number, number][]
+        );
         const c = fromLonLatArray(mc);
         const f = new Feature({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

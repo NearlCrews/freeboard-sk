@@ -131,7 +131,10 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
         new Style({
           stroke: !ls
             ? new Stroke({ color: 'rgba(221, 99, 0, 0.5)', width: 4 })
-            : new Stroke(ls.stroke)
+            : new Stroke({
+                ...ls.stroke,
+                lineDash: ls.stroke.lineDash ?? undefined
+              })
         })
       );
       fa.push(heading);

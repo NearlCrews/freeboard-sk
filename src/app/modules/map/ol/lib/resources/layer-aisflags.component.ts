@@ -58,7 +58,7 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
     if (target && this.okToRenderTarget(id) && target.position) {
       const label = target.callsignVhf ?? target.callsignHf ?? '......';
       const f = new Feature({
-        geometry: new Point(fromLonLat(target.position)),
+        geometry: new Point(fromLonLat(target.position as [number, number])),
         name: target.name
       });
       f.setId('flag-' + id);
@@ -105,7 +105,9 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
             if (f) {
               const position = this.targets.get(id)?.position;
               if (position) {
-                f.setGeometry(new Point(fromLonLat(position)));
+                f.setGeometry(
+                  new Point(fromLonLat(position as [number, number]))
+                );
               }
             } else {
               this.addFlagWithId(id);

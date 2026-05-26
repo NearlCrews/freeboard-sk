@@ -131,7 +131,7 @@ export class DirectionOfTravelComponent
           this.points.slice(idx, idx + 2) as Position[]
         );
         const f = new Feature({
-          geometry: new Point(fromLonLat(pctr))
+          geometry: new Point(fromLonLat(pctr as [number, number]))
         });
         f.setId(`dot.${idx}`);
         f.setStyle(this.buildStyle(idx));

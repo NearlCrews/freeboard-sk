@@ -67,7 +67,9 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
       if (w[2]) {
         // selected
         const f = new Feature({
-          geometry: new Point(fromLonLat(w[1].feature.geometry.coordinates)),
+          geometry: new Point(
+            fromLonLat(w[1].feature.geometry.coordinates as [number, number])
+          ),
           name: w[1].name
         });
         f.setId('waypoint.' + w[0]);

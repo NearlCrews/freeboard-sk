@@ -207,7 +207,8 @@ export class FBMapComponent
     content: [],
     featureCount: 0,
     readOnly: false,
-    isSelf: false
+    isSelf: false,
+    resource: undefined
   });
 
   protected olMapControls = mapControls;
@@ -377,8 +378,8 @@ export class FBMapComponent
       const u: Units = ['kilometer', 'm'].includes(this.scaleUnits())
         ? 'metric'
         : 'nautical';
-      const c = this.olMap.getMap().getControls().getArray();
-      (c[0] as ScaleLine | undefined)?.setUnits(u);
+      const c = this.olMap.getMap()?.getControls().getArray();
+      (c?.[0] as ScaleLine | undefined)?.setUnits(u);
     } catch {
       // no map or scale control
     }
@@ -736,9 +737,11 @@ export class FBMapComponent
 
   /** process pointer click event when in measure mode */
   private parseClickInMeasureMode(pos: Position) {
+    const measurement = this.mapInteract.measurement();
     if (
       this.mapInteract.measureGeometryType === 'LineString' &&
-      this.mapInteract.measurement().coords.length !== 0
+      measurement &&
+      (measurement.coords?.length ?? 0) !== 0
     ) {
       this.onMeasureClick(pos);
     }
@@ -778,7 +781,7 @@ export class FBMapComponent
       const geom = e.feature.getGeometry() as any;
       let c: Position[] = geom
         .getCoordinates()
-        .map((p: Position) => toLonLat(p) as Position);
+        .map((p: Position) => toLonLat(p as [number, number]) as Position);
       c = c.slice(0, c.length - 1);
       this.mapInteract.measurementCoords = c;
       ovPosition = (c[0] ?? [0, 0]) as Position;
@@ -859,7 +862,7 @@ export class FBMapComponent
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           rteCoords = (geom as any)
             .getCoordinates()
-            .map((c: Position) => toLonLat(c) as Position);
+            .map((c: Position) => toLonLat(c as [number, number]) as Position);
           rteCoords = rteCoords.slice(0, rteCoords.length - 1);
         }
       });
@@ -959,21 +962,25 @@ export class FBMapComponent
       pc = toLonLat(c);
       // shift anchor
       if (fid === 'anchor') {
-        this.anchor.setAnchorPosition(pc).catch((err: HttpErrorResponse) => {
+        this.anchor.setAnchorPosition(pc)?.catch((err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         });
       }
     }
-    this.mapInteract.draw.forSave.coords = pc;
+    if (this.mapInteract.draw.forSave) {
+      this.mapInteract.draw.forSave.coords = pc;
+    }
+    const forSaveId = this.mapInteract.draw.forSave?.id;
     if (
       this.app.data.activeRoute &&
-      this.mapInteract.draw.forSave.id.includes(this.app.data.activeRoute)
+      typeof forSaveId === 'string' &&
+      forSaveId.includes(this.app.data.activeRoute)
     ) {
       this.app.data.activeRouteIsEditing = true;
     } else {
       this.app.data.activeRouteIsEditing = false;
     }
-    this.app.data.editingId = this.mapInteract.draw.forSave.id;
+    this.app.data.editingId = forSaveId;
 
     this.app.debug(this.mapInteract.draw.forSave);
   }
@@ -1197,7 +1204,8 @@ export class FBMapComponent
       featureCount: this.mapInteract.draw.features?.getLength() ?? 0,
       position: coord,
       readOnly: false,
-      isSelf: false
+      isSelf: false,
+      resource: undefined
     };
 
     const t = id.split('.');
@@ -1829,7 +1837,7 @@ export class FBMapComponent
   }
 
   private transformCoordsArray(ca: Position[]): Position[] {
-    return ca.map((i) => toLonLat(i) as Position);
+    return ca.map((i) => toLonLat(i as [number, number]) as Position);
   }
 
   // apply default chart style (vectortile)

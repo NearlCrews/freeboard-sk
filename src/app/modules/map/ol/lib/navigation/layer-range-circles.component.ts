@@ -140,6 +140,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
     let range: number;
     if (!this.fixedMode()) {
       const map = this.mapComponent.getMap();
+      if (!map) return;
       const zoomResolution = map.getView().getResolutionForZoom(this.mapZoom);
       range =
         zoomResolution > 5000
@@ -183,7 +184,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
           d
         );
         const p = new Feature({
-          geometry: new Point(fromLonLat(tp))
+          geometry: new Point(fromLonLat(tp as [number, number]))
         });
         p.setStyle(this.buildTextStyle(d));
         fa.push(p);

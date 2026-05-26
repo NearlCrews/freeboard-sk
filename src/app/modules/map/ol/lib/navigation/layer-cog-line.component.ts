@@ -178,7 +178,10 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
         const ls = this.lineStyle();
         const stroke = !ls
           ? new Stroke({ color: defaultColor, width: 1 })
-          : new Stroke(ls.stroke);
+          : new Stroke({
+              ...ls.stroke,
+              lineDash: ls.stroke.lineDash ?? undefined
+            });
 
         const styles: Style[] = [];
         styles.push(

@@ -47,10 +47,18 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map && this.interaction) {
       this.map.removeInteraction(this.interaction);
-      this.interaction.un('change', this.emitChangeEvent);
-      this.interaction.un('drawstart', this.emitDrawStartEvent);
-      this.interaction.un('drawend', this.emitDrawEndEvent);
-      this.interaction.un('drawabort', this.emitDrawAbortEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('change', this.emitChangeEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('drawstart', this.emitDrawStartEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('drawend', this.emitDrawEndEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('drawabort', this.emitDrawAbortEvent);
       this.interaction = null;
     }
   }
@@ -68,10 +76,22 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
       }
       const interaction = new Draw(opt);
       this.interaction = interaction;
-      interaction.on('change', this.emitChangeEvent);
-      interaction.on('drawstart', this.emitDrawStartEvent);
-      interaction.on('drawend', this.emitDrawEndEvent);
-      interaction.on('drawabort', this.emitDrawAbortEvent);
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'change',
+        this.emitChangeEvent
+      );
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'drawstart',
+        this.emitDrawStartEvent
+      );
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'drawend',
+        this.emitDrawEndEvent
+      );
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'drawabort',
+        this.emitDrawAbortEvent
+      );
       map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }

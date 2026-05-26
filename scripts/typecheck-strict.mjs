@@ -15,16 +15,17 @@
 import { spawnSync } from 'node:child_process';
 
 // All of src/app/lib/ entered NEW_PREFIXES in Phase 5 after five
-// burndown chunks cleared the legacy strict errors. The next ratchet
-// targets are src/app/modules/skstream/, src/app/modules/map/, and
-// src/app/modules/skresources/ per the roadmap; until each lands, the
-// LEGACY_PREFIXES list stays narrow so a regression in app code under
-// src/app/ does not silently pass the gate.
+// burndown chunks cleared the legacy strict errors. src/app/modules/map/
+// entered next after the map subtree burndown. The remaining ratchet
+// target is src/app/modules/skresources/ per the roadmap; until it
+// lands, the LEGACY_PREFIXES list stays narrow so a regression in app
+// code under src/app/ does not silently pass the gate.
 const NEW_PREFIXES = [
   'src/lib/',
   'src/types/',
   'src/app/lib/',
-  'src/app/modules/skstream/'
+  'src/app/modules/skstream/',
+  'src/app/modules/map/'
 ];
 const LEGACY_PREFIXES = [];
 

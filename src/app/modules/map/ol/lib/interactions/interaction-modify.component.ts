@@ -44,9 +44,15 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map && this.interaction) {
       this.map.removeInteraction(this.interaction);
-      this.interaction.un('change', this.emitChangeEvent);
-      this.interaction.un('modifystart', this.emitModifyStartEvent);
-      this.interaction.un('modifyend', this.emitModifyEndEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('change', this.emitChangeEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('modifystart', this.emitModifyStartEvent);
+      (
+        this.interaction as unknown as { un: (a: string, b: unknown) => void }
+      ).un('modifyend', this.emitModifyEndEvent);
       this.interaction = null;
     }
   }
@@ -70,9 +76,18 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
         }
       });
       this.interaction = interaction;
-      interaction.on('change', this.emitChangeEvent);
-      interaction.on('modifystart', this.emitModifyStartEvent);
-      interaction.on('modifyend', this.emitModifyEndEvent);
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'change',
+        this.emitChangeEvent
+      );
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'modifystart',
+        this.emitModifyStartEvent
+      );
+      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+        'modifyend',
+        this.emitModifyEndEvent
+      );
       map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }

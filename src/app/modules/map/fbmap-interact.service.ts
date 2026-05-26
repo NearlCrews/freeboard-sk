@@ -31,9 +31,10 @@ export interface IPopover {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any[];
   featureCount: number;
-  resource?:
+  resource:
     | [string, SKRoute | SKWaypoint | SKNote | SKRegion]
-    | GeoJSONFeature;
+    | GeoJSONFeature
+    | undefined;
   vessel?: SKVessel;
   isSelf?: boolean;
   aton?: SKAtoN;
