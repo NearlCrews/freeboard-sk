@@ -1,7 +1,14 @@
 import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,6 +29,7 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
+    FormField,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
@@ -48,15 +56,11 @@ interface DialogData {
             <div>
               <mat-form-field floatLabel="always">
                 <mat-label>Name</mat-label>
-                <input
-                  matInput
-                  #inpname="ngModel"
-                  type="text"
-                  required
-                  [readonly]="readOnly"
-                  [(ngModel)]="name"
-                />
-                @if (inpname.invalid && (inpname.dirty || inpname.touched)) {
+                <input matInput type="text" [formField]="tForm.name" />
+                @if (
+                  tForm.name().invalid() &&
+                  (tForm.name().dirty() || tForm.name().touched())
+                ) {
                   <mat-error> Please enter a name.</mat-error>
                 }
               </mat-form-field>
@@ -67,7 +71,6 @@ interface DialogData {
                 <textarea
                   matInput
                   rows="3"
-                  #inpcmt="ngModel"
                   [readonly]="readOnly"
                   [(ngModel)]="description"
                 >
@@ -82,7 +85,7 @@ interface DialogData {
         <mat-dialog-actions align="right">
           <button
             mat-flat-button
-            [disabled]="inpname.invalid || readOnly"
+            [disabled]="saveDisabled()"
             (click)="handleClose(true)"
           >
             SAVE
@@ -100,18 +103,21 @@ interface DialogData {
   ]
 })
 export class TrackDialog implements OnInit {
-  protected name = '';
   protected description = '';
   protected readOnly = false;
+
+  protected tModel = signal<{ name: string }>({ name: '' });
+  protected tForm = form(this.tModel, (p) => {
+    required(p.name, { message: 'Please enter a name.' });
+  });
+  protected saveDisabled = computed(() => this.tForm().invalid());
 
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<TrackDialog>);
 
-  constructor() {}
-
   ngOnInit() {
     const props = this.data.track.feature?.properties;
-    this.name = (props?.['name'] as string) ?? '';
+    this.tModel.set({ name: (props?.['name'] as string) ?? '' });
     this.description = (props?.['description'] as string) ?? '';
     this.readOnly = (props?.['readOnly'] as boolean) ?? false;
   }
@@ -119,10 +125,11 @@ export class TrackDialog implements OnInit {
   handleClose(save: boolean) {
     if (save) {
       const props = this.data.track.feature.properties ?? {};
-      props['name'] = this.name;
+      const name = this.tModel().name;
+      props['name'] = name;
       props['description'] = this.description;
       this.data.track.feature.properties = props;
-      this.data.track.name = this.name;
+      this.data.track.name = name;
       this.data.track.description = this.description;
     }
     this.dialogRef.close({ save: save, track: this.data.track });

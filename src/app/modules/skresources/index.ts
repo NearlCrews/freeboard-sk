@@ -9,6 +9,7 @@ export * from './components/active-resource-dialog';
 export * from './components/signalk-details.component';
 
 export * from './components/notes/notelist';
+export * from './components/notes/notes-shell.component';
 export * from './components/notes/relatednotes-dialog';
 export * from './components/notes/note-panel';
 

@@ -640,13 +640,13 @@
                 }
                 @if (leftMenuCtrl().noteList) {
                   @defer {
-                    <note-list
+                    <notes-shell
                       [notes]="skres.notes()"
                       (select)="handleResourceInfo('notes', $event.id)"
                       (pan)="centerAndZoom($event.center, $event.zoomLevel)"
                       (closed)="displayLeftMenu()"
                     >
-                    </note-list>
+                    </notes-shell>
                   }
                 }
                 @if (leftMenuCtrl().regionList) {

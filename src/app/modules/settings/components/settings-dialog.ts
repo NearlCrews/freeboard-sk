@@ -5,6 +5,7 @@ import {
   Component,
   inject,
   signal,
+  computed,
   effect
 } from '@angular/core';
 
@@ -25,7 +26,9 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTabsModule } from '@angular/material/tabs';
+
+import { FbListPaneComponent } from 'src/app/design-system/primitives/list-pane/list-pane.component';
+import { FbDetailPaneComponent } from 'src/app/design-system/primitives/detail-pane/detail-pane.component';
 
 import type {
   LineStyleConfig,
@@ -45,6 +48,11 @@ import { Convert } from 'src/app/lib/convert';
 interface PreferredPathsResult {
   save: boolean;
   value: Record<string, string>;
+}
+
+export interface SettingsSection {
+  readonly id: string;
+  readonly label: string;
 }
 
 //** Settings **
@@ -68,7 +76,8 @@ interface PreferredPathsResult {
     MatInputModule,
     MatMenuModule,
     MatToolbarModule,
-    MatTabsModule,
+    FbListPaneComponent,
+    FbDetailPaneComponent,
     SignalKPreferredPathsComponent,
     LineStyleSelectComponent
   ],
@@ -81,6 +90,41 @@ export class SettingsDialog implements OnInit {
   };
 
   protected options: SettingsOptions;
+
+  protected readonly activeSection = signal<string>('display');
+
+  private static readonly BASE_SECTIONS: readonly SettingsSection[] = [
+    { id: 'display', label: 'Display' },
+    { id: 'units', label: 'Units' },
+    { id: 'map', label: 'Map' },
+    { id: 'course', label: 'Course' },
+    { id: 'vessels', label: 'Vessels' },
+    { id: 'resources', label: 'Resources' },
+    { id: 'signalk', label: 'Signal K' },
+    { id: 'experiments', label: 'Experiments' }
+  ];
+
+  protected readonly visibleSections = computed<readonly SettingsSection[]>(
+    () => {
+      const radarOn =
+        this.app.config.experiments && this.app.featureFlags().radarApi;
+      if (!radarOn) {
+        return SettingsDialog.BASE_SECTIONS;
+      }
+      const idx = SettingsDialog.BASE_SECTIONS.findIndex(
+        (s) => s.id === 'signalk'
+      );
+      return [
+        ...SettingsDialog.BASE_SECTIONS.slice(0, idx + 1),
+        { id: 'radar', label: 'Radar' },
+        ...SettingsDialog.BASE_SECTIONS.slice(idx + 1)
+      ];
+    }
+  );
+
+  protected onSectionChange(id: string): void {
+    this.activeSection.set(id);
+  }
 
   protected aisStateFilter = {
     moored: false,

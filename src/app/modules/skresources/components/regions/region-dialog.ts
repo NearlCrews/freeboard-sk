@@ -1,7 +1,14 @@
 import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +30,7 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
+    FormField,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
@@ -50,15 +58,11 @@ interface DialogData {
             <div>
               <mat-form-field floatLabel="always" style="width:100%">
                 <mat-label>Name</mat-label>
-                <input
-                  matInput
-                  #inpname="ngModel"
-                  type="text"
-                  required
-                  [readonly]="readOnly"
-                  [(ngModel)]="name"
-                />
-                @if (inpname.invalid && (inpname.dirty || inpname.touched)) {
+                <input matInput type="text" [formField]="rForm.name" />
+                @if (
+                  rForm.name().invalid() &&
+                  (rForm.name().dirty() || rForm.name().touched())
+                ) {
                   <mat-error> Please enter a name.</mat-error>
                 }
               </mat-form-field>
@@ -69,7 +73,6 @@ interface DialogData {
                 <textarea
                   matInput
                   rows="3"
-                  #inpcmt="ngModel"
                   [readonly]="readOnly"
                   [(ngModel)]="description"
                 >
@@ -90,7 +93,7 @@ interface DialogData {
         <mat-dialog-actions align="end">
           <button
             mat-flat-button
-            [disabled]="inpname.invalid || readOnly"
+            [disabled]="saveDisabled()"
             (click)="handleClose(true)"
           >
             SAVE
@@ -108,18 +111,21 @@ interface DialogData {
   ]
 })
 export class RegionDialog implements OnInit {
-  protected name = '';
   protected description = '';
   protected isHazard = false;
   protected readOnly = false;
 
+  protected rModel = signal<{ name: string }>({ name: '' });
+  protected rForm = form(this.rModel, (p) => {
+    required(p.name, { message: 'Please enter a name.' });
+  });
+  protected saveDisabled = computed(() => this.rForm().invalid());
+
   private dialogRef = inject(MatDialogRef<RegionDialog>);
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
 
-  constructor() {}
-
   ngOnInit() {
-    this.name = this.data.region.name ?? '';
+    this.rModel.set({ name: this.data.region.name ?? '' });
     this.description = this.data.region.description ?? '';
     const props = this.data.region.feature.properties;
     this.isHazard = props?.['skIcon'] === 'hazard';
@@ -132,7 +138,7 @@ export class RegionDialog implements OnInit {
 
   protected handleClose(save: boolean) {
     if (save) {
-      this.data.region.name = this.name;
+      this.data.region.name = this.rModel().name;
       this.data.region.description = this.description;
       const props = this.data.region.feature.properties ?? {};
       if (this.isHazard) {

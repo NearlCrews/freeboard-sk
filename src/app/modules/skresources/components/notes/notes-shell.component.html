@@ -1,0 +1,154 @@
+<section class="notes-shell" role="region" aria-label="Notes">
+  <header class="notes-shell__top">
+    <button
+      mat-icon-button
+      (click)="onClose()"
+      matTooltip="Close notes"
+      matTooltipPosition="right"
+      aria-label="Close notes"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="notes-shell__title">Notes</h1>
+    <div class="notes-shell__top-actions">
+      <button
+        mat-icon-button
+        (click)="onRefresh()"
+        matTooltip="Reload notes"
+        matTooltipPosition="below"
+        aria-label="Reload notes"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        class="action-toggle"
+        [class.active]="showNotesOnMap()"
+        (click)="toggleMapDisplay()"
+        matTooltip="Show notes on map"
+        matTooltipPosition="below"
+        [attr.aria-pressed]="showNotesOnMap()"
+        aria-label="Show notes on map"
+      >
+        <mat-icon>{{
+          showNotesOnMap() ? 'visibility' : 'visibility_off'
+        }}</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="notes-shell__panes">
+    <aside class="notes-shell__nav" aria-label="Notes navigation">
+      <fb-list-pane
+        [items]="leftItems()"
+        [selected]="activeNav()"
+        (selectionChange)="onNavSelect($event)"
+      >
+        <ng-template #fbListPaneItem let-item>
+          <span
+            class="nav-item"
+            [class.is-recent]="item.kind === 'recent'"
+            [class.is-all]="item.kind === 'all'"
+            [class.is-untagged]="item.kind === 'untagged'"
+          >
+            <span
+              class="nav-item__dot"
+              aria-hidden="true"
+              [style.background]="item.color"
+            ></span>
+            <span class="nav-item__label">{{ item.label }}</span>
+            <span class="nav-item__count">{{ item.count }}</span>
+          </span>
+        </ng-template>
+      </fb-list-pane>
+    </aside>
+
+    <section class="notes-shell__list" aria-label="Note list">
+      <fb-filter-bar
+        [(query)]="searchQuery"
+        [chips]="filterChips()"
+        placeholder="Search notes..."
+        searchLabel="Search notes"
+        chipsLabel="Note filters"
+        (chipToggle)="onChipToggle($event)"
+      ></fb-filter-bar>
+
+      <fb-list-pane
+        class="notes-shell__list-pane"
+        [items]="middleItems()"
+        [selected]="selectedNoteId()"
+        (selectionChange)="onNoteSelect($event)"
+      >
+        <ng-template #fbListPaneItem let-item>
+          <article
+            class="note-row"
+            [class.draft]="!!item.note[1].properties?.['draft']"
+            [style.--group-color]="groupColor(item.note[1].group)"
+          >
+            <header class="note-row__head">
+              <h2 class="note-row__title">{{ item.label }}</h2>
+              @if ($any(item.note[1]).timestamp; as ts) {
+                <time class="note-row__time" [attr.datetime]="ts">
+                  {{ timeAgo(ts) }}
+                </time>
+              }
+            </header>
+            @if (snippet(item.note[1]); as text) {
+              <p class="note-row__snippet">{{ text }}</p>
+            }
+            @if (item.note[1].group) {
+              <span class="note-row__group">
+                <span class="dot" aria-hidden="true"></span
+                >{{ item.note[1].group }}
+              </span>
+            }
+          </article>
+        </ng-template>
+        <ng-template #fbListPaneFooter>
+          <div class="note-row__footer-count" aria-live="polite">
+            {{ middleItems().length }} note(s)
+          </div>
+        </ng-template>
+      </fb-list-pane>
+    </section>
+
+    <section class="notes-shell__detail" aria-label="Note detail">
+      @if (selectedNote(); as note) {
+        <fb-detail-pane
+          [title]="note.name || 'Untitled note'"
+          [subtitle]="note.group || null"
+        >
+          <note-panel
+            [note]="note"
+            [id]="selectedNoteId() ?? ''"
+            (edit)="onEdit()"
+            (panTo)="onDetailPanTo($event)"
+          />
+          <ng-template #fbDetailPaneActions>
+            <button
+              mat-stroked-button
+              [disabled]="selectedNoteReadOnly()"
+              (click)="onEdit()"
+              matTooltip="Edit note"
+            >
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+            <button
+              mat-stroked-button
+              class="danger"
+              [disabled]="selectedNoteReadOnly()"
+              (click)="onDelete()"
+              matTooltip="Delete note"
+            >
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </ng-template>
+        </fb-detail-pane>
+      } @else {
+        <fb-detail-pane></fb-detail-pane>
+      }
+    </section>
+  </div>
+</section>
