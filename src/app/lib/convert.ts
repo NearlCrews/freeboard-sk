@@ -153,19 +153,32 @@ export class Convert {
     value: number,
     baseUnit: SI_BASE_UNIT,
     targetUnit: TARGET_UNIT
-  ): number {
+  ): number | null {
     if (!Number.isFinite(value)) return null;
-    if ((baseUnit as string) === (targetUnit as string)) return value; // no conversion required
+    if ((baseUnit as string) === (targetUnit as string)) return value;
     try {
-      return siBaseFn[baseUnit][targetUnit](value);
+      const fnMap = (
+        siBaseFn as unknown as Record<
+          string,
+          Record<string, (v: number) => number>
+        >
+      )[baseUnit];
+      const fn = fnMap?.[targetUnit];
+      if (!fn) throw new Error('Transformation not found!');
+      return fn(value);
     } catch {
       throw new Error('Transformation not found!');
     }
   }
 
   static setSymbol(unit: TARGET_UNIT, symbol: string) {
-    if (unit in symbolMap) {
-      symbolMap[unit].symbol = symbol ?? symbolMap[unit].symbol;
+    const map = symbolMap as unknown as Record<
+      string,
+      { symbol: string; name: string } | undefined
+    >;
+    const entry = map[unit];
+    if (entry) {
+      entry.symbol = symbol ?? entry.symbol;
     }
   }
 
@@ -175,7 +188,11 @@ export class Convert {
    * @returns Symbol for unit e.g. 'nmi'
    */
   static getSymbol(unit: SI_BASE_UNIT | TARGET_UNIT): string {
-    return unit in symbolMap ? symbolMap[unit].symbol : unit;
+    const map = symbolMap as unknown as Record<
+      string,
+      { symbol: string; name: string } | undefined
+    >;
+    return map[unit]?.symbol ?? unit;
   }
 
   /**
@@ -184,7 +201,7 @@ export class Convert {
    * @returns Angle in radians
    */
   static degreesToRadians(value: number): number {
-    return siBaseFn['deg']['radian'](value);
+    return siBaseFn.deg.radian(value);
   }
 
   /**
@@ -193,7 +210,7 @@ export class Convert {
    * @returns Angle in degrees
    */
   static radiansToDegrees(value = 0): number {
-    return siBaseFn['rad']['degree'](value);
+    return siBaseFn.rad.degree(value);
   }
 
   /**

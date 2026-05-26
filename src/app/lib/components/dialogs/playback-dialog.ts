@@ -131,9 +131,15 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   ]
 })
 export class PlaybackDialog {
-  public hour;
-  public minute;
-  public formData = {
+  public hour: number | undefined;
+  public minute: number | undefined;
+  public formData: {
+    context: string;
+    startTimeHr: string;
+    startTimeMin: string;
+    startDate: Date | null;
+    playbackRate: number;
+  } = {
     context: 'all',
     startTimeHr: '00',
     startTimeMin: '00',
@@ -151,7 +157,7 @@ export class PlaybackDialog {
   submit(cancel = false) {
     let q = {};
     let ts = '';
-    if (!cancel) {
+    if (!cancel && this.formData.startDate) {
       this.formData.startDate.setHours(parseInt(this.formData.startTimeHr));
       this.formData.startDate.setMinutes(parseInt(this.formData.startTimeMin));
       ts = this.formData.startDate.toISOString();

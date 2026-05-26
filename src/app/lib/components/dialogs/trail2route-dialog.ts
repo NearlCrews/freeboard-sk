@@ -57,7 +57,7 @@ import { AppFacade } from 'src/app/app.facade';
 })
 export class Trail2RouteDialog implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  rteFromTrail: any[];
+  rteFromTrail: any[] = [];
   mapCenter = [0, 0];
   pointCount = 0;
   incServer = false;
@@ -97,17 +97,24 @@ export class Trail2RouteDialog implements OnInit {
   }
 
   parseTrail(incServer?: boolean, center?: boolean) {
-    let trail = [].concat(this.data.trail ?? []);
+    let trail: number[][] = [...((this.data.trail as number[][]) ?? [])];
     if (incServer) {
-      trail = [].concat(this.serverCoords, trail);
+      trail = [...this.serverCoords, ...trail];
     }
-    const rteCoords = SimplifyAP(trail, this.tolerance, this.highQuality);
+    const rteCoords = SimplifyAP(
+      trail as never[],
+      this.tolerance,
+      this.highQuality
+    ) as number[][];
     this.pointCount = rteCoords.length;
-    if (center) {
-      this.mapCenter = rteCoords[Math.floor(rteCoords.length / 2)];
+    if (center && rteCoords.length > 0) {
+      const midpoint = rteCoords[Math.floor(rteCoords.length / 2)];
+      if (midpoint) {
+        this.mapCenter = midpoint;
+      }
     }
     const rte = new SKRoute();
-    rte.feature.geometry.coordinates = rteCoords;
+    rte.feature.geometry.coordinates = rteCoords as never;
     this.rteFromTrail = [['rtefromtrail', rte, true]];
   }
 

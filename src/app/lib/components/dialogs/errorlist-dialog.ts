@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnInit
+} from '@angular/core';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -52,12 +57,13 @@ import { MatListModule } from '@angular/material/list';
   ],
   standalone: true
 })
-export class ErrorListDialog {
+export class ErrorListDialog implements OnInit {
   public image = null;
 
   constructor(
     public dialogRef: MatDialogRef<ErrorListDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **

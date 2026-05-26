@@ -79,6 +79,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class AboutDialog {
   constructor(
     public dialogRef: MatDialogRef<AboutDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 }

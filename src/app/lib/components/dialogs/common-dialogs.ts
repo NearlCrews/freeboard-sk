@@ -58,7 +58,8 @@ export class MsgBox implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<MsgBox>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -118,7 +119,8 @@ export class AlertDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AlertDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -198,7 +200,8 @@ export class ConfirmDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -236,7 +239,11 @@ export class ConfirmDialog implements OnInit {
   ]
 })
 export class MessageBarComponent {
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data) {}
+  constructor(
+    @Inject(MAT_SNACK_BAR_DATA)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public data: any
+  ) {}
 }
 
 /********* WelcomeDialog ****************
@@ -348,7 +355,8 @@ export class WelcomeDialog implements AfterViewInit {
 
   constructor(
     public dialogRef: MatDialogRef<WelcomeDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   ngAfterViewInit() {

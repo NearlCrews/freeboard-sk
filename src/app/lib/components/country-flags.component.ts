@@ -17,7 +17,7 @@ import {
   `
 })
 export class CountryFlagComponent {
-  protected flagIcon: string;
+  protected flagIcon = '';
   protected showFlag = signal<boolean>(true);
 
   public mmsi = input<string>();

@@ -5,6 +5,7 @@ import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   ViewChild,
   Inject
 } from '@angular/core';
@@ -81,7 +82,8 @@ import type { AppIconDef } from 'src/app/modules/icons';
   ]
 })
 export class MultiSelectListDialog implements OnInit {
-  @ViewChild('btncancel', { static: false }) btncancel;
+  @ViewChild('btncancel', { static: false })
+  btncancel: ElementRef<HTMLButtonElement> | undefined;
 
   constructor(
     private dialogRef: MatDialogRef<MultiSelectListDialog>,

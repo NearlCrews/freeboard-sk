@@ -8,7 +8,11 @@
 export function parseSemver(v: string): [number, number, number] | null {
   const m = /^(\d+)\.(\d+)(?:\.(\d+))?/.exec(v);
   if (!m) return null;
-  return [parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3] ?? '0', 10)];
+  return [
+    parseInt(m[1] ?? '0', 10),
+    parseInt(m[2] ?? '0', 10),
+    parseInt(m[3] ?? '0', 10)
+  ];
 }
 
 /**
