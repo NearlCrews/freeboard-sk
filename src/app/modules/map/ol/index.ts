@@ -169,3 +169,8 @@ const declarations = [
   exports: [...declarations]
 })
 export class FreeboardOpenlayersModule {}
+
+// Re-export Phase 4b additions so they enter the TS program graph
+// and consumers can import via the ol barrel.
+export * from './lib/adapter';
+export * from './lib/theme';

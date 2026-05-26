@@ -1,7 +1,7 @@
 import { FBAppData, IAppConfig, TemperatureUnitDef } from './types';
 import { Convert } from './lib/convert';
 import { SKVessel } from './modules';
-import { DefaultOptions } from './modules/map/ol/lib/charts/s57.service';
+import { DefaultOptions } from './modules/map/ol/lib/charts/s57-options';
 
 // validate supplied settings against base config
 export function validateConfig(settings: IAppConfig): boolean {

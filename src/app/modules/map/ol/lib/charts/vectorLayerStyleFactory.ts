@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SKChart } from 'src/app/modules';
 import { S57Service } from './s57.service';
-import { S57Style } from './s57Style';
 import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
@@ -10,6 +9,18 @@ import { transformExtent } from 'ol/proj';
 import { MVT } from 'ol/format';
 import type { StyleFunction } from 'ol/style/Style';
 import type { OrderFunction } from 'ol/render';
+
+// S57Style and its ~1200-line symbol/style dispatch table are loaded only
+// when the first S57 chart layer is created. The chunk promise is cached so
+// subsequent S57 charts reuse the in-flight or resolved module.
+type S57StyleModule = typeof import('./s57Style');
+let s57StyleModulePromise: Promise<S57StyleModule> | undefined;
+function loadS57StyleModule(): Promise<S57StyleModule> {
+  if (s57StyleModulePromise === undefined) {
+    s57StyleModulePromise = import('./s57Style');
+  }
+  return s57StyleModulePromise;
+}
 
 export abstract class VectorLayerStyler {
   public MinZ: number;
@@ -30,7 +41,8 @@ export abstract class VectorLayerStyler {
 class S57LayerStyler extends VectorLayerStyler {
   constructor(
     chart: SKChart,
-    private s57service: S57Service
+    private s57service: S57Service,
+    private S57StyleCtor: S57StyleModule['S57Style']
   ) {
     super(chart);
   }
@@ -53,7 +65,7 @@ class S57LayerStyler extends VectorLayerStyler {
       cacheSize: VECTOR_TILE_CACHE_SIZE
     });
 
-    const style = new S57Style(this.s57service);
+    const style = new this.S57StyleCtor(this.s57service);
 
     vectorLayer.setSource(source as never);
     vectorLayer.setPreload(0);
@@ -76,10 +88,13 @@ class S57LayerStyler extends VectorLayerStyler {
 export class VectorLayerStyleFactory {
   constructor(private s57service: S57Service) {}
 
-  public CreateVectorLayerStyler(chart: SKChart): VectorLayerStyler {
+  public async CreateVectorLayerStyler(
+    chart: SKChart
+  ): Promise<VectorLayerStyler> {
     if (chart.type === 'S-57' || chart.type === 's-57') {
       this.s57service.fetchSymbols();
-      return new S57LayerStyler(chart, this.s57service);
+      const { S57Style } = await loadS57StyleModule();
+      return new S57LayerStyler(chart, this.s57service, S57Style);
     }
     throw new Error(`Unsupported chart type for vector layer: ${chart.type}`);
   }

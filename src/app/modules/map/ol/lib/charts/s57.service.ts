@@ -3,9 +3,24 @@ import { HttpClient } from '@angular/common/http';
 
 import { Feature } from 'ol';
 import { Subject } from 'rxjs';
-import * as xml2js from 'xml2js';
 import { Style } from 'ol/style';
-import { DEPTH_UNIT } from 'src/app/lib/convert';
+
+import { DefaultOptions, type Options } from './s57-options';
+
+export { DefaultOptions } from './s57-options';
+export type { Options } from './s57-options';
+
+// xml2js is loaded lazily from fetchSymbols so the parser stays out of the
+// eager main bundle. Module promise is cached so subsequent S57 charts reuse
+// the same chunk.
+type Xml2JsModule = typeof import('xml2js');
+let xml2jsModulePromise: Promise<Xml2JsModule> | undefined;
+function loadXml2Js(): Promise<Xml2JsModule> {
+  if (xml2jsModulePromise === undefined) {
+    xml2jsModulePromise = import('xml2js');
+  }
+  return xml2jsModulePromise;
+}
 
 interface Symbol {
   image: HTMLImageElement | null;
@@ -30,38 +45,6 @@ export interface Lookup {
   displayPriority: DisplayPriority;
   displayCategory: DisplayCategory;
 }
-
-export interface Options {
-  shallowDepth: number;
-  safetyDepth: number;
-  deepDepth: number;
-  graphicsStyle: 'Simplified' | 'Paper';
-  boundaries: 'Symbolized' | 'Plain';
-  colors: 2 | 4;
-  colorTable: number;
-  otherLayers: string[];
-  depthUnit: DEPTH_UNIT;
-}
-
-export const DefaultOptions: Options = {
-  shallowDepth: 2,
-  safetyDepth: 3,
-  deepDepth: 6,
-  graphicsStyle: 'Paper',
-  boundaries: 'Plain',
-  colors: 4,
-  colorTable: 0, //color scheme
-  otherLayers: [
-    'SOUNDG',
-    'OBSTRN',
-    'UWTROC',
-    'WRECKS',
-    'DEPCNT',
-    'RIVERS',
-    'LAKARE'
-  ],
-  depthUnit: 'm'
-};
 
 interface ColorTable {
   symbolfile: string;
@@ -140,23 +123,25 @@ export class S57Service {
       .get('assets/s57/chartsymbols.xml', { responseType: 'text' })
       .subscribe({
         next: (symbolsXml) => {
-          const parser = new xml2js.Parser({ strict: false, trim: true });
-          parser.parseString(symbolsXml, (err, symbolsJs) => {
-            this.processSymbols(symbolsJs);
-            this.processLookup(symbolsJs);
-            this.processColors(symbolsJs);
-          });
-          this.symbolsLoaded = true;
-          this.refresh.next();
-          const image = new Image();
-          image.onload = () => {
-            this.chartSymbolsImage = image;
+          void loadXml2Js().then((xml2js) => {
+            const parser = new xml2js.Parser({ strict: false, trim: true });
+            parser.parseString(symbolsXml, (err, symbolsJs) => {
+              this.processSymbols(symbolsJs);
+              this.processLookup(symbolsJs);
+              this.processColors(symbolsJs);
+            });
+            this.symbolsLoaded = true;
             this.refresh.next();
-          };
-          const colorTable = this.colorTables[this.selectedColorTable];
-          if (colorTable) {
-            image.src = 'assets/s57/' + colorTable.symbolfile;
-          }
+            const image = new Image();
+            image.onload = () => {
+              this.chartSymbolsImage = image;
+              this.refresh.next();
+            };
+            const colorTable = this.colorTables[this.selectedColorTable];
+            if (colorTable) {
+              image.src = 'assets/s57/' + colorTable.symbolfile;
+            }
+          });
         },
         error: () => {
           this.symbolsLoaded = false;

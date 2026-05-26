@@ -28,6 +28,8 @@ export class S57ChartLayerComponent implements OnDestroy {
   protected zIndex = input<number>();
 
   private layer?: VectorTileLayer;
+  private layerInitPending = false;
+  private destroyed = false;
   private vectorLayerStyleFactory = inject(VectorLayerStyleFactory);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
@@ -42,6 +44,7 @@ export class S57ChartLayerComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     const map = this.mapComponent.getMap();
     if (this.layer && map) {
       map.removeLayer(this.layer);
@@ -57,27 +60,38 @@ export class S57ChartLayerComponent implements OnDestroy {
     }
 
     if (!this.layer) {
-      const styleFactory = this.vectorLayerStyleFactory.CreateVectorLayerStyler(
-        chart[1]
-      );
-      this.layer = styleFactory.CreateLayer();
-      styleFactory.ApplyStyle(this.layer as VectorTileLayer<never>);
-      this.layer.setZIndex(this.zIndex() ?? 0);
-      this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
-      if (chart[1].style) {
-        void applyMapboxStyle(this.layer, chart[1].style);
+      // S57Style + xml2js are lazy chunks; guard against re-entry while the
+      // chunks are in flight, then re-run parseChart so the else-branch picks
+      // up any signal values that changed during async init.
+      if (this.layerInitPending) {
+        return;
       }
-      this.layer.setExtent(extentFromBounds(chart[1].bounds));
-      this.layer.set('id', chart[0]);
-      this.layer.set('chartId', chart[0]);
-      this.layer.set('chartType', chart[1].type);
-      this.layer.set('chartFormat', chart[1].format);
-      map.addLayer(this.layer);
-    } else {
-      this.layer.setZIndex(this.zIndex() ?? 0);
-      this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
-      this.layer.setExtent(extentFromBounds(chart[1].bounds));
+      this.layerInitPending = true;
+      void this.vectorLayerStyleFactory
+        .CreateVectorLayerStyler(chart[1])
+        .then((styleFactory) => {
+          this.layerInitPending = false;
+          if (this.destroyed || this.layer) {
+            return;
+          }
+          const layer = styleFactory.CreateLayer();
+          styleFactory.ApplyStyle(layer as VectorTileLayer<never>);
+          if (chart[1].style) {
+            void applyMapboxStyle(layer, chart[1].style);
+          }
+          layer.set('id', chart[0]);
+          layer.set('chartId', chart[0]);
+          layer.set('chartType', chart[1].type);
+          layer.set('chartFormat', chart[1].format);
+          this.layer = layer;
+          map.addLayer(layer);
+          this.parseChart();
+        });
+      return;
     }
+    this.layer.setZIndex(this.zIndex() ?? 0);
+    this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
+    this.layer.setExtent(extentFromBounds(chart[1].bounds));
     map.render();
   }
 }

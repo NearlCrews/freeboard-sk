@@ -10,7 +10,7 @@ import {
   SKVessel
 } from '../modules/skresources/resource-classes';
 import { DEPTH_UNIT } from '../lib/convert';
-import { Options } from '../modules/map/ol/lib/charts/s57.service';
+import { Options } from '../modules/map/ol/lib/charts/s57-options';
 
 export * from './resources/signalk';
 export * from './resources/custom';
@@ -18,7 +18,7 @@ export * from './resources/geojson';
 export * from './resources/freeboard';
 export * from './stream';
 
-export type ErrorList = Array<{ status: number; message: string }>;
+export type ErrorList = { status: number; message: string }[];
 
 export type MFBAction = 'wpt' | 'pob' | 'autopilot' | 'radar';
 
@@ -212,7 +212,7 @@ export interface IAppConfig {
     aisFilterByShipType: boolean;
     aisState: string[]; // list of ais state values used to filter targets
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resourceSets: { [key: string]: any }; // additional resources
+    resourceSets: Record<string, any>; // additional resources
     infolayers: string[];
   };
 }
@@ -232,7 +232,7 @@ export interface FBAppData {
   activeWaypoint: string;
   serverTrail: boolean; // trail received from server
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  server: { [key: string]: any }; // SK server info
+  server: Record<string, any>; // SK server info
   lastGet: Position; // map position of last resources GET
   map: {
     atClick: {
@@ -250,7 +250,7 @@ export interface FBAppData {
     activeId: string;
     active: SKVessel;
     closest: string[];
-    prefAvailablePaths: { [key: string]: string }; // preference paths available from source
+    prefAvailablePaths: Record<string, string>; // preference paths available from source
     flagged: string[];
   };
   aircraft: Map<string, SKAircraft>; // received AIS aircraft data
@@ -267,9 +267,9 @@ export interface SKServerUnitPrefs {
   categories: Record<string, SKUnitCategory | undefined>;
 }
 
-export type SKUnitCategory = {
+export interface SKUnitCategory {
   baseUnit: string;
   targetUnit: string;
   displayFormat: string;
   symbol: string;
-};
+}
