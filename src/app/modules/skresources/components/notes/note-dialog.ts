@@ -3,9 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   ViewEncapsulation,
-  inject
+  computed,
+  inject,
+  signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -52,6 +55,7 @@ interface DialogData {
   encapsulation: ViewEncapsulation.None,
   imports: [
     FormsModule,
+    FormField,
     MatCardModule,
     MatDialogModule,
     MatButtonModule,
@@ -146,6 +150,12 @@ export class NoteDialog implements OnInit {
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<NoteDialog>);
 
+  protected noteModel = signal<{ name: string }>({ name: '' });
+  protected noteForm = form(this.noteModel, (p) => {
+    required(p.name, { message: 'Please enter a title for the note' });
+  });
+  protected saveDisabled = computed(() => this.noteForm().invalid());
+
   ngOnInit() {
     if (!this.data.note.properties) {
       this.data.note.properties = {};
@@ -158,6 +168,7 @@ export class NoteDialog implements OnInit {
     }
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
     this.poiIcons = listPoiIds();
+    this.noteModel.set({ name: this.data.note.name ?? '' });
   }
 
   cleanIconDef(icon: AppIconDef) {
@@ -174,6 +185,7 @@ export class NoteDialog implements OnInit {
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
   }
   onSave() {
+    this.data.note.name = this.noteModel().name;
     this.dialogRef.close({
       result: true,
       data: this.data.note,

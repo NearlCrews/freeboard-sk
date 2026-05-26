@@ -159,15 +159,9 @@
         <div>
           <mat-form-field floatLabel="always" style="width: 100%">
             <mat-label>Name</mat-label>
-            <input
-              matInput
-              #inptitle="ngModel"
-              type="text"
-              required
-              [disabled]="false"
-              [(ngModel)]="data.note.name"
-            />
-            @if(inptitle.invalid && (inptitle.dirty || inptitle.touched)) {
+            <input matInput type="text" [formField]="noteForm.name" />
+            @if(noteForm.name().invalid() && (noteForm.name().dirty() ||
+            noteForm.name().touched())) {
             <mat-error> Please enter a title for the note </mat-error>
             }
           </mat-form-field>
@@ -276,7 +270,7 @@
       </mat-slide-toggle>
     </div>
     <div style="flex: 2">&nbsp;</div>
-    <button mat-flat-button [disabled]="inptitle.invalid" (click)="onSave()">
+    <button mat-flat-button [disabled]="saveDisabled()" (click)="onSave()">
       SAVE
     </button>
   </mat-dialog-actions>

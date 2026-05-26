@@ -7,6 +7,7 @@ export * from './custom-resources-service';
 
 export * from './components/active-resource-dialog';
 export * from './components/signalk-details.component';
+export * from './components/resources-shell.component';
 
 export * from './components/notes/notelist';
 export * from './components/notes/notes-shell.component';

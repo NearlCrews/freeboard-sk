@@ -64,13 +64,11 @@ import {
   FBMapComponent,
   GroupListComponent,
   InfoLayerListComponent,
-  NoteListComponent,
   NotePanel,
   NotesShellComponent,
   NotificationManager,
-  RegionListComponent,
   RegionPanel,
-  RouteListComponent,
+  ResourcesShellComponent,
   RouteNextPointComponent,
   SettingsFacade,
   SKNote,
@@ -81,8 +79,7 @@ import {
   SKSTREAM_MODE,
   SKStreamFacade,
   StreamOptions,
-  TrackListComponent,
-  WaypointListComponent
+  TrackListComponent
 } from 'src/app/modules';
 
 import { Convert } from 'src/app/lib/convert';
@@ -139,12 +136,9 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     AlertListComponent,
     AutopilotComponent,
     RouteNextPointComponent,
-    RouteListComponent,
-    WaypointListComponent,
+    ResourcesShellComponent,
     ChartListComponent,
-    NoteListComponent,
     NotesShellComponent,
-    RegionListComponent,
     TrackListComponent,
     AISListComponent,
     GroupListComponent,

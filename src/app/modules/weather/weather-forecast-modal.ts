@@ -76,11 +76,11 @@ interface WeatherData {
   ],
   template: `
     <div class="_weather-forecast">
-      <mat-toolbar style="background-color: transparent">
+      <mat-toolbar class="weather-toolbar">
         <span>
           <mat-icon>air</mat-icon>
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <span class="weather-toolbar-title">
           {{ data.title }}
         </span>
         <span>
@@ -98,17 +98,15 @@ interface WeatherData {
         <mat-progress-bar mode="query"></mat-progress-bar>
       } @else {
         @if (!forecasts || forecasts.length === 0) {
-          <div style="text-align:center">{{ errorText }}</div>
+          <div class="weather-error">{{ errorText }}</div>
         } @else {
-          <div style="display:flex;flex-wrap: nowrap;">
-            <div style="flex: 1;"></div>
-            <div style="width: 350px;text-align:center;">
-              <span style="font-size: small;">{{ data.subTitle }}</span>
-              <div
-                style="font-size: small;text-align:left;display:flex;flex-wrap: wrap;"
-              >
-                <div style="flex: 1;">
-                  <span style="font-weight:bold;">Lat:</span>&nbsp;
+          <div class="weather-header">
+            <div class="weather-header-spacer"></div>
+            <div class="weather-position">
+              <span class="weather-position-subtitle">{{ data.subTitle }}</span>
+              <div class="weather-position-coords">
+                <div class="weather-position-coord">
+                  <span class="weather-position-label">Lat:</span>&nbsp;
                   <span
                     [innerText]="
                       this.data.position[1]
@@ -118,8 +116,8 @@ interface WeatherData {
                   </span>
                   &nbsp;
                 </div>
-                <div style="flex: 1;">
-                  <span style="font-weight:bold;">Lon:</span>&nbsp;
+                <div class="weather-position-coord">
+                  <span class="weather-position-label">Lon:</span>&nbsp;
                   <span
                     [innerText]="
                       this.data.position[0]
@@ -130,7 +128,7 @@ interface WeatherData {
                 </div>
               </div>
             </div>
-            <div style="flex: 1;"></div>
+            <div class="weather-header-spacer"></div>
           </div>
 
           <div class="meteo">
@@ -224,10 +222,17 @@ interface WeatherData {
     `
       ._weather-forecast {
         font-family: var(--font-family-sans);
+        background: var(--ds-surface-1, var(--color-surface));
+        color: var(--color-text);
       }
-      ._weather-forecast .key-label {
-        width: 150px;
-        font-weight: var(--font-weight-bold);
+
+      .weather-toolbar {
+        background-color: transparent;
+      }
+      .weather-toolbar-title {
+        flex: 1 1 auto;
+        padding-left: var(--space-xl);
+        text-align: center;
       }
 
       /* WCAG 2.5.5 secondary touch-target floor (44px). Material's
@@ -237,11 +242,47 @@ interface WeatherData {
         min-height: var(--touch-secondary);
       }
 
+      .weather-error {
+        text-align: center;
+        color: var(--color-text-muted);
+        padding: var(--space-lg);
+      }
+
+      .weather-header {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+      .weather-header-spacer {
+        flex: 1;
+      }
+      .weather-position {
+        width: 350px;
+        text-align: center;
+      }
+      /* CSS keyword 'small' (~13.3px) sits between --font-size-xs (12px)
+         and --font-size-sm (14px). Keeping the keyword preserves the
+         original sizing until a between-step token lands. */
+      .weather-position-subtitle {
+        font-size: small;
+        color: var(--color-text-muted);
+      }
+      .weather-position-coords {
+        font-size: small;
+        text-align: left;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .weather-position-coord {
+        flex: 1;
+      }
+      .weather-position-label {
+        font-weight: var(--font-weight-bold);
+      }
+
       .meteo {
         overflow: auto;
-        /* CSS keyword 'small' (~13.3px) sits between --font-size-xs (12px)
-           and --font-size-sm (14px). Keeping the keyword preserves the
-           original grid sizing. */
+        /* CSS keyword 'small' matches the position pane above. Token swap
+           tracked alongside --weather-grid-font. */
         font-size: small;
       }
       .meteo-row {

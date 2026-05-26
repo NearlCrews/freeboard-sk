@@ -585,48 +585,35 @@
             <!--left menu panel-->
             @if (leftMenuCtrl().leftMenuPanel) {
               <div class="leftMenuPanel">
-                @if (leftMenuCtrl().routeList) {
+                @if (
+                  leftMenuCtrl().routeList ||
+                  leftMenuCtrl().waypointList ||
+                  leftMenuCtrl().regionList
+                ) {
                   @defer {
-                    <route-list
-                      [activeRoute]="app.data.activeRoute"
-                      [editingRouteId]="app.data.editingId"
+                    <resources-shell
+                      [initialKind]="
+                        leftMenuCtrl().routeList
+                          ? 'routes'
+                          : leftMenuCtrl().waypointList
+                            ? 'waypoints'
+                            : 'regions'
+                      "
+                      [activeRouteId]="app.data.activeRoute"
+                      [activeWaypointId]="app.data.activeWaypoint"
+                      (select)="
+                        handleResourceInfo(
+                          $event.collection,
+                          $event.selection.id
+                        )
+                      "
                       (activate)="activateRoute($event.id)"
                       (deactivate)="clearDestination()"
-                      (select)="handleResourceInfo('routes', $event.id)"
-                      (points)="
-                        featureProperties({ id: $event.id, type: 'route' })
-                      "
-                      (notes)="
-                        skres.showRelatedNotes(
-                          $event.id,
-                          'route',
-                          $event.readOnly
-                        )
-                      "
-                      (closed)="displayLeftMenu()"
-                    >
-                    </route-list>
-                  }
-                }
-                @if (leftMenuCtrl().waypointList) {
-                  @defer {
-                    <waypoint-list
-                      [activeWaypoint]="app.data.activeWaypoint"
-                      [editingWaypointId]="app.data.editingId"
-                      (select)="handleResourceInfo('waypoints', $event.id)"
-                      (goto)="course.navigateToWaypoint($event.id)"
-                      (deactivate)="clearDestination()"
+                      (pan)="centerAndZoom($event.center, $event.zoomLevel)"
                       (center)="centerAndZoom($event)"
-                      (notes)="
-                        skres.showRelatedNotes(
-                          $event.id,
-                          'waypoint',
-                          $event.readOnly
-                        )
-                      "
                       (closed)="displayLeftMenu()"
                     >
-                    </waypoint-list>
+                    </resources-shell>
                   }
                 }
                 @if (leftMenuCtrl().chartList) {
@@ -647,17 +634,6 @@
                       (closed)="displayLeftMenu()"
                     >
                     </notes-shell>
-                  }
-                }
-                @if (leftMenuCtrl().regionList) {
-                  @defer {
-                    <region-list
-                      [regions]="skres.regions()"
-                      (select)="handleResourceInfo('regions', $event.id)"
-                      (pan)="centerAndZoom($event.center, $event.zoomLevel)"
-                      (closed)="displayLeftMenu()"
-                    >
-                    </region-list>
                   }
                 }
                 @if (leftMenuCtrl().trackList) {

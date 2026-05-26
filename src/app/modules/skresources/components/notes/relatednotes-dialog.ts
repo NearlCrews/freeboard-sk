@@ -15,7 +15,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RemarkModule } from 'ngx-remark';
-import { AddTargetPipe } from './safe.pipe';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { FBNote } from 'src/app/types';
@@ -39,7 +38,6 @@ interface DialogData {
     MatFormFieldModule,
     MatInputModule,
     MatToolbarModule,
-    AddTargetPipe,
     RemarkModule
   ],
   templateUrl: `relatednotes-dialog.html`,

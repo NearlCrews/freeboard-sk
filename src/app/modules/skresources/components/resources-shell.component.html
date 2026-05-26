@@ -1,0 +1,163 @@
+<section class="resources-shell" role="region" aria-label="Resources">
+  <header class="resources-shell__top">
+    <button
+      mat-icon-button
+      (click)="onClose()"
+      matTooltip="Close resources"
+      matTooltipPosition="right"
+      aria-label="Close resources"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="resources-shell__title">Resources</h1>
+    <div class="resources-shell__top-actions">
+      <button
+        mat-icon-button
+        (click)="onRefresh()"
+        matTooltip="Reload"
+        matTooltipPosition="below"
+        aria-label="Reload resources"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="resources-shell__panes">
+    <aside class="resources-shell__nav" aria-label="Resource categories">
+      <fb-list-pane
+        [items]="leftItems()"
+        [selected]="activeNav()"
+        (selectionChange)="onNavSelect($event)"
+      >
+        <ng-template #fbListPaneItem let-item>
+          <span class="nav-item" [class.is-active]="item.id === activeNav()">
+            <mat-icon class="nav-item__icon" aria-hidden="true">{{
+              item.icon
+            }}</mat-icon>
+            <span class="nav-item__label">{{ item.label }}</span>
+            <span class="nav-item__count">{{ item.count }}</span>
+          </span>
+        </ng-template>
+      </fb-list-pane>
+    </aside>
+
+    <section class="resources-shell__list" aria-label="Resource list">
+      <fb-filter-bar
+        [(query)]="searchQuery"
+        placeholder="Search resources..."
+        searchLabel="Search resources"
+      ></fb-filter-bar>
+
+      <fb-list-pane
+        class="resources-shell__list-pane"
+        [items]="middleItems()"
+        [selected]="selectedRowId()"
+        (selectionChange)="onRowSelect($event)"
+      >
+        <ng-template #fbListPaneItem let-item>
+          <article class="row" [attr.data-kind]="item.kind">
+            <header class="row__head">
+              <mat-icon class="row__icon" aria-hidden="true">{{
+                kindIcon(item.kind)
+              }}</mat-icon>
+              <h2 class="row__title">{{ item.label }}</h2>
+              @if (isRouteRow(item)) {
+                @if (routeDistance(item.entry[1]); as dist) {
+                  <span class="row__pill">{{ dist }}</span>
+                }
+              }
+              @if (isWaypointRow(item)) {
+                @if (waypointPosition(item.entry[1]); as pos) {
+                  <span class="row__pill row__pill--mono">{{ pos }}</span>
+                }
+              }
+            </header>
+            @if (snippet(item.entry[1].description); as text) {
+              <p class="row__snippet">{{ text }}</p>
+            }
+            <span class="row__kind">{{ kindLabel(item.kind) }}</span>
+          </article>
+        </ng-template>
+        <ng-template #fbListPaneFooter>
+          <div class="row__footer-count" aria-live="polite">
+            {{ middleItems().length }} item(s)
+          </div>
+        </ng-template>
+      </fb-list-pane>
+    </section>
+
+    <section class="resources-shell__detail" aria-label="Resource detail">
+      @if (selectedRow(); as row) {
+        <fb-detail-pane
+          [title]="selectedDetailTitle()"
+          [subtitle]="selectedDetailSubtitle()"
+        >
+          @if (selectedRoute(); as route) {
+            <route-panel
+              [route]="route"
+              [id]="row.entry[0]"
+              (activate)="onRoutePanelActivate($event)"
+              (edit)="onRoutePanelEdit()"
+              (panTo)="onPanFromDetail($event)"
+            />
+          }
+          @if (selectedWaypoint(); as waypoint) {
+            <waypoint-panel
+              [waypoint]="waypoint"
+              [id]="row.entry[0]"
+              (edit)="onWaypointPanelEdit()"
+              (panTo)="onPanFromDetail($event)"
+            />
+          }
+          @if (selectedRegion(); as region) {
+            <region-panel
+              [region]="region"
+              [id]="row.entry[0]"
+              (edit)="onRegionPanelEdit()"
+              (panTo)="onPanFromDetail($event)"
+            />
+          }
+          <ng-template #fbDetailPaneActions>
+            @if (isRouteRow(row)) {
+              @if (selectedRouteIsActive()) {
+                <button
+                  mat-stroked-button
+                  (click)="onDeactivateRoute()"
+                  matTooltip="Clear active route"
+                >
+                  <mat-icon>cancel</mat-icon>
+                  Deactivate
+                </button>
+              } @else {
+                <button
+                  mat-stroked-button
+                  (click)="onActivateRoute()"
+                  matTooltip="Activate route"
+                >
+                  <mat-icon>navigation</mat-icon>
+                  Activate
+                </button>
+              }
+            }
+            <button mat-stroked-button (click)="onEdit()" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+            <button
+              mat-stroked-button
+              class="danger"
+              (click)="onDelete()"
+              matTooltip="Delete"
+            >
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </ng-template>
+        </fb-detail-pane>
+      } @else {
+        <fb-detail-pane></fb-detail-pane>
+      }
+    </section>
+  </div>
+</section>
