@@ -46,7 +46,8 @@
             "optimization": false,
             "namedChunks": true,
             "webWorkerTsConfig": "tsconfig.worker.json",
-            "allowedCommonJsDependencies": []
+            "allowedCommonJsDependencies": [],
+            "serviceWorker": "ngsw-config.json"
           },
           "configurations": {
             "production": {

@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@angular/service-worker':
+        specifier: 21.2.14
+        version: 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@sentry/browser':
+        specifier: 9.0.0
+        version: 9.0.0
       '@signalk/server-api':
         specifier: ^2.24.0
         version: 2.24.0
@@ -38,7 +44,7 @@ importers:
         version: 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
       '@angular/build':
         specifier: ^21.2.12
-        version: 21.2.12(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.4)(chokidar@5.0.0)(jiti@2.6.1)(less@4.6.4)(lightningcss@1.32.0)(ng-packagr@21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3))(postcss@8.5.15)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3)(vitest@4.1.7)(yaml@2.9.0)
+        version: 21.2.12(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/service-worker@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.4)(chokidar@5.0.0)(jiti@2.6.1)(less@4.6.4)(lightningcss@1.32.0)(ng-packagr@21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3))(postcss@8.5.15)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3)(vitest@4.1.7)(yaml@2.9.0)
       '@angular/cdk':
         specifier: ^21.2.12
         version: 21.2.12(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(rxjs@7.8.2)
@@ -529,6 +535,14 @@ packages:
       '@angular/common': 21.2.14
       '@angular/core': 21.2.14
       '@angular/platform-browser': 21.2.14
+      rxjs: ^6.5.3 || ^7.4.0
+
+  '@angular/service-worker@21.2.14':
+    resolution: {integrity: sha512-60DMV71QcaRtj3HwmV8Oz5zOKKudEyWourpsfpFptzF4hQ+7T7I4xSla1J0q/7b16Kwf44Ey90vCPlUrsMLVrA==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
+    hasBin: true
+    peerDependencies:
+      '@angular/core': 21.2.14
       rxjs: ^6.5.3 || ^7.4.0
 
   '@apidevtools/json-schema-ref-parser@9.1.2':
@@ -1932,6 +1946,30 @@ packages:
   '@schematics/angular@21.2.12':
     resolution: {integrity: sha512-eHoAbxd6Kdw9YIQeZO/6lBXTmKKi10t4WTujY8CM5v4qv1zoJu9yiwVeQp9y3e7/Sybz5Ec3m4FmQ0Tw8iVDiA==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
+
+  '@sentry-internal/browser-utils@9.0.0':
+    resolution: {integrity: sha512-J5aBL0RV42WNx9xlw2a2MK1BBXAOwxYT2Hc9VNkuygwGzVEFimZEUKlaYKaDbM/XRUA0TRcYQaKkmGKqpDbxxw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/feedback@9.0.0':
+    resolution: {integrity: sha512-4k4MxnvNFYbA8mPBOgY0gbK/e6dFA8JTDmt88NppSuBowu1uIYnVEFB3DWyaLvi60RXcbT4LnKvo70LTCpIEfQ==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay-canvas@9.0.0':
+    resolution: {integrity: sha512-KjN7Dx9CctwU06xfTEQjWz/MK00fDbHF2GUStDYe83Rt+8CmYXUHMRTr/UEMQxL8rH1O4JEGUH5fFWxTWu2gxw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay@9.0.0':
+    resolution: {integrity: sha512-TqcOA6QhEqq4afR34rb/e0rpusafGh3XujW6hO0AIuv0inpfWhCN6i71hGR0Qt0gJNJaStiNu4Rrwj1AsebGTQ==}
+    engines: {node: '>=18'}
+
+  '@sentry/browser@9.0.0':
+    resolution: {integrity: sha512-+BgusObsLnHwiA+xLm9d3YmdzRXFSUTG7YSSZYZ94NpQdnQlEb6a0ER6abCzmxmKAhNykf5MzLrPRz65bL83WQ==}
+    engines: {node: '>=18'}
+
+  '@sentry/core@9.0.0':
+    resolution: {integrity: sha512-oaOOC1rQ5NHuOJ5ciw5NjdvmgG+q3UJS5v+s1d2eFzi/n5OpxULvqce4aG3XDBJ/Hu+fxW+fbVW96JwAKNk2Tg==}
+    engines: {node: '>=18'}
 
   '@signalk/server-api@2.24.0':
     resolution: {integrity: sha512-IZWVIuV/vOG4obKZ7vhUCfZ19XhpmXlUq8MNV9G10S6vF2vBKZ6JiOaYVVAyzbihlzPafD4Mq7wGurvWur1a0g==}
@@ -5985,7 +6023,7 @@ snapshots:
       '@angular/core': 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)
       tslib: 2.8.1
 
-  '@angular/build@21.2.12(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.4)(chokidar@5.0.0)(jiti@2.6.1)(less@4.6.4)(lightningcss@1.32.0)(ng-packagr@21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3))(postcss@8.5.15)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3)(vitest@4.1.7)(yaml@2.9.0)':
+  '@angular/build@21.2.12(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(@angular/compiler@21.2.14)(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(@angular/platform-browser@21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/service-worker@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.4)(chokidar@5.0.0)(jiti@2.6.1)(less@4.6.4)(lightningcss@1.32.0)(ng-packagr@21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3))(postcss@8.5.15)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3)(vitest@4.1.7)(yaml@2.9.0)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@angular-devkit/architect': 0.2102.12(chokidar@5.0.0)
@@ -6021,6 +6059,7 @@ snapshots:
     optionalDependencies:
       '@angular/core': 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)
       '@angular/platform-browser': 21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
+      '@angular/service-worker': 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2)
       less: 4.6.4
       lmdb: 3.5.1
       ng-packagr: 21.2.3(@angular/compiler-cli@21.2.14(@angular/compiler@21.2.14)(typescript@5.9.3))(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.9.3)
@@ -6152,6 +6191,12 @@ snapshots:
       '@angular/common': 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)
       '@angular/platform-browser': 21.2.14(@angular/animations@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)))(@angular/common@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))
+      rxjs: 7.8.2
+      tslib: 2.8.1
+
+  '@angular/service-worker@21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2))(rxjs@7.8.2)':
+    dependencies:
+      '@angular/core': 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)
       rxjs: 7.8.2
       tslib: 2.8.1
 
@@ -7276,6 +7321,34 @@ snapshots:
       jsonc-parser: 3.3.1
     transitivePeerDependencies:
       - chokidar
+
+  '@sentry-internal/browser-utils@9.0.0':
+    dependencies:
+      '@sentry/core': 9.0.0
+
+  '@sentry-internal/feedback@9.0.0':
+    dependencies:
+      '@sentry/core': 9.0.0
+
+  '@sentry-internal/replay-canvas@9.0.0':
+    dependencies:
+      '@sentry-internal/replay': 9.0.0
+      '@sentry/core': 9.0.0
+
+  '@sentry-internal/replay@9.0.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 9.0.0
+      '@sentry/core': 9.0.0
+
+  '@sentry/browser@9.0.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 9.0.0
+      '@sentry-internal/feedback': 9.0.0
+      '@sentry-internal/replay': 9.0.0
+      '@sentry-internal/replay-canvas': 9.0.0
+      '@sentry/core': 9.0.0
+
+  '@sentry/core@9.0.0': {}
 
   '@signalk/server-api@2.24.0':
     dependencies:

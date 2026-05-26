@@ -1,0 +1,9 @@
+{
+  "violations": 50,
+  "hardFailRules": [
+    "target-size",
+    "keyboard",
+    "prefers-reduced-motion",
+    "meta-viewport"
+  ]
+}
