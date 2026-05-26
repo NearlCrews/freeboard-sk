@@ -18,6 +18,9 @@ permissions:
 
 jobs:
   typecheck:
+    # Phase 5e flipped root tsconfig to strict:true with all 7 flags. The
+    # standalone typecheck:strict + typecheck:strict:legacy gates were
+    # retired then; `pnpm typecheck` is now the strict check.
     name: typecheck (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -30,42 +33,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: pnpm typecheck
-
-  typecheck-strict:
-    # Phase 1: the wrapper gates on src/lib/ and src/types/ (new vendored +
-    # codegen surfaces) being strict-clean. src/app/lib/ legacy diagnostics
-    # are suppressed; see the typecheck-strict-legacy job below. Legacy
-    # ratchet is roadmap Phase 5.
-    name: typecheck:strict (new gate, node ${{ matrix.node }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['22', '24']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-pnpm
-        with:
-          node-version: ${{ matrix.node }}
-      - run: pnpm typecheck:strict
-
-  typecheck-strict-legacy:
-    # Info-only report of strict errors under src/app/lib/. Stays
-    # continue-on-error: true until the Phase 5 legacy ratchet drives the
-    # count to zero. See MODERNIZATION_ROADMAP.md section 3 Phase 5.
-    name: typecheck:strict (legacy info, node ${{ matrix.node }})
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['22', '24']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-pnpm
-        with:
-          node-version: ${{ matrix.node }}
-      - run: pnpm typecheck:strict:legacy
 
   lint:
     # Phase 0: `eslint` and `prettier --check` are info-only because legacy

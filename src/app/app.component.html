@@ -446,7 +446,7 @@
                   matTooltip="Menu"
                   matTooltipPosition="right"
                   [matMenuTriggerFor]="mainmenu"
-                  aria-hidden="false"
+                  aria-label="Menu"
                 >
                   <mat-icon>menu</mat-icon>
                 </button>
@@ -464,7 +464,7 @@
                     matBadgeOverlap="true"
                     [matBadgeHidden]="notiMgr.alerts().length === 0"
                     (click)="toggleAlertList(true)"
-                    aria-hidden="false"
+                    aria-label="Alarms"
                   >
                     <mat-icon class="ob" svgIcon="alert-list"></mat-icon>
                   </button>
@@ -477,6 +477,7 @@
                     matTooltip="Routes, Waypoints, Notes, etc."
                     matTooltipPosition="right"
                     [matMenuTriggerFor]="layersmenu"
+                    aria-label="Resource layers"
                   >
                     <mat-icon>layers</mat-icon>
                   </button>
@@ -489,6 +490,7 @@
                     matTooltip="Draw / Measure / Select"
                     matTooltipPosition="right"
                     [matMenuTriggerFor]="editmenu"
+                    aria-label="Draw, measure, or select"
                   >
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -507,6 +509,11 @@
                         : 'Show North Up'
                     "
                     matTooltipPosition="right"
+                    [attr.aria-label]="
+                      app.uiConfig().mapNorthUp
+                        ? 'Show Heading Up'
+                        : 'Show North Up'
+                    "
                   >
                     <mat-icon
                       class="ob"
@@ -534,6 +541,11 @@
                         : 'Follow Vessel'
                     "
                     matTooltipPosition="right"
+                    [attr.aria-label]="
+                      app.uiConfig().mapMove
+                        ? 'Turn off Follow Vessel'
+                        : 'Follow Vessel'
+                    "
                   >
                     <mat-icon class="ob" svgIcon="cent-iec"></mat-icon>
                   </button>
@@ -547,6 +559,7 @@
                       [disabled]="!app.data.vessels.showSelf"
                       matTooltip="Center Vessel"
                       matTooltipPosition="right"
+                      aria-label="Center Vessel"
                     >
                       <mat-icon> center_focus_strong </mat-icon>
                     </button>
@@ -560,6 +573,7 @@
                     matTooltip="More actions"
                     matTooltipPosition="right"
                     [matMenuTriggerFor]="settingsmenu"
+                    aria-label="More actions"
                   >
                     <mat-icon>more_horiz</mat-icon>
                   </button>
@@ -573,6 +587,7 @@
                       matTooltip="Exit playback mode"
                       matTooltipPosition="right"
                       (click)="showSelectMode()"
+                      aria-label="Exit playback mode"
                     >
                       <mat-icon>cancel</mat-icon>
                     </button>
@@ -748,6 +763,11 @@
                       : 'Show Toobars'
                   "
                   matTooltipPosition="before"
+                  [attr.aria-label]="
+                    app.uiConfig().toolbarButtons
+                      ? 'Hide Toolbars'
+                      : 'Show Toolbars'
+                  "
                 >
                   <mat-icon>{{
                     app.uiConfig().toolbarButtons ? 'apps' : 'apps_outage'
@@ -770,6 +790,7 @@
                       (click)="sideright?.toggle()"
                       matTooltip="Instruments"
                       matTooltipPosition="before"
+                      aria-label="Instruments"
                     >
                       <mat-icon>av_timer</mat-icon>
                     </button>
@@ -786,6 +807,7 @@
                       matTooltip="Web Audio off! Click to enable."
                       matTooltipPosition="before"
                       (click)="enableAudio()"
+                      aria-label="Enable Web Audio"
                     >
                       <mat-icon class="icon-warn">volume_off</mat-icon>
                     </button>
@@ -809,6 +831,11 @@
                           : 'Go Fullscreen'
                       "
                       matTooltipPosition="before"
+                      [attr.aria-label]="
+                        displayFullscreen().active
+                          ? 'Exit Fullscreen'
+                          : 'Go Fullscreen'
+                      "
                     >
                       <mat-icon>
                         {{
@@ -833,6 +860,7 @@
                     (click)="toggleConstrainMapZoom()"
                     matTooltip="Constrain map zoom."
                     matTooltipPosition="before"
+                    aria-label="Constrain map zoom"
                   >
                     <mat-icon>zoom_in_map</mat-icon>
                   </button>
@@ -850,6 +878,7 @@
                     (click)="invertFeatureLabelColor()"
                     matTooltip="Invert feature text color."
                     matTooltipPosition="before"
+                    aria-label="Invert feature text color"
                   >
                     <mat-icon>{{
                       true ? 'invert_colors' : 'invert_colors_off'
@@ -901,6 +930,7 @@
                       matTooltip="Autopilot"
                       matTooltipPosition="before"
                       (click)="toggleAutopilotConsole(true)"
+                      aria-label="Autopilot"
                     >
                       <mat-icon
                         class="ob"
@@ -954,6 +984,7 @@
               [style.transform]="getOrientation()"
               width="50"
               height="70"
+              alt="North arrow"
             />
           </div>
 
