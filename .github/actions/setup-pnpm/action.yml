@@ -10,12 +10,18 @@ inputs:
 runs:
   using: composite
   steps:
+    # Bootstrap order matters: setup-node's cache:pnpm needs pnpm on PATH
+    # to compute the cache key, so enable corepack before setup-node runs.
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version == '' && '.nvmrc' || '' }}
+    - run: corepack enable
+      shell: bash
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         node-version-file: ${{ inputs.node-version == '' && '.nvmrc' || '' }}
         cache: pnpm
-    - run: corepack enable
-      shell: bash
     - run: pnpm install --frozen-lockfile
       shell: bash
