@@ -40,11 +40,13 @@ export interface AlertData {
   createdAt: number;
 }
 
-const SoundFiles = {
+const SoundFiles: Record<ALARM_STATE, string> = {
   emergency: './assets/sound/woop.mp3',
   alarm: './assets/sound/woop.mp3',
   alert: './assets/sound/ding.mp3',
-  warn: './assets/sound/ding.mp3'
+  warn: './assets/sound/ding.mp3',
+  normal: './assets/sound/ding.mp3',
+  nominal: './assets/sound/ding.mp3'
 };
 
 @Component({
@@ -196,10 +198,10 @@ const SoundFiles = {
   styles: []
 })
 export class AlertComponent implements OnDestroy {
-  alert = input<AlertData>();
+  alert = input.required<AlertData>();
   acknowledged = input<boolean>(false);
   silenced = input<boolean>(false);
-  audioStatus = input<string>(); // changed audio context state
+  audioStatus = input<string>(''); // changed audio context state
   doNotPlaySound = input<boolean>(false); // config setting
 
   hidden = signal<boolean>(false); // alert card is hidden
@@ -211,10 +213,10 @@ export class AlertComponent implements OnDestroy {
   protected showStaticNextPoint = false;
   protected showAutoNextPoint = false;
   protected nextPointClicked = false;
-  private audio: HTMLAudioElement;
-  private source: MediaElementAudioSourceNode;
+  private audio: HTMLAudioElement | null = null;
+  private source: MediaElementAudioSourceNode | null = null;
   private soundFile = SoundFiles.warn;
-  private timerRef!: any;
+  private timerRef: ReturnType<typeof setInterval> | null = null;
 
   protected app = inject(AppFacade);
   private notiMgr = inject(NotificationManager);
@@ -222,22 +224,22 @@ export class AlertComponent implements OnDestroy {
 
   constructor() {
     effect(() => {
-      const ack = this.acknowledged();
-      const mute = this.silenced();
+      // Touch acknowledged/silenced inputs so the effect re-runs when they
+      // change. Their values are read transitively via this.alert().
+      this.acknowledged();
+      this.silenced();
       const al = this.alert();
       this.showStaticNextPoint = [
         'perpendicularPassed',
         'arrivalCircleEntered'
-      ].includes(al.type);
+      ].includes(al.type ?? '');
       this.showAutoNextPoint =
         this.showStaticNextPoint &&
         this.app.config.course.autoNextPointTrigger === al.type;
-      if (typeof this.doNotPlaySound() !== 'undefined') {
-      }
-      this.processAudio();
+      this.processAudio(al);
       if (
         !this.timerRef &&
-        !['emergency', 'alarm'].includes(this.alert().priority) &&
+        !['emergency', 'alarm'].includes(al.priority) &&
         !this.showAutoNextPoint
       ) {
         // Auto-hide non-critical alerts after ~10 s (100 ticks of 100
@@ -249,7 +251,9 @@ export class AlertComponent implements OnDestroy {
             this.progressValue.update((value) => value - 1);
           } else {
             this.hidden.set(true);
-            clearInterval(this.timerRef);
+            if (this.timerRef) {
+              clearInterval(this.timerRef);
+            }
           }
         }, 100);
       }
@@ -257,8 +261,12 @@ export class AlertComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    clearInterval(this.timerRef);
-    this.audio.pause();
+    if (this.timerRef) {
+      clearInterval(this.timerRef);
+    }
+    if (this.audio) {
+      this.audio.pause();
+    }
     this.audio = null;
     this.source = null;
   }
@@ -275,8 +283,8 @@ export class AlertComponent implements OnDestroy {
     this.notiMgr.silence(this.alert().path);
   }
 
-  private processAudio() {
-    this.soundFile = SoundFiles[this.alert().priority];
+  private processAudio(al: AlertData) {
+    this.soundFile = SoundFiles[al.priority];
     if (this.app.audio.context) {
       if (!this.audio) {
         this.audio = new Audio();
@@ -288,17 +296,11 @@ export class AlertComponent implements OnDestroy {
         this.source.connect(this.app.audio.context.destination);
       }
       if (this.audioStatus() === 'running') {
-        if (this.alert().sound) {
-          if (
-            this.doNotPlaySound() ||
-            this.alert().silenced ||
-            this.alert().acknowledged
-          ) {
+        if (al.sound) {
+          if (this.doNotPlaySound() || al.silenced || al.acknowledged) {
             this.audio.pause();
           } else {
-            this.audio.loop = ['emergency', 'alarm'].includes(
-              this.alert().priority
-            );
+            this.audio.loop = ['emergency', 'alarm'].includes(al.priority);
             this.audio.src = this.soundFile;
             this.audio
               .play()

@@ -184,7 +184,7 @@ export class SettingsStore {
     if (!config.units.useServerPrefs) return;
     if (!units?.categories) return;
 
-    const speed = units.categories.speed;
+    const speed = units.categories['speed'];
     if (speed) {
       config.units.speed = ['kn', 'm/s', 'km/h', 'mph'].includes(
         speed.targetUnit
@@ -193,7 +193,7 @@ export class SettingsStore {
         : config.units.speed;
       Convert.setSymbol(speed.targetUnit as TARGET_UNIT, speed.symbol);
     }
-    const temperature = units.categories.temperature;
+    const temperature = units.categories['temperature'];
     if (temperature) {
       config.units.temperature = ['C', 'F'].includes(temperature.targetUnit)
         ? (temperature.targetUnit as TemperatureUnitDef)
@@ -203,7 +203,7 @@ export class SettingsStore {
         temperature.symbol
       );
     }
-    const distance = units.categories.distance;
+    const distance = units.categories['distance'];
     if (distance) {
       config.units.distance = ['kilometer', 'naut-mile'].includes(
         distance.targetUnit
@@ -212,14 +212,14 @@ export class SettingsStore {
         : config.units.distance;
       Convert.setSymbol(distance.targetUnit as TARGET_UNIT, distance.symbol);
     }
-    const depth = units.categories.depth;
+    const depth = units.categories['depth'];
     if (depth) {
       config.units.depth = ['m', 'foot'].includes(depth.targetUnit)
         ? (depth.targetUnit as DepthUnitDef)
         : config.units.depth;
       Convert.setSymbol(depth.targetUnit as TARGET_UNIT, depth.symbol);
     }
-    const length = units.categories.length;
+    const length = units.categories['length'];
     if (length) {
       config.units.length = ['m', 'foot'].includes(length.targetUnit)
         ? (length.targetUnit as LengthUnitDef)
@@ -246,8 +246,8 @@ export class SettingsStore {
       precision?: number;
     }
   ): string {
-    if (typeof value !== 'number') {
-      const s = value as string;
+    if (typeof (value as unknown) !== 'number') {
+      const s = value as unknown as string;
       if (typeof s === 'string' && s.endsWith('Z') && s[10] === 'T') {
         return new Date(s).toLocaleString();
       }
@@ -264,19 +264,23 @@ export class SettingsStore {
           value,
           sourceUnit,
           config.units.temperature as TARGET_UNIT
-        ),
+        ) ?? NaN,
         precision
       );
     } else if (sourceUnit === 'rad') {
       symbol = Convert.getSymbol('degree');
       nv = this.formatNumericDisplay(
-        Convert.transform(value, sourceUnit, 'degree'),
+        Convert.transform(value, sourceUnit, 'degree') ?? NaN,
         precision
       );
     } else if (sourceUnit === 'm/s') {
       symbol = Convert.getSymbol(config.units.speed);
       nv = this.formatNumericDisplay(
-        Convert.transform(value, sourceUnit, config.units.speed as TARGET_UNIT),
+        Convert.transform(
+          value,
+          sourceUnit,
+          config.units.speed as TARGET_UNIT
+        ) ?? NaN,
         precision
       );
     } else if (sourceUnit === 'ratio') {
@@ -307,7 +311,7 @@ export class SettingsStore {
     if (options?.category === 'depth') {
       const symbol = Convert.getSymbol(config.units.depth);
       const nv = this.formatNumericDisplay(
-        Convert.transform(value, 'm', config.units.depth as TARGET_UNIT),
+        Convert.transform(value, 'm', config.units.depth as TARGET_UNIT) ?? NaN,
         precision
       );
       return { symbol, nv };
@@ -315,7 +319,8 @@ export class SettingsStore {
     if (options?.category === 'length') {
       const symbol = Convert.getSymbol(config.units.length);
       const nv = this.formatNumericDisplay(
-        Convert.transform(value, 'm', config.units.length as TARGET_UNIT),
+        Convert.transform(value, 'm', config.units.length as TARGET_UNIT) ??
+          NaN,
         precision
       );
       return { symbol, nv };
@@ -328,7 +333,7 @@ export class SettingsStore {
       };
     }
     if (config.units.distance === 'naut-mile') {
-      const nm = Convert.transform(value, 'm', config.units.distance);
+      const nm = Convert.transform(value, 'm', config.units.distance) ?? NaN;
       if (nm < 0.5) {
         return {
           symbol: Convert.getSymbol(config.units.length),
@@ -343,7 +348,8 @@ export class SettingsStore {
     return {
       symbol: Convert.getSymbol(config.units.distance),
       nv: this.formatNumericDisplay(
-        Convert.transform(value, 'm', config.units.distance as TARGET_UNIT),
+        Convert.transform(value, 'm', config.units.distance as TARGET_UNIT) ??
+          NaN,
         precision
       )
     };
@@ -370,14 +376,18 @@ export class SettingsStore {
    * `'---'` (trimmed to the requested precision) for non-finite inputs.
    */
   formatNumericDisplay(value: number, precision?: number): string {
-    const p = Number.isFinite(precision) ? (precision as number) : 1;
+    const p = Number.isFinite(precision) ? precision! : 1;
     if (!Number.isFinite(value)) {
       return '---'.slice(-p);
     }
     return value.toFixed(p);
   }
 
-  /** Convert a speed value to the configured unit. */
+  /**
+   * Convert a speed value to the configured unit. Returns `NaN` (numeric mode)
+   * or the `'---'` placeholder (string mode) when the conversion fails, both
+   * of which `Number.isFinite` and downstream consumers treat as "no value".
+   */
   formatSpeed(
     config: IAppConfig,
     value: number,
@@ -393,6 +403,9 @@ export class SettingsStore {
     } catch {
       converted = null;
     }
-    return asString ? this.formatNumericDisplay(converted) : converted;
+    if (asString) {
+      return this.formatNumericDisplay(converted ?? NaN);
+    }
+    return converted ?? NaN;
   }
 }

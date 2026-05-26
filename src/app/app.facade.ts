@@ -10,7 +10,6 @@ import { effect, inject, Injectable, isDevMode } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
-import { HttpErrorResponse } from '@angular/common/http';
 
 import { AppDB, InfoService, AppInfoDef } from './lib/services';
 import { WelcomeDialog } from './lib/components/dialogs/common-dialogs';
@@ -93,7 +92,7 @@ export class AppFacade extends InfoService {
   public audio = { context: new AudioContext() };
 
   public db = new AppDB();
-  public watchingSKLogin: number;
+  public watchingSKLogin = 0;
   public formattedSpeedUnits = '';
 
   // ----- stores -----
@@ -218,10 +217,11 @@ export class AppFacade extends InfoService {
 
     this.initAppIcons();
     parseLaunchUrl(this.hostDef, this.devMode, DEV_SERVER);
-    if (typeof this.hostDef.params.token !== 'undefined') {
-      this.persistToken(this.hostDef.params.token);
+    const launchToken = this.hostDef.params['token'];
+    if (launchToken) {
+      this.persistToken(launchToken);
     }
-    this.kioskMode.set(typeof this.hostDef.params.kiosk !== 'undefined');
+    this.kioskMode.set(typeof this.hostDef.params['kiosk'] !== 'undefined');
     this.debug('host:', this.hostDef);
 
     this.instrumentPanelAvailable.set(isTopWindow());
@@ -261,7 +261,8 @@ export class AppFacade extends InfoService {
       this.saveConfig();
     });
     effect(() => {
-      this.alignUnitPrefs(this.serverConfig.unitPreferences());
+      const prefs = this.serverConfig.unitPreferences();
+      if (prefs) this.alignUnitPrefs(prefs);
     });
   }
 
@@ -296,10 +297,11 @@ export class AppFacade extends InfoService {
         autoNightMode: this.config.display.nightMode
       }));
     }
-    if (typeof commands?.nightModeEnable === 'boolean') {
+    const forceNightMode = commands?.nightModeEnable;
+    if (typeof forceNightMode === 'boolean') {
       this.uiCtrl.update((current) => ({
         ...current,
-        forceNightMode: commands.nightModeEnable
+        forceNightMode
       }));
     }
   }
@@ -369,7 +371,8 @@ export class AppFacade extends InfoService {
                 this.config = serverSettings;
                 this.doPostConfigLoad();
                 this.alignCustomResourcesPaths();
-                this.alignUnitPrefs(this.serverConfig.unitPreferences());
+                const prefs = this.serverConfig.unitPreferences();
+                if (prefs) this.alignUnitPrefs(prefs);
                 this.saveConfig();
               }
               resolve(true);
@@ -408,7 +411,7 @@ export class AppFacade extends InfoService {
 
   // ----- auth / cookies -----
 
-  persistToken(value: string): void {
+  persistToken(value: string | null): void {
     if (value) {
       this.signalk.authToken = value;
       this.worker.postMessage({ cmd: 'auth', options: { token: value } });
@@ -416,9 +419,10 @@ export class AppFacade extends InfoService {
       this.hasAuthToken.set(true);
     } else {
       this.hasAuthToken.set(false);
-      this.signalk.authToken = null;
+      (this.signalk as unknown as { authToken: string | null }).authToken =
+        null;
       this.isLoggedIn.set(false);
-      document.cookie = `sktoken=${null}; SameSite=Strict; max-age=0;`;
+      document.cookie = `sktoken=null; SameSite=Strict; max-age=0;`;
       this.worker.postMessage({ cmd: 'auth', options: { token: null } });
     }
   }
@@ -443,7 +447,16 @@ export class AppFacade extends InfoService {
   }
 
   calcMapCenter(): Position {
-    return this.vessel.calcMapCenter(this.config, this.data.vessels.active);
+    const active = this.data.vessels.active;
+    if (!active?.position) {
+      return this.config.map.center as Position;
+    }
+    return this.vessel.calcMapCenter(this.config, {
+      position: active.position,
+      orientation: active.orientation,
+      cogTrue: active.cogTrue,
+      headingTrue: active.headingTrue
+    });
   }
 
   alignCustomResourcesPaths(): void {
@@ -453,7 +466,7 @@ export class AppFacade extends InfoService {
   override saveConfig(): void {
     super.saveConfig();
     if (this.isLoggedIn()) {
-      this.signalk.appDataSet('/', this.config).subscribe({
+      this.signalk.appDataSet('/', this.config)?.subscribe({
         next: () => this.debug('saveConfig: config saved to server.'),
         error: () => this.debug('saveConfig: Cannot save config to server!')
       });

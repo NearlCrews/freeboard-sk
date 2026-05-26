@@ -40,13 +40,13 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class TimerButtonComponent implements OnInit, OnDestroy {
   @Input() period = 5000; // timeout period in milliseconds
-  @Input() label: string;
-  @Input() icon: string;
-  @Input() cancelledLabel: string;
-  @Input() disabled: boolean;
+  @Input() label = 'Action in ';
+  @Input() icon = '';
+  @Input() cancelledLabel = 'OK';
+  @Input() disabled = false;
   readonly nextPoint = output<void>();
 
-  private timer: ReturnType<typeof setInterval>;
+  private timer: ReturnType<typeof setInterval> | null = null;
   protected timeLeft = signal<number>(this.period ?? 5);
   protected cancelled = signal<boolean>(false);
 
@@ -54,14 +54,14 @@ export class TimerButtonComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.timeLeft.update(() => (isNaN(this.period) ? 5 : this.period / 1000));
-    this.label = this.label ?? 'Action in ';
-    this.cancelledLabel = this.cancelledLabel ?? 'OK';
     this.timer = setInterval(() => {
       this.timeLeft.update((current) => --current);
       if (this.timeLeft() === 0) {
         this.disabled = true;
         this.action();
-        clearInterval(this.timer);
+        if (this.timer) {
+          clearInterval(this.timer);
+        }
         this.timer = null;
       }
     }, 1000);

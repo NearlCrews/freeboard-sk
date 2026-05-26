@@ -38,7 +38,6 @@ import { NSEWButtonsComponent } from './nsew-buttons.component';
 import { AnchorService } from '../anchor.service';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Convert, SI_BASE_UNIT, TARGET_UNIT } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 
@@ -62,27 +61,28 @@ import { GeoUtils } from 'src/app/lib/geoutils';
   styleUrls: ['./anchor-watch.component.css']
 })
 export class AnchorWatchComponent implements OnInit, OnChanges {
-  @Input() radius: number;
+  @Input() radius = 0;
   @Input() min = 5;
   @Input() max = 250;
   @Input() raised = true;
   @Input() showSelf = false;
   readonly closed = output<void>();
 
-  @ViewChild('slideCtl', { static: true }) slideCtl: ElementRef<MatSlideToggle>;
+  @ViewChild('slideCtl', { static: true })
+  slideCtl!: ElementRef<MatSlideToggle>;
 
-  protected bgImage: string;
-  protected sliderValue: number;
+  protected bgImage = '';
+  protected sliderValue = 0;
   protected rodeOut = false;
   protected convert = Convert;
 
   // set controls
-  protected useDefaultRadius: boolean;
-  protected useSetManual: boolean;
+  protected useDefaultRadius = false;
+  protected useSetManual = false;
   protected defaultRodeLength = signal<number>(10);
   protected defaultAlarmRadius = signal<number>(10);
 
-  protected disableRaiseDrop: boolean;
+  protected disableRaiseDrop = false;
 
   private anchor = inject(AnchorService);
   protected app = inject(AppFacade);
@@ -113,22 +113,20 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.radius) {
-      if (changes.radius.previousValue === -1) {
-        this.sliderValue = Math.round(changes.radius.currentValue);
+    const radiusChange = changes['radius'];
+    if (radiusChange) {
+      if (radiusChange.previousValue === -1) {
+        this.sliderValue = Math.round(radiusChange.currentValue);
         this.max = this.sliderValue + 100;
-      } else if (
-        changes.radius.firstChange &&
-        changes.radius.currentValue !== -1
-      ) {
-        this.sliderValue = Math.round(changes.radius.currentValue);
+      } else if (radiusChange.firstChange && radiusChange.currentValue !== -1) {
+        this.sliderValue = Math.round(radiusChange.currentValue);
         this.max = this.sliderValue + 100;
       }
       this.radiusValue.update(() =>
-        this.transformValue(changes.radius.currentValue)
+        this.transformValue(radiusChange.currentValue)
       );
       this.displayRadius.update(() =>
-        this.formatTransformedValue(changes.radius.currentValue)
+        this.formatTransformedValue(radiusChange.currentValue)
       );
     }
 
@@ -148,10 +146,12 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
    * @returns Transformed value
    */
   transformValue(value: number): number {
-    return Convert.transform(
-      value,
-      'm',
-      this.app.config.units.length as TARGET_UNIT
+    return (
+      Convert.transform(
+        value,
+        'm',
+        this.app.config.units.length as TARGET_UNIT
+      ) ?? value
     );
   }
 
@@ -182,14 +182,15 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     this.app.saveConfig();
   }
 
-  onDefaultRadiusChange(e: any) {
-    this.app.config.anchor.radius = Math.round(
-      Convert.transform(
-        e,
-        this.app.config.units.length as SI_BASE_UNIT,
-        'm' as TARGET_UNIT
-      )
+  onDefaultRadiusChange(e: number) {
+    const converted = Convert.transform(
+      e,
+      this.app.config.units.length as SI_BASE_UNIT,
+      'm' as TARGET_UNIT
     );
+    if (converted !== null) {
+      this.app.config.anchor.radius = Math.round(converted);
+    }
   }
 
   onSetManualCheck(e: MatCheckboxChange) {
@@ -216,7 +217,9 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
    */
   setRadius(value?: number) {
     this.rodeOut = true;
-    this.displayRadius.update(() => this.formatTransformedValue(value));
+    if (typeof value === 'number') {
+      this.displayRadius.update(() => this.formatTransformedValue(value));
+    }
     if (!this.raised) {
       this.signalk
         .post(
@@ -226,10 +229,12 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.app.config.anchor.radius = value;
+            if (typeof value === 'number') {
+              this.app.config.anchor.radius = value;
+            }
             this.app.saveConfig();
           },
-          error: (err: HttpErrorResponse) => {
+          error: (err: unknown) => {
             this.app.parseHttpErrorResponse(err);
           }
         });
@@ -244,13 +249,16 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
       this.app.showAlert('Error', 'Rode length value is not a number!');
       return;
     }
-    this.app.config.anchor.rodeLength = Math.round(
-      Convert.transform(
-        this.defaultRodeLength(),
-        this.app.config.units.length as SI_BASE_UNIT,
-        'm' as TARGET_UNIT
-      )
+    const rodeMeters = Convert.transform(
+      this.defaultRodeLength(),
+      this.app.config.units.length as SI_BASE_UNIT,
+      'm' as TARGET_UNIT
     );
+    if (rodeMeters === null) {
+      this.app.showAlert('Error', 'Rode length conversion failed!');
+      return;
+    }
+    this.app.config.anchor.rodeLength = Math.round(rodeMeters);
     this.signalk
       .post('/plugins/anchoralarm/setManualAnchor', {
         rodeLength: this.app.config.anchor.rodeLength
@@ -260,7 +268,7 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
         next: () => {
           this.app.saveConfig();
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: unknown) => {
           this.app.parseHttpErrorResponse(err);
         }
       });
@@ -285,7 +293,9 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
    * @param radius Alarm radius to set
    */
   dropAnchor(radius?: number) {
-    this.app.config.anchor.radius = radius;
+    if (typeof radius === 'number') {
+      this.app.config.anchor.radius = radius;
+    }
     this.anchor.setRaisedSignal(false);
     this.signalk
       .post(
@@ -297,7 +307,7 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
         next: () => {
           this.app.saveConfig();
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err: unknown) => {
           this.anchor.setRaisedSignal(true);
           this.app.parseHttpErrorResponse(err);
         }
@@ -313,7 +323,7 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
         () => {},
-        (err: HttpErrorResponse) => {
+        (err: unknown) => {
           this.app.parseHttpErrorResponse(err);
         }
       );
@@ -325,12 +335,16 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
    */
   shiftAnchor(direction: number) {
     const inc = 1;
+    const anchorPos = this.anchor.position();
+    if (!anchorPos) {
+      return;
+    }
     const position = GeoUtils.destCoordinate(
-      this.anchor.position(),
+      anchorPos,
       Convert.degreesToRadians(direction),
       inc
     );
-    this.anchor.setAnchorPosition(position).catch((err: HttpErrorResponse) => {
+    this.anchor.setAnchorPosition(position).catch((err: unknown) => {
       this.app.parseHttpErrorResponse(err);
     });
   }

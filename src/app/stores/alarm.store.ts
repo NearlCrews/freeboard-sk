@@ -149,7 +149,7 @@ export class AlarmStore {
     let buttonText = 'Get Started';
     const content: WelcomeContentItem[] = [];
     let showPrefs = false;
-    const serverId = data.server?.id as string | undefined;
+    const serverId = data.server?.['id'] as string | undefined;
 
     if (launchResult === 'first_run' && !suppressFirstRun) {
       content.push(WELCOME_MESSAGES.welcome);

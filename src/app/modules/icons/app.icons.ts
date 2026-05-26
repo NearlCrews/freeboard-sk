@@ -15,7 +15,7 @@ import { VesselAisIcons, AIS_TYPE_IDS } from './vessels';
 
 export interface AppIconSet {
   path: string;
-  files: Array<string>;
+  files: string[];
   scale?: number;
   anchor?: [number, number];
 }
@@ -30,8 +30,8 @@ export interface AppIconDef {
  * @description Builds a list of SVG Icons for loading into the IconRegistry
  * @returns Array of files (including path)
  */
-export const getSvgList = (): Array<{ id: string; path: string }> => {
-  const svgList: Array<{ id: string; path: string }> = [];
+export const getSvgList = (): { id: string; path: string }[] => {
+  const svgList: { id: string; path: string }[] = [];
 
   const addToList = (list: AppIconSet, prefix?: string) => {
     list.files.forEach((file: string) => {
@@ -61,12 +61,11 @@ export const getResourceIcon = (
   resource?: SKRoute | SKWaypoint | SKRegion | SKNote | string
 ): AppIconDef => {
   if (resourceType === 'routes') {
-    return { class: 'icon-route', svgIcon: 'route', name: undefined };
+    return { class: 'icon-route', svgIcon: 'route' };
   }
   if (resourceType === 'regions') {
-    let iconDef = {
+    const iconDef: AppIconDef = {
       class: 'icon-region',
-      svgIcon: undefined,
       name: 'tab_unselected'
     };
     if (!resource) {
@@ -75,21 +74,15 @@ export const getResourceIcon = (
     const icon =
       typeof resource === 'string'
         ? resource
-        : (resource as SKRegion).feature.properties?.skIcon;
+        : (resource as SKRegion).feature.properties?.['skIcon'];
     if (!icon) {
       return iconDef;
-    } else {
-      return {
-        class: undefined,
-        svgIcon: `sk-${icon}`,
-        name: undefined
-      };
     }
+    return { svgIcon: `sk-${icon}` };
   }
   if (resourceType === 'notes') {
-    let iconDef = {
+    const iconDef: AppIconDef = {
       class: 'icon-accent',
-      svgIcon: undefined,
       name: 'local_offer'
     };
     if (!resource) {
@@ -98,23 +91,18 @@ export const getResourceIcon = (
     const icon =
       typeof resource === 'string'
         ? resource
-        : (resource as SKNote).properties?.skIcon;
+        : (resource as SKNote).properties?.['skIcon'];
     if (!icon) {
       return iconDef;
-    } else {
-      return {
-        class: undefined,
-        svgIcon: `sk-${icon}`,
-        name: undefined
-      };
     }
+    return { svgIcon: `sk-${icon}` };
   }
   if (resourceType === 'waypoints') {
     const wptDefs = getWaypointDefs();
     const skIcon =
       typeof resource === 'string' || typeof resource === 'undefined'
         ? undefined
-        : ((resource as SKWaypoint).feature.properties?.skIcon ?? undefined);
+        : (resource as SKWaypoint).feature.properties?.['skIcon'];
     const wptType =
       typeof resource === 'string' || typeof resource === 'undefined'
         ? resource
@@ -122,19 +110,11 @@ export const getResourceIcon = (
     const wid = skIcon ?? wptType ?? 'default';
 
     if (!resource || wid === 'default' || !wptDefs[wid]) {
-      return {
-        class: 'icon-waypoint',
-        svgIcon: undefined,
-        name: 'location_on'
-      };
-    } else {
-      return {
-        class: undefined,
-        svgIcon: wid,
-        name: undefined
-      };
+      return { class: 'icon-waypoint', name: 'location_on' };
     }
+    return { svgIcon: wid };
   }
+  return { class: 'icon-default', name: 'help_outline' };
 };
 
 /**
@@ -144,59 +124,32 @@ export const getResourceIcon = (
  */
 export const getAlertIcon = (alert: AlertData): AppIconDef => {
   if (
+    alert.type !== undefined &&
     ['mob', 'fire', 'abandon', 'aground', 'cpa', 'depth'].includes(alert.type)
   ) {
-    return {
-      class: 'ob',
-      svgIcon: `alarm-${alert.type}`,
-      name: undefined
-    };
+    return { class: 'ob', svgIcon: `alarm-${alert.type}` };
   } else if (alert.type === 'arrivalCircleEntered') {
-    return {
-      class: undefined,
-      svgIcon: `alarm-arrival`,
-      name: 'arrival'
-    };
+    return { svgIcon: 'alarm-arrival', name: 'arrival' };
   } else if (alert.type === 'anchor') {
-    return {
-      class: undefined,
-      svgIcon: undefined,
-      name: 'anchor'
-    };
+    return { name: 'anchor' };
   } else if (alert.type === 'meteo') {
-    return {
-      class: undefined,
-      svgIcon: undefined,
-      name: 'air'
-    };
+    return { name: 'air' };
   } else if (alert.priority === 'warn') {
-    return {
-      class: 'ob',
-      svgIcon: 'warning-unack-iec',
-      name: undefined
-    };
+    return { class: 'ob', svgIcon: 'warning-unack-iec' };
   } else if (['emergency', 'alarm'].includes(alert.priority)) {
     const icon = alert.acknowledged
       ? 'alarm-acknowledged-iec'
       : alert.silenced
         ? 'alarm-silenced-iec'
         : 'alarm-acknowledged-iec';
-    return {
-      class: undefined,
-      svgIcon: icon,
-      name: undefined
-    };
+    return { svgIcon: icon };
   } else {
     const icon = alert.acknowledged
       ? 'warning-acknowledged-iec'
       : alert.silenced
         ? 'warning-silenced-iec'
         : 'warning-unack-iec';
-    return {
-      class: undefined,
-      svgIcon: icon,
-      name: undefined
-    };
+    return { svgIcon: icon };
   }
 };
 
@@ -209,25 +162,19 @@ export const getAisIcon = (id: number | string): AppIconDef => {
   if (typeof id === 'number') {
     id = Math.floor(id / 10) * 10;
   }
-  if (!id || !(id in AIS_TYPE_IDS)) {
-    return {
-      class: undefined,
-      svgIcon: AIS_TYPE_IDS['default'],
-      name: 'default'
-    };
-  } else {
-    return {
-      class: undefined,
-      svgIcon: AIS_TYPE_IDS[id],
-      name: id.toString()
-    };
+  const key = String(id);
+  const svgIcon = AIS_TYPE_IDS[key];
+  if (!id || !svgIcon) {
+    const fallback = AIS_TYPE_IDS['default'] ?? 'ais_active';
+    return { svgIcon: fallback, name: 'default' };
   }
+  return { svgIcon, name: key };
 };
 
 /**
  * @description Return a list of POI icon ids
  */
-export const listPoiIds = (): Array<{ id: string; name: string }> => {
+export const listPoiIds = (): { id: string; name: string }[] => {
   const icons = PoiIcons.files.map((file: string) => {
     const name = file.slice(0, file.lastIndexOf('.'));
     return {

@@ -549,7 +549,10 @@ export class FBMapComponent
         // activeWaypoint is declared string in FBAppData but course.store also sets it to null
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.app.data as any).activeWaypoint = null;
-        this.course.courseData().pointNames = [];
+        // pointNames is reset by initCourseData(); setDestination triggers
+        // a fresh course payload via the delta stream so the mutation here
+        // is redundant. courseData is Readonly<CourseData> after the
+        // strict ratchet.
         this.course.setDestination({
           latitude: pos[1],
           longitude: pos[0]

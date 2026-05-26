@@ -5,15 +5,11 @@
  */
 
 export interface HostDef {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  name: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  port: any;
+  name: string | undefined;
+  port: number | undefined;
   ssl: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  url: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: Record<string, any>;
+  url: string | undefined;
+  params: Record<string, string | null | undefined>;
 }
 
 export interface DevServerDef {
@@ -35,24 +31,28 @@ export function parseLaunchUrl(
     const p = window.location.search.slice(1).split('&');
     p.forEach((i) => {
       const a = i.split('=');
-      hostDef.params[a[0]] = a.length > 1 ? a[1] : null;
+      const key = a[0];
+      if (key === undefined) return;
+      hostDef.params[key] = a.length > 1 ? (a[1] ?? null) : null;
     });
   }
+  const paramHost = hostDef.params['host'];
   hostDef.name =
-    typeof hostDef.params?.host !== 'undefined'
-      ? hostDef.params.host
+    typeof paramHost !== 'undefined' && paramHost !== null
+      ? paramHost
       : devMode && devServer.host
         ? devServer.host
         : window.location.hostname;
   hostDef.ssl =
     window.location.protocol === 'https:' || (devMode && devServer.ssl);
-  hostDef.port =
-    typeof hostDef.params.port !== 'undefined'
-      ? parseInt(hostDef.params.port)
+  const paramPort = hostDef.params['port'];
+  const parsedPort =
+    typeof paramPort !== 'undefined' && paramPort !== null
+      ? parseInt(paramPort)
       : devMode && devServer.port
         ? devServer.port
         : parseInt(window.location.port);
-  hostDef.port = isNaN(hostDef.port) ? (hostDef.ssl ? 443 : 80) : hostDef.port;
+  hostDef.port = isNaN(parsedPort) ? (hostDef.ssl ? 443 : 80) : parsedPort;
   hostDef.url = `${hostDef.ssl ? 'https:' : 'http:'}//${hostDef.name}:${hostDef.port}`;
 }
 
@@ -89,7 +89,9 @@ export function readCookie(
   const tk = new Map<string, string>();
   cookies.split(';').forEach((i) => {
     const c = i.trim().split('=');
-    tk.set(c[0], c[1]);
+    const key = c[0];
+    if (key === undefined) return;
+    tk.set(key, c[1] ?? '');
   });
-  return tk.has(sel) ? tk.get(sel) : undefined;
+  return tk.get(sel);
 }

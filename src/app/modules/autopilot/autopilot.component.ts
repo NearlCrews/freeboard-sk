@@ -21,7 +21,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppFacade } from 'src/app/app.facade';
-import { SignalKClient } from 'src/lib/signalk-client';
 import { Convert } from 'src/app/lib/convert';
 import { AutopilotService } from './autopilot.service';
 
@@ -297,8 +296,7 @@ export class AutopilotComponent {
 
   protected modeOptions = signal<string[]>([]);
   protected stateOptions = signal<{ name: string; engaged: boolean }[]>([]);
-  private autopilotApiPath: string;
-  private currentPilot: string;
+  private currentPilot: string | undefined;
 
   apData = input<{
     default?: string;
@@ -326,7 +324,6 @@ export class AutopilotComponent {
     protected app: AppFacade,
     protected autopilot: AutopilotService
   ) {
-    this.autopilotApiPath = 'vessels/self/autopilots/_default';
     effect(() => {
       if (this.apData().default !== this.currentPilot) {
         this.app.debug(
@@ -338,6 +335,16 @@ export class AutopilotComponent {
         this.fetchAPOptions();
       }
     });
+  }
+
+  /** Narrow an unknown catch value to the HTTP-error shape used by AutopilotService responses. */
+  private toApiError(err: unknown): {
+    status?: number;
+    error?: { message?: string };
+  } {
+    return err && typeof err === 'object'
+      ? (err as { status?: number; error?: { message?: string } })
+      : {};
   }
 
   handleClose() {
@@ -354,7 +361,7 @@ export class AutopilotComponent {
       if (options.states && Array.isArray(options.states)) {
         this.stateOptions.set(options.states);
       }
-    } catch (err) {
+    } catch {
       this.modeOptions.set([]);
       this.stateOptions.set([]);
       this.app.showMessage('No autopilot providers found!');
@@ -363,10 +370,6 @@ export class AutopilotComponent {
 
   /** engage / disengage the pilot */
   protected async toggleEngaged() {
-    const uri = this.apData().enabled
-      ? `${this.autopilotApiPath}/disengage`
-      : `${this.autopilotApiPath}/engage`;
-
     try {
       if (this.apData().enabled) {
         await this.autopilot.disengage();
@@ -374,13 +377,14 @@ export class AutopilotComponent {
         await this.autopilot.engage();
       }
     } catch (error) {
+      const apiErr = this.toApiError(error);
       let msg = `Error setting Autopilot state!\n`;
-      if (error.status === 403) {
+      if (apiErr.status === 403) {
         msg += 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -393,12 +397,13 @@ export class AutopilotComponent {
     try {
       await this.autopilot.adjustTarget(value);
     } catch (error) {
-      if (error.status === 403) {
+      const apiErr = this.toApiError(error);
+      if (apiErr.status === 403) {
         const msg = 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -410,12 +415,13 @@ export class AutopilotComponent {
       await this.autopilot.dodge(this.apData().mode !== 'dodge');
       this.app.debug(`Set dodge mode.`);
     } catch (error) {
-      if (error.status === 403) {
+      const apiErr = this.toApiError(error);
+      if (apiErr.status === 403) {
         const msg = 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -426,12 +432,13 @@ export class AutopilotComponent {
     try {
       await this.autopilot.adjustDodge(value);
     } catch (error) {
-      if (error.status === 403) {
+      const apiErr = this.toApiError(error);
+      if (apiErr.status === 403) {
         const msg = 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -444,13 +451,14 @@ export class AutopilotComponent {
     try {
       await this.autopilot.mode(mode);
     } catch (error) {
+      const apiErr = this.toApiError(error);
       let msg = `Error setting Autopilot mode!\n`;
-      if (error.status === 403) {
+      if (apiErr.status === 403) {
         msg += 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -463,13 +471,14 @@ export class AutopilotComponent {
     try {
       await this.autopilot.state(state);
     } catch (error) {
+      const apiErr = this.toApiError(error);
       let msg = `Error setting Autopilot state!\n`;
-      if (error.status === 403) {
+      if (apiErr.status === 403) {
         msg += 'Unauthorised: Please login.';
-        this.app.showAlert(`Error (${error.status}):`, msg);
+        this.app.showAlert(`Error (${apiErr.status}):`, msg);
       } else {
         this.app.showMessage(
-          error.error?.message ?? 'Device returned an error!'
+          apiErr.error?.message ?? 'Device returned an error!'
         );
       }
     }
@@ -491,7 +500,7 @@ export class AutopilotComponent {
     return value ? value.toUpperCase() : '...';
   }
 
-  formatTargetValue(value: number) {
+  formatTargetValue(value: number | undefined) {
     if (typeof value === 'number') {
       return Convert.radiansToDegrees(value)?.toFixed(1);
     } else return '--';

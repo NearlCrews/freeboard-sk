@@ -379,17 +379,18 @@ export class WeatherForecastModal implements OnInit {
                   : '--';
 
               if (typeof v.wind !== 'undefined') {
-                forecastData.wind.speed =
+                const wind = forecastData.wind ?? (forecastData.wind = {});
+                wind.speed =
                   typeof v.wind.speedTrue !== 'undefined'
                     ? `${this.app.formatSpeed(v.wind.speedTrue, true)}`
                     : '--';
 
-                forecastData.wind.gust =
+                wind.gust =
                   typeof v.wind.gust !== 'undefined'
                     ? `${this.app.formatSpeed(v.wind.gust, true)}`
                     : '--';
 
-                forecastData.wind.direction =
+                wind.direction =
                   typeof v.wind.directionTrue !== 'undefined'
                     ? `${this.toCardinal(Convert.radiansToDegrees(v.wind.directionTrue))}`
                     : '--';

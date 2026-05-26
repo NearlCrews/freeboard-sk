@@ -5,16 +5,16 @@ import { AppFacade } from 'src/app/app.facade';
 
 // ** WDantuma classes
 export class SKRadarLegendEntry {
-  type: string;
-  color: string;
+  type = '';
+  color = '';
 }
 export class SKRadar {
-  id: string;
-  name: string;
-  spokes: number;
-  maxSpokeLen: number;
-  streamUrl: string;
-  legend: Record<string, SKRadarLegendEntry>;
+  id = '';
+  name = '';
+  spokes = 0;
+  maxSpokeLen = 0;
+  streamUrl = '';
+  legend: Record<string, SKRadarLegendEntry> = {};
 }
 
 // server-api /radars response
@@ -154,8 +154,9 @@ export class RadarAPIService {
       this.signalk.api.get(this.app.skApiVersion, this.basePath).subscribe(
         (val: SKRadar2[]) => {
           if (Array.isArray(val)) {
-            if (val.length && !this._defaultRadar()) {
-              this._defaultRadar.set(val[0].id);
+            const first = val[0];
+            if (first && !this._defaultRadar()) {
+              this._defaultRadar.set(first.id);
             }
             resolve(val);
           } else {

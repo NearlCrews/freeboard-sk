@@ -186,7 +186,7 @@ import { NotificationManager } from '../notification-manager';
   `
 })
 export class AlertListComponent {
-  alerts = input([]);
+  alerts = input<[string, AlertData][]>([]);
 
   readonly closed = output<void>();
 
@@ -234,6 +234,6 @@ export class AlertListComponent {
    * @returns svgIcon value
    */
   protected setIcon(alert: AlertData): string {
-    return getAlertIcon(alert).svgIcon;
+    return getAlertIcon(alert).svgIcon ?? '';
   }
 }

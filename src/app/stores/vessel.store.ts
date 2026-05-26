@@ -70,8 +70,8 @@ export class VesselStore {
       if (current.length === 0) {
         return current;
       }
-      const lastPoint = current.slice(-1)[0];
-      if (pt[0] === lastPoint[0] && pt[1] === lastPoint[1]) {
+      const lastPoint = current[current.length - 1];
+      if (!lastPoint || (pt[0] === lastPoint[0] && pt[1] === lastPoint[1])) {
         return current;
       }
       return [...current, pt];

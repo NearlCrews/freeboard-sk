@@ -17,6 +17,12 @@ interface SKAppsList {
   version: string;
 }
 
+interface AppListEntry {
+  name: string;
+  description: string;
+  url: string | null;
+}
+
 type ResourceTypeList = Record<
   string,
   {
@@ -242,26 +248,22 @@ export class SettingsOptions {
 
 @Injectable({ providedIn: 'root' })
 export class SettingsFacade {
-  applicationList = []; // installed webapp list
-  favouritesList = []; // favourite webapp selections
-  resourcePathList = []; // resource layer list
+  applicationList: (AppListEntry | string)[] = []; // installed webapp list
+  favouritesList: (AppListEntry | string)[] = []; // favourite webapp selections
+  resourcePathList: string[] = []; // resource layer list
   fixedPosition: Position = [0, 0];
 
   settings!: IAppConfig;
   data!: FBAppData;
 
   // Observables
-  protected changeEvent: Subject<string[]>;
-  public change$: Observable<string[]>;
+  protected changeEvent = new Subject<string[]>();
+  public change$: Observable<string[]> = this.changeEvent.asObservable();
 
   constructor(
     private app: AppFacade,
     public signalk: SignalKClient
   ) {
-    // ** initialise events
-    this.changeEvent = new Subject<string[]>();
-    this.change$ = this.changeEvent.asObservable();
-
     this.data = this.app.data;
     this.settings = this.app.config;
 
@@ -314,7 +316,7 @@ export class SettingsFacade {
     this.signalk.apps.list().subscribe(
       (a: SKAppsList[]) => {
         this.applicationList = a
-          .map((i) => {
+          .map((i): AppListEntry | null => {
             if (i.name === '@signalk/freeboard-sk') {
               return null;
             }
@@ -341,10 +343,9 @@ export class SettingsFacade {
                 url: i.location
               };
             }
+            return null;
           })
-          .filter((e) => {
-            return e;
-          });
+          .filter((e): e is AppListEntry => e !== null);
 
         this.applicationList.unshift({
           name: 'None',
@@ -363,9 +364,6 @@ export class SettingsFacade {
   /** Favourited plugins / apps */
   buildFavouritesList() {
     this.favouritesList = this.applicationList.slice(1);
-    const i = this.app.config.display.plugins.favourites.indexOf(
-      this.app.config.display.plugins.instruments
-    );
   }
 
   /** Apply / persist settings */

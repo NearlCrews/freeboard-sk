@@ -1,6 +1,7 @@
 // Vessel Icons
 
 import { AppIconSet } from './app.icons';
+import { MapIconDef } from '../map/ol/lib/map-image-registry.service';
 
 const VesselSelfIcons: AppIconSet = {
   path: './assets/img/vessels',
@@ -63,17 +64,16 @@ export const AIS_MOORED_STYLE_IDS: Record<string, [string, string]> = {
 /**
  * @description Build MapIcon definitions for use by MapImageRegistry
  */
-export const getVesselDefs = () => {
-  const vesselList = {};
+export const getVesselDefs = (): Record<string, MapIconDef> => {
+  const vesselList: Record<string, MapIconDef> = {};
 
   const addToList = (list: AppIconSet) => {
     list.files.forEach((file: string) => {
       const id = file.slice(0, file.indexOf('.'));
-      vesselList[id] = {
-        path: `${list.path}/${file}`,
-        scale: list.scale,
-        anchor: list.anchor
-      };
+      const def: MapIconDef = { path: `${list.path}/${file}` };
+      if (list.scale !== undefined) def.scale = list.scale;
+      if (list.anchor !== undefined) def.anchor = list.anchor;
+      vesselList[id] = def;
     });
   };
   addToList(VesselAisIcons);

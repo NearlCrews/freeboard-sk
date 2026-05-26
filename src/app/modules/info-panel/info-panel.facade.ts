@@ -1,6 +1,14 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SKResourceService, SKResourceType } from '../skresources';
 import {
+  SKChart,
+  SKNote,
+  SKRegion,
+  SKRoute,
+  SKTrack,
+  SKWaypoint
+} from '../skresources/resource-classes';
+import type {
   ChartResource,
   FBNote,
   FBRegion,
@@ -15,12 +23,12 @@ import {
 import { SKWorkerService } from '../skstream/skstream.service';
 
 type InfoPanelResource =
-  | RouteResource
-  | WaypointResource
-  | RegionResource
-  | NoteResource
-  | ChartResource
-  | TrackResource;
+  | SKRoute
+  | SKWaypoint
+  | SKRegion
+  | SKNote
+  | SKChart
+  | SKTrack;
 
 export interface InfoPanelItem {
   type: SKResourceType;
@@ -33,42 +41,51 @@ export class InfoPanelFacade {
   private _opened = signal<boolean>(false);
   readonly opened = this._opened.asReadonly();
 
-  private _item = signal<InfoPanelItem>(undefined);
+  private _item = signal<InfoPanelItem | undefined>(undefined);
   readonly item = this._item.asReadonly();
 
-  private _related = signal<string>(undefined);
+  private _related = signal<string | undefined>(undefined);
   readonly related = this._related.asReadonly();
 
   private worker = inject(SKWorkerService);
   private skres = inject(SKResourceService);
 
   constructor() {
-    // resources delta handler
     effect(() => {
-      const np = this.worker.resourceUpdate().path.split('.');
+      const update = this.worker.resourceUpdate();
+      const np = update.path.split('.');
       if (np.length !== 3) {
         return;
       }
-      if (np[1] === this._item()?.type && np[2] === this._item()?.id) {
-        if (!this.worker.resourceUpdate().value) {
-          // deleted
+      const collection = np[1];
+      const itemId = np[2];
+      const current = this._item();
+      if (current && collection === current.type && itemId === current.id) {
+        if (!update.value) {
           this.close();
         } else {
-          this._item.update((current) => {
-            current.resource = this.skres.transform(
+          this._item.set({
+            type: current.type,
+            id: current.id,
+            resource: this.skres.transform(
               current.type,
-              this.worker.resourceUpdate().value,
+              update.value as
+                | RouteResource
+                | WaypointResource
+                | RegionResource
+                | NoteResource
+                | ChartResource
+                | TrackResource,
               current.id
-            );
-            return current;
+            )
           });
         }
       }
       if (
-        np[1] === 'groups' ||
-        (np[1] === 'notes' && this._item()?.type !== 'notes')
+        collection === 'groups' ||
+        (collection === 'notes' && current?.type !== 'notes')
       ) {
-        this._related.set(`${np[1]}.${Date.now()}`);
+        this._related.set(`${collection}.${Date.now()}`);
       }
     });
   }
@@ -84,14 +101,11 @@ export class InfoPanelFacade {
     try {
       const r = await this.skres.fromServer(resourceType, id);
       if (r) {
-        this.openWith(resourceType, [
-          id,
-          this.skres.transform(resourceType, r, id) as any,
-          false
-        ]);
+        this._item.set({ type: resourceType, id, resource: r });
+        this._opened.set(true);
         return;
       }
-    } catch (err) {
+    } catch {
       return;
     }
   }

@@ -76,7 +76,7 @@ const WeatherStation: MapIconDef = {
 type AtoNGroup = Record<string, MapIconDef>;
 type AtoNList = Record<string, AtoNGroup>;
 
-export const getAtoNDefs = () => {
+export const getAtoNDefs = (): AtoNList => {
   const atonList: AtoNList = {};
 
   const addToList = (list: AppIconSet) => {
@@ -88,11 +88,10 @@ export const getAtoNDefs = () => {
         group = {};
         atonList[gid] = group;
       }
-      group[id] = {
-        path: `${list.path}/${file}`,
-        scale: list.scale,
-        anchor: list.anchor
-      };
+      const def: MapIconDef = { path: `${list.path}/${file}` };
+      if (list.scale !== undefined) def.scale = list.scale;
+      if (list.anchor !== undefined) def.anchor = list.anchor;
+      group[id] = def;
     });
   };
   addToList(AtoNsType1);

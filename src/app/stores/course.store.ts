@@ -3,6 +3,20 @@ import { Injectable, Signal, signal } from '@angular/core';
 import type { FBAppData } from 'src/app/types';
 
 /**
+ * FBAppData declares activeRoute, activeWaypoint, and editingId as `string`
+ * but app.config.ts initialises them to `null`. Until the canonical type is
+ * widened, this view describes the in-runtime shape the store actually sees.
+ */
+type FBAppDataMutable = Omit<
+  FBAppData,
+  'activeRoute' | 'activeWaypoint' | 'editingId'
+> & {
+  activeRoute: string | null;
+  activeWaypoint: string | null;
+  editingId: string | null;
+};
+
+/**
  * Phase 3 Batch 3: thin signal mirror of the active-course slice of
  * FBAppData (activeRoute, activeWaypoint, edit flags). Reads are signals so
  * downstream components can subscribe; writes route through both the signal
@@ -58,7 +72,8 @@ export class CourseStore {
     id: string | null,
     opts: { reversed?: boolean; circular?: boolean; editing?: boolean } = {}
   ): void {
-    data.activeRoute = id;
+    const view = data as FBAppDataMutable;
+    view.activeRoute = id;
     if (typeof opts.reversed === 'boolean') {
       data.activeRouteReversed = opts.reversed;
     }
@@ -73,24 +88,25 @@ export class CourseStore {
 
   /** Set the active waypoint id and mirror to FBAppData. */
   setActiveWaypoint(data: FBAppData, id: string | null): void {
-    data.activeWaypoint = id;
+    (data as FBAppDataMutable).activeWaypoint = id;
     this._activeWaypoint.set(id);
   }
 
   /** Set the in-edit resource id and mirror to FBAppData. */
   setEditingId(data: FBAppData, id: string | null): void {
-    data.editingId = id;
+    (data as FBAppDataMutable).editingId = id;
     this._editingId.set(id);
   }
 
   /** Clear all course-related state. */
   clear(data: FBAppData): void {
-    data.activeRoute = null;
-    data.activeWaypoint = null;
+    const view = data as FBAppDataMutable;
+    view.activeRoute = null;
+    view.activeWaypoint = null;
     data.activeRouteReversed = false;
     data.activeRouteCircular = false;
     data.activeRouteIsEditing = false;
-    data.editingId = null;
+    view.editingId = null;
     this.syncFromData(data);
   }
 }

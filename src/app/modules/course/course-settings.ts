@@ -32,6 +32,24 @@ import { Convert, TARGET_UNIT } from 'src/app/lib/convert';
 import { CourseService, SKStreamFacade } from 'src/app/modules';
 import { UpdateMessage } from 'src/app/types';
 
+interface CourseSettingsData {
+  title?: string;
+}
+
+interface FormChangeEvent {
+  targetElement?: { id?: string };
+  source?: { id?: string };
+  target?: { id?: string; value?: string | null };
+}
+
+interface ToggleChangeEvent {
+  checked: boolean;
+}
+
+interface CoursePutResponse {
+  targetArrivalTime?: string | null;
+}
+
 /********* Course Settings Modal ********
 	data: {
         title: "<string>" title text
@@ -193,11 +211,16 @@ import { UpdateMessage } from 'src/app/types';
   ]
 })
 export class CourseSettingsModal implements OnInit {
-  frmArrivalCircle: number;
+  frmArrivalCircle = 0;
   private destroyRef = inject(DestroyRef);
   protected targetArrivalEnabled = false;
   protected minDate = new Date();
-  protected arrivalData = {
+  protected arrivalData: {
+    hour: string;
+    minutes: string;
+    seconds: string;
+    datetime: Date | null;
+  } = {
     hour: '00',
     minutes: '00',
     seconds: '00',
@@ -215,25 +238,24 @@ export class CourseSettingsModal implements OnInit {
     private signalk: SignalKClient,
     protected course: CourseService,
     public modalRef: MatBottomSheetRef<CourseSettingsModal>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: CourseSettingsData
   ) {}
 
   ngOnInit() {
     if (this.data.title === 'undefined') {
       this.data.title = 'Course Settings';
     }
-    this.frmArrivalCircle =
-      this.course.courseData().arrivalCircle === null
-        ? 0
-        : this.course.courseData().arrivalCircle;
-    this.frmArrivalCircle =
-      this.app.config.units.distance === 'kilometer'
-        ? this.frmArrivalCircle
-        : Number(
-            Convert.transform(this.frmArrivalCircle, 'm', 'naut-mile').toFixed(
-              1
-            )
-          );
+    const arrivalCircle = this.course.courseData().arrivalCircle;
+    this.frmArrivalCircle = arrivalCircle ?? 0;
+    if (this.app.config.units.distance !== 'kilometer') {
+      const converted = Convert.transform(
+        this.frmArrivalCircle,
+        'm',
+        'naut-mile'
+      );
+      this.frmArrivalCircle =
+        converted === null ? 0 : Number(converted.toFixed(1));
+    }
 
     this.stream
       .delta$()
@@ -246,20 +268,15 @@ export class CourseSettingsModal implements OnInit {
 
     this.signalk.api
       .get(this.app.skApiVersion, 'vessels/self/navigation/course')
-      .subscribe((val) => {
+      .subscribe((val: CoursePutResponse) => {
         console.log(val.targetArrivalTime);
         if (val.targetArrivalTime) {
           this.targetArrivalEnabled = true;
-          this.arrivalData.datetime = new Date(val.targetArrivalTime);
-          this.arrivalData.hour = (
-            '00' + this.arrivalData.datetime.getHours()
-          ).slice(-2);
-          this.arrivalData.minutes = (
-            '00' + this.arrivalData.datetime.getMinutes()
-          ).slice(-2);
-          this.arrivalData.seconds = (
-            '00' + this.arrivalData.datetime.getSeconds()
-          ).slice(-2);
+          const dt = new Date(val.targetArrivalTime);
+          this.arrivalData.datetime = dt;
+          this.arrivalData.hour = ('00' + dt.getHours()).slice(-2);
+          this.arrivalData.minutes = ('00' + dt.getMinutes()).slice(-2);
+          this.arrivalData.seconds = ('00' + dt.getSeconds()).slice(-2);
         }
       });
   }
@@ -268,7 +285,7 @@ export class CourseSettingsModal implements OnInit {
     this.modalRef.dismiss();
   }
 
-  onFormChange(e) {
+  onFormChange(e: FormChangeEvent) {
     if (
       e.targetElement &&
       [
@@ -276,19 +293,25 @@ export class CourseSettingsModal implements OnInit {
         'arrivalHour',
         'arrivalMinutes',
         'arrivalSeconds'
-      ].includes(e.targetElement.id)
+      ].includes(e.targetElement.id ?? '')
     ) {
       this.processTargetArrival();
     }
     if (
       e.source &&
-      ['arrivalHour', 'arrivalMinutes', 'arrivalSeconds'].includes(e.source.id)
+      ['arrivalHour', 'arrivalMinutes', 'arrivalSeconds'].includes(
+        e.source.id ?? ''
+      )
     ) {
       this.processTargetArrival();
     }
     if (e.target && e.target.id === 'arrivalCircle') {
-      if (e.target.value !== '' && e.target.value !== null) {
-        let d =
+      if (
+        e.target.value !== '' &&
+        e.target.value !== null &&
+        e.target.value !== undefined
+      ) {
+        let d: number | null =
           this.app.config.units.distance === 'kilometer'
             ? Number(e.target.value)
             : Convert.nauticalMilesToKm(Number(e.target.value)) * 1000;
@@ -316,7 +339,7 @@ export class CourseSettingsModal implements OnInit {
     }
   }
 
-  toggleTargetArrival(e) {
+  toggleTargetArrival(e: ToggleChangeEvent) {
     this.targetArrivalEnabled = e.checked;
     if (!this.targetArrivalEnabled) {
       this.arrivalData.datetime = null;
@@ -366,24 +389,25 @@ export class CourseSettingsModal implements OnInit {
   }
 
   formatArrivalTime(): string {
-    let ts = '';
-    this.arrivalData.datetime.setHours(parseInt(this.arrivalData.hour));
-    this.arrivalData.datetime.setMinutes(parseInt(this.arrivalData.minutes));
-    this.arrivalData.datetime.setSeconds(parseInt(this.arrivalData.seconds));
-    ts = this.arrivalData.datetime.toISOString();
+    const dt = this.arrivalData.datetime;
+    if (!dt) return '';
+    dt.setHours(parseInt(this.arrivalData.hour));
+    dt.setMinutes(parseInt(this.arrivalData.minutes));
+    dt.setSeconds(parseInt(this.arrivalData.seconds));
+    const ts = dt.toISOString();
     return ts.slice(0, ts.indexOf('.')) + 'Z';
   }
 
-  hrValues() {
-    const v = [];
+  hrValues(): string[] {
+    const v: string[] = [];
     for (let i = 0; i < 24; i++) {
       v.push(('00' + i).slice(-2));
     }
     return v;
   }
 
-  minValues() {
-    const v = [];
+  minValues(): string[] {
+    const v: string[] = [];
     for (let i = 0; i < 59; i++) {
       v.push(('00' + i).slice(-2));
     }

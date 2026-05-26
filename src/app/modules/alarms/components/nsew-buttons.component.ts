@@ -69,7 +69,7 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class NSEWButtonsComponent {
-  @Input() disabled: boolean;
+  @Input() disabled = false;
   readonly direction = output<number>();
 
   constructor() {}

@@ -1,9 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
   ALARM_METHOD,
-  ALARM_STATE,
   NotificationMessage,
   PathValue,
   SKNotification
@@ -52,7 +50,7 @@ export class NotificationManager {
    * @description Emit signals
    */
   private emitSignals() {
-    const rankings = {
+    const rankings: Record<string, number> = {
       emergency: 1,
       alarm: 2,
       warn: 3,
@@ -62,8 +60,8 @@ export class NotificationManager {
     };
     // sort based on priority and time raised
     const alerts = Array.from(this.alertMap).sort((a, b) => {
-      const ra = rankings[a[1].priority];
-      const rb = rankings[b[1].priority];
+      const ra = rankings[a[1].priority] ?? 99;
+      const rb = rankings[b[1].priority] ?? 99;
       if (ra === rb) {
         return b[1].createdAt - a[1].createdAt;
       } else {
@@ -82,7 +80,8 @@ export class NotificationManager {
     // update closest vessel ids
     this.app.data.vessels.closest = alerts
       .filter((i) => i[1].type === 'cpa')
-      .map((i) => i[1].properties?.vesselId);
+      .map((i) => i[1].properties?.['vesselId'])
+      .filter((id): id is string => typeof id === 'string');
   }
 
   /**
@@ -117,69 +116,41 @@ export class NotificationManager {
       return;
     }
 
-    let alert: AlertData;
+    // Only Notifications API is supported on this branch; the legacy
+    // path is preserved as commented-out reference below.
+    if (!this.settings.featureFlags().notificationApi) {
+      return;
+    }
 
-    // Test for Notifications API
-    if (this.settings.featureFlags().notificationApi) {
-      const v: SKNotification = msg.value as SKNotification;
-      alert = {
-        id: v.id,
-        path: msg.path,
-        priority: v.state,
-        message: v.message,
-        sound: v.method.includes(ALARM_METHOD.sound),
-        visual: v.method.includes(ALARM_METHOD.visual),
-        properties: {},
-        acknowledged: v.status.acknowledged,
-        silenced: v.status.silenced,
-        icon: {},
-        type: undefined,
-        canAcknowledge: v.status.canAcknowledge,
-        canSilence: v.status.canSilence,
-        canCancel: v.status.canClear,
-        createdAt: v.createdAt ? new Date(v.createdAt).valueOf() : Date.now()
-      };
-    } /* else {
-      if (alertType === 'notification') {
-        return;
-      }
-      alert = this.alertMap.has(msg.path)
-        ? this.alertMap.get(msg.path)
-        : {
-            path: msg.path,
-            priority: ALARM_STATE.nominal,
-            message: '',
-            sound: false,
-            visual: true,
-            properties: {},
-            acknowledged: false,
-            silenced: false,
-            icon: {},
-            type: undefined,
-            canAcknowledge: true,
-            canCancel: false,
-            canSilence: true,
-            createdAt: Date.now()
-          };
-
-      alert.priority = (msg.value as SKNotification).state;
-      alert.message = (msg.value as SKNotification).message;
-      alert.sound = (msg.value as SKNotification).method.includes(
-        ALARM_METHOD.sound
-      );
-      alert.visual =
-        (msg.value as SKNotification).method.includes(ALARM_METHOD.visual) ||
-        ['perpendicularPassed', 'arrivalCircleEntered'].includes(alertType);
-      alert.canAcknowledge = ['emergency', 'alarm', 'warn'].includes(
-        alert.priority
-      );
-      alert.canCancel = this.isStandardAlarm(alert.type);
-    } */
+    const v = msg.value as SKNotification;
+    const status = v.status;
+    if (!status) {
+      return;
+    }
+    const alert: AlertData = {
+      path: msg.path,
+      priority: v.state,
+      message: v.message,
+      sound: v.method.includes(ALARM_METHOD.sound),
+      visual: v.method.includes(ALARM_METHOD.visual),
+      properties: {},
+      acknowledged: status.acknowledged,
+      silenced: status.silenced,
+      icon: {},
+      canAcknowledge: status.canAcknowledge,
+      canSilence: status.canSilence,
+      canCancel: status.canClear,
+      createdAt: v.createdAt ? new Date(v.createdAt).valueOf() : Date.now()
+    };
+    if (v.id !== undefined) {
+      alert.id = v.id;
+    }
 
     alert.type = alertType;
     alert.icon = getAlertIcon(alert);
-    if ((msg.value as any).position) {
-      alert.properties.position = (msg.value as any).position;
+    const valueObj = msg.value as { position?: unknown };
+    if (valueObj.position && alert.properties) {
+      alert.properties['position'] = valueObj.position;
     }
 
     if (['buddy'].includes(alertType)) {
@@ -205,25 +176,28 @@ export class NotificationManager {
    */
   private getAlertType(path: string): string {
     const seg = path.split('.');
+    const s1 = seg[1] ?? '';
+    const s2 = seg[2] ?? '';
+    const s3 = seg[3] ?? '';
     if (
-      this.isStandardAlarm(seg[1]) ||
+      this.isStandardAlarm(s1) ||
       path.includes('notifications.area') ||
       path.includes('notifications.buddy') ||
       path.includes('notifications.meteo.warning')
     ) {
-      return seg[1];
+      return s1;
     } else if (path.includes('notifications.navigation.closestApproach')) {
       return 'cpa';
     } else if (
       path.includes('notifications.environment.depth.') ||
       path.includes('notifications.navigation.anchor')
     ) {
-      return seg[2];
+      return s2;
     } else if (
       path.includes('notifications.navigation.course.perpendicularPassed') ||
       path.includes('notifications.navigation.course.arrivalCircleEntered')
     ) {
-      return seg[3];
+      return s3;
     } else {
       return 'notification';
     }
@@ -255,22 +229,23 @@ export class NotificationManager {
    * @param path Path of Alert
    * @returns AlertData object
    */
-  public getAlert(path: string): AlertData {
+  public getAlert(path: string): AlertData | undefined {
     const al = this.alerts().find((i) => i[0] === path);
     return al ? al[1] : undefined;
   }
 
   public showAlertInfo(path: string) {
-    if (!this.alertMap.has(path)) {
+    const alert = this.getAlert(path);
+    if (!alert) {
       this.alarm.showAlert('Alert', 'Alert not found!');
       return;
     }
     this.bottomSheet
       .open(AlertPropertiesModal, {
-        data: { alert: this.getAlert(path) }
+        data: { alert }
       })
       .afterDismissed()
-      .subscribe((action) => {
+      .subscribe(() => {
         // some action
       });
   }
@@ -280,24 +255,22 @@ export class NotificationManager {
    * @param path Path of the the alert to acknowledge
    */
   public acknowledge(path: string) {
-    if (this.alertMap.has(path)) {
-      if (this.settings.featureFlags().notificationApi) {
-        const alert = this.alertMap.get(path);
-        this.signalk.api
-          .post(
-            this.app.skApiVersion,
-            `notifications/${alert.id}/acknowledge`,
-            {}
-          )
-          .subscribe(
-            () => {
-              this.app.debug(`Acknowledged ${alert.id}, ${path}`);
-            },
-            (err: HttpErrorResponse) => {
-              this.alarm.parseHttpErrorResponse(err);
-            }
-          );
-      }
+    const alert = this.alertMap.get(path);
+    if (alert && this.settings.featureFlags().notificationApi) {
+      this.signalk.api
+        .post(
+          this.app.skApiVersion,
+          `notifications/${alert.id}/acknowledge`,
+          {}
+        )
+        .subscribe(
+          () => {
+            this.app.debug(`Acknowledged ${alert.id}, ${path}`);
+          },
+          (err: unknown) => {
+            this.alarm.parseHttpErrorResponse(err);
+          }
+        );
     }
   }
 
@@ -306,20 +279,18 @@ export class NotificationManager {
    * @param path Path of the the alert to silence
    */
   public silence(path: string) {
-    if (this.alertMap.has(path)) {
-      const alert = this.alertMap.get(path);
-      if (this.settings.featureFlags().notificationApi) {
-        this.signalk.api
-          .post(this.app.skApiVersion, `notifications/${alert.id}/silence`, {})
-          .subscribe(
-            () => {
-              this.app.debug(`Silenced ${alert.id}, ${path}`);
-            },
-            (err: HttpErrorResponse) => {
-              this.alarm.parseHttpErrorResponse(err);
-            }
-          );
-      }
+    const alert = this.alertMap.get(path);
+    if (alert && this.settings.featureFlags().notificationApi) {
+      this.signalk.api
+        .post(this.app.skApiVersion, `notifications/${alert.id}/silence`, {})
+        .subscribe(
+          () => {
+            this.app.debug(`Silenced ${alert.id}, ${path}`);
+          },
+          (err: unknown) => {
+            this.alarm.parseHttpErrorResponse(err);
+          }
+        );
     }
   }
 
@@ -334,7 +305,7 @@ export class NotificationManager {
           () => {
             this.app.debug(`Silenced All alerts`);
           },
-          (err: HttpErrorResponse) => {
+          (err: unknown) => {
             this.alarm.parseHttpErrorResponse(err);
           }
         );
@@ -346,20 +317,18 @@ export class NotificationManager {
    * @param path Path of the the alert to cancel
    */
   public clear(path: string) {
-    if (this.alertMap.has(path)) {
-      const alert = this.alertMap.get(path);
-      if (this.settings.featureFlags().notificationApi) {
-        this.signalk.api
-          .delete(this.app.skApiVersion, `notifications/${alert.id}`)
-          .subscribe(
-            () => {
-              this.app.debug(`Cleared ${alert.id}, ${path}`);
-            },
-            (err: HttpErrorResponse) => {
-              this.alarm.parseHttpErrorResponse(err);
-            }
-          );
-      }
+    const alert = this.alertMap.get(path);
+    if (alert && this.settings.featureFlags().notificationApi) {
+      this.signalk.api
+        .delete(this.app.skApiVersion, `notifications/${alert.id}`)
+        .subscribe(
+          () => {
+            this.app.debug(`Cleared ${alert.id}, ${path}`);
+          },
+          (err: unknown) => {
+            this.alarm.parseHttpErrorResponse(err);
+          }
+        );
     }
   }
 
@@ -372,10 +341,10 @@ export class NotificationManager {
       this.signalk.api
         .post(this.app.skApiVersion, `notifications/mob`, { message: message })
         .subscribe(
-          (r) => {
+          (r: { id?: string }) => {
             this.app.debug(`MOB Alarm raised (${r.id})`);
           },
-          (err: HttpErrorResponse) => {
+          (err: unknown) => {
             this.alarm.parseHttpErrorResponse(err);
           }
         );
@@ -395,7 +364,7 @@ export class NotificationManager {
           () => {
             this.app.debug(`Cleared ${alert.id}`);
           },
-          (err: HttpErrorResponse) => {
+          (err: unknown) => {
             this.alarm.parseHttpErrorResponse(err);
           }
         );
@@ -403,9 +372,10 @@ export class NotificationManager {
   }
 
   // parse ClosestApproach message data
-  private parseCpa(msg: any) {
+  private parseCpa(msg: unknown): Record<string, unknown> {
+    const m = msg as { other?: unknown } | null;
     return {
-      vesselId: msg.other ?? undefined
+      vesselId: m?.other ?? undefined
     };
   }
 }

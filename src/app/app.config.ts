@@ -18,7 +18,7 @@ export function validateConfig(settings: IAppConfig): boolean {
 // clean loaded app config
 export function cleanConfig(
   settings: IAppConfig,
-  hostParams: { [key: string]: unknown }
+  hostParams: Record<string, unknown>
 ) {
   /** v2 formatting */
   if (typeof settings.ui === 'undefined') {
@@ -313,7 +313,7 @@ export function cleanConfig(
       aisState: [],
       resourceSets: {},
       infolayers: null
-    };
+    } as unknown as IAppConfig['selections'];
   }
 
   if (typeof settings.selections.aisTargetTypes === 'undefined') {
@@ -347,22 +347,21 @@ export function cleanConfig(
   }
 
   // apply url params
-  if (typeof hostParams.northup !== 'undefined') {
-    settings.ui.mapNorthUp = hostParams.northup === '0' ? false : true;
+  if (typeof hostParams['northup'] !== 'undefined') {
+    settings.ui.mapNorthUp = hostParams['northup'] === '0' ? false : true;
   }
-  if (typeof hostParams.movemap !== 'undefined') {
-    settings.ui.mapMove = hostParams.movemap === '0' ? false : true;
+  if (typeof hostParams['movemap'] !== 'undefined') {
+    settings.ui.mapMove = hostParams['movemap'] === '0' ? false : true;
   }
-  if (hostParams.zoom) {
+  const zoomParam = hostParams['zoom'];
+  if (typeof zoomParam === 'string' && zoomParam.length > 0) {
     try {
-      const z = parseInt(hostParams.zoom as string);
+      const z = parseInt(zoomParam);
       if (!isNaN(z)) {
         settings.map.zoomLevel = z > 28 ? 28 : z < 1 ? 1 : z;
       }
-    } catch (error) {
-      console.warn(
-        `Invalid zoom level parameter (${hostParams.zoom} supplied!`
-      );
+    } catch {
+      console.warn(`Invalid zoom level parameter (${zoomParam}) supplied!`);
     }
   }
 }
@@ -517,6 +516,10 @@ export function defaultConfig(): IAppConfig {
       rodeLength: 50 // rode length setting
     },
     experiments: false,
+    // selections.aisTargets and selections.infolayers are declared non-nullable
+    // in IAppConfig but boot defaults are intentionally null (no saved selection
+    // yet). cleanConfig normalises them on load. The cast preserves the on-the-
+    // wire shape until the .d.ts can be narrowed in a follow-up phase.
     selections: {
       routes: [],
       waypoints: [],
@@ -531,12 +534,16 @@ export function defaultConfig(): IAppConfig {
       aisState: [], // list of ais state values used to filter targets
       resourceSets: {}, // additional resources
       infolayers: null
-    }
+    } as unknown as IAppConfig['selections']
   };
 }
 
 // initialise state data
 export function initData(): FBAppData {
+  // FBAppData declares many string and reference fields as non-nullable, but at
+  // first boot they really are null (no self vessel, no server data, no active
+  // route). The cast preserves the on-the-wire shape until the .d.ts can be
+  // narrowed in a follow-up phase.
   return {
     loginRequired: false,
     chartBounds: {
@@ -578,7 +585,7 @@ export function initData(): FBAppData {
     racing: {
       startLine: []
     }
-  };
+  } as unknown as FBAppData;
 }
 
 // process url tokens from settings

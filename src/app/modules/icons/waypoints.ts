@@ -2,6 +2,7 @@
 
 import { AppIconSet } from './app.icons';
 import { AtoNsType1 } from './atons';
+import { MapIconDef } from '../map/ol/lib/map-image-registry.service';
 
 const WaypointMarkerIcons: AppIconSet = {
   path: './assets/img/waypoints',
@@ -26,22 +27,22 @@ export const WaypointIcons: AppIconSet = {
 /**
  * @description Build MapIcon definitions for use by MapImageRegistry
  */
-export const getWaypointDefs = () => {
-  const waypointList = {};
+export const getWaypointDefs = (): Record<string, MapIconDef> => {
+  const waypointList: Record<string, MapIconDef> = {};
 
   const addToList = (list: AppIconSet) => {
     list.files.forEach((file: string) => {
       const id = file.slice(0, file.indexOf('.'));
-      waypointList[id] = {
-        path: `${list.path}/${file}`,
-        scale: list.scale,
-        anchor: list.anchor
-      };
+      const def: MapIconDef = { path: `${list.path}/${file}` };
+      if (list.scale !== undefined) def.scale = list.scale;
+      if (list.anchor !== undefined) def.anchor = list.anchor;
+      waypointList[id] = def;
     });
   };
   addToList(WaypointMarkerIcons);
   addToList(WaypointIcons);
   addToList(AtoNsType1);
-  waypointList['default'] = waypointList['waypoint'];
+  const fallback = waypointList['waypoint'];
+  if (fallback) waypointList['default'] = fallback;
   return waypointList;
 };

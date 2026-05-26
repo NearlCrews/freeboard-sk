@@ -162,7 +162,8 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
    * @param url Chart url
    */
   protected isLocal(url: string): string {
-    return url && url.includes(this.app.hostDef.name) ? 'map' : 'language';
+    const host = this.app.hostDef.name;
+    return url && host && url.includes(host) ? 'map' : 'language';
   }
 
   /** Handle selection change triggered externally */
