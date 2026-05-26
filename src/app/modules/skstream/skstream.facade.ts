@@ -42,8 +42,8 @@ export class SKStreamFacade {
   // **************** SIGNALS ***********************************
   private anchorSignal = signal<{
     maxRadius?: number;
-    radius?: number;
-    position?: Position;
+    radius?: number | null;
+    position?: Position | null;
   }>({});
   readonly selfAnchor = this.anchorSignal.asReadonly();
 
@@ -136,17 +136,17 @@ export class SKStreamFacade {
     this.worker.close();
   }
 
-  post(msg) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  post(msg: any) {
     this.worker.postMessage(msg);
   }
 
   // ** open Signal K Stream
   open(options?: StreamOptions) {
+    const wsBase = this.signalk.server.endpoints?.['v1']?.['signalk-ws'];
+    if (!wsBase) return;
     if (options && options.startTime) {
-      const url = this.signalk.server.endpoints.v1['signalk-ws'].replace(
-        'stream',
-        'playback'
-      );
+      const url = wsBase.replace('stream', 'playback');
       this.worker.postMessage({
         cmd: 'open',
         options: {
@@ -161,7 +161,7 @@ export class SKStreamFacade {
       this.worker.postMessage({
         cmd: 'open',
         options: {
-          url: this.signalk.server.endpoints.v1['signalk-ws'],
+          url: wsBase,
           subscribe: 'none',
           token: null
         }
@@ -271,7 +271,7 @@ export class SKStreamFacade {
    * Refresh the aisLifecycle().updated list.
    */
   aisTargetUpdated() {
-    const av = [];
+    const av: string[] = [];
     this.app.data.vessels.aisTargets.forEach((v, k) => {
       av.push(k);
     });
@@ -306,7 +306,9 @@ export class SKStreamFacade {
 
       // ** update active vessel map display **
       this.app.data.vessels.active = this.app.data.vessels.activeId
-        ? this.app.data.vessels.aisTargets.get(this.app.data.vessels.activeId)
+        ? (this.app.data.vessels.aisTargets.get(
+            this.app.data.vessels.activeId
+          ) ?? this.app.data.vessels.self)
         : this.app.data.vessels.self;
 
       // process AtoNs

@@ -597,6 +597,7 @@ export class SignalKDeltaProcessor {
     }
     if (
       obj.positionReceived &&
+      obj.position &&
       GeoUtils.inBounds(obj.position, this.targetExtent)
     ) {
       this.targetStatus.updated[context] = true;
@@ -630,6 +631,7 @@ export class SignalKDeltaProcessor {
     if (this.extRecalcCounter === 0) {
       if (
         this.vessels.self.positionReceived &&
+        this.vessels.self.position &&
         this.targetFilter?.signalk['maxRadius']
       ) {
         this.targetExtent = GeoUtils.calcMapifiedExtent(
@@ -715,13 +717,13 @@ export class SignalKDeltaProcessor {
           const p = v.path.split('.').slice(3).join('.');
           d.courseCalcs[p] = v.value;
         } else if (v.path.includes('activeRoute')) {
-          d.courseApi.activeRoute = v.value;
+          d.courseApi['activeRoute'] = v.value;
         } else if (v.path.includes('nextPoint')) {
-          d.courseApi.nextPoint = v.value;
+          d.courseApi['nextPoint'] = v.value;
         } else if (v.path.includes('previousPoint')) {
-          d.courseApi.previousPoint = v.value;
+          d.courseApi['previousPoint'] = v.value;
         } else if (v.path.includes('arrivalCircle')) {
-          d.courseApi.arrivalCircle = v.value;
+          d.courseApi['arrivalCircle'] = v.value;
         }
       }
       const cp = v.path.includes('course')
@@ -1093,18 +1095,19 @@ export class SignalKDeltaProcessor {
   }
 
   private appendTrack(d: SKAircraft | SKVessel): void {
-    if (d.track && d.track.length === 0) {
-      d.track.push([d.position]);
+    if (!d.position) return;
+    const pos = d.position;
+    if (d.track.length === 0) {
+      d.track.push([pos]);
     } else {
-      const l = d.track[d.track.length - 1].length;
-      const lastPoint = d.track[d.track.length - 1][l - 1];
-      if (lastPoint[0] !== d.position[0] && lastPoint[1] !== d.position[1]) {
-        d.track[d.track.length - 1].push(d.position);
+      const lastSegment = d.track[d.track.length - 1]!;
+      const lastPoint = lastSegment[lastSegment.length - 1]!;
+      if (lastPoint[0] !== pos[0] && lastPoint[1] !== pos[1]) {
+        lastSegment.push(pos);
       }
     }
-    d.track[d.track.length - 1] = d.track[d.track.length - 1].slice(
-      0 - this.aisMgr.maxTrack
-    );
+    const lastIdx = d.track.length - 1;
+    d.track[lastIdx] = d.track[lastIdx]!.slice(0 - this.aisMgr.maxTrack);
   }
 
   // ************ AIS track refresh ************

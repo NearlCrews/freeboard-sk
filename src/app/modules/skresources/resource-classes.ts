@@ -188,7 +188,7 @@ class SKTargetBase {
   positionReceived = false;
   positionTimestamp = '';
   state = '';
-  type: { id: number; name: string } = { id: -1, name: '' };
+  type: { id: number | null; name: string } = { id: -1, name: '' };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any> = {};
   lastUpdated = new Date();
@@ -199,10 +199,25 @@ class SKTargetBase {
 }
 
 // ** Vessel Data **
+
+type Nullable<T> = T | null;
+
 export class SKVessel extends SKTargetBase {
   // stream sourced attributes
-  anchor = { maxRadius: null, radius: null, position: null };
-  autopilot = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  anchor: { maxRadius: any; radius: any; position: any } = {
+    maxRadius: null,
+    radius: null,
+    position: null
+  };
+  autopilot: {
+    state: Nullable<string>;
+    mode: Nullable<string>;
+    target: Nullable<number>;
+    enabled: boolean;
+    default: Nullable<string>;
+    availableActions: string[];
+  } = {
     state: null,
     mode: null,
     target: null,
@@ -211,42 +226,63 @@ export class SKVessel extends SKTargetBase {
     availableActions: []
   };
   buddy = false;
-  closestApproach = {
+  closestApproach: {
+    distance: Nullable<number>;
+    timeTo: Nullable<number>;
+  } = {
     distance: null,
     timeTo: null
   };
-  cog: number;
-  cogTrue: number = null;
-  cogMagnetic: number = null;
-  courseApi = {
+  cog: Nullable<number> = null;
+  cogTrue: Nullable<number> = null;
+  cogMagnetic: Nullable<number> = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  courseApi: Record<string, any> = {
     arrivalCircle: 0,
     activeRoute: {},
     nextPoint: {},
     previousPoint: {}
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   courseCalcs: Record<string, any> = {};
-  distanceToSelf: number;
-  environment = {
-    mode: null, // day | night
-    sun: null // dawn| sunrise | day | sunset | dusk | night
+  distanceToSelf: Nullable<number> = null;
+  environment: {
+    mode: Nullable<string>;
+    sun: Nullable<string>;
+  } = {
+    mode: null,
+    sun: null
   };
-  heading: number;
-  headingTrue: number = null;
-  headingMagnetic: number = null;
-  performance = {
+  heading: Nullable<number> = null;
+  headingTrue: Nullable<number> = null;
+  headingMagnetic: Nullable<number> = null;
+  performance: {
+    beatAngle: Nullable<number>;
+    gybeAngle: Nullable<number>;
+  } = {
     beatAngle: null,
     gybeAngle: null
   };
-  racing: Record<string, string>;
+  racing: Record<string, string> = {};
   registrations: Record<string, string> = {};
-  resourceUpdates = []; // resource deltas
-  sog: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  resourceUpdates: any[] = []; // resource deltas
+  sog: Nullable<number> = null;
   track: Position[][] = [];
-  vectors = {
-    cog: [] // cog vector
+  vectors: { cog: Position[] } = {
+    cog: []
   };
-  cogVecKey: [number, number, number, number] | null = null; // [lon, lat, cog, cvlen] of last vectors.cog compute
-  wind = {
+  cogVecKey: [number, number, number, number] | null = null;
+  wind: {
+    direction: Nullable<number>;
+    mwd: Nullable<number>;
+    twd: Nullable<number>;
+    tws: Nullable<number>;
+    speedTrue: Nullable<number>;
+    sog: Nullable<number>;
+    awa: Nullable<number>;
+    aws: Nullable<number>;
+  } = {
     direction: null,
     mwd: null,
     twd: null,
@@ -258,7 +294,8 @@ export class SKVessel extends SKTargetBase {
   };
 
   // http api sourced attributes
-  design = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  design: Record<string, any> = {
     airHeight: null,
     beam: null,
     draft: {
@@ -267,12 +304,15 @@ export class SKVessel extends SKTargetBase {
     },
     length: null
   };
-  destination = {
+  destination: {
+    name: Nullable<string>;
+    eta: Nullable<string>;
+  } = {
     name: null,
     eta: null
   };
-  flag: string;
-  port: string;
+  flag = '';
+  port = '';
 }
 
 // ** SaR class **

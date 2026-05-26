@@ -60,13 +60,16 @@ import {
   SKMeteo
 } from 'src/app/modules/skresources/resource-classes';
 
-type AisIds = Array<string>;
+type AisIds = string[];
 
 interface WorkerMessageBase {
   action: string;
   playback: boolean;
-  result: ResultPayload | PathValue;
-  self: string;
+  // result is heterogeneous across delta/notification/resource messages;
+  // call sites narrow. Tightening to a closed union is Phase 6 work.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any;
+  self: string | null;
   timestamp: string;
 }
 
@@ -84,7 +87,7 @@ export interface ResultPayload {
     stale: AisIds;
     expired: AisIds;
   };
-  paths: { [key: string]: string };
+  paths: Record<string, string | null>;
   atons: Map<string, SKAtoN>;
   aircraft: Map<string, SKAircraft>;
   sar: Map<string, SKSaR>;
@@ -94,8 +97,9 @@ export interface ResultPayload {
 export class NotificationMessage implements WorkerMessageBase {
   action = 'notification';
   playback = false;
-  result = null;
-  self = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any = null;
+  self: string | null = null;
   timestamp = new Date().toISOString();
   sourceRef!: string;
 }
@@ -103,10 +107,11 @@ export class NotificationMessage implements WorkerMessageBase {
 export class UpdateMessage implements WorkerMessageBase {
   action: string;
   playback = false;
-  result = null;
-  timestamp: string;
-  self = null;
-  watchDogAlarm: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any = null;
+  timestamp = '';
+  self: string | null = null;
+  watchDogAlarm = false;
 
   constructor() {
     this.action = 'update';

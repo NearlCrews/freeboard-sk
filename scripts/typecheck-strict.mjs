@@ -20,7 +20,12 @@ import { spawnSync } from 'node:child_process';
 // src/app/modules/skresources/ per the roadmap; until each lands, the
 // LEGACY_PREFIXES list stays narrow so a regression in app code under
 // src/app/ does not silently pass the gate.
-const NEW_PREFIXES = ['src/lib/', 'src/types/', 'src/app/lib/'];
+const NEW_PREFIXES = [
+  'src/lib/',
+  'src/types/',
+  'src/app/lib/',
+  'src/app/modules/skstream/'
+];
 const LEGACY_PREFIXES = [];
 
 const RAW = process.argv.includes('--raw');
