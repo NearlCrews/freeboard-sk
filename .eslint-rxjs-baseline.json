@@ -1,6 +1,6 @@
 {
   "//": "Phase 0 monotonic-decrease baseline. See scripts/verify-baseline.mjs.",
-  "seededAt": "2026-05-25",
+  "seededAt": "2026-05-26",
   "totalViolations": 26,
   "fileCount": 13,
   "perFile": {

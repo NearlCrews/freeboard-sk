@@ -64,8 +64,8 @@ export class GeoUtils {
     // ol/sphere.offset uses WGS84 mean radius (6371008.8 m) vs. geolib's
     // legacy 6378137 m. The ~0.11% difference is sub-meter for typical
     // navigation ranges and well below display precision.
-    const pt = offset(src, distance, bearing);
-    return [pt[0], pt[1]];
+    const pt = offset(src as [number, number], distance, bearing);
+    return [pt[0]!, pt[1]!];
   }
 
   /** Calculate the great circle distance between two points in metres **/
@@ -80,7 +80,7 @@ export class GeoUtils {
   static routeLength(points: Position[]) {
     let total = 0;
     for (let i = 1; i < points.length; ++i) {
-      total += getDistance(points[i - 1], points[i]);
+      total += getDistance(points[i - 1]!, points[i]!);
     }
     return total;
   }
@@ -100,8 +100,8 @@ export class GeoUtils {
     const legs = [];
     if (vessel) {
       legs.push({
-        bearing: GeoUtils.greatCircleBearing(vessel, points[0]),
-        distance: GeoUtils.distanceTo(vessel, points[0])
+        bearing: GeoUtils.greatCircleBearing(vessel, points[0]!),
+        distance: GeoUtils.distanceTo(vessel, points[0]!)
       });
     } else {
       legs.push({
@@ -110,11 +110,12 @@ export class GeoUtils {
       });
     }
     for (let i = 1; i < points.length; ++i) {
-      const l = {
-        bearing: GeoUtils.greatCircleBearing(points[i - 1], points[i]),
-        distance: GeoUtils.distanceTo(points[i - 1], points[i])
-      };
-      legs.push(l);
+      const prev = points[i - 1]!;
+      const curr = points[i]!;
+      legs.push({
+        bearing: GeoUtils.greatCircleBearing(prev, curr),
+        distance: GeoUtils.distanceTo(prev, curr)
+      });
     }
     return legs;
   }
@@ -139,11 +140,12 @@ export class GeoUtils {
     } = { index: -1, distance: -1 };
 
     for (let i = 0; i < points.length; ++i) {
-      const bearing = GeoUtils.greatCircleBearing(vessel, points[i]);
+      const pt = points[i]!;
+      const bearing = GeoUtils.greatCircleBearing(vessel, pt);
       const a = Angle.difference(heading, bearing);
       // if forward of vessel
       if (a > -90 && a < 90) {
-        const distance = GeoUtils.distanceTo(vessel, points[i]);
+        const distance = GeoUtils.distanceTo(vessel, pt);
         if (closest.distance === -1 || distance < closest.distance) {
           closest.distance = distance;
           closest.index = i;
@@ -233,7 +235,7 @@ export class GeoUtils {
     const sec0 = min0.toString().split('.');
     const secRaw = Number(`0.${sec0[1] ?? 0}`) * 60;
     const secRounded = Math.round(secRaw * 10000) / 10000;
-    const [secPreDec, secDec = '0'] = secRounded.toString().split('.');
+    const [secPreDec = '0', secDec = '0'] = secRounded.toString().split('.');
     return `${deg}° ${min
       .toString()
       .padStart(2, '0')}' ${secPreDec.padStart(2, '0')}.${secDec.padEnd(
@@ -256,7 +258,7 @@ export class GeoUtils {
     // Extent is an axis-aligned bbox in lon/lat, so a direct bbox test via
     // ol/extent.containsCoordinate is equivalent to ray-casting against the
     // rectangular polygon geolib was given and is materially faster.
-    return containsCoordinate(extent, point);
+    return containsCoordinate(extent, point as [number, number]);
   }
 
   // returns mapified extent centered at point with boundary radius meters from center
@@ -330,29 +332,35 @@ export class GeoUtils {
     };
   }
 
-  // ensure -180<coords<180
-  static normaliseCoords(coords: Position); // Point
-  static normaliseCoords(coords: Position[]); //LineString
-  static normaliseCoords(coords: Position[][]); // MultiLineString
-  static normaliseCoords(coords) {
+  // ensure -180 < coords < 180
+  static normaliseCoords(coords: Position): Position; // Point
+  static normaliseCoords(coords: Position[]): Position[]; // LineString
+  static normaliseCoords(coords: Position[][]): Position[][]; // MultiLineString
+  static normaliseCoords(
+    coords: Position | Position[] | Position[][]
+  ): Position | Position[] | Position[][] {
     if (!Array.isArray(coords)) {
       return [0, 0];
     }
     if (typeof coords[0] === 'number') {
-      if (coords[0] > 180) {
-        while (coords[0] > 180) {
-          coords[0] = coords[0] - 360;
+      const point = coords as Position;
+      if (point[0] > 180) {
+        while (point[0] > 180) {
+          point[0] = point[0] - 360;
         }
-      } else if (coords[0] < -180) {
-        while (coords[0] < -180) {
-          coords[0] = 360 + coords[0];
+      } else if (point[0] < -180) {
+        while (point[0] < -180) {
+          point[0] = 360 + point[0];
         }
       }
-      return coords;
-    } else if (Array.isArray(coords[0])) {
-      coords.forEach((c) => (c = this.normaliseCoords(c)));
-      return coords;
+      return point;
     }
+    if (Array.isArray(coords[0])) {
+      const arr = coords as Position[] | Position[][];
+      arr.forEach((c) => GeoUtils.normaliseCoords(c as Position));
+      return arr;
+    }
+    return coords;
   }
 }
 

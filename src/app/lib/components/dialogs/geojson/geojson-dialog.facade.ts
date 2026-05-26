@@ -57,7 +57,7 @@ export class GeoJSONLoadFacade {
         return null;
       }
       // ** check each feature schema
-      data.features.forEach((f) => {
+      data.features.forEach((f: any) => {
         if (f.type && f.type === 'Feature' && f.geometry && f.geometry.type) {
           if (!f.properties) {
             f.properties = {};
@@ -75,7 +75,7 @@ export class GeoJSONLoadFacade {
     this.errorCount = 0;
     this.subCount = 0;
 
-    data.features.forEach((f) => {
+    data.features.forEach((f: any) => {
       if (f.type && f.type === 'Feature' && f.geometry && f.geometry.type) {
         switch (f.geometry.type) {
           case 'LineString': // route
@@ -114,16 +114,16 @@ export class GeoJSONLoadFacade {
       f.properties = {};
     }
 
-    if (typeof f.properties.name !== 'undefined') {
-      r.name = f.properties.name ?? '';
-      delete f.properties.name;
+    if (typeof f.properties['name'] !== 'undefined') {
+      r.name = f.properties['name'] ?? '';
+      delete f.properties['name'];
     } else {
       r.name = `rte-${Date.now()}`;
     }
 
-    if (typeof f.properties.description !== 'undefined') {
-      r.description = f.properties.description ?? '';
-      delete f.properties.description;
+    if (typeof f.properties['description'] !== 'undefined') {
+      r.description = f.properties['description'] ?? '';
+      delete f.properties['description'];
     } else {
       r.description = 'GeoJSON import';
     }
@@ -134,7 +134,7 @@ export class GeoJSONLoadFacade {
     this.signalk.api
       .post(this.app.skApiVersion, `/resources/routes`, r)
       .subscribe(
-        (r) => {
+        (r: any) => {
           this.subCount--;
           if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Route added.');
@@ -159,16 +159,16 @@ export class GeoJSONLoadFacade {
       f.properties = {};
     }
 
-    if (typeof f.properties.name !== 'undefined') {
-      w.name = f.properties.name ?? '';
-      delete f.properties.name;
+    if (typeof f.properties['name'] !== 'undefined') {
+      w.name = f.properties['name'] ?? '';
+      delete f.properties['name'];
     } else {
       w.name = `wpt-${Date.now()}`;
     }
 
-    if (typeof f.properties.description !== 'undefined') {
-      w.description = f.properties.description ?? '';
-      delete f.properties.description;
+    if (typeof f.properties['description'] !== 'undefined') {
+      w.description = f.properties['description'] ?? '';
+      delete f.properties['description'];
     } else {
       w.description = 'GeoJSON import';
     }
@@ -179,7 +179,7 @@ export class GeoJSONLoadFacade {
     this.signalk.api
       .post(this.app.skApiVersion, `/resources/waypoints`, w)
       .subscribe(
-        (r) => {
+        (r: any) => {
           this.subCount--;
           if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Waypoint added.');
@@ -201,13 +201,13 @@ export class GeoJSONLoadFacade {
     if (!f.properties) {
       f.properties = {};
     }
-    f.properties.name =
-      typeof f.properties.name !== 'undefined'
-        ? (f.properties.name ?? '')
+    f.properties['name'] =
+      typeof f.properties['name'] !== 'undefined'
+        ? (f.properties['name'] ?? '')
         : `trk-${Date.now()}`;
-    f.properties.description =
-      typeof f.properties.description !== 'undefined'
-        ? (f.properties.description ?? '')
+    f.properties['description'] =
+      typeof f.properties['description'] !== 'undefined'
+        ? (f.properties['description'] ?? '')
         : 'GeoJSON import';
 
     const r = new SKTrack({ feature: f });
@@ -215,7 +215,7 @@ export class GeoJSONLoadFacade {
     this.signalk.api
       .post(this.app.skApiVersion, `/resources/tracks`, r)
       .subscribe(
-        (r) => {
+        (r: any) => {
           this.subCount--;
           if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Track added.');
@@ -239,16 +239,16 @@ export class GeoJSONLoadFacade {
     if (!f.properties) {
       f.properties = {};
     }
-    if (typeof f.properties.name !== 'undefined') {
-      r.name = f.properties.name ?? '';
-      delete f.properties.name;
+    if (typeof f.properties['name'] !== 'undefined') {
+      r.name = f.properties['name'] ?? '';
+      delete f.properties['name'];
     } else {
       r.name = `reg-${Date.now()}`;
     }
 
-    if (typeof f.properties.description !== 'undefined') {
-      r.description = f.properties.description ?? '';
-      delete f.properties.description;
+    if (typeof f.properties['description'] !== 'undefined') {
+      r.description = f.properties['description'] ?? '';
+      delete f.properties['description'];
     } else {
       r.description = 'GeoJSON import';
     }
@@ -258,7 +258,7 @@ export class GeoJSONLoadFacade {
     this.signalk.api
       .post(this.app.skApiVersion, `/resources/regions`, r)
       .subscribe(
-        (r) => {
+        (r: any) => {
           this.subCount--;
           if (r.state === 'COMPLETED') {
             this.app.debug('SUCCESS: GeoJSON Region added.');

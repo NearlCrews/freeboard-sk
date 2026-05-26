@@ -1,11 +1,13 @@
 {
   "//": "Phase 0 monotonic-decrease baseline. See scripts/verify-baseline.mjs.",
-  "seededAt": "2026-05-25",
-  "totalViolations": 146,
-  "fileCount": 46,
+  "seededAt": "2026-05-26",
+  "totalViolations": 157,
+  "fileCount": 48,
   "perFile": {
     "src/app/app.component.ts": 3,
     "src/app/app.config.ts": 9,
+    "src/app/lib/components/dialogs/geojson/geojson-dialog.facade.ts": 6,
+    "src/app/lib/components/dialogs/geojson/geojson-dialog.ts": 5,
     "src/app/lib/file-xml2json.ts": 1,
     "src/app/lib/services/indexeddb.ts": 1,
     "src/app/modules/alarms/anchor.service.ts": 1,
