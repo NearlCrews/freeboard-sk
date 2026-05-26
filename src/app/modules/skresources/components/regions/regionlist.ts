@@ -114,7 +114,7 @@ export class RegionListComponent
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -213,12 +213,12 @@ export class RegionListComponent
               await this.skgroups.addToGroup(selGrp.id, 'region', id);
               this.app.showMessage(`Region added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.app.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 }

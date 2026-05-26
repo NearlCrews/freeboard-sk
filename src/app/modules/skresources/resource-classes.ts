@@ -70,7 +70,7 @@ export class SKWaypoint {
 export class SKNote {
   name = '';
   description = '';
-  position: SKPosition = { latitude: 0, longitude: 0 };
+  position?: SKPosition;
   href = '';
   mimeType = '';
   url = '';
@@ -88,7 +88,6 @@ export class SKNote {
       this.href = note.href ?? '';
       this.mimeType = note.mimeType ?? '';
       this.url = note.url ?? '';
-      // ca reports
       this.group = note.group ?? '';
       this.authors = Array.isArray(note.authors) ? note.authors : [];
       this.properties =
@@ -130,7 +129,7 @@ export class SKChart {
   region = '';
   scale = 250000;
   layers: string[] = [];
-  bounds: number[] = [];
+  bounds?: number[];
   format = '';
   minZoom = 0;
   maxZoom = 24;
@@ -147,7 +146,7 @@ export class SKChart {
       this.name = chart.name ?? '';
       this.description = chart.description ?? '';
       this.layers = chart.layers ?? [];
-      this.bounds = chart.bounds ?? [];
+      if (chart.bounds) this.bounds = chart.bounds;
       this.format = chart.format ?? '';
       if (typeof chart.minzoom !== 'undefined') this.minZoom = chart.minzoom;
       if (typeof chart.maxzoom !== 'undefined') this.maxZoom = chart.maxzoom;
@@ -347,9 +346,9 @@ export class SKAtoN extends SKTargetBase {
 
 // ** Meteo / weather class **
 export class SKMeteo extends SKAtoN {
-  twd = 0;
-  tws = 0;
-  temperature = 0;
+  twd: Nullable<number> = null;
+  tws: Nullable<number> = null;
+  temperature: Nullable<number> = null;
   constructor() {
     super();
   }

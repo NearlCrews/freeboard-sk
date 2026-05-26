@@ -870,6 +870,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected activateRoute(id: string) {
     const r = this.skres.fromCache('routes', id);
+    if (!r) {
+      return;
+    }
     const cpi = GeoUtils.closestForwardPoint(
       r[1].feature.geometry.coordinates,
       this.app.data.vessels.self.position,

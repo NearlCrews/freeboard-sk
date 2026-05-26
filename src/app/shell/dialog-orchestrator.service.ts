@@ -438,9 +438,9 @@ export class DialogOrchestrator {
     let v: SKRoute | null = null;
     try {
       this.settings.sIsFetching.set(true);
-      v = (await this.skres.fromServer('routes', id)) as SKRoute;
+      v = await this.skres.fromServer('routes', id);
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.alarm.parseHttpErrorResponse(err);
       return;
     } finally {
       this.settings.sIsFetching.set(false);

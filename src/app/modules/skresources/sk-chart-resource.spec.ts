@@ -109,16 +109,17 @@ describe('SKChart constructor preserves Signal K chart-resource fields', () => {
 
   it('returns falsy defaults for an empty constructor so consumers can detect missing metadata', () => {
     // After the Phase 5 strict ratchet, string fields default to '' (empty)
-    // and bounds defaults to []. Both remain falsy / length-0 for the same
-    // `if (chart.url)` and `chart.bounds.length` checks consumers used to
-    // make against the prior undefined defaults.
+    // which is falsy for `if (chart.url)` checks. bounds stays undefined so
+    // template guards like `@if (chart.bounds)` still skip empty charts;
+    // empty array would have been truthy and rendered four undefined coord
+    // labels.
     const chart = new SKChart();
     expect(chart.url).toBe('');
     expect(chart.identifier).toBe('');
     expect(chart.name).toBe('');
     expect(chart.type).toBe('');
     expect(chart.format).toBe('');
-    expect(chart.bounds).toEqual([]);
+    expect(chart.bounds).toBeUndefined();
     expect(chart.style).toBe('');
     expect(chart.source).toBe('');
   });
@@ -131,6 +132,7 @@ describe('SKChart constructor preserves Signal K chart-resource fields', () => {
     // ChartResource shape change cannot silently flip them to undefined.
     const chart = new SKChart();
     expect(chart.layers).toEqual([]);
+    expect(chart.bounds).toBeUndefined();
     expect(chart.scale).toBe(250000);
     expect(chart.minZoom).toBe(0);
     expect(chart.maxZoom).toBe(24);

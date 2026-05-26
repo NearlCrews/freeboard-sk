@@ -878,8 +878,7 @@ export class FBMapComponent
       const overlayId = this.overlay().id;
       if (overlayId !== null) {
         const entry = this.skres.fromCache('routes', overlayId);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const route = entry?.[1] as any;
+        const route = entry?.[1];
         if (route?.feature?.geometry?.coordinates) {
           this.mapInteract.measurementCoords =
             route.feature.geometry.coordinates;
@@ -1053,25 +1052,19 @@ export class FBMapComponent
           case 'note': {
             icon = feature.get('icon');
             addToFeatureList = true;
-            const n = this.skres.fromCache('notes', suffix);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            text = (n?.[1] as any)?.name ?? '';
+            text = this.skres.fromCache('notes', suffix)?.[1]?.name ?? '';
             break;
           }
           case 'route': {
             icon = 'route'; //'directions';
             addToFeatureList = true;
-            const r = this.skres.fromCache('routes', suffix);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            text = (r?.[1] as any)?.name ?? '';
+            text = this.skres.fromCache('routes', suffix)?.[1]?.name ?? '';
             break;
           }
           case 'waypoint': {
             icon = 'location_on';
             addToFeatureList = true;
-            const w = this.skres.fromCache('waypoints', suffix);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            text = (w?.[1] as any)?.name ?? '';
+            text = this.skres.fromCache('waypoints', suffix)?.[1]?.name ?? '';
             break;
           }
           case 'atons':
@@ -1337,12 +1330,9 @@ export class FBMapComponent
         poData.id = suffix;
         poData.type = prefix;
         poData.title = 'Region';
-        poData.resource = entry as IPopover['resource'];
+        poData.resource = entry;
         poData.show = true;
-        poData.readOnly =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
-          false;
+        poData.readOnly = entry[1].feature.properties?.['readOnly'] === true;
         break;
       }
       case 'note': {
@@ -1350,13 +1340,11 @@ export class FBMapComponent
         if (!entry) {
           return;
         }
-        poData.readOnly =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((entry as any)?.[1]?.properties?.readOnly as boolean) ?? false;
+        poData.readOnly = entry[1].properties['readOnly'] === true;
         poData.id = suffix;
         poData.type = prefix;
         poData.title = 'Note';
-        poData.resource = entry as IPopover['resource'];
+        poData.resource = entry;
         if (poData.readOnly) {
           poData.show = false;
           this.overlay.set(poData);
@@ -1374,12 +1362,9 @@ export class FBMapComponent
         poData.id = suffix;
         poData.type = prefix;
         poData.title = 'Route';
-        poData.resource = entry as IPopover['resource'];
+        poData.resource = entry;
         poData.show = true;
-        poData.readOnly =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
-          false;
+        poData.readOnly = entry[1].feature.properties?.['readOnly'] === true;
         break;
       }
       case 'waypoint': {
@@ -1389,13 +1374,10 @@ export class FBMapComponent
         }
         poData.id = suffix;
         poData.type = prefix;
-        poData.resource = entry as IPopover['resource'];
+        poData.resource = entry;
         poData.title = 'Waypoint';
         poData.show = true;
-        poData.readOnly =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
-          false;
+        poData.readOnly = entry[1].feature.properties?.['readOnly'] === true;
         break;
       }
       case 'dest':

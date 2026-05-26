@@ -506,7 +506,7 @@ export class AppFacade extends InfoService {
     return this.alarm.showConfirm(message, title, btn1, btn2, checkText);
   }
 
-  parseHttpErrorResponse(err: HttpErrorResponse): void {
+  parseHttpErrorResponse(err: unknown): void {
     this.alarm.parseHttpErrorResponse(err);
   }
 

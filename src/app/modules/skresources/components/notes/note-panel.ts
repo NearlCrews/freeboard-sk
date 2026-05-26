@@ -21,7 +21,7 @@ import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon } from 'src/app/modules/icons';
 import { SKNote } from '../../resource-classes';
 import { CourseService } from 'src/app/modules/course';
-import type { Position } from 'geojson';
+import type { Position } from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
 
 // Match the list view's palette so a group's colour is stable across
@@ -100,22 +100,21 @@ export class NotePanel {
   }
 
   onGoto() {
-    if (this._note().position) {
-      this.course.setDestination(this._note().position);
+    const pos = this._note().position;
+    if (pos) {
+      this.course.setDestination(pos);
     }
   }
 
   onPanTo() {
-    if (this._note().position) {
+    const pos = this._note().position;
+    if (pos) {
       const zoomTo =
         this.app.config.map.zoomLevel < this.app.config.resources.notes.minZoom
           ? this.app.config.resources.notes.minZoom
           : null;
       this.panTo.emit({
-        center: [
-          this._note().position.longitude,
-          this._note().position.latitude
-        ],
+        center: [pos.longitude, pos.latitude],
         zoomLevel: zoomTo
       });
     }

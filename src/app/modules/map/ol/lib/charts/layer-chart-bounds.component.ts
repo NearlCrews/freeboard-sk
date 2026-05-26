@@ -56,6 +56,7 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
 
     // chart bounds
     for (const c of charts) {
+      if (!c[1].bounds) continue;
       const coords = this.parseBoundsCoordinates(c[1].bounds);
       if (coords.length === 0) continue;
       const ring = coords[0];

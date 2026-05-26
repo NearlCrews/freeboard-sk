@@ -353,8 +353,8 @@ export class ChartPropertiesDialog implements OnInit {
         (i: WMTSLayerDef) => i.id === e[0]
       );
       if (l) {
-        this.data.format = l.format ? l.format : this.data.format;
-        this.data.bounds = l.bounds ? l.bounds : this.data.bounds;
+        if (l.format) this.data.format = l.format;
+        if (l.bounds) this.data.bounds = l.bounds;
       }
     }
     this.data.layers = e;

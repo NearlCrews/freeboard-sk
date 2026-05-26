@@ -128,7 +128,7 @@ export class RouteListComponent
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -245,12 +245,12 @@ export class RouteListComponent
               await this.skgroups.addToGroup(selGrp.id, 'route', id);
               this.app.showMessage(`Route added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.app.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 

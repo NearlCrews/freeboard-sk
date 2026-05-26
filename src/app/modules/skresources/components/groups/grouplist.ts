@@ -110,7 +110,7 @@ export class GroupListComponent implements OnInit, OnChanges {
       this.doFilter();
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 

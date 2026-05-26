@@ -139,7 +139,7 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
       );
     } catch (err) {
       this.settings.sIsFetching.set(false);
-      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.alarm.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -400,12 +400,12 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
               await this.skgroups.addToGroup(selGrp.id, 'chart', id);
               this.app.showMessage(`Chart added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

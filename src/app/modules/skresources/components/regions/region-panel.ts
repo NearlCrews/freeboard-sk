@@ -23,9 +23,8 @@ import { RemarkModule } from 'ngx-remark';
 import { AppFacade } from 'src/app/app.facade';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
 import { SKRegion } from '../../resource-classes';
-import { Position } from 'geojson';
+import { Position, FBNotes } from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
-import { FBNotes } from 'src/app/types';
 import {
   FBResourceGroups,
   SKResourceGroupService
@@ -143,9 +142,9 @@ export class RegionPanel {
     const geometry = this._region().feature.geometry;
     let position: Position | undefined;
     if (geometry.type === 'MultiPolygon') {
-      position = geometry.coordinates[0]?.[0]?.[0] as Position | undefined;
+      position = geometry.coordinates[0]?.[0]?.[0];
     } else {
-      position = geometry.coordinates[0]?.[0] as Position | undefined;
+      position = geometry.coordinates[0]?.[0];
     }
     if (!position) {
       return;
@@ -204,12 +203,12 @@ export class RegionPanel {
               await this.skgroups.addToGroup(selGrp.id, 'region', regionId);
               this.app.showMessage(`Region added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.app.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 }

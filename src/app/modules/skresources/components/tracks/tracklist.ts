@@ -96,7 +96,7 @@ export class TrackListComponent extends ResourceListBase implements OnInit {
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }

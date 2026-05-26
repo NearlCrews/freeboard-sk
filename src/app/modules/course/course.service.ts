@@ -476,10 +476,7 @@ export class CourseService {
     if (!this.app.data.activeRoute) {
       return;
     }
-    const rte: FBRoute = this.skres.fromCache(
-      'routes',
-      this.app.data.activeRoute
-    );
+    const rte = this.skres.fromCache('routes', this.app.data.activeRoute);
     if (rte) {
       const c = this._courseData();
       this.updateActiveRoutePointDetails(c, rte);

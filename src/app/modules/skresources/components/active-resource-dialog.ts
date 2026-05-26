@@ -266,23 +266,15 @@ export class ActiveResourcePropertiesModal implements OnInit {
   getPointsMeta() {
     const cm = this.getCoordinatesMeta();
     if (cm) {
-      // Preserve the original mapping: cm entries become {name, description}
-      // only. The original then tested `pt.href` (always undefined on the
-      // mapped object), so the wpt-resolution branch was dead code and is
-      // dropped here. Flagged for lead review.
-      return cm.map((p) => ({
-        name: p?.name ?? '',
+      return cm.map((p, i) => ({
+        name: p?.name ?? `RtePt-${String(i + 1).padStart(3, '0')}`,
         description: p?.description ?? ''
       }));
-    } else {
-      let idx = 0;
-      return this.points.map(() => {
-        return {
-          name: `RtePt-${('000' + String(++idx)).slice(-3)}`,
-          description: ''
-        };
-      });
     }
+    return this.points.map((_, i) => ({
+      name: `RtePt-${String(i + 1).padStart(3, '0')}`,
+      description: ''
+    }));
   }
 
   drop(e: CdkDragDrop<{ previousIndex: number; currentIndex: number }>) {

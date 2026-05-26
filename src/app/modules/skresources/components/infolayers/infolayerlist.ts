@@ -122,7 +122,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
       this.updateTimeDimensions();
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -259,7 +259,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
           try {
             await this.skres.deleteFromServer('infolayers', id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           } finally {
             this.skresOther.refreshInfoLayers();
             this.initItems(true);
@@ -334,7 +334,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     try {
       await this.skres.putToServer('infolayers', id, layer);
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     } finally {
       this.skresOther.refreshInfoLayers();
     }

@@ -179,13 +179,15 @@ export class AlarmStore {
   }
 
   /** Format and display an HTTP error response. */
-  parseHttpErrorResponse(err: HttpErrorResponse): void {
+  parseHttpErrorResponse(err: unknown): void {
+    const httpErr = err instanceof HttpErrorResponse ? err : null;
+    const status = httpErr?.status;
     const msg =
-      err.status && [401, 403].includes(err.status)
+      status && [401, 403].includes(status)
         ? 'Signal K server requires authentication to update resources.\nPlease login and try again.\n'
         : 'Operation could not be completed!\n';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const detail = (err.error?.message as string | undefined) ?? '';
-    this.showAlert(`${err.status ?? 'Error'}`, msg + detail);
+    const errorBody = httpErr?.error as { message?: string } | undefined;
+    const detail = errorBody?.message ?? '';
+    this.showAlert(`${status ?? 'Error'}`, msg + detail);
   }
 }

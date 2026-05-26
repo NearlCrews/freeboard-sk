@@ -25,9 +25,8 @@ import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
 import { SKRoute } from '../../resource-classes';
-import { Position } from 'geojson';
+import { Position, FBNotes } from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
-import { FBNotes } from 'src/app/types';
 import {
   FBResourceGroups,
   SKResourceGroupService
@@ -286,7 +285,7 @@ export class RoutePanel {
       return;
     }
     this.panTo.emit({
-      center: center as Position,
+      center,
       zoomLevel: zoomTo
     });
   }
@@ -359,12 +358,12 @@ export class RoutePanel {
               await this.skgroups.addToGroup(selGrp.id, 'route', routeId);
               this.alarm.showMessage(`Route added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

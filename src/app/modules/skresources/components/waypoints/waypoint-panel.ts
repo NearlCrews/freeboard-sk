@@ -26,9 +26,8 @@ import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
 import { SKWaypoint } from '../../resource-classes';
-import { Position } from 'geojson';
+import { Position, FBNotes } from 'src/app/types';
 import { SKResourceService } from '../../resources.service';
-import { FBNotes } from 'src/app/types';
 import {
   FBResourceGroups,
   SKResourceGroupService
@@ -155,7 +154,7 @@ export class WaypointPanel {
         : null;
 
     this.panTo.emit({
-      center: this._waypoint().feature.geometry.coordinates as Position,
+      center: this._waypoint().feature.geometry.coordinates,
       zoomLevel: zoomTo
     });
   }
@@ -208,12 +207,12 @@ export class WaypointPanel {
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', wptId);
               this.alarm.showMessage(`Waypoint added to group.`);
             } catch (err) {
-              this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.alarm.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.alarm.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.alarm.parseHttpErrorResponse(err);
     }
   }
 }

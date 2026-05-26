@@ -128,7 +128,7 @@ export class WaypointListComponent
       );
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       this.fullList = [];
     }
   }
@@ -244,12 +244,12 @@ export class WaypointListComponent
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', id);
               this.app.showMessage(`Waypoint added to group.`);
             } catch (err) {
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.app.parseHttpErrorResponse(err);
             }
           }
         });
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 }

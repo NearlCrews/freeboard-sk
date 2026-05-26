@@ -152,7 +152,7 @@ export class SKResourceGroupService {
         this.app.sIsFetching.set(false);
       } catch (err) {
         this.app.sIsFetching.set(false);
-        this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+        this.app.parseHttpErrorResponse(err);
         return;
       }
     }
@@ -169,7 +169,7 @@ export class SKResourceGroupService {
         if (r?.save) {
           if (id) {
             this.putToServer(id, r.group).catch((err) =>
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse)
+              this.app.parseHttpErrorResponse(err)
             );
           } else {
             this.postToServer(r.group);
@@ -198,7 +198,7 @@ export class SKResourceGroupService {
           try {
             await this.deleteFromServer(id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });

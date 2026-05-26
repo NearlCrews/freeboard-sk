@@ -389,6 +389,16 @@ export class SKResourceService {
    * @param id  Resource identifier
    * @returns Promise<SK resource class> (rejects with HTTPErrorResponse)
    */
+  public fromServer(c: 'routes', id: string): Promise<SKRoute>;
+  public fromServer(c: 'waypoints', id: string): Promise<SKWaypoint>;
+  public fromServer(c: 'notes', id: string): Promise<SKNote>;
+  public fromServer(c: 'regions', id: string): Promise<SKRegion>;
+  public fromServer(c: 'tracks', id: string): Promise<SKTrack>;
+  public fromServer(c: 'charts', id: string): Promise<SKChart>;
+  public fromServer(
+    collection: SKResourceType,
+    id: string
+  ): Promise<SKRoute | SKWaypoint | SKRegion | SKNote | SKChart | SKTrack>;
   public fromServer(
     collection: SKResourceType,
     id: string
@@ -942,7 +952,7 @@ export class SKResourceService {
               this.selectionAdd('charts', cht.id);
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -958,10 +968,14 @@ export class SKResourceService {
     }
     let chart: SKChart;
     if (['openseamap', 'openstreetmap'].includes(id)) {
+      const host =
+        id === 'openseamap'
+          ? 'tiles.openseamap.org/seamark'
+          : 'tile.openstreetmap.org';
       chart = new SKChart({
         name: id === 'openseamap' ? 'Sea Map' : 'World Map',
         description: id === 'openseamap' ? 'Open Sea Map' : 'Open Street Map',
-        url: `https://${id === 'openseamap' ? 'tiles.openseamap.org/seamark' : 'tile.openstreetmap.org}/{z}/{x}/{y}.png'}`,
+        url: `https://${host}/{z}/{x}/{y}.png`,
         minzoom: 1,
         maxzoom: 24,
         bounds: [-180, -90, 180, 90],
@@ -970,11 +984,11 @@ export class SKResourceService {
     } else {
       try {
         this.app.sIsFetching.set(true);
-        chart = (await this.fromServer('charts', id)) as SKChart;
+        chart = await this.fromServer('charts', id);
         this.app.sIsFetching.set(false);
       } catch (err) {
         this.app.sIsFetching.set(false);
-        this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+        this.app.parseHttpErrorResponse(err);
         return;
       }
     }
@@ -987,7 +1001,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; chart: SKChart }) => {
         if (r.save) {
           this.putToServer('charts', id, r.chart).catch((err) =>
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
+            this.app.parseHttpErrorResponse(err)
           );
         }
       });
@@ -1240,7 +1254,7 @@ export class SKResourceService {
               this.selectionAdd('routes', rte.id);
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -1257,11 +1271,11 @@ export class SKResourceService {
     let rte: SKRoute;
     try {
       this.app.sIsFetching.set(true);
-      rte = (await this.fromServer('routes', id)) as SKRoute;
+      rte = await this.fromServer('routes', id);
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       return;
     }
     this.dialog
@@ -1277,7 +1291,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; route: SKRoute }) => {
         if (r.save) {
           this.putToServer('routes', id, r.route).catch((err) =>
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
+            this.app.parseHttpErrorResponse(err)
           );
         }
       });
@@ -1312,7 +1326,7 @@ export class SKResourceService {
               });
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -1345,7 +1359,7 @@ export class SKResourceService {
       rte.feature.properties['coordinatesMeta'] = coordsMeta;
     }
     this.putToServer('routes', id, rte).catch((err) => {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     });
   }
 
@@ -1519,7 +1533,7 @@ export class SKResourceService {
               this.selectionAdd('routes', w.id);
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -1536,11 +1550,11 @@ export class SKResourceService {
     let wpt: SKWaypoint;
     try {
       this.app.sIsFetching.set(true);
-      wpt = (await this.fromServer('waypoints', id)) as SKWaypoint;
+      wpt = await this.fromServer('waypoints', id);
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       return;
     }
     this.dialog
@@ -1556,7 +1570,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; waypoint: SKWaypoint }) => {
         if (r.save) {
           this.putToServer('waypoints', id, r.waypoint).catch((err) =>
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
+            this.app.parseHttpErrorResponse(err)
           );
         }
       });
@@ -1591,7 +1605,7 @@ export class SKResourceService {
               });
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -1622,7 +1636,7 @@ export class SKResourceService {
       longitude: wpt.feature.geometry.coordinates[0]
     };
     this.putToServer('waypoints', id, wpt).catch((err) => {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     });
   }
 
@@ -1700,7 +1714,7 @@ export class SKResourceService {
               this.selectionAdd('regions', reg.id);
             }
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });
@@ -1717,11 +1731,11 @@ export class SKResourceService {
     let region: SKRegion;
     try {
       this.app.sIsFetching.set(true);
-      region = (await this.fromServer('regions', id)) as SKRegion;
+      region = await this.fromServer('regions', id);
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       return;
     }
     this.dialog
@@ -1735,7 +1749,7 @@ export class SKResourceService {
       .subscribe((r: { save: boolean; region: SKRegion }) => {
         if (r.save) {
           this.putToServer('regions', id, r.region).catch((err) =>
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse)
+            this.app.parseHttpErrorResponse(err)
           );
         }
       });
@@ -1799,7 +1813,7 @@ export class SKResourceService {
     const feature = region.feature as { geometry: { coordinates: unknown } };
     feature.geometry.coordinates = normalised;
     this.putToServer('regions', id, region).catch((err) => {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     });
   }
 
@@ -1967,7 +1981,7 @@ export class SKResourceService {
       await this.postToServer('notes', note);
       this.reopenRelatedDialog();
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 
@@ -2016,7 +2030,7 @@ export class SKResourceService {
               await this.putToServer('notes', e.noteId, note);
               this.reopenRelatedDialog();
             } catch (err) {
-              this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+              this.app.parseHttpErrorResponse(err);
             }
           }
         } else {
@@ -2217,7 +2231,7 @@ export class SKResourceService {
       // edit selected note details
       this.app.sIsFetching.set(true);
       try {
-        const res = (await this.fromServer('notes', e.id)) as SKNote;
+        const res = await this.fromServer('notes', e.id);
         this.app.sIsFetching.set(false);
         data.noteId = e.id;
         data.title = 'Edit Note';
@@ -2243,7 +2257,7 @@ export class SKResourceService {
     let note: SKNote;
     try {
       this.app.sIsFetching.set(true);
-      note = (await this.fromServer('notes', id)) as SKNote;
+      note = await this.fromServer('notes', id);
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
@@ -2305,7 +2319,7 @@ export class SKResourceService {
             await this.deleteFromServer('notes', id);
             this.reopenRelatedDialog();
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         } else {
           this.reopenRelatedDialog();
@@ -2336,7 +2350,7 @@ export class SKResourceService {
       await this.putToServer('notes', id, note);
       this.reopenRelatedDialog();
     } catch (err) {
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
     }
   }
 
@@ -2433,11 +2447,11 @@ export class SKResourceService {
     let trk: SKTrack;
     try {
       this.app.sIsFetching.set(true);
-      trk = (await this.fromServer('tracks', id)) as SKTrack;
+      trk = await this.fromServer('tracks', id);
       this.app.sIsFetching.set(false);
     } catch (err) {
       this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+      this.app.parseHttpErrorResponse(err);
       return;
     }
     this.dialog
@@ -2475,7 +2489,7 @@ export class SKResourceService {
           try {
             await this.deleteFromServer('tracks', id);
           } catch (err) {
-            this.app.parseHttpErrorResponse(err as HttpErrorResponse);
+            this.app.parseHttpErrorResponse(err);
           }
         }
       });

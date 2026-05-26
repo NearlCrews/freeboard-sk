@@ -61,7 +61,7 @@ import { Convert } from 'src/app/lib/convert';
           {{ timeLastUpdate }} {{ timeAgo }}
         </div>
       </div>
-      @if (isMeteo && aton.temperature !== undefined) {
+      @if (isMeteo && aton.temperature !== null) {
         <div style="display:flex;">
           <div style="font-weight:bold;">Temperature:</div>
           <div style="flex: 1 1 auto;text-align:right;">
@@ -69,7 +69,7 @@ import { Convert } from 'src/app/lib/convert';
           </div>
         </div>
       }
-      @if (isMeteo && aton.tws !== undefined && aton.twd !== undefined) {
+      @if (isMeteo && aton.tws !== null && aton.twd !== null) {
         <div style="display:flex;flex-wrap:no-wrap;">
           <div style="font-weight:bold;">Wind:</div>
           <div style="width:150px;">
