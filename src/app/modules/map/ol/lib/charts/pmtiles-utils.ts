@@ -4,9 +4,12 @@ import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { XYZ } from 'ol/source';
 import TileState from 'ol/TileState';
 import type ImageTile from 'ol/ImageTile';
+import type Tile from 'ol/Tile';
 import type VectorTile from 'ol/VectorTile';
+import type { FeatureLike } from 'ol/Feature';
 import type { Extent } from 'ol/extent';
 import type { default as Projection } from 'ol/proj/Projection';
+import type { LoadFunction } from 'ol/Tile';
 import type { SKChart } from 'src/app/modules/skresources';
 import {
   RASTER_TILE_CACHE_SIZE,
@@ -35,7 +38,12 @@ function parsePmtilesUrl(
   url: string
 ): readonly [z: number, x: number, y: number] | undefined {
   const m = PMTILES_URL_PATTERN.exec(url);
-  return m ? [+m[2], +m[3], +m[4]] : undefined;
+  if (!m) return undefined;
+  const [, , zStr, xStr, yStr] = m;
+  if (zStr === undefined || xStr === undefined || yStr === undefined) {
+    return undefined;
+  }
+  return [+zStr, +xStr, +yStr];
 }
 
 export async function initPMTilesWebGLLayer(
@@ -93,7 +101,7 @@ export async function initPMTilesXYZLayer(
   const { PMTiles } = await loadPmtilesModule();
   const tiles = new PMTiles(chart.url);
 
-  function loader(tile: ImageTile, url: string): void {
+  const loader: LoadFunction = (tile: Tile, url: string) => {
     tile.setState(TileState.LOADING);
     const coord = parsePmtilesUrl(url);
     if (!coord) {
@@ -101,17 +109,18 @@ export async function initPMTilesXYZLayer(
       return;
     }
     const [z, x, y] = coord;
+    const imageTile = tile as ImageTile;
 
     void tiles.getZxy(z, x, y).then(async (result) => {
       if (result) {
         const blob = new Blob([result.data]);
-        await assignImageBlob(tile.getImage() as HTMLImageElement, blob);
+        await assignImageBlob(imageTile.getImage() as HTMLImageElement, blob);
         tile.setState(TileState.LOADED);
       } else {
         tile.setState(TileState.EMPTY);
       }
     });
-  }
+  };
 
   return new TileLayer({
     source: new XYZ({
@@ -135,25 +144,26 @@ export async function initPMTilesVectorLayer(
   const { PMTiles } = await loadPmtilesModule();
   const tiles = new PMTiles(chart.url);
 
-  function loader(tile: VectorTile<never>, url: string): void {
+  const loader: LoadFunction = (tile: Tile, url: string) => {
     const coord = parsePmtilesUrl(url);
     if (!coord) {
       tile.setState(TileState.ERROR);
       return;
     }
     const [z, x, y] = coord;
+    const vectorTile = tile as VectorTile<FeatureLike>;
 
-    tile.setLoader(
+    vectorTile.setLoader(
       (extent: Extent, _resolution: number, projection: Projection) => {
         tile.setState(TileState.LOADING);
         void tiles.getZxy(z, x, y).then((result) => {
           if (result) {
-            const format = tile.getFormat();
+            const format = vectorTile.getFormat();
             const features = format.readFeatures(result.data, {
               extent: extent,
               featureProjection: projection
             });
-            tile.setFeatures(features as never[]);
+            vectorTile.setFeatures(features as never[]);
             tile.setState(TileState.LOADED);
           } else {
             tile.setState(TileState.EMPTY);
@@ -161,7 +171,7 @@ export async function initPMTilesVectorLayer(
         });
       }
     );
-  }
+  };
 
   return new VectorTileLayer({
     source: new VectorTileSource({

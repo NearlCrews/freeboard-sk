@@ -29,32 +29,31 @@ import { Position } from 'src/app/types';
   standalone: false
 })
 export class TargetAngleComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() line: Coordinate[];
+  @Input() line?: Coordinate[];
   @Input() mapZoom = 10;
+  @Input() lineStyle?: Style;
+  @Input() position?: Position; // (change trigger)
+  @Input() twd?: number; //(change trigger)
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() lineStyle: Style;
-  @Input() position: Position; // (change trigger)
-  @Input() twd: number; //(change trigger)
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
-  public mapifiedLine: Array<Coordinate> = [];
+  public mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -80,11 +79,14 @@ export class TargetAngleComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (['lines', 'position', 'twd'].includes(key)) {
           this.parseValues();
           if (this.source) {
@@ -92,14 +94,14 @@ export class TargetAngleComponent implements OnInit, OnDestroy, OnChanges {
             this.source.addFeatures(this.features);
           }
         } else if (key === 'mapZoom') {
-          //this.handleLabelZoomChange(key, changes[key]);
+          //this.handleLabelZoomChange(key, change);
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -127,12 +129,12 @@ export class TargetAngleComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // build target style
-  buildStyle(): Style {
+  buildStyle(): Style | undefined {
     if (this.lineStyle) {
       return this.lineStyle;
     } else {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
+      if (this.layerProperties?.['style']) {
+        return this.layerProperties['style'] as Style;
       } else {
         return undefined;
       }

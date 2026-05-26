@@ -33,7 +33,7 @@ export class RasterChartLayerComponent implements OnDestroy {
   protected overZoomTiles = input<boolean>(true);
   protected mapMaxZoom = input<number>();
 
-  private layer: TileLayer | WebGLTileLayer;
+  private layer?: TileLayer | WebGLTileLayer;
   private layerInitPending = false;
   private destroyed = false;
   private changeDetectorRef = inject(ChangeDetectorRef);
@@ -59,10 +59,15 @@ export class RasterChartLayerComponent implements OnDestroy {
     }
   }
 
-  private finalizeNewLayer(chart: FBChart, minZ: number, layerMaxZ: number) {
+  private finalizeNewLayer(
+    chart: FBChart,
+    minZ: number,
+    layerMaxZ: number | undefined
+  ) {
     const map = this.mapComponent.getMap();
+    if (!this.layer) return;
     this.layer.setMinZoom(minZ);
-    this.layer.setMaxZoom(layerMaxZ);
+    this.layer.setMaxZoom(layerMaxZ ?? Infinity);
     this.layer.setExtent(extentFromBounds(chart[1].bounds));
     this.layer.set('id', chart[0]);
     this.layer.set('chartId', chart[0]);
@@ -71,9 +76,10 @@ export class RasterChartLayerComponent implements OnDestroy {
     map.addLayer(this.layer);
   }
 
-  private parseChart(chart: FBChart = this.chart()) {
+  private parseChart() {
+    const chart = this.chart();
     const map = this.mapComponent.getMap();
-    if (!map) {
+    if (!chart || !map) {
       return;
     }
 
@@ -87,7 +93,7 @@ export class RasterChartLayerComponent implements OnDestroy {
 
       if (chart[0] === 'openstreetmap') {
         this.layer = osmLayer();
-        this.layer.setZIndex(this.zIndex());
+        this.layer.setZIndex(this.zIndex() ?? 0);
         this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
         this.finalizeNewLayer(chart, chart[1].minZoom, layerMaxZ);
       } else {
@@ -104,15 +110,17 @@ export class RasterChartLayerComponent implements OnDestroy {
             return;
           }
           this.layerInitPending = true;
-          void initPMTilesXYZLayer(chart[1], this.zIndex()).then((layer) => {
-            this.layerInitPending = false;
-            if (this.destroyed || this.layer) {
-              return;
+          void initPMTilesXYZLayer(chart[1], this.zIndex() ?? 0).then(
+            (layer) => {
+              this.layerInitPending = false;
+              if (this.destroyed || this.layer) {
+                return;
+              }
+              this.layer = layer;
+              this.finalizeNewLayer(chart, minZ, layerMaxZ);
+              this.parseChart();
             }
-            this.layer = layer;
-            this.finalizeNewLayer(chart, minZ, layerMaxZ);
-            this.parseChart();
-          });
+          );
           return;
         }
 
@@ -142,9 +150,9 @@ export class RasterChartLayerComponent implements OnDestroy {
         this.mapMaxZoom(),
         this.overZoomTiles()
       );
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setMinZoom(minZ);
-      this.layer.setMaxZoom(layerMaxZ);
+      this.layer.setMaxZoom(layerMaxZ ?? Infinity);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }

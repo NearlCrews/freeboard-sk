@@ -41,7 +41,7 @@ import { PopoverComponent } from './popover.component';
 export class ChartListPopoverComponent {
   protected title = 'Click to Show / Hide Chart';
   @Input() features: { id: string; text: string }[] = [];
-  @Input() canClose: boolean;
+  @Input() canClose = false;
   readonly closed = output<void>();
   readonly selected = output<string>();
 

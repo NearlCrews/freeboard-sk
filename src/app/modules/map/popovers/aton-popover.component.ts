@@ -101,16 +101,16 @@ import { Convert } from 'src/app/lib/convert';
   styleUrls: []
 })
 export class AtoNPopoverComponent implements OnInit, OnChanges {
-  @Input() title: string;
-  @Input() aton: SKMeteo;
-  @Input() canClose: boolean;
+  @Input() title = '';
+  @Input() aton!: SKMeteo;
+  @Input() canClose = false;
   readonly info = output<string>();
   readonly closed = output<void>();
-  _title: string;
-  timeLastUpdate: string;
-  timeAgo: string; // last update in minutes ago
+  _title = '';
+  timeLastUpdate = '';
+  timeAgo = ''; // last update in minutes ago
   protected convert = Convert;
-  isMeteo: boolean;
+  isMeteo = false;
 
   protected app = inject(AppFacade);
 

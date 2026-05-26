@@ -8,7 +8,7 @@ import { Style } from 'ol/style';
 import { DEPTH_UNIT } from 'src/app/lib/convert';
 
 interface Symbol {
-  image: HTMLImageElement;
+  image: HTMLImageElement | null;
   width: number;
   height: number;
   originX: number;
@@ -111,7 +111,7 @@ export class S57Service {
   private chartSymbols: Map<string, Symbol> = new Map<string, Symbol>();
   private colorTables: ColorTable[] = [];
   private selectedColorTable = 0;
-  private chartSymbolsImage: HTMLImageElement;
+  private chartSymbolsImage?: HTMLImageElement;
   private lookups: Lookup[] = [];
   private lookupStartIndex: Map<string, number> = new Map<string, number>();
   private styles: Map<string, Style> = new Map<string, Style>();
@@ -153,10 +153,10 @@ export class S57Service {
             this.chartSymbolsImage = image;
             this.refresh.next();
           };
-          image.src =
-            'assets/s57/' +
-            this.colorTables[this.selectedColorTable].symbolfile;
-          //console.log(image.src);
+          const colorTable = this.colorTables[this.selectedColorTable];
+          if (colorTable) {
+            image.src = 'assets/s57/' + colorTable.symbolfile;
+          }
         },
         error: () => {
           this.symbolsLoaded = false;
@@ -172,58 +172,50 @@ export class S57Service {
     }
   }
 
-  public getStyle(key: string): Style {
-    return this.styles[key];
+  public getStyle(key: string): Style | undefined {
+    return this.styles.get(key);
   }
 
   public setStyle(key: string, style: Style) {
-    this.styles[key] = style;
+    this.styles.set(key, style);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isChanged(currentValue: any, newValue: any): boolean {
-    let changed = false;
-    const keys = Object.keys(newValue);
-    for (let i = 0; i < keys.length; i++) {
-      if (currentValue[keys[i]] !== newValue[keys[i]]) {
-        changed = true;
-        break;
+    const current = currentValue as Record<string, unknown>;
+    const next = newValue as Record<string, unknown>;
+    const keys = Object.keys(next);
+    for (const key of keys) {
+      if (current[key] !== next[key]) {
+        return true;
       }
     }
-    return changed;
+    return false;
   }
 
-  public getLookup(lookupIndex: number): Lookup {
+  public getLookup(lookupIndex: number): Lookup | undefined {
     return this.lookups[lookupIndex];
   }
 
-  public getColor(colorName: string): string {
-    return this.colorTables[this.selectedColorTable].colors.get(colorName);
+  public getColor(colorName: string): string | undefined {
+    return this.colorTables[this.selectedColorTable]?.colors.get(colorName);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private processColors(symbolsJson: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (
-      symbolsJson['CHARTSYMBOLS']['COLOR-TABLES'][0]['COLOR-TABLE'] as any[]
+      symbolsJson.CHARTSYMBOLS['COLOR-TABLES'][0]['COLOR-TABLE'] as any[]
     ).forEach((colortable) => {
       const colorTable: ColorTable = {
-        symbolfile: colortable['GRAPHICS-FILE'][0]['$']['NAME'],
+        symbolfile: colortable['GRAPHICS-FILE'][0].$.NAME,
         colors: new Map<string, string>()
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const colors = colortable['COLOR'] as any[];
+      const colors = colortable.COLOR as any[];
       colors.forEach((color) => {
         colorTable.colors.set(
-          color['$']['NAME'],
-          'RGBA(' +
-            color['$']['R'] +
-            ', ' +
-            color['$']['G'] +
-            ', ' +
-            color['$']['B'] +
-            ',1)'
+          color.$.NAME,
+          'RGBA(' + color.$.R + ', ' + color.$.G + ', ' + color.$.B + ',1)'
         );
       });
       this.colorTables.push(colorTable);
@@ -232,24 +224,22 @@ export class S57Service {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private processSymbols(symbolsJson: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (symbolsJson['CHARTSYMBOLS']['SYMBOLS'][0]['SYMBOL'] as any[]).forEach(
-      (symbol) => {
-        const bitmap = symbol['BITMAP'];
-        if (bitmap) {
-          this.chartSymbols.set(symbol['NAME'][0], {
-            image: null,
-            pivotX: parseInt(bitmap[0]['PIVOT'][0]['$']['X']),
-            pivotY: parseInt(bitmap[0]['PIVOT'][0]['$']['Y']),
-            originX: parseInt(bitmap[0]['ORIGIN'][0]['$']['X']),
-            originY: parseInt(bitmap[0]['ORIGIN'][0]['$']['Y']),
-            width: parseInt(bitmap[0]['$']['WIDTH']),
-            height: parseInt(bitmap[0]['$']['HEIGHT']),
-            locationX: parseInt(bitmap[0]['GRAPHICS-LOCATION'][0]['$']['X']),
-            locationY: parseInt(bitmap[0]['GRAPHICS-LOCATION'][0]['$']['Y'])
-          });
-        }
+    (symbolsJson.CHARTSYMBOLS.SYMBOLS[0].SYMBOL as any[]).forEach((symbol) => {
+      const bitmap = symbol.BITMAP;
+      if (bitmap) {
+        this.chartSymbols.set(symbol.NAME[0], {
+          image: null,
+          pivotX: parseInt(bitmap[0].PIVOT[0].$.X),
+          pivotY: parseInt(bitmap[0].PIVOT[0].$.Y),
+          originX: parseInt(bitmap[0].ORIGIN[0].$.X),
+          originY: parseInt(bitmap[0].ORIGIN[0].$.Y),
+          width: parseInt(bitmap[0].$.WIDTH),
+          height: parseInt(bitmap[0].$.HEIGHT),
+          locationX: parseInt(bitmap[0]['GRAPHICS-LOCATION'][0].$.X),
+          locationY: parseInt(bitmap[0]['GRAPHICS-LOCATION'][0].$.Y)
+        });
       }
-    );
+    });
   }
 
   private compareLookup(a: Lookup, b: Lookup): number {
@@ -298,28 +288,26 @@ export class S57Service {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private processLookup(symbolsJson: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (symbolsJson['CHARTSYMBOLS']['LOOKUPS'][0]['LOOKUP'] as any[]).forEach(
-      (lookup) => {
-        const lup: Lookup = {
-          name: lookup['$']['NAME'],
-          instruction: lookup['INSTRUCTION'][0],
-          lookupTable: this.getLookupTable(lookup['TABLE-NAME'][0]),
-          geometryType: this.getGeometryType(lookup['TYPE'][0]),
-          displayCategory: this.getDisplayCategory(lookup['DISPLAY-CAT'][0]),
-          attributes: {},
-          id: parseInt(lookup['$']['ID']),
-          displayPriority: this.getDisplayPriority(lookup['DISP-PRIO'][0])
-        };
-        const attributes = lookup['ATTRIB-CODE'];
-        if (attributes) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (attributes as any[]).forEach((att) => {
-            lup.attributes[att['$']['INDEX']] = att['_'];
-          });
-        }
-        this.lookups.push(lup);
+    (symbolsJson.CHARTSYMBOLS.LOOKUPS[0].LOOKUP as any[]).forEach((lookup) => {
+      const lup: Lookup = {
+        name: lookup.$.NAME,
+        instruction: lookup.INSTRUCTION[0],
+        lookupTable: this.getLookupTable(lookup['TABLE-NAME'][0]),
+        geometryType: this.getGeometryType(lookup.TYPE[0]),
+        displayCategory: this.getDisplayCategory(lookup['DISPLAY-CAT'][0]),
+        attributes: {},
+        id: parseInt(lookup.$.ID),
+        displayPriority: this.getDisplayPriority(lookup['DISP-PRIO'][0])
+      };
+      const attributes = lookup['ATTRIB-CODE'];
+      if (attributes) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (attributes as any[]).forEach((att) => {
+          lup.attributes[att.$.INDEX] = att._;
+        });
       }
-    );
+      this.lookups.push(lup);
+    });
     // sort
     this.lookups = this.lookups.sort(this.compareLookup);
     // build index
@@ -334,12 +322,13 @@ export class S57Service {
     });
   }
 
-  public getSymbol(key: string): Symbol {
+  public getSymbol(key: string): Symbol | null {
     const icon = this.chartSymbols.get(key);
     if (icon && this.chartSymbolsImage) {
       if (!icon.image) {
-        icon.image = new Image(icon.width, icon.height);
-        createImageBitmap(
+        const image = new Image(icon.width, icon.height);
+        icon.image = image;
+        void createImageBitmap(
           this.chartSymbolsImage,
           icon.locationX,
           icon.locationY,
@@ -350,9 +339,9 @@ export class S57Service {
           canvas.height = icon.height;
           canvas.width = icon.width;
           const ctx = canvas.getContext('2d');
+          if (!ctx) return;
           ctx.drawImage(bitmap, 0, 0);
-          icon.image.src = canvas.toDataURL();
-          //this.refresh.next()
+          image.src = canvas.toDataURL();
         });
         return icon;
       } else {
@@ -379,14 +368,16 @@ export class S57Service {
   }
 
   public selectLookup(feature: Feature): number {
-    const props = feature.getProperties();
-    const properties = {};
+    const props = feature.getProperties() as Record<string, unknown>;
+    const properties: Record<string, unknown> = {};
     Object.keys(props).forEach((k) => {
       properties[k.toUpperCase()] = props[k];
     });
 
     const geometry = feature.getGeometry();
+    if (!geometry) return -1;
     const name = properties['LAYER'];
+    if (typeof name !== 'string') return -1;
     const geomType = geometry.getType();
 
     let lookupTable = LookupTable.PAPER_CHART;
@@ -425,59 +416,69 @@ export class S57Service {
     const startIndex = this.lookupStartIndex.get(
       lookupTable + ',' + name.toUpperCase() + ',' + type
     );
-    let currentIndex = startIndex;
-    if (currentIndex) {
-      let lup = this.lookups[currentIndex];
-      let lmatch = 0;
-      while (
-        lup.name.localeCompare(name, 'en', { sensitivity: 'base' }) === 0 &&
-        lup.geometryType === type &&
-        lup.lookupTable === lookupTable
-      ) {
-        let nmatch = 0;
-        Object.keys(lup.attributes).forEach((k) => {
-          const v = lup.attributes[k];
-          const parts = this.attMatch.exec(v);
-          const key = parts[1].toUpperCase();
-          const value = parts[2].toUpperCase();
-          if (value === ' ') {
-            nmatch++;
-            return;
-          }
-          if (value === '?') return;
-          if (this.propertyCompare(properties[key], value) === 0) {
-            nmatch++;
-          }
-        });
-        // According to S52 specs, match must be perfect,
-        // and the first 100% match is selected
-        if (Object.keys(lup.attributes).length === nmatch && nmatch > lmatch) {
-          best = currentIndex;
-          lmatch = nmatch;
-        }
-        currentIndex++;
-        lup = this.lookups[currentIndex];
-      }
-      // If no match found, return the first LUP in the list which has no attributes
-      if (best === -1) {
-        let currentIndex = startIndex;
-        let lup = this.lookups[currentIndex];
-        while (
-          lup.name.localeCompare(name, 'en', { sensitivity: 'base' }) === 0 &&
-          lup.geometryType === type &&
-          lup.lookupTable === lookupTable
-        ) {
-          if (Object.keys(lup.attributes).length === 0) {
-            best = currentIndex;
-            break;
-          }
-          currentIndex++;
-          lup = this.lookups[currentIndex];
-        }
-      }
-      return best;
+    if (startIndex === undefined) {
+      return -1;
     }
-    return -1;
+    let currentIndex = startIndex;
+    let lup = this.lookups[currentIndex];
+    let lmatch = 0;
+    while (
+      lup &&
+      lup.name.localeCompare(name, 'en', { sensitivity: 'base' }) === 0 &&
+      lup.geometryType === type &&
+      lup.lookupTable === lookupTable
+    ) {
+      let nmatch = 0;
+      const attrs = lup.attributes as Record<string, string>;
+      Object.keys(attrs).forEach((k) => {
+        const v = attrs[k];
+        if (v === undefined) return;
+        const parts = v.match(this.attMatch);
+        if (!parts) return;
+        const rawKey = parts[1];
+        const rawValue = parts[2];
+        if (rawKey === undefined || rawValue === undefined) return;
+        const key = rawKey.toUpperCase();
+        const value = rawValue.toUpperCase();
+        if (value === ' ') {
+          nmatch++;
+          return;
+        }
+        if (value === '?') return;
+        if (this.propertyCompare(properties[key], value) === 0) {
+          nmatch++;
+        }
+      });
+      // According to S52 specs, match must be perfect,
+      // and the first 100% match is selected
+      if (Object.keys(attrs).length === nmatch && nmatch > lmatch) {
+        best = currentIndex;
+        lmatch = nmatch;
+      }
+      currentIndex++;
+      lup = this.lookups[currentIndex];
+    }
+    // If no match found, return the first LUP in the list which has no attributes
+    if (best === -1) {
+      let fallbackIndex = startIndex;
+      let fallbackLup = this.lookups[fallbackIndex];
+      while (
+        fallbackLup &&
+        fallbackLup.name.localeCompare(name, 'en', {
+          sensitivity: 'base'
+        }) === 0 &&
+        fallbackLup.geometryType === type &&
+        fallbackLup.lookupTable === lookupTable
+      ) {
+        if (Object.keys(fallbackLup.attributes).length === 0) {
+          best = fallbackIndex;
+          break;
+        }
+        fallbackIndex++;
+        fallbackLup = this.lookups[fallbackIndex];
+      }
+    }
+    return best;
   }
 
   private getDisplayCategory(dispCategory: string): DisplayCategory {

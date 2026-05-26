@@ -32,8 +32,8 @@ import { Position } from 'src/app/types';
 export class DirectionOfTravelComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  protected layer: Layer;
-  public source: VectorSource;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
   protected features: Feature[] = [];
 
   /**
@@ -46,14 +46,14 @@ export class DirectionOfTravelComponent
   @Input() reverse = false;
   @Input() pointIndex = 0;
   @Input() mapZoom = 10;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: Record<string, any>;
+  @Input() layerProperties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -79,11 +79,14 @@ export class DirectionOfTravelComponent
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'points' || key === 'reverse' || key === 'pointIndex') {
           this.parseValues();
           if (this.source) {
@@ -93,12 +96,12 @@ export class DirectionOfTravelComponent
         } else if (key === 'mapZoom') {
           this.handleLabelZoomChange(key);
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -158,29 +161,22 @@ export class DirectionOfTravelComponent
 
   // return a Style with rotation set
   setRotation(s: Style, index: number): Style {
-    if (!s) {
-      return s;
-    }
     const cs = s.clone();
     const im = cs.getImage();
     if (im) {
       const o = this.getOrientation(index);
-      im.setRotation(o ?? 0);
+      im.setRotation(o);
       cs.setImage(im);
     }
     return cs;
   }
 
   getOrientation(idx: number) {
+    const a = this.points[idx]! as Position;
+    const b = this.points[idx + 1]! as Position;
     const o = this.reverse
-      ? GeoUtils.rhumbLineBearing(
-          this.points[idx + 1] as Position,
-          this.points[idx] as Position
-        )
-      : GeoUtils.rhumbLineBearing(
-          this.points[idx] as Position,
-          this.points[idx + 1] as Position
-        );
+      ? GeoUtils.rhumbLineBearing(b, a)
+      : GeoUtils.rhumbLineBearing(a, b);
     return (Math.PI / 180) * o;
   }
 

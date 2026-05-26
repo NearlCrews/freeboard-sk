@@ -33,15 +33,15 @@ import { AsyncSubject } from 'rxjs';
   standalone: false
 })
 export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   protected vesselPosition = input<Coordinate>();
   protected markerPosition = input<Coordinate>();
@@ -51,18 +51,18 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() mapZoom = 10;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() bearingStyles: { [key: string]: any };
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() bearingStyles?: Record<string, any>;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
   public mapifiedRadius = 0;
-  public mapifiedLine: Array<Coordinate> = [];
+  public mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -105,20 +105,23 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'mapZoom') {
-          this.handleLabelZoomChange(key, changes[key]);
+          this.handleLabelZoomChange(key, change);
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -133,21 +136,17 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
 
   parseValues() {
     const fa: Feature[] = [];
-    if (
-      Array.isArray(this.vesselPosition()) &&
-      Array.isArray(this.markerPosition())
-    ) {
-      this.mapifiedLine = mapifyCoords([
-        this.vesselPosition(),
-        this.markerPosition()
-      ]);
+    const vesselPos = this.vesselPosition();
+    const markerPos = this.markerPosition();
+    if (Array.isArray(vesselPos) && Array.isArray(markerPos)) {
+      this.mapifiedLine = mapifyCoords([vesselPos, markerPos]);
       const fl = new Feature({
         geometry: new LineString(fromLonLatArray(this.mapifiedLine))
       });
       fl.setStyle(this.buildStyle('line'));
       fa.push(fl);
       let fp = new Feature({
-        geometry: new Point(fromLonLat(this.markerPosition()))
+        geometry: new Point(fromLonLat(markerPos))
       });
       fp.setId('d.base');
       fp.setStyle(this.buildStyle('line'));
@@ -155,7 +154,7 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
       fa.push(fp);
       if (this.showMarker) {
         fp = new Feature({
-          geometry: new Point(fromLonLat(this.markerPosition()))
+          geometry: new Point(fromLonLat(markerPos))
         });
         fp.setId('dest.point');
         fp.setStyle(this.buildStyle('marker'));
@@ -167,11 +166,11 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
 
   // build target style
   buildStyle(key: string): Style | Style[] {
-    if (this.bearingStyles && this.bearingStyles[key]) {
-      return this.bearingStyles[key];
+    if (this.bearingStyles?.[key]) {
+      return this.bearingStyles[key] as Style | Style[];
     } else {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
+      if (this.layerProperties?.['style']) {
+        return this.layerProperties['style'] as Style | Style[];
       } else {
         // default style
         return [
@@ -232,22 +231,27 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     try {
-      let s: StyleLike = f.getStyle();
+      const raw = f.getStyle();
+      if (!raw) {
+        return;
+      }
+      const s: StyleLike | undefined = Array.isArray(raw) ? raw[1] : raw;
       if (!s) {
         return;
       }
-      s = Array.isArray(s) ? s[1] : s;
       const ts = (s as Style).getText();
       if (!ts) {
         return;
       }
-      ts?.setText(
+      ts.setText(
         Math.abs(this.mapZoom) >= this.labelMinZoom()
           ? (this.markerName() ?? '')
           : ''
       );
       (s as Style).setText(ts);
       f.setStyle(s);
-    } catch (err) {}
+    } catch {
+      // updateLabel runs best-effort: feature may have been removed mid-tick.
+    }
   }
 }

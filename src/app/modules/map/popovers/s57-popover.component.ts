@@ -478,14 +478,14 @@ const HEIGHT_KEYS = new Set(['HEIGHT', 'VERLEN', 'HORLEN', 'HORWID']);
   `
 })
 export class S57PopoverComponent implements OnChanges {
-  @Input() title: string;
+  @Input() title = '';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() properties: Record<string, any>;
-  @Input() canClose: boolean;
+  @Input() properties: Record<string, any> = {};
+  @Input() canClose = false;
   readonly closed = output<void>();
 
   private app = inject(AppFacade);
-  _title: string;
+  _title = '';
   displayProps: { key: string; label: string; value: string }[] = [];
 
   private formatValue(key: string, val: unknown): string {
@@ -517,7 +517,7 @@ export class S57PopoverComponent implements OnChanges {
     if (!this.properties) {
       return;
     }
-    const layer = this.properties.layer || '';
+    const layer = this.properties['layer'] || '';
     this._title = this.title || S57_NAMES[layer] || layer || 'Chart Feature';
 
     this.displayProps = [];

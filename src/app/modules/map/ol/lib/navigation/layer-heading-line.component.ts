@@ -31,30 +31,30 @@ import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-sele
   standalone: false
 })
 export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   protected coords = input<Coordinate[]>();
   protected lineStyle = input<LineStyleDef>();
 
   @Input() mapZoom = 10;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
-  protected mapifiedLine: Array<Coordinate> = [];
+  protected mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -89,18 +89,21 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -115,18 +118,20 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
 
   parseInput() {
     const fa: Feature[] = [];
-    if (Array.isArray(this.coords()) && this.coords().length !== 0) {
-      this.mapifiedLine = this.coords().map((p) => [p[0], p[1]] as Coordinate);
+    const cs = this.coords();
+    if (Array.isArray(cs) && cs.length !== 0) {
+      this.mapifiedLine = cs.map((p) => [p[0], p[1]] as Coordinate);
 
       const heading = new Feature({
         geometry: new LineString(fromLonLatArray(this.mapifiedLine))
       });
       heading.setId('cogSelf');
+      const ls = this.lineStyle();
       heading.setStyle(
         new Style({
-          stroke: !this.lineStyle()
+          stroke: !ls
             ? new Stroke({ color: 'rgba(221, 99, 0, 0.5)', width: 4 })
-            : new Stroke(this.lineStyle().stroke)
+            : new Stroke(ls.stroke)
         })
       );
       fa.push(heading);

@@ -48,12 +48,13 @@ export function resolveLayerMaxZoom(
  */
 export function extentFromBounds(bounds?: number[]): Extent | undefined {
   if (!Array.isArray(bounds) || bounds.length < 4) return undefined;
-  if (
-    bounds[0] <= -180 ||
-    bounds[1] <= -90 ||
-    bounds[2] >= 180 ||
-    bounds[3] >= 90
-  ) {
+  const [minLon, minLat, maxLon, maxLat] = bounds as [
+    number,
+    number,
+    number,
+    number
+  ];
+  if (minLon <= -180 || minLat <= -90 || maxLon >= 180 || maxLat >= 90) {
     return undefined;
   }
   return transformExtent(bounds, 'EPSG:4326', 'EPSG:3857');

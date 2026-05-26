@@ -31,7 +31,7 @@ export class TileJsonChartLayerComponent implements OnDestroy {
   protected overZoomTiles = input<boolean>(true);
   protected mapMaxZoom = input<number>();
 
-  private layer: TileLayer;
+  private layer?: TileLayer;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
 
@@ -54,9 +54,10 @@ export class TileJsonChartLayerComponent implements OnDestroy {
     }
   }
 
-  private parseChart(chart: FBChart = this.chart()) {
+  private parseChart() {
+    const chart = this.chart();
     const map = this.mapComponent.getMap();
-    if (!map) {
+    if (!chart || !map) {
       return;
     }
 
@@ -87,13 +88,11 @@ export class TileJsonChartLayerComponent implements OnDestroy {
         extent: extentFromBounds(chart[1].bounds)
       });
 
-      if (this.layer) {
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        map.addLayer(this.layer);
-      }
+      this.layer.set('id', chart[0]);
+      this.layer.set('chartId', chart[0]);
+      this.layer.set('chartType', chart[1].type);
+      this.layer.set('chartFormat', chart[1].format);
+      map.addLayer(this.layer);
     } else {
       const minZ =
         chart[1].minZoom && chart[1].minZoom >= 0.1
@@ -105,9 +104,9 @@ export class TileJsonChartLayerComponent implements OnDestroy {
         this.mapMaxZoom(),
         this.overZoomTiles()
       );
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setMinZoom(minZ);
-      this.layer.setMaxZoom(layerMaxZ);
+      this.layer.setMaxZoom(layerMaxZ ?? Infinity);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }

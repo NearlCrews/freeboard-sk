@@ -30,15 +30,15 @@ import { fromLonLat } from 'ol/proj';
   standalone: false
 })
 export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature> = [];
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   protected twd = input<number>();
   protected awa = input<number>();
@@ -46,14 +46,14 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
   protected aws = input<number>(0);
   protected position = input<Coordinate>();
 
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -90,11 +90,12 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+  ngOnChanges(_changes: SimpleChanges) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
-      this.layer.setProperties(properties, false);
+      const properties: Record<string, any> = {};
+      layer.setProperties(properties, false);
     }
   }
 
@@ -109,10 +110,12 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
 
   parseInput() {
     const fa: Feature[] = [];
-    if (Array.isArray(this.position())) {
-      if (typeof this.twd() === 'number' && this.tws() > 0) {
+    const pos = this.position();
+    if (Array.isArray(pos)) {
+      const twd = this.twd();
+      if (typeof twd === 'number' && this.tws() > 0) {
         const twdArrow = new Feature({
-          geometry: new Point(fromLonLat(this.position()))
+          geometry: new Point(fromLonLat(pos))
         });
         twdArrow.setId('twd');
         twdArrow.setStyle(
@@ -124,15 +127,16 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
               anchorXUnits: 'pixels',
               anchorYUnits: 'pixels',
               rotateWithView: true,
-              rotation: this.twd()
+              rotation: twd
             })
           })
         );
         fa.push(twdArrow);
       }
-      if (typeof this.awa() === 'number' && this.aws() > 0) {
+      const awa = this.awa();
+      if (typeof awa === 'number' && this.aws() > 0) {
         const awaArrow = new Feature({
-          geometry: new Point(fromLonLat(this.position()))
+          geometry: new Point(fromLonLat(pos))
         });
         awaArrow.setId('awa');
         awaArrow.setStyle(
@@ -144,7 +148,7 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
               anchorXUnits: 'pixels',
               anchorYUnits: 'pixels',
               rotateWithView: true,
-              rotation: this.awa()
+              rotation: awa
             })
           })
         );

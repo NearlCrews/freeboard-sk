@@ -1,6 +1,7 @@
 import TileState from 'ol/TileState';
 import type ImageTile from 'ol/ImageTile';
 import type Tile from 'ol/Tile';
+import type { LoadFunction } from 'ol/Tile';
 import type VectorTile from 'ol/VectorTile';
 import type { FeatureLike } from 'ol/Feature';
 import type { Extent } from 'ol/extent';
@@ -57,7 +58,7 @@ export function createAbortableRasterTileLoader(): (
   const pending: PendingByZoom = new Map();
 
   return function loader(tile: Tile, src: string) {
-    const z = tile.getTileCoord()[0];
+    const z = tile.getTileCoord()[0] ?? 0;
     const bucket = bucketForZoom(pending, z);
 
     const controller = new AbortController();
@@ -90,17 +91,15 @@ export function createAbortableRasterTileLoader(): (
  * semantic as the raster loader. The fetch is wrapped inside `tile.setLoader`
  * because OL's VectorTile contract has the tile own its decoded features.
  */
-export function createAbortableVectorTileLoader(): (
-  tile: VectorTile<FeatureLike>,
-  src: string
-) => void {
+export function createAbortableVectorTileLoader(): LoadFunction {
   const pending: PendingByZoom = new Map();
 
-  return function loader(tile: VectorTile<FeatureLike>, src: string) {
-    const z = tile.getTileCoord()[0];
+  return function loader(tile: Tile, src: string) {
+    const vectorTile = tile as VectorTile<FeatureLike>;
+    const z = tile.getTileCoord()[0] ?? 0;
     const bucket = bucketForZoom(pending, z);
 
-    tile.setLoader(
+    vectorTile.setLoader(
       (extent: Extent, _resolution: number, projection: Projection) => {
         const controller = new AbortController();
         bucket.add(controller);
@@ -109,12 +108,12 @@ export function createAbortableVectorTileLoader(): (
         fetch(src, { signal: controller.signal })
           .then((r) => r.arrayBuffer())
           .then((data) => {
-            const format = tile.getFormat();
+            const format = vectorTile.getFormat();
             const features = format.readFeatures(data, {
               extent,
               featureProjection: projection
             }) as FeatureLike[];
-            tile.setFeatures(features);
+            vectorTile.setFeatures(features);
             tile.setState(TileState.LOADED);
           })
           .catch((err: unknown) => {

@@ -33,7 +33,7 @@ export class WmtsChartLayerComponent implements OnDestroy {
   protected overZoomTiles = input<boolean>(true);
   protected mapMaxZoom = input<number>();
 
-  private layer: TileLayer;
+  private layer?: TileLayer;
   private capabilities?: unknown;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
@@ -58,9 +58,10 @@ export class WmtsChartLayerComponent implements OnDestroy {
     }
   }
 
-  private async parseChart(chart: FBChart = this.chart()) {
+  private async parseChart() {
+    const chart = this.chart();
     const map = this.mapComponent.getMap();
-    if (!map) {
+    if (!chart || !map) {
       return;
     }
 
@@ -73,10 +74,17 @@ export class WmtsChartLayerComponent implements OnDestroy {
         return;
       }
     }
+    const layerName = chart[1].layers[0];
+    if (!layerName) {
+      return;
+    }
     const options = optionsFromCapabilities(this.capabilities, {
-      layer: chart[1].layers[0],
+      layer: layerName,
       matrixSet: 'EPSG:3857'
     });
+    if (!options) {
+      return;
+    }
 
     if (!this.layer) {
       const minZ =
@@ -104,13 +112,11 @@ export class WmtsChartLayerComponent implements OnDestroy {
         extent: extentFromBounds(chart[1].bounds)
       });
 
-      if (this.layer) {
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        map.addLayer(this.layer);
-      }
+      this.layer.set('id', chart[0]);
+      this.layer.set('chartId', chart[0]);
+      this.layer.set('chartType', chart[1].type);
+      this.layer.set('chartFormat', chart[1].format);
+      map.addLayer(this.layer);
     } else {
       const minZ =
         chart[1].minZoom && chart[1].minZoom >= 0.1
@@ -122,9 +128,9 @@ export class WmtsChartLayerComponent implements OnDestroy {
         this.mapMaxZoom(),
         this.overZoomTiles()
       );
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setMinZoom(minZ);
-      this.layer.setMaxZoom(layerMaxZ);
+      this.layer.setMaxZoom(layerMaxZ ?? Infinity);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }

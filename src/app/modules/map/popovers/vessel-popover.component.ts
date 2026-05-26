@@ -234,25 +234,25 @@ isSelf: boolean - true if vessel 'self'
   styleUrls: []
 })
 export class VesselPopoverComponent implements OnInit, OnChanges {
-  @Input() title: string;
-  @Input() vessel: SKVessel;
-  @Input() useMagnetic: string;
-  @Input() isActive: boolean;
-  @Input() isSelf: boolean;
-  @Input() canClose: boolean;
+  @Input() title = '';
+  @Input() vessel!: SKVessel;
+  @Input() useMagnetic = '';
+  @Input() isActive = false;
+  @Input() isSelf = false;
+  @Input() canClose = false;
   readonly info = output<string>();
   readonly closed = output<void>();
   readonly focused = output<boolean>();
   readonly markPosition = output<Position>();
 
-  protected _title: string;
+  protected _title = '';
   protected convert = Convert;
-  protected timeLastUpdate: string;
-  protected timeAgo: string; // last update in minutes ago
-  protected speedUnits: string;
-  protected distToSelf: string;
-  protected cpa: string;
-  protected tcpa: string;
+  protected timeLastUpdate = '';
+  protected timeAgo = ''; // last update in minutes ago
+  protected speedUnits = '';
+  protected distToSelf = '';
+  protected cpa = '';
+  protected tcpa = '';
 
   protected position: Position = [0, 0];
   protected positionTimestamp = '';
@@ -273,8 +273,9 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.vessel) {
-      if (!changes.vessel.currentValue) {
+    const vesselChange = changes['vessel'];
+    if (vesselChange) {
+      if (!vesselChange.currentValue) {
         this.handleClose();
         return;
       }
@@ -287,8 +288,8 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
         this.vessel.callsignHf;
       ('Vessel:');
       this.position = [
-        changes.vessel.currentValue.position[0],
-        changes.vessel.currentValue.position[1]
+        vesselChange.currentValue.position[0],
+        vesselChange.currentValue.position[1]
       ];
       this.position = GeoUtils.normaliseCoords(this.position);
       if (this.vessel.positionTimestamp) {
@@ -304,7 +305,7 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
     const td = (Date.now() - this.vessel.lastUpdated.valueOf()) / 1000;
     this.timeAgo = td < 60 ? '' : `(${Math.floor(td / 60)} min ago)`;
     this.distToSelf = this.app.formatValueForDisplay(
-      this.vessel.distanceToSelf,
+      this.vessel.distanceToSelf ?? 0,
       'm'
     );
     if (this.vessel.closestApproach) {
@@ -324,7 +325,9 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
   }
 
   handleMarkPosition() {
-    this.markPosition.emit(this.vessel.position);
+    if (this.vessel.position) {
+      this.markPosition.emit(this.vessel.position);
+    }
   }
 
   handleInfo() {
@@ -391,7 +394,9 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
         this.app.data.vessels.flagged.indexOf(this.vessel.id),
         1
       );
-      this.app.data.vessels.flagged = [].concat(this.app.data.vessels.flagged);
+      this.app.data.vessels.flagged = ([] as string[]).concat(
+        this.app.data.vessels.flagged
+      );
     }
   }
 

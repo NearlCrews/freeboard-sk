@@ -238,25 +238,25 @@ interface PopoverCtrl {
   styleUrls: [`./popover.component.scss`]
 })
 export class ResourcePopoverComponent implements OnChanges {
-  @Input() title: string; // popover title text
-  @Input() type: string; // resource type
-  @Input() resource: SKRoute | SKWaypoint | SKNote | SKRegion;
-  @Input() active: boolean;
+  @Input() title = ''; // popover title text
+  @Input() type = ''; // resource type
+  @Input() resource!: [string, SKRoute | SKWaypoint | SKNote | SKRegion];
+  @Input() active = '';
   @Input() featureCount = 0;
   @Input() units = 'm';
-  @Input() canClose: boolean;
+  @Input() canClose = false;
   modify = output<void>();
   delete = output<void>();
   addNote = output<void>();
   activated = output<void>();
   deactivated = output<void>();
-  related = output<void>();
+  related = output<string>();
   info = output<void>();
   closed = output<void>();
   points = output<void>();
   notes = output<void>();
 
-  properties: unknown[]; // ** resource properties
+  properties: unknown[] = []; // ** resource properties
   ctrl: PopoverCtrl = {
     showInfoButton: false,
     showModifyButton: false,
@@ -271,7 +271,7 @@ export class ResourcePopoverComponent implements OnChanges {
     isReadOnly: false
   };
   protected hasMarkdown = signal<boolean>(false);
-  protected icon: AppIconDef;
+  protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
 
   constructor() {}
@@ -313,25 +313,21 @@ export class ResourcePopoverComponent implements OnChanges {
     this.ctrl.showPointsButton = false;
     this.ctrl.showRelatedButton = false;
     this.properties = [];
-    if (this.resource[1].name) {
-      this.properties.push(['Name', this.resource[1].name]);
+    const wpt = this.resource[1] as SKWaypoint;
+    if (wpt.name) {
+      this.properties.push(['Name', wpt.name]);
     }
-    if (this.resource[1].description) {
-      this.properties.push(['Desc.', this.resource[1].description]);
+    if (wpt.description) {
+      this.properties.push(['Desc.', wpt.description]);
     }
-    this.properties.push([
-      'Latitude',
-      this.resource[1].feature.geometry.coordinates[1]
-    ]);
-    this.properties.push([
-      'Longitude',
-      this.resource[1].feature.geometry.coordinates[0]
-    ]);
+    this.properties.push(['Latitude', wpt.feature.geometry.coordinates[1]]);
+    this.properties.push(['Longitude', wpt.feature.geometry.coordinates[0]]);
     this.hasMarkdown.set(true);
   }
 
   parseWaypoint() {
-    this.ctrl.isReadOnly = this.resource[1].feature.properties?.readOnly;
+    const wpt = this.resource[1] as SKWaypoint;
+    this.ctrl.isReadOnly = !!wpt.feature.properties?.['readOnly'];
     this.ctrl.isActive =
       this.active && this.active === this.resource[0] ? true : false;
     this.ctrl.activeText = 'GO TO';
@@ -348,22 +344,17 @@ export class ResourcePopoverComponent implements OnChanges {
 
     this.properties = [];
 
-    this.icon = getResourceIcon('waypoints', this.resource[1]);
-    this.title = this.resource[1].name ?? '';
+    this.icon = getResourceIcon('waypoints', wpt);
+    this.title = wpt.name ?? '';
 
-    this.properties.push([
-      'Latitude',
-      this.resource[1].feature.geometry.coordinates[1]
-    ]);
-    this.properties.push([
-      'Longitude',
-      this.resource[1].feature.geometry.coordinates[0]
-    ]);
+    this.properties.push(['Latitude', wpt.feature.geometry.coordinates[1]]);
+    this.properties.push(['Longitude', wpt.feature.geometry.coordinates[0]]);
     this.hasMarkdown.set(true);
   }
 
   parseRoute() {
-    this.ctrl.isReadOnly = this.resource[1].feature.properties?.readOnly;
+    const route = this.resource[1] as SKRoute;
+    this.ctrl.isReadOnly = !!route.feature.properties?.['readOnly'];
     this.ctrl.isActive =
       this.active && this.active === this.resource[0] ? true : false;
     this.ctrl.activeText = 'START';
@@ -378,16 +369,17 @@ export class ResourcePopoverComponent implements OnChanges {
       ? false
       : !this.ctrl.isReadOnly;
 
-    this.icon = getResourceIcon('routes', this.resource[1]);
-    this.title = this.resource[1].name ?? '';
+    this.icon = getResourceIcon('routes', route);
+    this.title = route.name ?? '';
     this.properties = [];
-    const d = this.app.formatValueForDisplay(this.resource[1].distance, 'm');
+    const d = this.app.formatValueForDisplay(route.distance, 'm');
     this.properties.push(['Distance', d]);
     this.hasMarkdown.set(true);
   }
 
   parseNote() {
-    this.ctrl.isReadOnly = this.resource[1].properties?.readOnly;
+    const note = this.resource[1] as SKNote;
+    this.ctrl.isReadOnly = !!note.properties?.['readOnly'];
     this.ctrl.isActive = false;
     this.ctrl.activeText = '';
     this.ctrl.canActivate = false;
@@ -400,27 +392,26 @@ export class ResourcePopoverComponent implements OnChanges {
     this.ctrl.showNotesButton = false;
     this.ctrl.showPointsButton = false;
     this.ctrl.showRelatedButton =
-      this.resource[1].group && this.app.config.resources.notes.groupNameEdit
+      note.group && this.app.config.resources.notes.groupNameEdit
         ? true
         : false;
 
-    this.icon = getResourceIcon('notes', this.resource[1]);
-    this.title = this.resource[1].name ?? '';
+    this.icon = getResourceIcon('notes', note);
+    this.title = note.name ?? '';
     this.properties = [];
-    this.ctrl.isReadOnly = this.resource[1].properties?.readOnly;
-    this.hasMarkdown.update(() =>
-      this.resource[1].mimeType?.includes('markdown')
-    );
+    this.ctrl.isReadOnly = !!note.properties?.['readOnly'];
+    this.hasMarkdown.update(() => !!note.mimeType?.includes('markdown'));
   }
 
   parseRegion() {
-    this.ctrl.isReadOnly = this.resource[1].feature.properties?.readOnly;
+    const region = this.resource[1] as SKRegion;
+    this.ctrl.isReadOnly = !!region.feature.properties?.['readOnly'];
     this.ctrl.isActive = false;
     this.ctrl.activeText = '';
     this.ctrl.canActivate = false;
     this.ctrl.showInfoButton = true;
     this.ctrl.showModifyButton =
-      this.resource[1].feature.geometry.type === 'MultiPolygon'
+      region.feature.geometry.type === 'MultiPolygon'
         ? false
         : !this.ctrl.isReadOnly;
     this.ctrl.showDeleteButton = this.app.useInfoPanel()
@@ -432,8 +423,8 @@ export class ResourcePopoverComponent implements OnChanges {
     this.ctrl.showRelatedButton = false;
 
     this.properties = [];
-    this.icon = getResourceIcon('regions', this.resource[1]);
-    this.title = this.resource[1].name ?? '';
+    this.icon = getResourceIcon('regions', region);
+    this.title = region.name ?? '';
     this.hasMarkdown.set(true);
   }
 
@@ -472,7 +463,7 @@ export class ResourcePopoverComponent implements OnChanges {
   }
 
   emitRelated() {
-    this.related.emit(this.resource[1].group);
+    this.related.emit((this.resource[1] as SKNote).group);
   }
 
   handleClose() {
@@ -539,7 +530,7 @@ export class ResourceSetPopoverComponent implements OnChanges {
   info = output<void>();
   closed = output<void>();
 
-  protected properties: unknown[]; // ** resource properties
+  protected properties: unknown[] = []; // ** resource properties
   protected app = inject(AppFacade);
 
   constructor() {

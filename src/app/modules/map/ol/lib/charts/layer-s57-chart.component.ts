@@ -27,7 +27,7 @@ export class S57ChartLayerComponent implements OnDestroy {
   protected chart = input<FBChart>();
   protected zIndex = input<number>();
 
-  private layer: VectorTileLayer;
+  private layer?: VectorTileLayer;
   private vectorLayerStyleFactory = inject(VectorLayerStyleFactory);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
@@ -49,9 +49,10 @@ export class S57ChartLayerComponent implements OnDestroy {
     }
   }
 
-  private parseChart(chart: FBChart = this.chart()) {
+  private parseChart() {
+    const chart = this.chart();
     const map = this.mapComponent.getMap();
-    if (!map) {
+    if (!chart || !map) {
       return;
     }
 
@@ -61,7 +62,7 @@ export class S57ChartLayerComponent implements OnDestroy {
       );
       this.layer = styleFactory.CreateLayer();
       styleFactory.ApplyStyle(this.layer as VectorTileLayer<never>);
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       if (chart[1].style) {
         void applyMapboxStyle(this.layer, chart[1].style);
@@ -73,7 +74,7 @@ export class S57ChartLayerComponent implements OnDestroy {
       this.layer.set('chartFormat', chart[1].format);
       map.addLayer(this.layer);
     } else {
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }

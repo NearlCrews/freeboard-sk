@@ -30,18 +30,17 @@ import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 export class WmsChartLayerComponent implements OnDestroy {
   protected chart = input<FBChart>();
   protected zIndex = input<number>();
-  protected params =
-    input<Array<{ id: string; param: { [key: string]: any } }>>();
+  protected params = input<{ id: string; param: Record<string, any> }[]>();
   protected overZoomTiles = input<boolean>(true);
   protected mapMaxZoom = input<number>();
 
-  private layer: TileLayer;
+  private layer?: TileLayer;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
   private mapService = inject(MapService);
 
   private map: Map;
-  private featureUrl: string = undefined;
+  private featureUrl?: string;
 
   constructor() {
     this.changeDetectorRef.detach();
@@ -62,12 +61,16 @@ export class WmsChartLayerComponent implements OnDestroy {
     });
     effect(() => {
       const ev = this.mapComponent.pointerDownSignal();
-      if (!ev) {
+      const chart = this.chart();
+      if (!ev || !this.layer || !chart) {
         return;
       }
       const view = this.map.getView();
       const prj = view.getProjection();
       const resolution = view.getResolution();
+      if (resolution === undefined) {
+        return;
+      }
       const coord = this.map.getEventCoordinate(ev);
       const src: TileWMS = this.layer.getSource() as TileWMS;
       this.featureUrl = src.getFeatureInfoUrl(coord, resolution, prj, {
@@ -75,8 +78,8 @@ export class WmsChartLayerComponent implements OnDestroy {
       });
       if (this.featureUrl) {
         this.mapService.addFeatureUrls({
-          id: this.chart()[0],
-          name: this.chart()[1].name,
+          id: chart[0],
+          name: chart[1].name,
           type: 'chart',
           subType: 'wms',
           url: this.featureUrl
@@ -92,8 +95,9 @@ export class WmsChartLayerComponent implements OnDestroy {
     }
   }
 
-  private parseChart(chart: FBChart = this.chart()) {
-    if (!this.map) {
+  private parseChart() {
+    const chart = this.chart();
+    if (!this.map || !chart) {
       return;
     }
 
@@ -126,13 +130,11 @@ export class WmsChartLayerComponent implements OnDestroy {
         extent: extentFromBounds(chart[1].bounds)
       });
 
-      if (this.layer) {
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        this.map.addLayer(this.layer);
-      }
+      this.layer.set('id', chart[0]);
+      this.layer.set('chartId', chart[0]);
+      this.layer.set('chartType', chart[1].type);
+      this.layer.set('chartFormat', chart[1].format);
+      this.map.addLayer(this.layer);
     } else {
       const minZ =
         chart[1].minZoom && chart[1].minZoom >= 0.1
@@ -144,9 +146,9 @@ export class WmsChartLayerComponent implements OnDestroy {
         this.mapMaxZoom(),
         this.overZoomTiles()
       );
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setMinZoom(minZ);
-      this.layer.setMaxZoom(layerMaxZ);
+      this.layer.setMaxZoom(layerMaxZ ?? Infinity);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
       const src = this.layer.getSource() as TileWMS;

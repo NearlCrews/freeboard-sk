@@ -90,9 +90,9 @@ measure: boolean= measure mode;
   styleUrls: ['./popover.component.scss']
 })
 export class PopoverComponent {
-  @Input() title: string;
-  @Input() mmsi: string;
-  @Input() icon: { class: string; name?: string; svgIcon?: string };
+  @Input() title = '';
+  @Input() mmsi = '';
+  @Input() icon: { class: string; name?: string; svgIcon?: string } | undefined;
   @Input() canClose = true;
   @Input() measure = false;
   @Input() navTo = false;

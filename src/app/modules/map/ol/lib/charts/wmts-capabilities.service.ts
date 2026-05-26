@@ -36,7 +36,9 @@ export class WmtsCapabilitiesService {
       return wmts.read(res);
     } catch (err) {
       clearTimeout(abortTimer);
-      throw new Error(err.message ?? 'Unable to retrieve capabilities!');
+      const message =
+        err instanceof Error ? err.message : 'Unable to retrieve capabilities!';
+      throw new Error(message);
     }
   }
 }

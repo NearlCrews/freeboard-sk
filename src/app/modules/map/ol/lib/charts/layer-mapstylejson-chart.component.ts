@@ -26,7 +26,7 @@ export class MapStyleJsonChartLayerComponent implements OnDestroy {
   protected chart = input<FBChart>();
   protected zIndex = input<number>();
 
-  private layer: LayerGroup;
+  private layer?: LayerGroup;
   private changeDetectorRef = inject(ChangeDetectorRef);
   private mapComponent = inject(MapComponent);
 
@@ -47,9 +47,10 @@ export class MapStyleJsonChartLayerComponent implements OnDestroy {
     }
   }
 
-  private parseChart(chart: FBChart = this.chart()) {
+  private parseChart() {
+    const chart = this.chart();
     const map = this.mapComponent.getMap();
-    if (!map) {
+    if (!chart || !map) {
       return;
     }
 
@@ -66,7 +67,7 @@ export class MapStyleJsonChartLayerComponent implements OnDestroy {
       void applyMapboxStyleToGroup(this.layer, chart[1].url);
       map.addLayer(this.layer);
     } else {
-      this.layer.setZIndex(this.zIndex());
+      this.layer.setZIndex(this.zIndex() ?? 0);
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
       this.layer.setExtent(extentFromBounds(chart[1].bounds));
     }

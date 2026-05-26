@@ -29,28 +29,28 @@ import { AsyncSubject } from 'rxjs';
   standalone: false
 })
 export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature>;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() position: Coordinate;
-  @Input() radius: number;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() position?: Coordinate;
+  @Input() radius?: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
-  public mapifiedLine: Array<Coordinate> = [];
+  public mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -76,11 +76,14 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'position' || key === 'radius') {
           this.parseValues();
           if (this.source) {
@@ -88,12 +91,12 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
             this.source.addFeatures(this.features);
           }
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -108,22 +111,24 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
 
   parseValues() {
     const fa: Feature[] = [];
-    const f = new Feature({
-      geometry: new Circle(
-        fromLonLat(this.position),
-        mapifyRadius(this.radius, this.position)
-      )
-    });
-    f.setStyle(this.buildStyle());
-    fa.push(f);
+    if (this.position && typeof this.radius === 'number') {
+      const f = new Feature({
+        geometry: new Circle(
+          fromLonLat(this.position),
+          mapifyRadius(this.radius, this.position)
+        )
+      });
+      f.setStyle(this.buildStyle());
+      fa.push(f);
+    }
     this.features = fa;
   }
 
   // build target style
   buildStyle(): Style {
     let cs: Style;
-    if (this.layerProperties && this.layerProperties.style) {
-      cs = this.layerProperties.style;
+    if (this.layerProperties?.['style']) {
+      cs = this.layerProperties['style'] as Style;
     } else {
       // default style
       cs = new Style({

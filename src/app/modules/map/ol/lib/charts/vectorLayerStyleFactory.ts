@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SKChart } from 'src/app/modules';
 import { S57Service } from './s57.service';
 import { S57Style } from './s57Style';
@@ -8,6 +8,8 @@ import VectorTileSource from 'ol/source/VectorTile';
 import { Extent } from 'ol/extent';
 import { transformExtent } from 'ol/proj';
 import { MVT } from 'ol/format';
+import type { StyleFunction } from 'ol/style/Style';
+import type { OrderFunction } from 'ol/render';
 
 export abstract class VectorLayerStyler {
   public MinZ: number;
@@ -21,7 +23,7 @@ export abstract class VectorLayerStyler {
     this.MaxZ = this.chart.maxZoom;
   }
 
-  public abstract ApplyStyle(vectorLayer: VectorTileLayer<never>);
+  public abstract ApplyStyle(vectorLayer: VectorTileLayer<never>): void;
   public abstract CreateLayer(): VectorTileLayer<never>;
 }
 
@@ -34,7 +36,7 @@ class S57LayerStyler extends VectorLayerStyler {
   }
 
   public CreateLayer(): VectorTileLayer<never> {
-    let extent: Extent = null;
+    let extent: Extent | undefined;
     if (this.chart.bounds && this.chart.bounds.length > 0) {
       extent = transformExtent(this.chart.bounds, 'EPSG:4326', 'EPSG:3857');
     }
@@ -55,10 +57,10 @@ class S57LayerStyler extends VectorLayerStyler {
 
     vectorLayer.setSource(source as never);
     vectorLayer.setPreload(0);
-    vectorLayer.setStyle(style.getStyle);
+    vectorLayer.setStyle(style.getStyle as unknown as StyleFunction);
     vectorLayer.setMinZoom(this.chart.minZoom);
     vectorLayer.setMaxZoom(23);
-    vectorLayer.setRenderOrder(style.renderOrder);
+    vectorLayer.setRenderOrder(style.renderOrder as unknown as OrderFunction);
 
     this.s57service.refresh.subscribe(() => {
       source.refresh();
@@ -77,5 +79,6 @@ export class VectorLayerStyleFactory {
       this.s57service.fetchSymbols();
       return new S57LayerStyler(chart, this.s57service);
     }
+    throw new Error(`Unsupported chart type for vector layer: ${chart.type}`);
   }
 }

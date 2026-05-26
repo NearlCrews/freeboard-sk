@@ -40,9 +40,9 @@ const LightTheme = {
   standalone: false
 })
 export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Feature[];
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
   private theme = LightTheme;
 
   protected darkMode = input<boolean>(false);
@@ -55,19 +55,19 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
    */
   @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() position: Coordinate;
+  @Input() position?: Coordinate;
   @Input() maxCircles = 4;
-  @Input() mapZoom: number;
+  @Input() mapZoom = 0;
   @Input() units = 'm';
-  @Input() minZoom: number;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() minZoom = 0;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: Record<string, any>;
+  @Input() layerProperties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -103,11 +103,14 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (
           ['position', 'mapZoom', 'minZoom', 'units', 'maxCircles'].includes(
             key
@@ -115,12 +118,12 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
         ) {
           this.processChange();
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -164,7 +167,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
       range = this.fixedDistance();
     }
     const fa: Feature[] = [];
-    if (this.mapZoom >= this.minZoom) {
+    if (this.position && this.mapZoom >= this.minZoom) {
       const st = this.buildCircleStyle();
       for (let i = 1; i <= this.maxCircles; ++i) {
         const d = range * i;
@@ -196,8 +199,8 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   // build target style
   buildCircleStyle(): Style {
     let cs: Style;
-    if (this.layerProperties && this.layerProperties.style) {
-      cs = this.layerProperties.style;
+    if (this.layerProperties?.['style']) {
+      cs = this.layerProperties['style'] as Style;
     } else {
       // default style
       cs = new Style({
@@ -231,10 +234,10 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
         value >= 1000 ? (this.units as TARGET_UNIT) : ('m' as TARGET_UNIT);
       const p = u === ('m' as TARGET_UNIT) ? 0 : 1;
       const tv = Convert.transform(value, 'm', u);
-      return `${tv.toFixed(p)}${Convert.getSymbol(u)}`;
+      return `${tv?.toFixed(p) ?? ''}${Convert.getSymbol(u)}`;
     } else {
       const tv = Convert.transform(value, 'm', this.units as TARGET_UNIT);
-      return `${tv.toFixed(1)}${Convert.getSymbol(this.units as TARGET_UNIT)}`;
+      return `${tv?.toFixed(1) ?? ''}${Convert.getSymbol(this.units as TARGET_UNIT)}`;
     }
   }
 }

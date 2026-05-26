@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 
 import { Feature } from 'ol';
+import type { FeatureLike } from 'ol/Feature';
 import { Style, Stroke, Fill, Text } from 'ol/style';
 import { Polygon, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
@@ -57,6 +58,11 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
     for (const c of charts) {
       const coords = this.parseBoundsCoordinates(c[1].bounds);
       if (coords.length === 0) continue;
+      const ring = coords[0];
+      if (!ring || ring.length < 2) continue;
+      const p0 = ring[0];
+      const p1 = ring[1];
+      if (!p0 || !p1) continue;
       // rectangle
       const f = new Feature({
         geometry: new Polygon(coords),
@@ -64,12 +70,8 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
       });
       f.setId('chart-bound.' + c[0]);
       const lp = [
-        coords[0][0][0] +
-          (coords[0][0][0] > coords[0][1][0]
-            ? coords[0][0][0] - coords[0][1][0]
-            : coords[0][1][0] - coords[0][0][0]) /
-            2,
-        coords[0][1][1]
+        p0[0] + (p0[0] > p1[0] ? p0[0] - p1[0] : p1[0] - p0[0]) / 2,
+        p1[1]
       ];
       f.set('labelPos', lp);
       f.set('boundColor', this.boundStyles[i]);
@@ -105,7 +107,7 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
     return f;
   }
 
-  buildStyle(feature: Feature) {
+  buildStyle(feature: FeatureLike): Style[] {
     return [
       new Style({
         stroke: new Stroke({
@@ -134,23 +136,24 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
   }
 
   // mapify and transform bounds to polygon
-  parseBoundsCoordinates(bounds: Array<number>) {
-    if (
-      !Array.isArray(bounds) ||
-      bounds.length !== 4 ||
-      (bounds[0] === -180 &&
-        bounds[1] === -90 &&
-        bounds[2] === 180 &&
-        bounds[3] === 90)
-    )
+  parseBoundsCoordinates(bounds: number[]) {
+    if (!Array.isArray(bounds) || bounds.length !== 4) return [];
+    const [minLon, minLat, maxLon, maxLat] = bounds as [
+      number,
+      number,
+      number,
+      number
+    ];
+    if (minLon === -180 && minLat === -90 && maxLon === 180 && maxLat === 90) {
       return [];
+    }
     const rect = mapifyCoords(
       [
-        [bounds[0], bounds[1]],
-        [bounds[2], bounds[1]],
-        [bounds[2], bounds[3]],
-        [bounds[0], bounds[3]],
-        [bounds[0], bounds[1]]
+        [minLon, minLat],
+        [maxLon, minLat],
+        [maxLon, maxLat],
+        [minLon, maxLat],
+        [minLon, minLat]
       ],
       0
     );

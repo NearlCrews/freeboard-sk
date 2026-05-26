@@ -6,7 +6,9 @@ import {
   ChangeDetectionStrategy,
   Renderer2,
   SimpleChanges,
-  inject
+  inject,
+  OnInit,
+  OnChanges
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -26,7 +28,12 @@ class SvgDialBase implements DialConfig {
   minAngle = 0; //** pointer angle when showing min value
   maxAngle = 360; //** pointer angle when showing max value
   private _scale = 1; //** scaling variables
-  protected pointers = {
+  protected pointers: {
+    value: ElementRef | null;
+    value2?: ElementRef | null;
+    lo: ElementRef | null;
+    hi: ElementRef | null;
+  } = {
     //** dial pointers
     value: null,
     lo: null,
@@ -55,7 +62,7 @@ class SvgDialBase implements DialConfig {
   }
 
   //** return the angle to rotate needle for supplied val **
-  getAngle(val) {
+  getAngle(val: number) {
     let v = this._checkInRange(val);
     v = v - this.minValue; //** cater for non-zero min values
     return v * this._scale + this.minAngle;
@@ -63,7 +70,7 @@ class SvgDialBase implements DialConfig {
 
   /** check minValue < val < maxValue.
    * retruns: val if in range else minVaue or maxVale **/
-  private _checkInRange(val) {
+  private _checkInRange(val: number) {
     if (isNaN(val)) {
       return 0;
     }
@@ -92,32 +99,32 @@ class SvgDialBase implements DialConfig {
   imports: [CommonModule],
   templateUrl: './compass.component.svg'
 })
-export class CompassComponent extends SvgDialBase {
-  @Input() speed: number;
+export class CompassComponent extends SvgDialBase implements OnInit, OnChanges {
+  @Input() speed: number | undefined;
   @Input() speedunits = 'knots';
-  @Input() heading: number;
-  @Input() needle: number;
-  @Input() windtrue: number;
-  @Input() windapparent: number;
-  @ViewChild('speedtext', { static: true }) speedtext: ElementRef;
-  @ViewChild('speedunitstext', { static: true }) speedunitstext: ElementRef;
-  @ViewChild('dial', { static: true }) dial: ElementRef;
-  @ViewChild('headingtext', { static: true }) headingtext: ElementRef;
-  @ViewChild('pointer', { static: true }) pointer: ElementRef;
-  @ViewChild('needlehi', { static: true }) needlehi: ElementRef;
-  @ViewChild('needlelo', { static: true }) needlelo: ElementRef;
+  @Input() heading: number | undefined;
+  @Input() needle: number | undefined;
+  @Input() windtrue: number | undefined;
+  @Input() windapparent: number | undefined;
+  @ViewChild('speedtext', { static: true }) speedtext!: ElementRef;
+  @ViewChild('speedunitstext', { static: true }) speedunitstext!: ElementRef;
+  @ViewChild('dial', { static: true }) dial!: ElementRef;
+  @ViewChild('headingtext', { static: true }) headingtext!: ElementRef;
+  @ViewChild('pointer', { static: true }) pointer!: ElementRef;
+  @ViewChild('needlehi', { static: true }) needlehi!: ElementRef;
+  @ViewChild('needlelo', { static: true }) needlelo!: ElementRef;
   public valueStr: string = '0' + String.fromCharCode(186);
   private ptrOffset = 0; // ** pointer offset value
 
   private renderer = inject(Renderer2);
 
   constructor() {
-    super(null);
+    super(undefined);
   }
 
   ngOnInit() {
     this.pointers.value = this.dial;
-    this.pointers['value2'] = this.pointer;
+    this.pointers.value2 = this.pointer;
     this.pointers.hi = this.needlehi;
     this.pointers.lo = this.needlelo;
     this.updateDial();
@@ -128,8 +135,14 @@ export class CompassComponent extends SvgDialBase {
     this.updateDial(changes);
   }
 
-  updateDial(changes = null) {
-    const d = {
+  updateDial(changes?: SimpleChanges) {
+    const d: {
+      heading: number | null;
+      needle: number | null;
+      windtrue: number | null;
+      windapparent: number | null;
+      speed: number | null;
+    } = {
       heading: null,
       needle: null,
       windtrue: null,
@@ -137,17 +150,25 @@ export class CompassComponent extends SvgDialBase {
       speed: null
     };
     d.heading =
-      changes && changes.heading ? changes.heading.currentValue : this.heading;
+      changes && changes['heading']
+        ? changes['heading'].currentValue
+        : (this.heading ?? null);
     d.needle =
-      changes && changes.needle ? changes.needle.currentValue : this.needle;
+      changes && changes['needle']
+        ? changes['needle'].currentValue
+        : (this.needle ?? null);
     d.windtrue =
-      changes && changes.hi ? changes.windtrue.currentValue : this.windtrue;
+      changes && changes['windtrue']
+        ? changes['windtrue'].currentValue
+        : (this.windtrue ?? null);
     d.windapparent =
-      changes && changes.windapparent
-        ? changes.windapparent.currentValue
-        : this.windapparent;
+      changes && changes['windapparent']
+        ? changes['windapparent'].currentValue
+        : (this.windapparent ?? null);
     d.speed =
-      changes && changes.speed ? changes.speed.currentValue : this.speed;
+      changes && changes['speed']
+        ? changes['speed'].currentValue
+        : (this.speed ?? null);
 
     this.renderer.setProperty(
       this.speedtext.nativeElement,
@@ -160,7 +181,7 @@ export class CompassComponent extends SvgDialBase {
       this.speedunits
     );
     if (this.pointers.value) {
-      d.heading = parseFloat(d.heading);
+      d.heading = parseFloat(String(d.heading));
       if (isNaN(d.heading)) {
         d.heading = null;
       }
@@ -192,8 +213,8 @@ export class CompassComponent extends SvgDialBase {
         );
       }
     }
-    if (this.pointers['value2']) {
-      d.needle = parseFloat(d.needle);
+    if (this.pointers.value2) {
+      d.needle = parseFloat(String(d.needle));
       if (isNaN(d.needle)) {
         d.needle = null;
       }
@@ -207,7 +228,7 @@ export class CompassComponent extends SvgDialBase {
       }
     }
     if (this.pointers.hi) {
-      d.windtrue = parseFloat(d.windtrue);
+      d.windtrue = parseFloat(String(d.windtrue));
       if (isNaN(d.windtrue)) {
         d.windtrue = null;
       }
@@ -224,7 +245,7 @@ export class CompassComponent extends SvgDialBase {
       }
     }
     if (this.pointers.lo) {
-      d.windapparent = parseFloat(d.windapparent);
+      d.windapparent = parseFloat(String(d.windapparent));
       if (isNaN(d.windapparent)) {
         d.windapparent = null;
       }
@@ -253,18 +274,21 @@ export class CompassComponent extends SvgDialBase {
   imports: [CommonModule],
   templateUrl: './compass-northup.component.svg'
 })
-export class NorthUpCompassComponent extends SvgDialBase {
+export class NorthUpCompassComponent
+  extends SvgDialBase
+  implements OnInit, OnChanges
+{
   @Input() label = '';
   @Input() speed: number | undefined;
   @Input() heading: number | undefined;
-  @Input() windtrue: boolean;
-  @Input() windapparent: boolean;
-  @ViewChild('labeltext', { static: true }) labeltext: ElementRef;
-  @ViewChild('headingtext', { static: true }) headingtext: ElementRef;
-  @ViewChild('speedtext', { static: true }) speedtext: ElementRef;
-  @ViewChild('pointer', { static: true }) pointer: ElementRef;
-  @ViewChild('needlehi', { static: true }) needlehi: ElementRef;
-  @ViewChild('needlelo', { static: true }) needlelo: ElementRef;
+  @Input() windtrue = false;
+  @Input() windapparent = false;
+  @ViewChild('labeltext', { static: true }) labeltext!: ElementRef;
+  @ViewChild('headingtext', { static: true }) headingtext!: ElementRef;
+  @ViewChild('speedtext', { static: true }) speedtext!: ElementRef;
+  @ViewChild('pointer', { static: true }) pointer!: ElementRef;
+  @ViewChild('needlehi', { static: true }) needlehi!: ElementRef;
+  @ViewChild('needlelo', { static: true }) needlelo!: ElementRef;
 
   public showPointer = true;
   public showWindTrue = true;
@@ -273,7 +297,7 @@ export class NorthUpCompassComponent extends SvgDialBase {
   private renderer = inject(Renderer2);
 
   constructor() {
-    super(null);
+    super(undefined);
   }
 
   ngOnInit() {
@@ -298,7 +322,13 @@ export class NorthUpCompassComponent extends SvgDialBase {
   }
 
   updateDial(changes?: SimpleChanges) {
-    const d = {
+    const d: {
+      windtrue: boolean;
+      windapparent: boolean;
+      label: string | null;
+      heading: number | null;
+      speed: number | null;
+    } = {
       windtrue: false,
       windapparent: false,
       label: null,
@@ -308,11 +338,15 @@ export class NorthUpCompassComponent extends SvgDialBase {
     d.heading =
       changes && changes['heading']
         ? changes['heading'].currentValue
-        : this.heading;
+        : (this.heading ?? null);
     d.speed =
-      changes && changes['speed'] ? changes['speed'].currentValue : this.speed;
+      changes && changes['speed']
+        ? changes['speed'].currentValue
+        : (this.speed ?? null);
     d.label =
-      changes && changes['label'] ? changes['label'].currentValue : this.label;
+      changes && changes['label']
+        ? changes['label'].currentValue
+        : (this.label ?? null);
 
     if (this.labeltext && this.labeltext.nativeElement) {
       this.renderer.setProperty(
@@ -326,12 +360,12 @@ export class NorthUpCompassComponent extends SvgDialBase {
       this.renderer.setProperty(
         this.speedtext.nativeElement,
         'innerHTML',
-        this.renderValue(d.speed, 1)
+        this.renderValue(d.speed ?? NaN, 1)
       );
     }
 
-    const rHeading = this.renderValue(d.heading, 0);
-    const rAngle = rHeading === '--' ? this.minValue : d.heading;
+    const rHeading = this.renderValue(d.heading ?? NaN, 0);
+    const rAngle = rHeading === '--' ? this.minValue : (d.heading ?? 0);
 
     this.showPointer =
       (rHeading === '--' ? false : true) &&

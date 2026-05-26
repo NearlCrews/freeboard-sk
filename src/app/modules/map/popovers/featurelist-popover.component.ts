@@ -53,9 +53,9 @@ import { PopoverComponent } from './popover.component';
   styleUrls: []
 })
 export class FeatureListPopoverComponent {
-  @Input() title: string;
+  @Input() title = '';
   @Input() features: { text: string; icon: string }[] = [];
-  @Input() canClose: boolean;
+  @Input() canClose = false;
   readonly closed = output<void>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly selected = output<any>();

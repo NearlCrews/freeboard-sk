@@ -44,8 +44,8 @@ const LightTheme = {
   standalone: false
 })
 export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
   protected features: Feature[] = [];
   private theme = LightTheme;
 
@@ -63,14 +63,14 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   protected lineStyle = input<LineStyleDef>();
 
   @Input() mapZoom = 10;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: Record<string, any>;
+  @Input() layerProperties?: Record<string, any>;
 
   private labelText = signal<string>('');
   protected mapifiedLine: Coordinate[] = [];
@@ -119,20 +119,23 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'mapZoom') {
-          this.handleLabelZoomChange(key, changes[key]);
+          this.handleLabelZoomChange(key, change);
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -147,16 +150,17 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
 
   parseInput() {
     const fa: Feature[] = [];
-    if (Array.isArray(this.coords()) && this.coords().length !== 0) {
-      this.mapifiedLine = this.coords().map((p) => [p[0], p[1]] as Coordinate);
+    const cs = this.coords();
+    if (Array.isArray(cs) && cs.length !== 0) {
+      this.mapifiedLine = cs.map((p) => [p[0], p[1]] as Coordinate);
 
+      const p0 = cs[0];
+      const p1 = cs[1];
+      const cogTime = this.cogTime() ?? 0;
+      const distance = p0 && p1 ? getDistance(p0, p1) : 0;
       this.labelText.update(() => {
-        return `${this.formatNumber(
-          getDistance(this.coords()[0], this.coords()[1])
-        )}  ${
-          this.cogTime() >= 60
-            ? this.cogTime() / 60 + 'hr'
-            : this.cogTime() + 'min'
+        return `${this.formatNumber(distance)}  ${
+          cogTime >= 60 ? cogTime / 60 + 'hr' : cogTime + 'min'
         }`;
       });
 
@@ -164,22 +168,26 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
         geometry: new LineString(fromLonLatArray(this.mapifiedLine))
       });
       cog.setId('cogSelf');
-      cog.setStyle((feature: Feature) => {
-        const geometry = feature.getGeometry() as LineString;
+      cog.setStyle((feature) => {
+        const geometry = (feature as Feature).getGeometry() as LineString;
+        if (!geometry) {
+          return [];
+        }
         const defaultColor = 'rgba(204, 12, 225, 0.7)';
 
-        const stroke = !this.lineStyle()
+        const ls = this.lineStyle();
+        const stroke = !ls
           ? new Stroke({ color: defaultColor, width: 1 })
-          : new Stroke(this.lineStyle().stroke);
+          : new Stroke(ls.stroke);
 
-        const styles = [];
+        const styles: Style[] = [];
         styles.push(
           new Style({
             stroke: stroke
           })
         );
 
-        geometry.forEachSegment((start: Coordinate, end: Coordinate) => {
+        geometry.forEachSegment((_start: Coordinate, end: Coordinate) => {
           styles.push(
             new Style({
               geometry: new Point(end),
@@ -206,7 +214,7 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
         : `${value}m`;
     } else {
       const nm = Convert.transform(value, 'm', 'naut-mile');
-      return `${nm?.toFixed(1)}${Convert.getSymbol(this.units())}`;
+      return `${nm?.toFixed(1) ?? ''}${Convert.getSymbol(this.units())}`;
     }
   }
 
@@ -235,14 +243,19 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     try {
-      let s: StyleLike = f.getStyle();
+      const raw = f.getStyle();
+      if (!raw) {
+        return;
+      }
+      const s: StyleLike | undefined = Array.isArray(raw) ? raw[1] : raw;
       if (!s) {
         return;
       }
-      s = Array.isArray(s) ? s[1] : s;
       (s as Style).setText(this.buildLabelStyle());
       f.setStyle(s);
-    } catch (err) {}
+    } catch {
+      // updateLabel runs best-effort: feature may have been removed mid-tick.
+    }
   }
 
   buildLabelStyle() {

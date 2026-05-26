@@ -104,14 +104,14 @@ import { AlertData } from '../../alarms';
   styleUrls: []
 })
 export class AlarmPopoverComponent implements OnInit, OnChanges {
-  @Input() title: string;
-  @Input() id: string;
-  @Input() alarm: AlertData;
-  @Input() canClose: boolean;
+  @Input() title = '';
+  @Input() id = '';
+  @Input() alarm!: AlertData;
+  @Input() canClose = false;
   readonly info = output<string>();
   readonly goto = output<Position>();
   readonly closed = output<void>();
-  _title: string;
+  _title = '';
 
   protected app = inject(AppFacade);
 
@@ -134,10 +134,9 @@ export class AlarmPopoverComponent implements OnInit, OnChanges {
     this.info.emit(this.alarm.path);
   }
   handleGoto() {
-    this.goto.emit([
-      this.alarm.properties.position.longitude,
-      this.alarm.properties.position.latitude
-    ]);
+    const pos = this.alarm.properties?.['position'];
+    if (!pos) return;
+    this.goto.emit([pos.longitude, pos.latitude]);
   }
   handleClose() {
     this.closed.emit();

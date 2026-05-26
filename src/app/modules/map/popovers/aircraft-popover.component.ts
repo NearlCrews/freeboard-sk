@@ -89,14 +89,14 @@ import { SKAircraft } from 'src/app/modules';
   styleUrls: []
 })
 export class AircraftPopoverComponent implements OnInit, OnChanges {
-  @Input() title: string;
-  @Input() aircraft: SKAircraft;
-  @Input() canClose: boolean;
+  @Input() title = '';
+  @Input() aircraft!: SKAircraft;
+  @Input() canClose = false;
   readonly info = output<string>();
   readonly closed = output<void>();
-  _title: string;
-  timeLastUpdate: string;
-  timeAgo: string; // last update in minutes ago
+  _title = '';
+  timeLastUpdate = '';
+  timeAgo = ''; // last update in minutes ago
 
   protected app = inject(AppFacade);
 
