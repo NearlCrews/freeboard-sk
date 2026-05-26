@@ -1,22 +1,30 @@
-/* ******************************
- * Application LoaclStorage Service **
- * ******************************/
+// Application local-storage facade: namespace-prefixed read/write of the
+// info, config, and data blobs the app persists across sessions.
+
 import { Injectable } from '@angular/core';
 
 import { LocalStorage } from './localstorage.service';
+
+interface SavePayload {
+  info?: unknown;
+  config?: unknown;
+  data?: unknown;
+}
+
+type JsonRecord = Record<string, unknown>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class State {
-  private _appid: string;
+  private _appid = '';
   private ls: LocalStorage;
 
   constructor() {
     this.ls = new LocalStorage();
   }
 
-  get appId() {
+  get appId(): string {
     return this._appid;
   }
 
@@ -27,9 +35,8 @@ export class State {
     }
   }
 
-  /** load info, config & data **
-   * returns {info: xx, config: xx, data: xx }  **/
-  load() {
+  /** load info, config, and data */
+  load(): { info: unknown; config: unknown; data: unknown } {
     return {
       info: this.loadInfo(),
       config: this.loadConfig(),
@@ -37,9 +44,8 @@ export class State {
     };
   }
 
-  /** save info, config & data **
-   * values= {info: xx, config: xx, data: xx }  **/
-  save(values = null) {
+  /** save info, config, and data */
+  save(values: SavePayload | null = null): void {
     if (!values) {
       return;
     }
@@ -54,60 +60,52 @@ export class State {
     }
   }
 
-  // merge new default values in storedvalue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  merge(storedValue: any, defaultValue: any): any {
+  // merge default values into stored values for missing keys
+  merge(storedValue: JsonRecord, defaultValue: JsonRecord): JsonRecord {
     Object.keys(defaultValue).forEach((key) => {
-      if (!storedValue[key]) {
+      const sv = storedValue[key];
+      if (!sv) {
         storedValue[key] = defaultValue[key];
-      } else {
-        if (
-          typeof storedValue[key] === 'object' &&
-          !Array.isArray(storedValue[key]) &&
-          storedValue[key] !== null
-        ) {
-          storedValue[key] = this.merge(storedValue[key], defaultValue[key]);
-        }
+        return;
+      }
+      if (typeof sv === 'object' && !Array.isArray(sv) && sv !== null) {
+        storedValue[key] = this.merge(
+          sv as JsonRecord,
+          defaultValue[key] as JsonRecord
+        );
       }
     });
     return storedValue;
   }
 
-  //** load app config **
-  loadConfig(defaultValue = {}) {
+  loadConfig(defaultValue: unknown = {}): unknown {
     const config = this.ls.read('config');
-    //return config ? this.merge(config,defaultValue) : defaultValue;
     return config ? config : defaultValue;
   }
 
-  //** load app data **
-  loadData(defaultValue = {}) {
+  loadData(defaultValue: unknown = {}): unknown {
     const data = this.ls.read('data');
     return data ? data : defaultValue;
   }
 
-  //** load app info **
-  loadInfo(defaultValue = {}) {
+  loadInfo(defaultValue: unknown = {}): unknown {
     const info = this.ls.read('info');
     return info ? info : defaultValue;
   }
 
-  //** persist app config **
-  saveConfig(value = null) {
+  saveConfig(value: unknown = null): void {
     if (value) {
       this.ls.write('config', value);
     }
   }
 
-  //** persist app data **
-  saveData(value = null) {
+  saveData(value: unknown = null): void {
     if (value) {
       this.ls.write('data', value);
     }
   }
 
-  //** persist app info **
-  saveInfo(value = null) {
+  saveInfo(value: unknown = null): void {
     if (value) {
       this.ls.write('info', value);
     }

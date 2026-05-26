@@ -9,7 +9,6 @@ export class IndexedDB {
     this.dbWrapper = new DbWrapper(dbName, version);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   openDatabase(
     version: number,
     upgradeCallback?: (evt: any, db: IDBDatabase) => void
@@ -25,12 +24,14 @@ export class IndexedDB {
 
       request.onerror = function (e) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        reject('IndexedDB error: ' + (<any>e.target).errorCode);
+        reject('IndexedDB error: ' + (e.target as any).errorCode);
       };
 
       if (typeof upgradeCallback === 'function') {
         request.onupgradeneeded = (e) => {
-          upgradeCallback(e, this.dbWrapper.db);
+          // Cast to the in-progress IDBDatabase before the onsuccess fires;
+          // request.result is the same handle that we later store on dbWrapper.
+          upgradeCallback(e, request.result);
         };
       }
     });
@@ -57,7 +58,7 @@ export class IndexedDB {
       const request: IDBRequest = objectStore.get(key);
       request.onsuccess = (event: Event) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        resolve((<any>event.target).result);
+        resolve((event.target as any).result);
       };
     });
   }
@@ -83,13 +84,13 @@ export class IndexedDB {
       });
       const objectStore = transaction.objectStore(storeName);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: Array<any> = [];
+      const result: any[] = [];
       let request: IDBRequest;
 
       if (indexDetails) {
         const index = objectStore.index(indexDetails.indexName),
           order = indexDetails.order === 'desc' ? 'prev' : 'next';
-        request = index.openCursor(keyRange, <IDBCursorDirection>order);
+        request = index.openCursor(keyRange, order as IDBCursorDirection);
       } else {
         request = objectStore.openCursor(keyRange);
       }
@@ -99,10 +100,11 @@ export class IndexedDB {
       };
 
       request.onsuccess = function (evt: Event) {
-        const cursor = (<IDBOpenDBRequest>evt.target).result;
+        const cursor = (evt.target as IDBRequest<IDBCursorWithValue | null>)
+          .result;
         if (cursor) {
-          result.push(cursor['value']);
-          cursor['continue']();
+          result.push(cursor.value);
+          cursor.continue();
         } else {
           resolve(result);
         }
@@ -182,7 +184,7 @@ export class IndexedDB {
       });
       const objectStore = transaction.objectStore(storeName);
 
-      objectStore['delete'](key);
+      objectStore.delete(key);
     });
   }
 
@@ -266,7 +268,7 @@ export class IndexedDB {
       const request = index.get(key);
 
       request.onsuccess = (event) => {
-        resolve((<IDBOpenDBRequest>event.target).result);
+        resolve((event.target as IDBOpenDBRequest).result);
       };
     });
   }
@@ -279,11 +281,11 @@ export class Utils {
     this.indexedDB =
       window.indexedDB ||
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (<any>window).mozIndexedDB ||
+      (window as any).mozIndexedDB ||
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (<any>window).webkitIndexedDB ||
+      (window as any).webkitIndexedDB ||
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (<any>window).msIndexedDB;
+      (window as any).msIndexedDB;
   }
 }
 
@@ -295,7 +297,7 @@ export interface IndexDetails {
 export class DbWrapper {
   dbName: string;
   dbVersion: number;
-  db: IDBDatabase;
+  db: IDBDatabase | null;
 
   constructor(dbName: string, version: number) {
     this.dbName = dbName;
@@ -304,7 +306,7 @@ export class DbWrapper {
   }
 
   validateStoreName(storeName: string) {
-    return this.db.objectStoreNames.contains(storeName);
+    return this.db?.objectStoreNames.contains(storeName) ?? false;
   }
 
   validateBeforeTransaction(storeName: string, reject: (e: string) => void) {
@@ -321,20 +323,20 @@ export class DbWrapper {
   createTransaction(options: {
     storeName: string;
     dbMode: IDBTransactionMode;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    error: (e: Event) => any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    complete: (e: Event) => any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    abort?: (e: Event) => any;
+    error: (this: IDBTransaction, ev: Event) => void;
+    complete: (this: IDBTransaction, ev: Event) => void;
+    abort?: (this: IDBTransaction, ev: Event) => void;
   }): IDBTransaction {
+    if (!this.db) {
+      throw new Error('createTransaction: db not initialised');
+    }
     const trans: IDBTransaction = this.db.transaction(
       options.storeName,
       options.dbMode
     );
     trans.onerror = options.error;
     trans.oncomplete = options.complete;
-    trans.onabort = options.abort;
+    trans.onabort = options.abort ?? null;
     return trans;
   }
 }

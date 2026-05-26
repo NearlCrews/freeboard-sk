@@ -1,15 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, OnDestroy } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
-export class WakeLockService {
-  private wakeLockRef: WakeLockSentinel;
+export class WakeLockService implements OnDestroy {
+  private wakeLockRef: WakeLockSentinel | null = null;
   private _enabled = signal<boolean>(false);
   readonly enabled = this._enabled.asReadonly();
 
-  constructor() {}
-
   ngOnDestroy() {
-    this.disable();
+    void this.disable();
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
@@ -18,10 +16,10 @@ export class WakeLockService {
   }
 
   toggle() {
-    if (this._enabled) {
-      this.disable();
+    if (this._enabled()) {
+      void this.disable();
     } else {
-      this.enable();
+      void this.enable();
     }
   }
 
@@ -44,7 +42,7 @@ export class WakeLockService {
       document.addEventListener('visibilitychange', () =>
         this.onVisibilityChange()
       );
-    } catch (err) {
+    } catch {
       this.wakeLockRef = null;
       this._enabled.set(false);
     }

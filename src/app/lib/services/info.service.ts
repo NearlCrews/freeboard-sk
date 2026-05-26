@@ -59,7 +59,7 @@ export class InfoService {
   }
 
   /** write debug information to console in devMode only */
-  debug(...e: Array<unknown>) {
+  debug(...e: unknown[]) {
     e.unshift('debug:');
     if (this.devMode) {
       console.info(...e);
@@ -104,7 +104,7 @@ export class InfoService {
 
   /** load app version Info */
   loadInfo(): AppInfoDef {
-    return this.state.loadInfo();
+    return this.state.loadInfo() as AppInfoDef;
   }
 
   /** persist version info */
@@ -117,7 +117,7 @@ export class InfoService {
 
   /** load app config */
   loadConfig() {
-    this.config = this.state.loadConfig(this.config);
+    this.config = this.state.loadConfig(this.config) as IAppConfig;
   }
 
   /** persist app config */
@@ -133,7 +133,7 @@ export class InfoService {
 
   /** load app data */
   loadData() {
-    this.data = this.state.loadData(this.data);
+    this.data = this.state.loadData(this.data) as FBAppData;
   }
 
   /** persist app data */

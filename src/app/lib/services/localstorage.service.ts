@@ -1,9 +1,5 @@
-/***********************************
-LocalStorage Service
-************************************
-Class to encapsulate window.localStorage
-	namespace: prefixes keys with value supplied 
-***********************************/
+// LocalStorage Service: encapsulates window.localStorage with an optional
+// per-instance namespace prefix.
 
 import { Injectable } from '@angular/core';
 
@@ -11,57 +7,49 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class LocalStorage {
-  private _ls = null;
+  private _ls: Storage | null = null;
   private _namespace = '';
 
   constructor() {
-    this._ls = null;
     try {
-      if ('localStorage' in window && window['localStorage'] !== null) {
+      if ('localStorage' in window && window.localStorage !== null) {
         this._ls = window.localStorage;
       }
-    } catch (e) {
+    } catch {
       console.warn('window.localStorage is not supported by this browser!');
     }
   }
 
-  set namespace(value) {
+  set namespace(value: string) {
     this._namespace = value + '_';
   }
-  get namespace() {
+  get namespace(): string {
     return this._namespace;
   }
 
-  //** read data and return a JSON object to supplied key
-  read(key) {
-    if (this._ls && key) {
-      try {
-        return JSON.parse(this._ls.getItem(this._namespace + key));
-      } catch (e) {
-        return this._ls.getItem(this._namespace + key);
-      }
+  read(key: string): unknown {
+    if (!this._ls || !key) return undefined;
+    const raw = this._ls.getItem(this._namespace + key);
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return raw;
     }
   }
 
-  //** write data as a JSON object to supplied key
-  write(key, value = '') {
-    value = JSON.stringify(value);
-    if (this._ls && key) {
-      this._ls.setItem(this._namespace + key, value);
-    }
+  write(key: string, value: unknown = ''): void {
+    if (!this._ls || !key) return;
+    this._ls.setItem(this._namespace + key, JSON.stringify(value));
   }
 
-  //** delete the supplied key
-  delete(key) {
-    if (this._ls && key) {
-      return this._ls.removeItem(this._namespace + key);
-    }
+  delete(key: string): void {
+    if (!this._ls || !key) return;
+    this._ls.removeItem(this._namespace + key);
   }
 
-  //** check supplied key exists **
-  exists(key) {
-    if (this._ls && key) {
-      return this._ls.getItem(this._namespace + key) ? true : false;
-    }
+  exists(key: string): boolean {
+    if (!this._ls || !key) return false;
+    return this._ls.getItem(this._namespace + key) !== null;
   }
 }

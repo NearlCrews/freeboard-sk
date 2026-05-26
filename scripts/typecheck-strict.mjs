@@ -14,7 +14,13 @@
 
 import { spawnSync } from 'node:child_process';
 
-const NEW_PREFIXES = ['src/lib/', 'src/types/'];
+// src/app/lib/services/ entered NEW_PREFIXES in Phase 5 after the strict
+// ratchet drove it to zero in-scope errors. The remaining src/app/lib/
+// surfaces stay LEGACY (info only) until subsequent Phase 5 chunks land.
+// The order matters: NEW prefixes are matched before LEGACY, so a file
+// under src/app/lib/services/ is classified as NEW even though
+// src/app/lib/ also matches.
+const NEW_PREFIXES = ['src/lib/', 'src/types/', 'src/app/lib/services/'];
 const LEGACY_PREFIXES = ['src/app/lib/'];
 
 const RAW = process.argv.includes('--raw');
