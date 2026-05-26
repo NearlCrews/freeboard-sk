@@ -23,8 +23,8 @@ import { MapImageRegistry } from '../map-image-registry.service';
   standalone: false
 })
 export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
-  @Input() waypointStyles: { [key: string]: Style };
-  @Input() activeWaypoint: string;
+  @Input() waypointStyles?: Record<string, Style>;
+  @Input() activeWaypoint?: string;
   @Input() waypoints: FBWaypoints = [];
 
   constructor(
@@ -44,11 +44,13 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
     if (this.source) {
-      if ('waypoints' in changes) {
+      const waypointsChange = changes['waypoints'];
+      const activeWaypointChange = changes['activeWaypoint'];
+      if (waypointsChange) {
         this.source.clear();
-        this.parseFBWaypoints(changes['waypoints'].currentValue);
+        this.parseFBWaypoints(waypointsChange.currentValue);
       }
-      if ('activeWaypoint' in changes) {
+      if (activeWaypointChange) {
         this.source.clear();
         this.reloadWaypoints();
       }
@@ -78,9 +80,11 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
 
   // build waypoint style
   buildStyle(id: string, wpt: SKWaypoint): Style {
+    const props = wpt.feature.properties as Record<string, unknown> | undefined;
+    const skIcon = props?.['skIcon'];
     const icon = this.mapImages.getWaypoint(
       wpt.type ?? 'default',
-      wpt.feature.properties?.skIcon
+      typeof skIcon === 'string' ? skIcon : undefined
     );
     if (icon && typeof this.waypointStyles === 'undefined') {
       const s = new Style({
@@ -95,21 +99,24 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
     }
 
     if (typeof this.waypointStyles !== 'undefined') {
-      if (
-        id === this.activeWaypoint &&
-        typeof this.waypointStyles.active !== 'undefined'
-      ) {
-        return this.setTextLabel(this.waypointStyles.active, wpt.name);
-      } else if (wpt.type && this.waypointStyles[wpt.type.toLowerCase()]) {
-        return this.setTextLabel(
-          this.waypointStyles[wpt.type.toLowerCase()],
-          wpt.name
-        );
-      } else {
-        return this.setTextLabel(this.waypointStyles.default, wpt.name);
+      const activeStyle = this.waypointStyles['active'];
+      if (id === this.activeWaypoint && typeof activeStyle !== 'undefined') {
+        return this.setTextLabel(activeStyle, wpt.name);
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
-      return this.setTextLabel(this.layerProperties.style, wpt.name);
+      const typeKey = wpt.type ? wpt.type.toLowerCase() : '';
+      const typeStyle = typeKey ? this.waypointStyles[typeKey] : undefined;
+      if (typeStyle) {
+        return this.setTextLabel(typeStyle, wpt.name);
+      }
+      return this.setTextLabel(
+        this.waypointStyles['default'] ?? new Style(),
+        wpt.name
+      );
+    } else if (this.layerProperties?.['style']) {
+      return this.setTextLabel(
+        this.layerProperties['style'] as Style,
+        wpt.name
+      );
     } else {
       // default styles
       let s: Style;

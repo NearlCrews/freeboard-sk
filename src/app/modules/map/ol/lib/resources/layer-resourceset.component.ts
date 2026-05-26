@@ -30,9 +30,9 @@ import { SKResourceSet } from 'src/app/modules/skresources';
   standalone: false
 })
 export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
-  protected features: Array<Feature>;
+  protected features: Feature[] = [];
 
-  @Input() collection: string;
+  @Input() collection = '';
   @Input() resourceSets: FBResourceSets = [];
 
   constructor(
@@ -50,9 +50,10 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.source && 'resourceSets' in changes) {
+    const resourceSetsChange = changes['resourceSets'];
+    if (this.source && resourceSetsChange) {
       this.source.clear();
-      this.parseResourceSets(changes['resourceSets'].currentValue);
+      this.parseResourceSets(resourceSetsChange.currentValue);
     }
   }
 
@@ -68,43 +69,49 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
   }
 
   // process a resource set
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseResources(rSet: SKResourceSet) {
     const fa: Feature[] = [];
     let count = 0;
-    for (const w of rSet.values.features) {
-      let f: Feature;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const features: any[] = rSet.values?.features ?? [];
+    for (const w of features) {
+      let f: Feature | undefined;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const coords = w.geometry.coordinates as any;
       if (w.geometry.type === 'Point') {
         f = new Feature({
-          geometry: new Point(fromLonLat(w.geometry.coordinates)),
+          geometry: new Point(fromLonLat(coords)),
           name: w.properties.name ?? `Point ${count}`
         });
       }
       if (w.geometry.type === 'MultiPoint') {
         f = new Feature({
-          geometry: new MultiPoint(fromLonLatArray(w.geometry.coordinates)),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new MultiPoint(fromLonLatArray(coords) as any),
           name: w.properties.name ?? `Pt ${count}`
         });
       } else if (w.geometry.type === 'LineString') {
         f = new Feature({
-          geometry: new LineString(fromLonLatArray(w.geometry.coordinates)),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new LineString(fromLonLatArray(coords) as any),
           name: w.properties.name ?? `L${count}`
         });
       } else if (w.geometry.type === 'MultiLineString') {
         f = new Feature({
-          geometry: new MultiLineString(
-            fromLonLatArray(w.geometry.coordinates)
-          ),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new MultiLineString(fromLonLatArray(coords) as any),
           name: w.properties.name ?? `L${count}`
         });
       } else if (w.geometry.type === 'Polygon') {
         f = new Feature({
-          geometry: new Polygon(fromLonLatArray(w.geometry.coordinates)),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new Polygon(fromLonLatArray(coords) as any),
           name: w.properties.name ?? `P${count}`
         });
       } else if (w.geometry.type === 'MultiPolygon') {
         f = new Feature({
-          geometry: new MultiPolygon(fromLonLatArray(w.geometry.coordinates)),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new MultiPolygon(fromLonLatArray(coords) as any),
           name: w.properties.name ?? `P${count}`
         });
       }
@@ -113,17 +120,23 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
       }
       f.setId(`rset.${this.collection}.${rSet.id}.${count}`);
       // set style
-      if (typeof rSet.styles !== 'undefined') {
+      const styles = rSet.styles as Record<string, unknown> | undefined;
+      if (styles) {
         let rs: Style;
-        if (typeof w.properties.styleRef !== 'undefined') {
+        const styleRef = w.properties.styleRef;
+        const styleDef = w.properties.style;
+        if (typeof styleRef !== 'undefined') {
           rs = this.buildStyle(
-            rSet.styles[w.properties.styleRef],
+            styles[styleRef] as Record<string, unknown>,
             w.geometry.type
           );
-        } else if (typeof w.properties.style !== 'undefined') {
-          rs = this.buildStyle(w.properties.style, w.geometry.type);
+        } else if (typeof styleDef !== 'undefined') {
+          rs = this.buildStyle(styleDef, w.geometry.type);
         } else {
-          rs = this.buildStyle(rSet.styles.default, w.geometry.type);
+          rs = this.buildStyle(
+            styles['default'] as Record<string, unknown>,
+            w.geometry.type
+          );
         }
         f.setStyle(this.setTextLabel(rs, w.properties.name));
       }
@@ -133,18 +146,21 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
     this.features = this.features.concat(fa);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildStyle(styleDef: { [key: string]: any }, geom: string): Style {
+  buildStyle(
+    styleDef: Record<string, unknown> | undefined,
+    geom: string
+  ): Style {
+    const def = styleDef ?? {};
     const s = new Style();
     if (geom === 'Point' || geom === 'MulitPoint') {
       s.setImage(
         new Circle({
-          radius: styleDef.width ?? 5,
-          fill: new Fill({ color: styleDef.fill ?? 'blue' }),
+          radius: (def['width'] as number) ?? 5,
+          fill: new Fill({ color: (def['fill'] as string) ?? 'blue' }),
           stroke: new Stroke({
-            color: styleDef.stroke ?? 'blue',
+            color: (def['stroke'] as string) ?? 'blue',
             width: 2,
-            lineDash: styleDef.lineDash ?? [1]
+            lineDash: (def['lineDash'] as number[]) ?? [1]
           })
         })
       );
@@ -155,12 +171,12 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
         })
       );
     } else {
-      s.setFill(new Fill({ color: styleDef.fill ?? 'blue' }));
+      s.setFill(new Fill({ color: (def['fill'] as string) ?? 'blue' }));
       s.setStroke(
         new Stroke({
-          color: styleDef.stroke ?? 'blue',
-          width: styleDef.width ?? 2,
-          lineDash: styleDef.lineDash ?? [1]
+          color: (def['stroke'] as string) ?? 'blue',
+          width: (def['width'] as number) ?? 2,
+          lineDash: (def['lineDash'] as number[]) ?? [1]
         })
       );
     }

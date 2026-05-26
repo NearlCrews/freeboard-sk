@@ -10,9 +10,7 @@ import {
   AIS_MOORED_STYLE_IDS
 } from 'src/app/modules/icons';
 
-interface MapImageCollection {
-  [id: string | number]: Icon;
-}
+type MapImageCollection = Record<string | number, Icon>;
 
 interface MapImages {
   atons: MapImageCollection;
@@ -38,13 +36,17 @@ export class MapImageRegistry {
     waypoints: {}
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private atonImageDefs: any = {
     virtual: {},
     real: {}
   };
-  private poiImageDefs = {};
-  private vesselImageDefs = {};
-  private waypointImageDefs = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private poiImageDefs: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private vesselImageDefs: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private waypointImageDefs: any = {};
 
   constructor() {
     this.atonImageDefs = getAtoNDefs();
@@ -60,7 +62,8 @@ export class MapImageRegistry {
    * @returns Icon object
    */
   getAtoN(id: number | string, virtual?: boolean): Icon {
-    const vid = ATON_TYPE_IDS[id] ?? 'aton';
+    const typeIds = ATON_TYPE_IDS as unknown as Record<string, string>;
+    const vid = typeIds[String(id)] ?? 'aton';
     if (!this.icons.atons[vid]) {
       this.buildIcon(
         this.icons.atons,
@@ -68,7 +71,7 @@ export class MapImageRegistry {
         vid
       );
     }
-    return this.icons.atons[vid] ?? this.icons.atons['aton'];
+    return (this.icons.atons[vid] ?? this.icons.atons['aton']) as Icon;
   }
 
   /**
@@ -78,7 +81,11 @@ export class MapImageRegistry {
    */
   getVessel(id: number | string, moored?: boolean): Icon | Circle {
     if (moored) {
-      const s = AIS_MOORED_STYLE_IDS[id] ?? AIS_MOORED_STYLE_IDS['default'];
+      const mooredStyles = AIS_MOORED_STYLE_IDS as unknown as Record<
+        string,
+        [string, string]
+      >;
+      const s = mooredStyles[String(id)] ?? mooredStyles['default'] ?? ['', ''];
       return new Circle({
         radius: 5,
         stroke: new Stroke({
@@ -90,11 +97,12 @@ export class MapImageRegistry {
         })
       });
     } else {
-      const vid = AIS_TYPE_IDS[id];
+      const typeIds = AIS_TYPE_IDS as unknown as Record<string, string>;
+      const vid = typeIds[String(id)] ?? 'default';
       if (!this.icons.vessels[vid]) {
         this.buildIcon(this.icons.vessels, this.vesselImageDefs, vid, true);
       }
-      return this.icons.vessels[vid] ?? this.icons.vessels['default'];
+      return (this.icons.vessels[vid] ?? this.icons.vessels['default']) as Icon;
     }
   }
 
@@ -108,7 +116,7 @@ export class MapImageRegistry {
     if (!this.icons.poi[id]) {
       this.buildIcon(this.icons.poi, this.poiImageDefs, id);
     }
-    return this.icons.poi[id] ?? this.icons.poi.default;
+    return (this.icons.poi[id] ?? this.icons.poi['default']) as Icon;
   }
 
   /**
@@ -122,11 +130,9 @@ export class MapImageRegistry {
     if (!this.icons.waypoints[wid]) {
       this.buildIcon(this.icons.waypoints, this.waypointImageDefs, wid);
     }
-    return (
-      this.icons.waypoints[wid] ??
+    return (this.icons.waypoints[wid] ??
       this.icons.waypoints[type] ??
-      this.icons.waypoints.default
-    );
+      this.icons.waypoints['default']) as Icon;
   }
 
   /**
@@ -139,15 +145,17 @@ export class MapImageRegistry {
    */
   private buildIcon(
     group: MapImageCollection,
-    iconDef: { [id: string]: any },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    iconDef: Record<string, any>,
     id: number | string,
-    rotate: boolean = false
+    rotate = false
   ) {
-    if (!iconDef[id]) return;
+    const def = iconDef[id];
+    if (!def) return;
     group[id] = new Icon({
-      src: iconDef[id].path,
-      scale: iconDef[id].scale,
-      anchor: iconDef[id].anchor,
+      src: def.path,
+      scale: def.scale,
+      anchor: def.anchor,
       anchorXUnits: 'pixels',
       anchorYUnits: 'pixels',
       rotateWithView: rotate,

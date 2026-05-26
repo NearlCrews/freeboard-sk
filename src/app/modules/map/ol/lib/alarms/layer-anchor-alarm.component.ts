@@ -31,33 +31,33 @@ import { AsyncSubject } from 'rxjs';
   standalone: false
 })
 export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature>;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
   protected radius = input<number>();
   protected anchorPosition = input<Coordinate>();
   protected vesselPosition = input<Coordinate>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() anchorStyles: { [key: string]: any };
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() anchorStyles?: Record<string, any>;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
   protected mapifiedRadius = 0;
-  protected mapifiedLine: Array<Coordinate> = [];
+  protected mapifiedLine: Coordinate[] = [];
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -93,18 +93,21 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -118,30 +121,33 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   parseValues() {
+    const radius = this.radius();
+    const anchorPos = this.anchorPosition();
+    const vesselPos = this.vesselPosition();
+    if (!anchorPos || !vesselPos) {
+      this.features = [];
+      return;
+    }
     this.mapifiedRadius = mapifyRadius(
-      this.radius() < 0 ? 0 : this.radius(),
-      this.anchorPosition()
+      typeof radius === 'number' && radius < 0 ? 0 : radius,
+      anchorPos
     );
-    this.mapifiedLine = mapifyCoords([
-      this.anchorPosition(),
-      this.vesselPosition()
-    ]);
+    this.mapifiedLine = mapifyCoords([anchorPos, vesselPos]);
     const fa: Feature[] = [];
     const f = new Feature({
-      geometry: new LineString(fromLonLatArray(this.mapifiedLine))
+      geometry: new LineString(
+        fromLonLatArray(this.mapifiedLine) as Coordinate[]
+      )
     });
     f.setStyle(this.buildStyle('line'));
     fa.push(f);
     const fc = new Feature({
-      geometry: new Circle(
-        fromLonLat(this.anchorPosition()),
-        this.mapifiedRadius
-      )
+      geometry: new Circle(fromLonLat(anchorPos), this.mapifiedRadius)
     });
     fc.setStyle(this.buildStyle('circle'));
     fa.push(fc);
     const fp = new Feature({
-      geometry: new Point(fromLonLat(this.anchorPosition()))
+      geometry: new Point(fromLonLat(anchorPos))
     });
     fp.setId('anchor');
     fp.setStyle(this.buildStyle('anchor'));
@@ -151,24 +157,24 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
 
   // build target style
   buildStyle(key: string): Style {
-    if (this.anchorStyles && this.anchorStyles[key]) {
-      return this.anchorStyles[key];
-    } else {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
-      } else {
-        // default style
-        return new Style({
-          stroke: new Stroke({
-            width: 2,
-            color: 'black',
-            lineDash: [5, 5]
-          }),
-          fill: new Fill({
-            color: 'rgba(0, 255, 0, .3)'
-          })
-        });
-      }
+    const styled = this.anchorStyles?.[key] as Style | undefined;
+    if (styled) {
+      return styled;
     }
+    const lpStyle = this.layerProperties?.['style'] as Style | undefined;
+    if (lpStyle) {
+      return lpStyle;
+    }
+    // default style
+    return new Style({
+      stroke: new Stroke({
+        width: 2,
+        color: 'black',
+        lineDash: [5, 5]
+      }),
+      fill: new Fill({
+        color: 'rgba(0, 255, 0, .3)'
+      })
+    });
   }
 }

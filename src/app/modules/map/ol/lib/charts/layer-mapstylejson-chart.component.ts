@@ -41,7 +41,7 @@ export class MapStyleJsonChartLayerComponent implements OnDestroy {
 
   ngOnDestroy() {
     const map = this.mapComponent.getMap();
-    if (this.layer) {
+    if (this.layer && map) {
       map.removeLayer(this.layer);
       map.render();
     }

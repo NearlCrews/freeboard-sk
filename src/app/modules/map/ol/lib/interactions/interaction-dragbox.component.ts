@@ -31,8 +31,8 @@ export class InteractionDragBoxComponent implements AfterViewInit, OnDestroy {
   readonly boxDrag = output<DragBoxEvent>();
   readonly boxCancel = output<DragBoxEvent>();
 
-  private map: Map;
-  private interaction: DragBox;
+  private map: Map | null = null;
+  private interaction: DragBox | null = null;
 
   ngAfterViewInit() {
     this.map = this.mapComponent.getMap();
@@ -40,26 +40,30 @@ export class InteractionDragBoxComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.map.removeInteraction(this.interaction);
-    this.interaction.un('change', this.emitChangeEvent);
-    this.interaction.un('boxstart', this.emitBoxStartEvent);
-    this.interaction.un('boxend', this.emitBoxEndEvent);
-    this.interaction.un('boxdrag', this.emitBoxDragEvent);
-    this.interaction.un('boxcancel', this.emitBoxCancelEvent);
-    this.interaction = null;
+    if (this.map && this.interaction) {
+      this.map.removeInteraction(this.interaction);
+      this.interaction.un('change', this.emitChangeEvent);
+      this.interaction.un('boxstart', this.emitBoxStartEvent);
+      this.interaction.un('boxend', this.emitBoxEndEvent);
+      this.interaction.un('boxdrag', this.emitBoxDragEvent);
+      this.interaction.un('boxcancel', this.emitBoxCancelEvent);
+      this.interaction = null;
+    }
   }
 
   addDragBoxInteraction() {
-    if (undefined !== this.map) {
+    const map = this.map;
+    if (undefined !== map && map !== null) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const opt: any = {};
-      this.interaction = new DragBox(opt);
-      this.interaction.on('change', this.emitChangeEvent);
-      this.interaction.on('boxstart', this.emitBoxStartEvent);
-      this.interaction.on('boxend', this.emitBoxEndEvent);
-      this.interaction.on('boxdrag', this.emitBoxDragEvent);
-      this.interaction.on('boxcancel', this.emitBoxCancelEvent);
-      this.map.addInteraction(this.interaction);
+      const interaction = new DragBox(opt);
+      this.interaction = interaction;
+      interaction.on('change', this.emitChangeEvent);
+      interaction.on('boxstart', this.emitBoxStartEvent);
+      interaction.on('boxend', this.emitBoxEndEvent);
+      interaction.on('boxdrag', this.emitBoxDragEvent);
+      interaction.on('boxcancel', this.emitBoxCancelEvent);
+      map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }
   }

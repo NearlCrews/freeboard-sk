@@ -18,7 +18,7 @@ import { legend } from './legend';
   providedIn: 'root'
 })
 export class RadarRenderService {
-  public hasWebgl: boolean = false;
+  public hasWebgl = false;
 
   private radars: Map<string, SKRadar> = new Map<string, SKRadar>();
   private workers: Worker[] = [];
@@ -72,16 +72,16 @@ export class RadarRenderService {
   ): ImageSource {
     let range = 0;
     let location: Coordinate = [0, 0];
-    let rangeExtent = createEmpty();
+    const rangeExtent = createEmpty();
 
-    function UpdateExtent(location: Coordinate, range: number) {
-      let extent = circular(location, 25465)
+    function UpdateExtent(location: Coordinate, _range: number) {
+      const extent = circular(location, 25465)
         .transform('EPSG:4326', 'EPSG:3857')
         .getExtent();
-      rangeExtent[0] = extent[0];
-      rangeExtent[1] = extent[1];
-      rangeExtent[2] = extent[2];
-      rangeExtent[3] = extent[3];
+      rangeExtent[0] = extent[0] ?? 0;
+      rangeExtent[1] = extent[1] ?? 0;
+      rangeExtent[2] = extent[2] ?? 0;
+      rangeExtent[3] = extent[3] ?? 0;
     }
 
     UpdateExtent(location, range);
@@ -97,7 +97,7 @@ export class RadarRenderService {
 
     const offscreenRadarCanvas = radarCanvas.transferControlToOffscreen();
 
-    let radarSource = new ImageSource({
+    const radarSource = new ImageSource({
       projection: projection,
       loader: createLoader({
         imageExtent: rangeExtent,
@@ -108,7 +108,7 @@ export class RadarRenderService {
       })
     });
 
-    var worker: Worker;
+    let worker: Worker;
     if (this.hasWebgl) {
       worker = new Worker(new URL('./radar-gl.worker', import.meta.url));
     } else {

@@ -39,7 +39,7 @@ import { AsyncSubject } from 'rxjs';
   standalone: false
 })
 export class LayerComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
+  protected layer: Layer | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public source: any;
 
@@ -47,22 +47,22 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() layerType: LayerType;
-  @Input() sourceType: SourceType;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() layerType?: LayerType;
+  @Input() sourceType?: SourceType;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() sourceOptions: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() style: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() properties: { [index: string]: any };
+  @Input() properties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -117,14 +117,17 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
-        properties[key] = changes[key].currentValue;
+        const change = changes[key];
+        if (!change) continue;
+        properties[key] = change.currentValue;
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -137,7 +140,7 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  getLayer(): Layer {
+  getLayer(): Layer | null {
     return this.layer;
   }
 
@@ -145,7 +148,8 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
     return this.mapComponent.getMap();
   }
 
-  getSource(): Source {
+  getSource(): Source | null {
+    if (!this.layer) return null;
     let olSource = this.layer.getSource();
     if (olSource instanceof Cluster) {
       olSource = olSource.getSource();
@@ -155,13 +159,13 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
 
   getUrl(): string {
     if (this.source instanceof ImageWMS) {
-      return this.source.getUrl();
+      return this.source.getUrl() ?? '';
     }
     if (this.source instanceof WMTS) {
-      return this.source.getUrls()[0];
+      return this.source.getUrls()[0] ?? '';
     }
     if (this.source instanceof TileWMS) {
-      return this.source.getUrls()[0];
+      return this.source.getUrls()?.[0] ?? '';
     } else {
       return '';
     }
@@ -173,7 +177,7 @@ export class LayerComponent implements OnInit, OnDestroy, OnChanges {
     if (name && value) {
       params[name.toUpperCase()] = value;
     }
-    params['T'] = new Date().getMilliseconds();
+    params.T = new Date().getMilliseconds();
     this.source.updateParams(params); // {'TIME': startDate.toISOString()}
   }
 

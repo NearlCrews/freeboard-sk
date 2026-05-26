@@ -22,8 +22,8 @@ import { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { AlertData } from '../alarms';
 
 export interface IPopover {
-  id: string;
-  type: string;
+  id: string | null;
+  type: string | null;
   icon?: string;
   position: Position;
   show: boolean;
@@ -45,29 +45,35 @@ export interface IPopover {
 }
 
 export interface MeasurementDef {
-  coords?: Array<Position>;
+  coords?: Position[];
   index?: number;
-  center?: Position;
+  center?: Position | null;
   radius?: number;
 }
 
 export type SelectionModeDef = 'seedChart';
 
 export interface SelectionResultDef {
-  mode: SelectionModeDef;
-  bbox?: [Position?, Position?];
+  mode: SelectionModeDef | null;
+  bbox?: Position[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
 }
 
 export type DrawFeatureType = 'waypoint' | 'route' | 'region' | 'note'; // feature type to draw
 
 export interface DrawFeatureInfo {
-  resourceType: DrawFeatureType;
-  featureType: 'Point' | 'LineString' | 'Polygon';
-  coordinates: any[];
+  resourceType: DrawFeatureType | null;
+  featureType: 'Point' | 'LineString' | 'Polygon' | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  coordinates: any[] | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   features: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   forSave: any;
-  properties: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any; // feature draw style
 }
 
@@ -90,7 +96,7 @@ export class FBMapInteractService {
     mode: null
   });
 
-  private selectionResult: SelectionResultDef;
+  private selectionResult: SelectionResultDef | null = null;
   public measureGeometryType: 'LineString' | 'Circle' = 'LineString';
 
   /** draw interaction data */
@@ -104,8 +110,6 @@ export class FBMapInteractService {
   };
 
   private app = inject(AppFacade);
-
-  constructor() {}
 
   /** add start coordinate to box select */
   initBoxCoord(coord: Position) {
@@ -142,13 +146,11 @@ export class FBMapInteractService {
    * @returns added distance in meters
    */
   addMeasurementCoord(pt: Position): number {
-    const d = GeoUtils.distanceTo(
-      this.measurement().coords[this.measurement().coords.length - 1],
-      pt
-    );
+    const coords = this.measurement().coords ?? [];
+    const last = coords[coords.length - 1];
+    const d = last ? GeoUtils.distanceTo(last, pt) : 0;
     this.measurement.update((current) => {
-      const c = [].concat(current.coords);
-      c.push(pt);
+      const c: Position[] = [...(current.coords ?? []), pt];
       return Object.assign({}, current, { coords: c });
     });
     return d;
@@ -163,12 +165,11 @@ export class FBMapInteractService {
     if (!pt) {
       return 0;
     }
-    if (this.measurement().coords.length > 0) {
+    const coords = this.measurement().coords ?? [];
+    if (coords.length > 0) {
       // return distance between last point in array and pt
-      return GeoUtils.distanceTo(
-        this.measurement().coords[this.measurement().coords.length - 1],
-        pt
-      );
+      const last = coords[coords.length - 1];
+      return last ? GeoUtils.distanceTo(last, pt) : 0;
     } else {
       return 0;
     }
@@ -180,17 +181,17 @@ export class FBMapInteractService {
    * @returns distance in meters
    */
   distanceFromCenter(pt: Position): number {
-    if (!pt || !this.measurement().center) {
+    const center = this.measurement().center;
+    if (!pt || !center) {
       return 0;
     }
-    return GeoUtils.distanceTo(this.measurement().center, pt);
+    return GeoUtils.distanceTo(center, pt);
   }
 
   /**
    * Start measuring mode
-   * @param fromVessel true = distance is measured from vessel to cursor, false = line measure
    */
-  startMeasuring(geometryType?: 'LineString' | 'Circle', fromVessel?: boolean) {
+  startMeasuring(geometryType?: 'LineString' | 'Circle') {
     this.measureGeometryType = geometryType ?? 'LineString';
     this.app.debug(`startMeasuring()...`);
     this.isMeasuring.set(true);
@@ -223,27 +224,28 @@ export class FBMapInteractService {
     this.app.debug(`stopDrawing()...`);
     this.isDrawing.set(false);
     if (feature) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const geom = feature.getGeometry() as any;
       switch (this.draw.featureType) {
         case 'Point': // waypoint, note
-          this.draw.coordinates = toLonLat(
-            (feature.getGeometry() as any).getCoordinates()
-          );
+          this.draw.coordinates = toLonLat(geom.getCoordinates());
           break;
-        case 'LineString': // route
-          const rc = (feature.getGeometry() as any).getCoordinates();
-          this.draw.coordinates = rc.map((i: Coordinate) => {
-            return toLonLat(i);
-          });
+        case 'LineString': {
+          // route
+          const rc: Coordinate[] = geom.getCoordinates();
+          this.draw.coordinates = rc.map((i: Coordinate) => toLonLat(i));
           break;
-        case 'Polygon': // region
-          const p = (feature.getGeometry() as any).getCoordinates();
+        }
+        case 'Polygon': {
+          // region
+          const p: Coordinate[][] = geom.getCoordinates();
           if (p.length === 0) {
             this.draw.coordinates = [];
           }
-          this.draw.coordinates = p[0].map((i: Coordinate) => {
-            return toLonLat(i);
-          });
+          const ring = p[0] ?? [];
+          this.draw.coordinates = ring.map((i: Coordinate) => toLonLat(i));
           break;
+        }
       }
     }
     this.interactionEnded();
@@ -256,7 +258,7 @@ export class FBMapInteractService {
       return;
     }
     this.isModifying.set(true);
-    this.draw.resourceType = overlay.type as DrawFeatureType;
+    this.draw.resourceType = (overlay.type ?? null) as DrawFeatureType | null;
     this.draw.featureType = null;
     this.draw.forSave = { id: null, coords: null };
     this.draw.coordinates = null;
@@ -275,6 +277,7 @@ export class FBMapInteractService {
   /**
    * Start box selection mode
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startBoxSelection(mode: SelectionModeDef, data: any) {
     this.app.debug(`startBoxSelection()...`);
     this.selectionResult = {
@@ -289,31 +292,28 @@ export class FBMapInteractService {
   /** Exit measuring mode */
   stopBoxSelection(coords?: Position) {
     this.app.debug(`stopBoxSelection()...`);
-    if (coords) {
-      this.selectionResult.bbox.push(coords);
+    if (coords && this.selectionResult) {
+      const bbox = this.selectionResult.bbox ?? [];
+      bbox.push(coords);
+      this.selectionResult.bbox = bbox;
       this.formatBbox();
-      this.selection.update(() => {
-        return this.selectionResult;
-      });
+      const result = this.selectionResult;
+      this.selection.update(() => result);
     }
     this.isBoxSelecting.set(false);
     this.interactionEnded();
   }
 
   private formatBbox() {
-    if (this.selectionResult.bbox.length !== 2) {
+    const bbox = this.selectionResult?.bbox;
+    if (!this.selectionResult || !bbox || bbox.length !== 2) {
       return;
     }
-    const coords = [].concat(this.selectionResult.bbox);
+    const a = bbox[0] as Position;
+    const b = bbox[1] as Position;
     this.selectionResult.bbox = [
-      [
-        coords[0][0] < coords[1][0] ? coords[0][0] : coords[1][0],
-        coords[0][1] < coords[1][1] ? coords[0][1] : coords[1][1]
-      ],
-      [
-        coords[0][0] > coords[1][0] ? coords[0][0] : coords[1][0],
-        coords[0][1] > coords[1][1] ? coords[0][1] : coords[1][1]
-      ]
+      [a[0] < b[0] ? a[0] : b[0], a[1] < b[1] ? a[1] : b[1]],
+      [a[0] > b[0] ? a[0] : b[0], a[1] > b[1] ? a[1] : b[1]]
     ];
   }
 

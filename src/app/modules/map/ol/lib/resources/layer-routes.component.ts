@@ -23,8 +23,8 @@ import type { FBRoutes, Position } from 'src/app/types';
   standalone: false
 })
 export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
-  @Input() routeStyles: Record<string, Style>;
-  @Input() activeRoute: string;
+  @Input() routeStyles?: Record<string, Style>;
+  @Input() activeRoute?: string;
   @Input() routes: FBRoutes = [];
 
   constructor(
@@ -43,12 +43,14 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
     if (!this.source) return;
-    if ('routes' in changes) {
+    const routesChange = changes['routes'];
+    const activeRouteChange = changes['activeRoute'];
+    if (routesChange) {
       this.source.clear();
-      this.parseFBRoutes(changes.routes.currentValue);
-    } else if ('activeRoute' in changes) {
+      this.parseFBRoutes(routesChange.currentValue);
+    } else if (activeRouteChange) {
       this.onActivateRoute(
-        changes.activeRoute.previousValue as string | undefined
+        activeRouteChange.previousValue as string | undefined
       );
     }
   }
@@ -78,11 +80,15 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
         const mc = mapifyCoords(r[1].feature.geometry.coordinates);
         const c = fromLonLatArray(mc);
         const f = new Feature({
-          geometry: new LineString(c),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          geometry: new LineString(c as any),
           name: r[1].name
         });
         f.setId('route.' + r[0]);
-        f.set('pointMetadata', r[1].feature.properties.coordinatesMeta ?? null);
+        const props = r[1].feature.properties as
+          | Record<string, unknown>
+          | undefined;
+        f.set('pointMetadata', props?.['coordinatesMeta'] ?? null);
         f.setStyle(this.buildStyle(f));
         fa.push(f);
       }
@@ -92,16 +98,18 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
   }
 
   // Route style function
-  buildStyle(feature: Feature) {
+  buildStyle(feature: Feature): Style | Style[] {
     const geometry = feature.getGeometry() as LineString;
-    const styles = [];
-    const id = (feature.getId() as string).split('.').slice(-1)[0];
+    const styles: Style[] = [];
+    const fid = feature.getId();
+    const id =
+      typeof fid === 'string' ? fid.split('.').slice(-1)[0] : undefined;
     const isActive = id === this.activeRoute;
     let ptFill: Fill;
 
     if (typeof this.routeStyles === 'undefined') {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
+      if (this.layerProperties?.['style']) {
+        return this.layerProperties['style'] as Style;
       } else {
         styles.push(
           new Style({
@@ -116,15 +124,17 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     }
 
     // line style
-    if (isActive && typeof this.routeStyles.active !== 'undefined') {
-      styles.push(this.routeStyles.active);
+    const activeStyle = this.routeStyles['active'];
+    const defaultStyle = this.routeStyles['default'] ?? new Style();
+    if (isActive && typeof activeStyle !== 'undefined') {
+      styles.push(activeStyle);
       ptFill = new Fill({
-        color: this.routeStyles.active.getStroke().getColor()
+        color: activeStyle.getStroke()?.getColor() ?? 'green'
       });
     } else {
-      styles.push(this.routeStyles.default.clone());
+      styles.push(defaultStyle.clone());
       ptFill = new Fill({
-        color: this.routeStyles.default.getStroke().getColor()
+        color: defaultStyle.getStroke()?.getColor() ?? 'green'
       });
     }
 

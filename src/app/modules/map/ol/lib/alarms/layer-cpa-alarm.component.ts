@@ -29,25 +29,25 @@ import { AsyncSubject } from 'rxjs';
   standalone: false
 })
 export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature>;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
 
-  @Input() cpaLines: Array<Coordinate[]>;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() cpaLines: Coordinate[][] = [];
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -73,11 +73,14 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'cpaLines') {
           this.parseValues();
           if (this.source) {
@@ -85,12 +88,12 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
             this.source.addFeatures(this.features);
           }
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -110,13 +113,15 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
     const fa: Feature[] = [];
     this.cpaLines.forEach((cpaLine) => {
       const mapifiedLine = mapifyCoords(cpaLine);
+      const head = mapifiedLine[0];
+      if (!head) return;
       const f = new Feature({
-        geometry: new LineString(fromLonLatArray(mapifiedLine))
+        geometry: new LineString(fromLonLatArray(mapifiedLine) as Coordinate[])
       });
       f.setStyle(this.buildStyle());
       fa.push(f);
       const fp = new Feature({
-        geometry: new Point(fromLonLat(mapifiedLine[0]))
+        geometry: new Point(fromLonLat(head))
       });
       fp.setStyle(this.buildStyle());
       fa.push(fp);
@@ -127,8 +132,9 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
   // build target style
   buildStyle(): Style {
     let cs: Style;
-    if (this.layerProperties && this.layerProperties.style) {
-      cs = this.layerProperties.style;
+    const lpStyle = this.layerProperties?.['style'] as Style | undefined;
+    if (lpStyle) {
+      cs = lpStyle;
     } else {
       // default style
       cs = new Style({

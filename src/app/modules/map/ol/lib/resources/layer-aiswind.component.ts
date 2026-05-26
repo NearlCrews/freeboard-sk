@@ -39,20 +39,26 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
   }
 
   calcVector(target: SKVessel) {
+    const awa = target.wind.awa;
     const windDirection = this.vectorApparent
-      ? typeof target.wind.awa !== 'undefined'
-        ? target.orientation + target.wind.awa
+      ? typeof awa === 'number'
+        ? target.orientation + awa
         : null
       : target.wind.direction;
 
-    if (typeof windDirection !== 'number') {
+    if (typeof windDirection !== 'number' || !target.position) {
       return [];
     }
 
+    const offset =
+      zoomOffsetLevel[Math.floor(this.mapZoom)] ?? zoomOffsetLevel[0];
+    if (typeof offset !== 'number') {
+      return [];
+    }
     const windc = GeoUtils.destCoordinate(
       target.position,
       windDirection,
-      zoomOffsetLevel[Math.floor(this.mapZoom)]
+      offset
     );
     return [fromLonLat(target.position), fromLonLat(windc)];
   }
@@ -62,8 +68,8 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
     if (!id.includes(this.targetContext) || !this.targets.has(id)) {
       return;
     }
-    const target = this.targets.get(id) as SKVessel;
-    if (this.okToRenderTarget(id) && target.position) {
+    const target = this.targets.get(id) as SKVessel | undefined;
+    if (target && this.okToRenderTarget(id) && target.position) {
       const v = this.calcVector(target);
       if (v.length !== 2) {
         return;
@@ -94,15 +100,16 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
   }
 
   // update wind vector feature when target updated
-  override onUpdateTargets(ids: Array<string>) {
+  override onUpdateTargets(ids: string[]) {
     ids.forEach((id: string) => {
       if (id.includes(this.targetContext)) {
-        const f = this.source?.getFeatureById('wind-' + id) as Feature;
+        const f = this.source?.getFeatureById('wind-' + id) as Feature | null;
         if (this.okToRenderTarget(id)) {
           if (this.targets.has(id)) {
             if (f) {
-              const target = this.targets.get(id) as SKVessel;
-              const position = this.targets.get(id).position;
+              const target = this.targets.get(id) as SKVessel | undefined;
+              if (!target) return;
+              const position = target.position;
               const v = this.calcVector(target);
               if (position && v.length === 2) {
                 f.setGeometry(new LineString(v));
@@ -112,7 +119,7 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
               this.addWindVectorWithId(id);
             }
           }
-        } else {
+        } else if (f) {
           this.source.removeFeature(f);
         }
       }
@@ -120,9 +127,9 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
   }
 
   // remove flag when target removed
-  override onRemoveTargets(ids: Array<string>) {
+  override onRemoveTargets(ids: string[]) {
     ids.forEach((id) => {
-      const f = this.source.getFeatureById('wind-' + id) as Feature;
+      const f = this.source.getFeatureById('wind-' + id) as Feature | null;
       if (f) {
         this.source.removeFeature(f);
       }

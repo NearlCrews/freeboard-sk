@@ -41,8 +41,9 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if ('cogLineLength' in changes) {
-      this.cogLineLength = changes['cogLineLength'].currentValue ?? 0;
+    const cogLineLengthChange = changes['cogLineLength'];
+    if (cogLineLengthChange) {
+      this.cogLineLength = cogLineLengthChange.currentValue ?? 0;
       this.onUpdateTargets(this.extractKeys(this.targets));
     }
   }
@@ -55,24 +56,27 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   }
 
   // update targets
-  override onUpdateTargets(ids: Array<string>) {
+  override onUpdateTargets(ids: string[]) {
     if (!this.source) return;
     ids.forEach((id: string) => {
       if (id.includes(this.targetContext)) {
         if (this.okToRenderTarget(id)) {
           if (this.targets.has(id)) {
-            const f = this.source.getFeatureById('ais-' + id) as Feature;
+            const f = this.source.getFeatureById('ais-' + id) as Feature | null;
             if (f) {
-              const target = this.targets.get(id) as SKVessel;
+              const target = this.targets.get(id) as SKVessel | undefined;
+              if (!target) return;
               const label = this.buildLabel(target);
               if (target.position) {
                 f.setGeometry(new Point(fromLonLat(target.position)));
               }
-              const s = this.buildVesselStyle(
+              const built = this.buildVesselStyle(
                 target,
                 label,
                 this.isStale(target)
-              ).clone();
+              );
+              if (!built) return;
+              const s = built.clone();
               f.set('name', label, true);
               f.setStyle(
                 this.setTextLabel(
@@ -93,14 +97,14 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   }
 
   // remove target features
-  override onRemoveTargets(ids: Array<string>) {
+  override onRemoveTargets(ids: string[]) {
     ids.forEach((id) => {
       if (id.includes(this.targetContext)) {
-        let f = this.source.getFeatureById('ais-' + id) as Feature;
+        let f = this.source.getFeatureById('ais-' + id) as Feature | null;
         if (f) {
           this.source.removeFeature(f);
         }
-        f = this.source.getFeatureById('cog-' + id) as Feature;
+        f = this.source.getFeatureById('cog-' + id) as Feature | null;
         if (f) {
           this.source.removeFeature(f);
         }
@@ -119,7 +123,8 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
     if (!id.includes(this.targetContext) || !this.targets.has(id)) {
       return;
     }
-    const target = this.targets.get(id) as SKVessel;
+    const target = this.targets.get(id) as SKVessel | undefined;
+    if (!target) return;
     if (this.okToRenderTarget(id) && target.position) {
       const label = this.buildLabel(target);
       const f = new Feature({
@@ -128,11 +133,9 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       });
       f.setId('ais-' + id);
       f.set('name', label, true);
-      const s = this.buildVesselStyle(
-        target,
-        label,
-        this.isStale(target)
-      ).clone();
+      const built = this.buildVesselStyle(target, label, this.isStale(target));
+      if (!built) return;
+      const s = built.clone();
       f.setStyle(
         this.setTextLabel(this.setRotation(s, target.orientation), label)
       );
@@ -142,13 +145,18 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   }
 
   // build target style
-  buildVesselStyle(target: SKVessel, label?: string, setStale = false): Style {
-    let s: Style;
+  buildVesselStyle(
+    target: SKVessel,
+    label?: string,
+    setStale = false
+  ): Style | undefined {
+    let s: Style | undefined;
     const isMoored = target.state === 'moored';
 
-    const shipClass = target.type.id
-      ? Math.abs(Math.floor(target.type.id / 10) * 10)
-      : -1;
+    const shipClass =
+      typeof target.type.id === 'number'
+        ? Math.abs(Math.floor(target.type.id / 10) * 10)
+        : -1;
 
     const icon =
       target.id === this.focusId
@@ -162,46 +170,45 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
               : this.mapImages.getVessel(shipClass, isMoored);
 
     if (icon && typeof this.targetStyles === 'undefined') {
-      if (icon) {
-        return new Style({
-          image: icon,
-          text: new Text({
-            text: '',
-            offsetX: 0,
-            offsetY: isMoored ? 12 : 22
-          })
-        });
-      }
-      return;
+      return new Style({
+        image: icon,
+        text: new Text({
+          text: '',
+          offsetX: 0,
+          offsetY: isMoored ? 12 : 22
+        })
+      });
     }
 
     if (typeof this.targetStyles !== 'undefined') {
-      if (target.id === this.focusId && this.targetStyles.focus) {
-        s = this.targetStyles.focus;
+      const ts = this.targetStyles;
+      if (target.id === this.focusId && ts['focus']) {
+        s = ts['focus'];
       } else if (setStale) {
         // stale
-        s = this.targetStyles.inactive ?? this.targetStyles.default;
-      } else if (target.type && this.targetStyles[shipClass]) {
+        s = ts['inactive'] ?? ts['default'];
+      } else if (target.type && ts[shipClass]) {
         // ship type & state
-        if (target.state && this.targetStyles[shipClass][target.state]) {
-          s = this.targetStyles[shipClass][target.state];
+        const shipStyles = ts[shipClass] as unknown as Record<string, Style>;
+        if (target.state && shipStyles[target.state]) {
+          s = shipStyles[target.state];
         } else {
-          s = this.targetStyles[shipClass]['default'];
+          s = shipStyles['default'];
         }
-      } else if (target.buddy && this.targetStyles.buddy) {
+      } else if (target.buddy && ts['buddy']) {
         // buddy
-        s = this.targetStyles.buddy;
+        s = ts['buddy'];
       } else {
         // all others
-        if (target.state && this.targetStyles[target.state]) {
+        if (target.state && ts[target.state]) {
           // state only
-          s = this.targetStyles[target.state];
+          s = ts[target.state];
         } else {
-          s = this.targetStyles.default;
+          s = ts['default'];
         }
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
-      s = this.layerProperties.style;
+    } else if (this.layerProperties?.['style']) {
+      s = this.layerProperties['style'] as Style;
     } else {
       if (target.id === this.focusId) {
         s = new Style({
@@ -253,7 +260,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       return;
     }
 
-    let cf = this.source.getFeatureById('cog-' + id) as Feature;
+    let cf = this.source.getFeatureById('cog-' + id) as Feature | null;
     if (
       !this.okToRenderCogLines ||
       !this.okToRenderTarget(id) ||
@@ -265,13 +272,15 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cogCoords = fromLonLatArray(target.vectors.cog) as any;
     if (cf) {
       // update vector
-      cf.setGeometry(new LineString(fromLonLatArray(target.vectors.cog)));
+      cf.setGeometry(new LineString(cogCoords));
       cf.setStyle(this.buildCogLineStyle(id, cf));
     } else {
       // create vector
-      cf = new Feature(new LineString(fromLonLatArray(target.vectors.cog)));
+      cf = new Feature(new LineString(cogCoords));
       cf.setId('cog-' + id);
       cf.setStyle(this.buildCogLineStyle(id, cf));
       this.source.addFeature(cf);
@@ -281,12 +290,13 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   // show / hide cog vector
   toggleCogLines(show: boolean) {
     if (show) {
-      this.targets.forEach((v: SKVessel, k) => {
-        this.parseCogLine(k, v);
+      this.targets.forEach((v, k) => {
+        this.parseCogLine(k, v as SKVessel);
       });
     } else {
       this.source.forEachFeature((cl: Feature<LineString>) => {
-        if ((cl.getId() as string).includes('cog-')) {
+        const fid = cl.getId();
+        if (typeof fid === 'string' && fid.includes('cog-')) {
           this.source.removeFeature(cl);
         }
       });
@@ -299,7 +309,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       this.okToRenderTarget(id) && this.okToRenderCogLines() ? 0.7 : 0;
     const geometry = feature.getGeometry() as LineString;
     const color = `rgba(0,0,0, ${opacity})`;
-    const styles = [];
+    const styles: Style[] = [];
     styles.push(
       new Style({
         stroke: new Stroke({

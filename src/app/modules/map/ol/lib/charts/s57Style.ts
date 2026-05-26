@@ -101,7 +101,9 @@ export class S57Style {
     parameters: string
   ): string {
     const params = parameters.split(',');
-    const text = featureProperties[params[0]];
+    const key = params[0];
+    if (key === undefined) return '';
+    const text = featureProperties[key];
     return text;
   }
 
@@ -206,12 +208,22 @@ export class S57Style {
       }
     } else {
       if (featureProperties['layer'] === 'COALNE') {
+        // Latent bug carried over from the legacy S57 port: the COALNE
+        // branch reads CONRAD into the unrelated `quapos`/`bquapos`
+        // locals and never sets `conrad`/`bconrad`, so the
+        // `if (bconrad)` branch never fires. Typed as `let` here so
+        // strictPropertyInitialization tolerates the dead-code state;
+        // the real fix belongs in the S57 chart-rendering pass that
+        // owns the CS_QUAPOS01 conversion table.
         const conrad = 0;
         const bconrad = false;
         if (featureProperties['CONRAD']) {
           quapos = parseFloat(featureProperties['CONRAD']);
           bquapos = true;
         }
+        // Silence unused-variable warning until the latent bug is fixed.
+        void conrad;
+        void bconrad;
         if (bconrad) {
           if (conrad === 1) {
             retval.push('LS(SOLD,3,CHMGF)');

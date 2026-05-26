@@ -73,9 +73,8 @@ export const zoomOffsetLevel = [
   standalone: false
 })
 export class MapComponent implements OnInit, OnDestroy, OnChanges {
-  private map: Map;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private timeoutId: any;
+  private map: Map | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   /**
    * This event is triggered after the map is initialized
@@ -107,11 +106,11 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   readonly mapPreCompose = output<RenderEvent>();
   readonly mapPropertyChange = output<ObjectEvent>();
 
-  @Input() pixelRatio: number;
-  @Input() keyboardEventTarget: Element | string;
-  @Input() logo: string | boolean;
+  @Input() pixelRatio?: number;
+  @Input() keyboardEventTarget?: Element | string;
+  @Input() logo?: string | boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() properties: Record<string, any>;
+  @Input() properties?: Record<string, any>;
   @Input() setFocus = '';
   @Input() hitTolerance = 5;
 
@@ -148,81 +147,80 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
     const target = this.element.nativeElement.firstElementChild;
-    this.map = new Map({
+    const map = new Map({
       // 2x OL default (16); keeps the browser HTTP/1.1 per-host connection
       // pool fully fed during zoom-out tile bursts.
       maxTilesLoading: 32
     });
-    this.map.setTarget(target);
-    this.map.setProperties(this.properties, true);
+    this.map = map;
+    map.setTarget(target);
+    if (this.properties) {
+      map.setProperties(this.properties, true);
+    }
     // register the map in the injectable mapService
-    this.mapService.addMap(this.map);
+    this.mapService.addMap(map);
 
-    this.map.once('postrender', () => {
+    map.once('postrender', () => {
       this.afterMapReady();
     });
   }
 
   ngOnDestroy() {
-    if (!this.map) {
+    const map = this.map;
+    if (!map) {
       return;
     }
-    this.map.un('singleclick', this.emitSingleClickEvent);
-    this.map.un('dblclick', this.emitDblClickEvent);
-    this.map.un('click', this.emitClickEvent);
-    this.map.un('movestart', this.emitMoveStartEvent);
-    this.map.un('moveend', this.emitMoveEndEvent);
-    this.map.un('pointerdrag', this.emitPointerDragEvent);
-    this.map.un('pointermove', this.emitPointerMoveEvent);
-    this.map.un('postcompose', this.emitPostComposeEvent);
-    this.map.un('postrender', this.emitPostRenderEvent);
-    this.map.un('precompose', this.emitPreComposeEvent);
+    map.un('singleclick', this.emitSingleClickEvent);
+    map.un('dblclick', this.emitDblClickEvent);
+    map.un('click', this.emitClickEvent);
+    map.un('movestart', this.emitMoveStartEvent);
+    map.un('moveend', this.emitMoveEndEvent);
+    map.un('pointerdrag', this.emitPointerDragEvent);
+    map.un('pointermove', this.emitPointerMoveEvent);
+    map.un('postcompose', this.emitPostComposeEvent);
+    map.un('postrender', this.emitPostRenderEvent);
+    map.un('precompose', this.emitPreComposeEvent);
     // right click handler
-    this.map
+    map
       .getViewport()
       .removeEventListener('contextmenu', this.rightClickHandler);
-    this.map
+    map
       .getViewport()
       .removeEventListener('pointerdown', this.pointerDownHandler);
-    this.map
-      .getViewport()
-      .removeEventListener('pointerup', this.pointerUpHandler);
+    map.getViewport().removeEventListener('pointerup', this.pointerUpHandler);
     window.removeEventListener('resize', this.updateSizeThrottle);
     window.removeEventListener('orientationchange', this.updateSizeThrottle);
 
-    this.map.setTarget(null);
+    map.setTarget(undefined);
     this.map = null;
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.map && typeof changes.setFocus !== 'undefined') {
-      if (changes.setFocus.currentValue) {
-        this.focusMap();
-      }
+    const focusChange = changes['setFocus'];
+    if (this.map && focusChange && focusChange.currentValue) {
+      this.focusMap();
     }
   }
 
   afterMapReady() {
+    const map = this.map;
+    if (!map) return;
     // register map events
-    this.map.on('singleclick', this.emitSingleClickEvent);
-    this.map.on('dblclick', this.emitDblClickEvent);
-    this.map.on('click', this.emitClickEvent);
-    this.map.on('movestart', this.emitMoveStartEvent);
-    this.map.on('moveend', this.emitMoveEndEvent);
-    this.map.on('pointerdrag', this.emitPointerDragEvent);
-    this.map.on('pointermove', this.emitPointerMoveEvent);
-    this.map.on('postcompose', this.emitPostComposeEvent);
-    this.map.on('postrender', this.emitPostRenderEvent);
-    this.map.on('precompose', this.emitPreComposeEvent);
+    map.on('singleclick', this.emitSingleClickEvent);
+    map.on('dblclick', this.emitDblClickEvent);
+    map.on('click', this.emitClickEvent);
+    map.on('movestart', this.emitMoveStartEvent);
+    map.on('moveend', this.emitMoveEndEvent);
+    map.on('pointerdrag', this.emitPointerDragEvent);
+    map.on('pointermove', this.emitPointerMoveEvent);
+    map.on('postcompose', this.emitPostComposeEvent);
+    map.on('postrender', this.emitPostRenderEvent);
+    map.on('precompose', this.emitPreComposeEvent);
 
     // right click handler
-    this.map
-      .getViewport()
-      .addEventListener('contextmenu', this.rightClickHandler);
-    this.map
-      .getViewport()
-      .addEventListener('pointerdown', this.pointerDownHandler);
-    this.map.getViewport().addEventListener('pointerup', this.pointerUpHandler);
+    map.getViewport().addEventListener('contextmenu', this.rightClickHandler);
+    map.getViewport().addEventListener('pointerdown', this.pointerDownHandler);
+    map.getViewport().addEventListener('pointerup', this.pointerUpHandler);
 
     // react on window events
     window.addEventListener('resize', this.updateSizeThrottle, false);
@@ -234,7 +232,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
     this.updateSize();
 
-    this.mapReady.next({ map: this.map, mapService: this.mapService });
+    this.mapReady.next({ map: map, mapService: this.mapService });
     this.mapReady.complete();
 
     if (this.setFocus) {
@@ -245,28 +243,33 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   // Only arrow function works with addEventListener
 
   // Long Press Detection (iOS & Android)
-  private touchTimer: any;
-  private evCache: Record<number, MouseEvent> = {};
+  private touchTimer: ReturnType<typeof setTimeout> | undefined;
+  private evCache: Record<number, PointerEvent> = {};
   private clearTouchTimer = () => {
     clearTimeout(this.touchTimer);
     this.evCache = {};
   };
   private touchHold = () => {
     if (Object.keys(this.evCache).length === 1) {
-      this.mapContextMenu.emit(Object.values(this.evCache)[0] as any);
-      this.rightClickHandler(Object.values(this.evCache)[0]);
+      const first = Object.values(this.evCache)[0];
+      if (!first) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.mapContextMenu.emit(first as any);
+      this.rightClickHandler(first);
     }
   };
-  private pointerDownHandler = (event) => {
+  private pointerDownHandler = (event: PointerEvent) => {
     this.evCache[event.pointerId] = event;
     this.touchTimer = setTimeout(this.touchHold, 500);
+    if (!this.map) return;
     const c = toLonLat(this.map.getEventCoordinate(event));
     const e = Object.assign(event, { lonlat: c });
     this.mapService.clearFeatureUrls();
-    this.mapPointerDown.emit(e);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.mapPointerDown.emit(e as any);
     this._pointerDown.update(() => e);
   };
-  private pointerUpHandler = (event) => {
+  private pointerUpHandler = () => {
     this.clearTouchTimer();
   };
   private rightClickHandler = (event: MouseEvent) => {
@@ -280,14 +283,13 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   private emitRightClickEvent = (event: MouseEvent) => {
     event.preventDefault();
-    const c = this.map.getEventCoordinate(event);
+    const map = this.map;
+    if (!map) return;
+    const c = map.getEventCoordinate(event);
     this.mapRightClick.emit({
-      features: this.map.getFeaturesAtPixel(
-        this.map.getPixelFromCoordinateInternal(c),
-        {
-          hitTolerance: this.hitTolerance
-        }
-      ),
+      features: map.getFeaturesAtPixel(map.getPixelFromCoordinateInternal(c), {
+        hitTolerance: this.hitTolerance
+      }),
       lonlat: toLonLat(c)
     });
   };
@@ -301,16 +303,17 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   // ** add {lonlat, features}fields to event
   private augmentClickEvent(event: MapBrowserEvent<PointerEvent>) {
     return Object.assign(event, {
-      features: this.map.getFeaturesAtPixel(event.pixel, {
-        hitTolerance: this.hitTolerance
-      }),
+      features:
+        this.map?.getFeaturesAtPixel(event.pixel, {
+          hitTolerance: this.hitTolerance
+        }) ?? [],
       lonlat: toLonLat(event.coordinate)
     });
   }
 
-  private zoomAtStart: number;
+  private zoomAtStart: number | undefined;
   private emitMoveStartEvent = (event: MapEvent) => {
-    this.zoomAtStart = this.map.getView().getZoom();
+    this.zoomAtStart = this.map?.getView().getZoom();
     this.mapMoveStart.emit(this.augmentMoveEvent(event));
   };
   private emitMoveEndEvent = (event: MapEvent) => {
@@ -319,16 +322,17 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   // ** add {lonlat, zoom, extent, projCode, topCenter, rightCenter, rotation} fields to event
   private augmentMoveEvent(event: MapEvent) {
-    const zoom = this.map.getView().getZoom();
+    const view = this.map?.getView();
+    const zoom = view?.getZoom();
     return Object.assign(event, {
       lonlat: this.getMapCenter(),
       zoom: zoom,
       zoomChanged: this.zoomAtStart !== zoom,
       extent: this.getMapExtent(),
-      projCode: this.map.getView().getProjection().getCode(),
+      projCode: view?.getProjection().getCode() ?? '',
       topCenter: this.getMapViewTopCenter(),
       rightCenter: this.getMapViewRightCenter(),
-      rotation: this.map.getView().getRotation()
+      rotation: view?.getRotation() ?? 0
     });
   }
 
@@ -358,7 +362,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   private updateSizeThrottle = () => {
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
-      this.map.updateSize();
+      this.map?.updateSize();
     }, 100);
   };
 
@@ -378,7 +382,11 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.map) {
       return [0, 0];
     }
-    return toLonLat(this.map.getView().getCenter());
+    const center = this.map.getView().getCenter();
+    if (!center) {
+      return [0, 0];
+    }
+    return toLonLat(center);
   }
 
   getMapExtent() {
@@ -407,10 +415,18 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     }
     const v = this.map.getView();
     const center = v.getCenter();
+    const size = this.map.getSize();
+    const resolution = v.getResolution();
+    if (!center || !size || resolution === undefined) {
+      return [0, 0];
+    }
     const rot = v.getRotation();
-    const hh = (this.map.getSize()[1] / 2) * v.getResolution();
+    const hh = ((size[1] ?? 0) / 2) * resolution;
     return toLonLat(
-      [center[0] - hh * Math.sin(rot), center[1] + hh * Math.cos(rot)],
+      [
+        (center[0] ?? 0) - hh * Math.sin(rot),
+        (center[1] ?? 0) + hh * Math.cos(rot)
+      ],
       v.getProjection()
     );
   }
@@ -427,10 +443,18 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     }
     const v = this.map.getView();
     const center = v.getCenter();
+    const size = this.map.getSize();
+    const resolution = v.getResolution();
+    if (!center || !size || resolution === undefined) {
+      return [0, 0];
+    }
     const rot = v.getRotation();
-    const hw = (this.map.getSize()[0] / 2) * v.getResolution();
+    const hw = ((size[0] ?? 0) / 2) * resolution;
     return toLonLat(
-      [center[0] + hw * Math.cos(rot), center[1] + hw * Math.sin(rot)],
+      [
+        (center[0] ?? 0) + hw * Math.cos(rot),
+        (center[1] ?? 0) + hw * Math.sin(rot)
+      ],
       v.getProjection()
     );
   }

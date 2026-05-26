@@ -39,7 +39,10 @@ export enum SourceType {
 }
 
 /* interface types */
-export type Coordinate = [number, number, number?];
+// Re-export OL's Coordinate so the local alias and the upstream one are
+// the same nominal type. The agents introduced casts assuming they
+// match; making them identical at the type level prevents future drift.
+export type { Coordinate } from 'ol/coordinate';
 
 export type Extent = [number, number, number, number];
 

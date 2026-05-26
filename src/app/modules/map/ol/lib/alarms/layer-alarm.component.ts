@@ -17,7 +17,7 @@ import { Style, Stroke, Fill, RegularShape } from 'ol/style';
 import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
-import { Extent, Coordinate } from '../models';
+import { Extent } from '../models';
 import { AsyncSubject } from 'rxjs';
 import { AlertData } from 'src/app/modules/alarms';
 
@@ -29,26 +29,26 @@ import { AlertData } from 'src/app/modules/alarms';
   standalone: false
 })
 export class AlarmComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature>;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
-  @Input() alarms: Array<[string, AlertData]>;
+  @Output() layerReady = new AsyncSubject<Layer>(); // AsyncSubject will only store the last value, and only publish it when the sequence is completed
+  @Input() alarms: [string, AlertData][] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() alarmStyles: { [key: string]: any };
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() alarmStyles?: Record<string, any>;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -74,10 +74,13 @@ export class AlarmComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (key === 'alarms') {
           this.parseValues();
           if (this.source) {
@@ -85,12 +88,12 @@ export class AlarmComponent implements OnInit, OnDestroy, OnChanges {
             this.source.addFeatures(this.features);
           }
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -106,18 +109,18 @@ export class AlarmComponent implements OnInit, OnDestroy, OnChanges {
   parseValues() {
     const fa: Feature[] = [];
     this.alarms.forEach((alarm: [string, AlertData]) => {
-      if (!alarm || !alarm[1].properties.position) return;
+      const data = alarm?.[1];
+      const position = data?.properties?.['position'] as
+        | { longitude: number; latitude: number }
+        | undefined;
+      if (!data || !position) return;
+      const type = data.type ?? '';
       const fp = new Feature({
-        geometry: new Point(
-          fromLonLat([
-            alarm[1].properties.position.longitude,
-            alarm[1].properties.position.latitude
-          ])
-        )
+        geometry: new Point(fromLonLat([position.longitude, position.latitude]))
       });
-      fp.setStyle(this.buildStyle(alarm[1].type));
-      fp.setId(`alarm.${alarm[1].path}`);
-      fp.set('type', alarm[1].type);
+      fp.setStyle(this.buildStyle(type));
+      fp.setId(`alarm.${data.path}`);
+      fp.set('type', type);
       fa.push(fp);
     });
     this.features = fa;
@@ -125,26 +128,26 @@ export class AlarmComponent implements OnInit, OnDestroy, OnChanges {
 
   // build target style
   buildStyle(key: string): Style {
-    if (this.alarmStyles && this.alarmStyles[key]) {
-      return this.alarmStyles[key];
-    } else {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
-      } else {
-        // default style
-        return new Style({
-          image: new RegularShape({
-            points: 3,
-            radius: 7,
-            fill: new Fill({ color: 'red' }),
-            stroke: new Stroke({
-              color: 'white',
-              width: 2
-            }),
-            rotateWithView: false
-          })
-        });
-      }
+    const styled = this.alarmStyles?.[key] as Style | undefined;
+    if (styled) {
+      return styled;
     }
+    const lpStyle = this.layerProperties?.['style'] as Style | undefined;
+    if (lpStyle) {
+      return lpStyle;
+    }
+    // default style
+    return new Style({
+      image: new RegularShape({
+        points: 3,
+        radius: 7,
+        fill: new Fill({ color: 'red' }),
+        stroke: new Stroke({
+          color: 'white',
+          width: 2
+        }),
+        rotateWithView: false
+      })
+    });
   }
 }

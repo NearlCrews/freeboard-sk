@@ -28,16 +28,16 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
   }
 
   @Input() type = 'LineString';
-  @Input() style: Style;
-  @Input() stopClick: boolean;
+  @Input() style?: Style;
+  @Input() stopClick?: boolean;
 
   readonly change = output<DrawEvent>();
   readonly drawStart = output<DrawEvent>();
   readonly drawEnd = output<DrawEvent>();
   readonly drawAbort = output<DrawEvent>();
 
-  private map: Map;
-  private interaction: Draw;
+  private map: Map | null = null;
+  private interaction: Draw | null = null;
 
   ngAfterViewInit() {
     this.map = this.mapComponent.getMap();
@@ -45,16 +45,19 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.map.removeInteraction(this.interaction);
-    this.interaction.un('change', this.emitChangeEvent);
-    this.interaction.un('drawstart', this.emitDrawStartEvent);
-    this.interaction.un('drawend', this.emitDrawEndEvent);
-    this.interaction.un('drawabort', this.emitDrawAbortEvent);
-    this.interaction = null;
+    if (this.map && this.interaction) {
+      this.map.removeInteraction(this.interaction);
+      this.interaction.un('change', this.emitChangeEvent);
+      this.interaction.un('drawstart', this.emitDrawStartEvent);
+      this.interaction.un('drawend', this.emitDrawEndEvent);
+      this.interaction.un('drawabort', this.emitDrawAbortEvent);
+      this.interaction = null;
+    }
   }
 
   addDrawInteraction() {
-    if (undefined !== this.map) {
+    const map = this.map;
+    if (undefined !== map && map !== null) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const opt: any = {
         type: this.type,
@@ -63,12 +66,13 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
       if (this.style) {
         opt.style = this.style;
       }
-      this.interaction = new Draw(opt);
-      this.interaction.on('change', this.emitChangeEvent);
-      this.interaction.on('drawstart', this.emitDrawStartEvent);
-      this.interaction.on('drawend', this.emitDrawEndEvent);
-      this.interaction.on('drawabort', this.emitDrawAbortEvent);
-      this.map.addInteraction(this.interaction);
+      const interaction = new Draw(opt);
+      this.interaction = interaction;
+      interaction.on('change', this.emitChangeEvent);
+      interaction.on('drawstart', this.emitDrawStartEvent);
+      interaction.on('drawend', this.emitDrawEndEvent);
+      interaction.on('drawabort', this.emitDrawAbortEvent);
+      map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }
   }

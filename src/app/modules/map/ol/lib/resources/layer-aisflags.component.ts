@@ -20,7 +20,7 @@ import { AISBaseLayerComponent } from './ais-base.component';
   standalone: false
 })
 export class AISFlagsLayerComponent extends AISBaseLayerComponent {
-  @Input() flagged: Array<string>;
+  @Input() flagged?: string[];
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -37,13 +37,14 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
   }
 
   updateFlags() {
-    if (!this.flagged) {
+    const flagged = this.flagged;
+    if (!flagged) {
       return;
     }
     if (this.source) {
       this.source.clear();
     }
-    this.flagged.forEach((id) => {
+    flagged.forEach((id) => {
       this.addFlagWithId(id);
     });
   }
@@ -54,7 +55,7 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
       return;
     }
     const target = this.targets.get(id);
-    if (this.okToRenderTarget(id) && target.position) {
+    if (target && this.okToRenderTarget(id) && target.position) {
       const label = target.callsignVhf ?? target.callsignHf ?? '......';
       const f = new Feature({
         geometry: new Point(fromLonLat(target.position)),
@@ -87,20 +88,22 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
 
   // reload all Features from this.targets
   override onReloadTargets() {
-    this.flagged.forEach((id) => {
+    this.flagged?.forEach((id) => {
       this.addFlagWithId(id);
     });
   }
 
   // update flag when target updated
-  override onUpdateTargets(ids: Array<string>) {
+  override onUpdateTargets(ids: string[]) {
+    const flagged = this.flagged;
+    if (!flagged) return;
     ids.forEach((id: string) => {
-      if (id.includes(this.targetContext) && this.flagged.includes(id)) {
-        const f = this.source.getFeatureById('flag-' + id) as Feature;
+      if (id.includes(this.targetContext) && flagged.includes(id)) {
+        const f = this.source.getFeatureById('flag-' + id) as Feature | null;
         if (this.okToRenderTarget(id)) {
           if (this.targets.has(id)) {
             if (f) {
-              const position = this.targets.get(id).position;
+              const position = this.targets.get(id)?.position;
               if (position) {
                 f.setGeometry(new Point(fromLonLat(position)));
               }
@@ -108,7 +111,7 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
               this.addFlagWithId(id);
             }
           }
-        } else {
+        } else if (f) {
           this.source.removeFeature(f);
         }
       }
@@ -116,9 +119,9 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
   }
 
   // remove flag when target removed
-  override onRemoveTargets(ids: Array<string>) {
+  override onRemoveTargets(ids: string[]) {
     ids.forEach((id) => {
-      const f = this.source.getFeatureById('flag-' + id) as Feature;
+      const f = this.source.getFeatureById('flag-' + id) as Feature | null;
       if (f) {
         this.source.removeFeature(f);
       }

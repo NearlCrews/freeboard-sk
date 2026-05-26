@@ -13,8 +13,8 @@ import { Layer } from 'ol/layer';
 import { Feature } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { Style, Stroke, Icon } from 'ol/style';
-import { Geometry, Point } from 'ol/geom';
+import { Style, Icon } from 'ol/style';
+import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
@@ -63,34 +63,34 @@ const fixedVesselStyle = new Style({
   standalone: false
 })
 export class VesselComponent implements OnInit, OnDestroy, OnChanges {
-  protected layer: Layer;
-  public source: VectorSource;
-  protected features: Array<Feature>;
+  protected layer: Layer | null = null;
+  public source!: VectorSource;
+  protected features: Feature[] = [];
 
   /**
    * This event is triggered after the layer is initialized
    * Use this to have access to the layer and some helper functions
    */
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject();
+  @Output() layerReady = new AsyncSubject<Layer>();
 
-  @Input() id: string;
-  @Input() activeId: string;
-  @Input() position: Coordinate;
+  @Input() id?: string;
+  @Input() activeId?: string;
+  @Input() position?: Coordinate;
   @Input() heading = 0;
-  @Input() vesselStyles: { [key: string]: Style };
-  @Input() fixedLocation: boolean;
+  @Input() vesselStyles?: Record<string, Style>;
+  @Input() fixedLocation?: boolean;
   @Input() iconScale = 1;
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent: Extent;
-  @Input() zIndex: number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?: Extent;
+  @Input() zIndex?: number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() layerProperties: { [index: string]: any };
+  @Input() layerProperties?: Record<string, any>;
 
-  vessel: Feature;
-  selfStyle: Style;
+  vessel?: Feature;
+  selfStyle?: Style;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -100,7 +100,7 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    const fa = [];
+    const fa: Feature[] = [];
     this.parseVessel();
     if (this.vessel) {
       fa.push(this.vessel);
@@ -121,11 +121,14 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.layer) {
+    const layer = this.layer;
+    if (layer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: { [index: string]: any } = {};
+      const properties: Record<string, any> = {};
 
       for (const key in changes) {
+        const change = changes[key];
+        if (!change) continue;
         if (
           key === 'id' ||
           key === 'activeId' ||
@@ -141,12 +144,12 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
             this.parseVessel();
           }
         } else if (key === 'layerProperties') {
-          this.layer.setProperties(properties, false);
+          layer.setProperties(properties, false);
         } else {
-          properties[key] = changes[key].currentValue;
+          properties[key] = change.currentValue;
         }
       }
-      this.layer.setProperties(properties, false);
+      layer.setProperties(properties, false);
     }
   }
 
@@ -160,22 +163,19 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   parseVessel() {
+    const pos = this.position;
     if (!this.vessel) {
       // create feature
       this.vessel = new Feature(
-        new Point(fromLonLat([this.position[0] ?? 0, this.position[1] ?? 0]))
+        new Point(fromLonLat([pos?.[0] ?? 0, pos?.[1] ?? 0]))
       );
     }
     // update feature
-    if (
-      this.position &&
-      Array.isArray(this.position) &&
-      this.position.length > 1
-    ) {
-      const g: Geometry = this.vessel.getGeometry();
-      (g as Point).setCoordinates(
-        fromLonLat([this.position[0], this.position[1]])
-      );
+    if (pos && Array.isArray(pos) && pos.length > 1) {
+      const g = this.vessel.getGeometry();
+      if (g) {
+        (g as Point).setCoordinates(fromLonLat([pos[0] ?? 0, pos[1] ?? 0]));
+      }
     }
     this.vessel.setId(this.id ?? 'self');
     const s = this.buildStyle();
@@ -203,32 +203,35 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // build target style
-  buildStyle(): Style {
+  buildStyle(): Style | undefined {
     if (!this.selfStyle) {
       this.generateSelfStyle();
     }
-    // default style with speciifed scale
-    let cs = this.selfStyle;
+    // default style with specified scale
+    let cs: Style | undefined = this.selfStyle;
 
     if (this.vesselStyles) {
       // use supplied styles
       if (this.fixedLocation) {
-        if (this.vesselStyles.fixed) {
-          cs = this.vesselStyles.fixed;
+        const fixed = this.vesselStyles['fixed'];
+        if (fixed) {
+          cs = fixed;
         }
       } else {
         if (this.activeId && this.activeId !== this.id) {
-          if (this.vesselStyles.inactive) {
-            cs = this.vesselStyles.inactive;
+          const inactive = this.vesselStyles['inactive'];
+          if (inactive) {
+            cs = inactive;
           }
         } else {
-          if (this.vesselStyles.default) {
-            cs = this.vesselStyles.default;
+          const def = this.vesselStyles['default'];
+          if (def) {
+            cs = def;
           }
         }
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
-      cs = this.layerProperties.style;
+    } else if (this.layerProperties?.['style']) {
+      cs = this.layerProperties['style'] as Style;
     } else {
       // use default styles
       if (this.fixedLocation) {

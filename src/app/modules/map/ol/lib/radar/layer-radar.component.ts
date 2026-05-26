@@ -26,20 +26,22 @@ import { MapComponent } from '../map.component';
   standalone: false
 })
 export class RadarComponent implements OnInit, OnChanges, OnDestroy {
-  @Output() layerReady: AsyncSubject<Layer> = new AsyncSubject();
-  @Input() position: Coordinate;
+  @Output() layerReady = new AsyncSubject<Layer>();
+  @Input() position?: Coordinate;
   @Input() heading = 0;
-  @Input() mapZoom: number;
-  @Input() zIndex: number;
-  @Input() visible: boolean;
-  @Input() layerProperties: { [index: string]: any };
+  @Input() mapZoom?: number;
+  @Input() zIndex?: number;
+  @Input() visible?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Input() layerProperties?: Record<string, any>;
 
   private state: ShipState = { location: [0, 0], heading: 0 };
   private subject = new BehaviorSubject<ShipState>({
     location: [0, 0],
     heading: 0
   });
-  protected layer: Layer;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected layer: ImageLayer<any> | null = null;
 
   private radarRenderService = inject(RadarRenderService);
   protected mapComponent = inject(MapComponent);
@@ -50,21 +52,24 @@ export class RadarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.layer = new ImageLayer(
+    const layer = new ImageLayer(
       Object.assign(this, { ...this.layerProperties })
     );
+    this.layer = layer;
     const map = this.mapComponent.getMap();
-    if (this.layer && map) {
-      map.addLayer(this.layer);
+    if (map) {
+      map.addLayer(layer);
       map.render();
-      this.layerReady.next(this.layer);
+      this.layerReady.next(layer);
       this.layerReady.complete();
     }
 
     this.radarRenderService.connect().then(() => {
-      let radars = this.radarRenderService.getRadars();
-      let radar = radars.get(radars.keys().next().value);
-      if (radar) {
+      const radars = this.radarRenderService.getRadars();
+      const firstKey = radars.keys().next().value;
+      if (firstKey === undefined) return;
+      const radar = radars.get(firstKey);
+      if (radar && this.layer) {
         this.layer.setSource(
           this.radarRenderService.createRadarSource(radar, this.subject)
         );
@@ -74,14 +79,15 @@ export class RadarComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.layer) {
-      if (changes['position'] || changes['heading']) {
-        if (changes['position']) {
-          let position = changes['position'].currentValue;
+      const positionChange = changes['position'];
+      const headingChange = changes['heading'];
+      if (positionChange || headingChange) {
+        if (positionChange) {
+          const position = positionChange.currentValue;
           this.state.location = position;
         }
-        if (changes['heading']) {
-          this.state.heading =
-            changes['heading'].currentValue * (180 / Math.PI);
+        if (headingChange) {
+          this.state.heading = headingChange.currentValue * (180 / Math.PI);
         }
         this.subject.next(this.state);
       }

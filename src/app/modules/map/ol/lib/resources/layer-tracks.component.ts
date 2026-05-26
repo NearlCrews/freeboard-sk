@@ -22,8 +22,8 @@ import { FBTracks } from 'src/app/types';
   standalone: false
 })
 export class TrackLayerComponent extends FBFeatureLayerComponent {
-  @Input() tracks: FBTracks;
-  @Input() trackStyles: { [key: string]: Style };
+  @Input() tracks: FBTracks = [];
+  @Input() trackStyles?: Record<string, Style>;
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -40,9 +40,10 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.source && 'tracks' in changes) {
+    const tracksChange = changes['tracks'];
+    if (this.source && tracksChange) {
       this.source.clear();
-      this.parseTracks(changes['tracks'].currentValue);
+      this.parseTracks(tracksChange.currentValue);
     }
   }
 
@@ -51,7 +52,10 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
     for (const t of tracks) {
       const f = new Feature({
         geometry: new MultiLineString(
-          this.parseCoordinates(t[1].feature.geometry.coordinates)
+          this.parseCoordinates(
+            t[1].feature.geometry.coordinates
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) as any
         ),
         name: t[1].name
       });
@@ -64,22 +68,26 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
 
   // build track style
   buildStyle(trk: SKTrack): Style {
+    const props = trk.feature.properties ?? {};
+    const skType = (props as Record<string, unknown>)['skType'] as
+      | string
+      | undefined;
+    const name = (props as Record<string, unknown>)['name'] as
+      | string
+      | undefined;
     if (typeof this.trackStyles !== 'undefined') {
-      if (trk.feature.properties.skType) {
-        return this.setTextLabel(
-          this.trackStyles[trk.feature.properties.skType],
-          trk.feature.properties.name
-        );
+      if (skType && this.trackStyles[skType]) {
+        return this.setTextLabel(this.trackStyles[skType], name ?? '');
       } else {
         return this.setTextLabel(
-          this.trackStyles.default,
-          trk.feature.properties.name
+          this.trackStyles['default'] ?? new Style(),
+          name ?? ''
         );
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
+    } else if (this.layerProperties?.['style']) {
       return this.setTextLabel(
-        this.layerProperties.style,
-        trk.feature.properties.name
+        this.layerProperties['style'] as Style,
+        name ?? ''
       );
     } else {
       // default styles
@@ -94,14 +102,15 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
           textAlign: 'center'
         })
       });
-      return this.setTextLabel(s, trk.feature.properties.name);
+      return this.setTextLabel(s, name ?? '');
     }
   }
 
   // ** mapify and transform MultiLineString coordinates
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(mls: Array<any>) {
-    const lines = [];
+  parseCoordinates(mls: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lines: any[] = [];
     mls.forEach((line) => lines.push(mapifyCoords(line)));
     return fromLonLatArray(lines);
   }

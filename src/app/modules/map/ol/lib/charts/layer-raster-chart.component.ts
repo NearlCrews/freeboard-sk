@@ -53,7 +53,7 @@ export class RasterChartLayerComponent implements OnDestroy {
   ngOnDestroy() {
     this.destroyed = true;
     const map = this.mapComponent.getMap();
-    if (this.layer) {
+    if (this.layer && map) {
       map.removeLayer(this.layer);
       map.render();
     }
@@ -65,7 +65,7 @@ export class RasterChartLayerComponent implements OnDestroy {
     layerMaxZ: number | undefined
   ) {
     const map = this.mapComponent.getMap();
-    if (!this.layer) return;
+    if (!this.layer || !map) return;
     this.layer.setMinZoom(minZ);
     this.layer.setMaxZoom(layerMaxZ ?? Infinity);
     this.layer.setExtent(extentFromBounds(chart[1].bounds));

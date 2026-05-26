@@ -69,10 +69,12 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
         name: c[1].name
       });
       f.setId('chart-bound.' + c[0]);
-      const lp = [
-        p0[0] + (p0[0] > p1[0] ? p0[0] - p1[0] : p1[0] - p0[0]) / 2,
-        p1[1]
-      ];
+      const p0x = p0[0] ?? 0;
+      const p0y = p0[1] ?? 0;
+      const p1x = p1[0] ?? 0;
+      const p1y = p1[1] ?? 0;
+      const lp = [p0x + (p0x > p1x ? p0x - p1x : p1x - p0x) / 2, p1y];
+      void p0y;
       f.set('labelPos', lp);
       f.set('boundColor', this.boundStyles[i]);
       f.setStyle(this.buildStyle);

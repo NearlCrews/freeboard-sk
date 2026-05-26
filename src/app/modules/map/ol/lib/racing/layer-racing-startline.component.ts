@@ -9,9 +9,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { Feature } from 'ol';
-import { Style, Stroke, Text, Fill, Circle, RegularShape } from 'ol/style';
+import { Style, Stroke, Fill, Circle, RegularShape } from 'ol/style';
 import { LineString, Point } from 'ol/geom';
-import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
@@ -26,8 +25,8 @@ export class RacingStartLineLayerComponent
   extends FBFeatureLayerComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input() startLine: LineString;
-  @Input() racecourseStyles: { [key: string]: Style };
+  @Input() startLine?: LineString;
+  @Input() racecourseStyles?: Record<string, Style | Style[]>;
 
   constructor(
     protected override changeDetectorRef: ChangeDetectorRef,
@@ -49,7 +48,6 @@ export class RacingStartLineLayerComponent
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseCourse() {
     if (!this.source) {
       return;
@@ -59,7 +57,8 @@ export class RacingStartLineLayerComponent
     if (Array.isArray(this.startLine) && this.startLine.length === 2) {
       const sl = new Feature({
         geometry: new LineString(
-          fromLonLatArray(mapifyCoords(this.startLine as any))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          fromLonLatArray(mapifyCoords(this.startLine as any)) as any
         ),
         name: 'start'
       });
@@ -72,30 +71,38 @@ export class RacingStartLineLayerComponent
   }
 
   // Style function
-  buildStyle(feature: Feature) {
+  buildStyle(feature: Feature): Style | Style[] {
     const geometry = feature.getGeometry() as LineString;
-    const styles = [];
-    let ptFill: Fill;
-    let bgWidth: number;
+    const styles: Style[] = [];
 
     if (typeof this.racecourseStyles === 'undefined') {
-      if (this.layerProperties && this.layerProperties.style) {
-        return this.layerProperties.style;
-      } else {
-        return styles;
+      const lpStyle = this.layerProperties?.['style'] as
+        | Style
+        | Style[]
+        | undefined;
+      if (lpStyle) {
+        return lpStyle;
       }
+      return styles;
     }
 
     // line style
-    const s = Array.isArray(this.racecourseStyles.startLine)
-      ? this.racecourseStyles.startLine[
-          this.racecourseStyles.startLine.length - 1
-        ]
-      : this.racecourseStyles.startLine;
-    bgWidth = s.getStroke().getWidth() + 1;
+    const startLineStyle = this.racecourseStyles['startLine'];
+    if (!startLineStyle) {
+      return styles;
+    }
+    const s = Array.isArray(startLineStyle)
+      ? startLineStyle[startLineStyle.length - 1]
+      : startLineStyle;
+    if (!s) {
+      return styles;
+    }
+    const stroke = s.getStroke();
+    const strokeWidth = stroke?.getWidth() ?? 1;
+    const bgWidth = strokeWidth + 1;
     const bgColor = 'white';
-    ptFill = new Fill({
-      color: s?.getStroke().getColor()
+    const ptFill = new Fill({
+      color: stroke?.getColor() ?? '#000'
     });
 
     // background
@@ -108,10 +115,13 @@ export class RacingStartLineLayerComponent
       })
     );
     // line
-    styles.push(this.racecourseStyles.startLine);
+    if (Array.isArray(startLineStyle)) {
+      styles.push(...startLineStyle);
+    } else {
+      styles.push(startLineStyle);
+    }
 
     // point styles
-    const l = geometry.getCoordinates().length;
     geometry.forEachSegment((start, end) => {
       styles.push(
         new Style({

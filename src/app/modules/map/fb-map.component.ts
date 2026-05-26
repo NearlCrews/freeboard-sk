@@ -121,7 +121,7 @@ interface IFeatureData {
   self: SKVessel; //self vessel
   ais: Map<string, SKVessel>; // other vessels
   active: SKVessel; // focussed vessel
-  navData: { position: Position; startPosition: Position };
+  navData: { position: Position | null; startPosition: Position | null };
   closest: LineString[];
 }
 
@@ -160,15 +160,15 @@ enum INTERACTION_MODE {
 export class FBMapComponent
   implements OnInit, OnDestroy, AfterViewInit, OnChanges
 {
-  @Input() setFocus: string;
+  @Input() setFocus = '';
   @Input() mapCenter: Position = [0, 0];
   @Input() mapZoom = 1;
   @Input() movingMap = false;
   @Input() northUp = true;
-  @Input() measureMode: boolean;
-  @Input() drawMode: boolean;
+  @Input() measureMode = false;
+  @Input() drawMode = false;
   @Input() modifyMode = false;
-  @Input() activeRoute: string;
+  @Input() activeRoute = '';
   @Input() vesselTrail: Position[] = [];
   @Input() dblClickZoom = false;
   @Input() overZoomTiles = true;
@@ -177,11 +177,11 @@ export class FBMapComponent
   readonly deactivate = output<string>();
   readonly info = output<IResource>();
   readonly exitMovingMap = output<boolean>();
-  readonly focusVessel = output<string>();
+  readonly focusVessel = output<string | null>();
   readonly menuItemSelected = output<string>();
 
-  @ViewChild(MatMenuTrigger, { static: true }) contextMenu: MatMenuTrigger;
-  @ViewChild('olMap', { static: false }) olMap: MapComponent;
+  @ViewChild(MatMenuTrigger, { static: true }) contextMenu!: MatMenuTrigger;
+  @ViewChild('olMap', { static: false }) olMap!: MapComponent;
 
   scaleUnits = input<string>('');
 
@@ -201,11 +201,10 @@ export class FBMapComponent
   protected overlay = signal<IPopover>({
     id: null,
     type: null,
-    icon: null,
     position: [0, 0],
     show: false,
     title: '',
-    content: null,
+    content: [],
     featureCount: 0,
     readOnly: false,
     isSelf: false
@@ -247,10 +246,15 @@ export class FBMapComponent
     closest: []
   };
 
-  private saveTimer;
+  private saveTimer: ReturnType<typeof setInterval> | null = null;
   private isDirty = false;
 
-  protected mouse = {
+  protected mouse: {
+    pixel: number[] | null;
+    coords: Position;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    xy: any;
+  } = {
     pixel: null,
     coords: [0, 0],
     xy: null
@@ -316,51 +320,54 @@ export class FBMapComponent
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.vesselTrail) {
+    if (changes['vesselTrail']) {
       this.drawVesselLines();
     }
-    if (changes && changes.mapCenter && changes.mapCenter.currentValue) {
-      this.mapCenterPositon.set(changes.mapCenter.currentValue);
+    const mapCenterChange = changes['mapCenter'];
+    if (mapCenterChange && mapCenterChange.currentValue) {
+      this.mapCenterPositon.set(mapCenterChange.currentValue);
     }
-    if (
-      changes &&
-      changes.mapZoom &&
-      typeof changes.mapZoom.currentValue === 'number'
-    ) {
-      this.mapZoomLevel.set(changes.mapZoom.currentValue);
+    const mapZoomChange = changes['mapZoom'];
+    if (mapZoomChange && typeof mapZoomChange.currentValue === 'number') {
+      this.mapZoomLevel.set(mapZoomChange.currentValue);
       this.renderMapContents(true);
     }
-    if (changes && changes.movingMap && !changes.movingMap.firstChange) {
-      if (changes.movingMap.currentValue) {
+    const movingMapChange = changes['movingMap'];
+    if (movingMapChange && !movingMapChange.firstChange) {
+      if (movingMapChange.currentValue) {
         this.startSaveTimer();
       } else {
         this.stopSaveTimer();
       }
       this.centerVessel();
     }
-    if (changes && changes.northUp) {
+    if (changes['northUp']) {
       this.rotateMap();
     }
-    if (changes && changes.measureMode) {
+    const measureModeChange = changes['measureMode'];
+    if (measureModeChange) {
       this.applyInteractionMode(
         INTERACTION_MODE.MEASURE,
-        changes.measureMode.currentValue
+        measureModeChange.currentValue
       );
     }
-    if (changes && changes.drawMode) {
+    const drawModeChange = changes['drawMode'];
+    if (drawModeChange) {
       this.applyInteractionMode(
         INTERACTION_MODE.DRAW,
-        changes.drawMode.currentValue
+        drawModeChange.currentValue
       );
     }
-    if (changes && changes.modifyMode && !changes.modifyMode.firstChange) {
+    const modifyModeChange = changes['modifyMode'];
+    if (modifyModeChange && !modifyModeChange.firstChange) {
       this.applyInteractionMode(
         INTERACTION_MODE.MODIFY,
-        changes.modifyMode.currentValue
+        modifyModeChange.currentValue
       );
     }
-    if (changes && changes.dblClickZoom) {
-      this.toggleDblClickZoom(changes.dblClickZoom.currentValue);
+    const dblClickZoomChange = changes['dblClickZoom'];
+    if (dblClickZoomChange) {
+      this.toggleDblClickZoom(dblClickZoomChange.currentValue);
     }
   }
 
@@ -371,8 +378,8 @@ export class FBMapComponent
         ? 'metric'
         : 'nautical';
       const c = this.olMap.getMap().getControls().getArray();
-      (c[0] as ScaleLine).setUnits(u);
-    } catch (err) {
+      (c[0] as ScaleLine | undefined)?.setUnits(u);
+    } catch {
       // no map or scale control
     }
   }
@@ -421,15 +428,14 @@ export class FBMapComponent
     this.dfeat.navData.position = this.course.courseData().position;
     this.dfeat.navData.startPosition = this.course.courseData().startPosition;
     // calculate CPA lines
-    const parseClosest = () => {
-      const v = [];
-      if (this.app.data.vessels.self.position) {
+    const parseClosest = (): LineString[] => {
+      const v: LineString[] = [];
+      const selfPos = this.app.data.vessels.self.position;
+      if (selfPos) {
         this.app.data.vessels.closest.forEach((id: string) => {
-          if (this.app.data.vessels.aisTargets.has(id)) {
-            const a = this.app.data.vessels.aisTargets.get(id);
-            if (a.position) {
-              v.push([a.position, this.app.data.vessels.self.position]);
-            }
+          const a = this.app.data.vessels.aisTargets.get(id);
+          if (a?.position) {
+            v.push([a.position, selfPos]);
           }
         });
       }
@@ -443,48 +449,61 @@ export class FBMapComponent
       this.app.data.vessels.showSelf = true;
     }
     // ** locate vessel popover
+    const overlayType = this.overlay().type;
+    const overlayId = this.overlay().id;
     if (
       this.overlay().show &&
-      ['ais', 'aton', 'aircraft'].includes(this.overlay().type)
+      overlayType !== null &&
+      ['ais', 'aton', 'aircraft'].includes(overlayType)
     ) {
       if (this.overlay().isSelf) {
+        const selfPos = this.dfeat.self.position;
         this.overlay.update((current) => {
           return Object.assign({}, current, {
-            position: this.dfeat.self.position,
+            position: selfPos ?? current.position,
             vessel: this.dfeat.self
           });
         });
-      } else {
+      } else if (overlayId !== null) {
         if (
-          (this.overlay().type === 'ais' &&
-            !this.dfeat.ais.has(this.overlay().id)) ||
-          (this.overlay().type === 'atons' &&
-            !this.dfeat.atons.has(this.overlay().id)) ||
-          (this.overlay().type === 'aircraft' &&
-            !this.dfeat.aircraft.has(this.overlay().id))
+          (overlayType === 'ais' && !this.dfeat.ais.has(overlayId)) ||
+          (overlayType === 'atons' && !this.dfeat.atons.has(overlayId)) ||
+          (overlayType === 'aircraft' && !this.dfeat.aircraft.has(overlayId))
         ) {
           this.overlay().show = false;
-        } else {
-          if (this.overlay().type === 'ais') {
-            this.overlay.update((current) => {
-              return Object.assign({}, current, {
-                position: this.dfeat.ais.get(current.id).position,
-                vessel: this.dfeat.ais.get(current.id)
-              });
+        } else if (overlayType === 'ais') {
+          this.overlay.update((current) => {
+            const id = current.id;
+            if (id === null) return current;
+            const v = this.dfeat.ais.get(id);
+            if (!v) return current;
+            return Object.assign({}, current, {
+              position: v.position ?? current.position,
+              vessel: v
             });
-          }
+          });
         }
       }
-      if (this.app.mapExtent()[0] < 180 && this.app.mapExtent()[2] > 180) {
+      const extent = this.app.mapExtent();
+      const ext0 = extent[0];
+      const ext2 = extent[2];
+      if (
+        typeof ext0 === 'number' &&
+        typeof ext2 === 'number' &&
+        ext0 < 180 &&
+        ext2 > 180
+      ) {
         // if dateline is in view adjust overlay position to stay with vessel
-
         if (
           this.overlay().position[0] < 0 &&
           this.overlay().position[0] > -180
         ) {
           this.overlay.update((current) => {
             return Object.assign({}, current, {
-              position: [current.position[0] + 360, current.position[1]]
+              position: [
+                current.position[0] + 360,
+                current.position[1]
+              ] as Position
             });
           });
         }
@@ -500,7 +519,7 @@ export class FBMapComponent
   // ********** MAP EVENT HANDLERS *****************
 
   private toggleDblClickZoom(set?: boolean) {
-    const olInteractions = [
+    const olInteractions: { name: string }[] = [
       { name: 'dragpan' },
       { name: 'dragzoom' },
       { name: 'keyboardpan' },
@@ -510,10 +529,9 @@ export class FBMapComponent
     ];
 
     this.olMapInteractions.update(() => {
-      const i = set
-        ? [{ name: 'doubleclickzoom' }].concat(olInteractions)
-        : [].concat(olInteractions);
-      return i;
+      return set
+        ? [{ name: 'doubleclickzoom' }, ...olInteractions]
+        : [...olInteractions];
     });
   }
 
@@ -524,10 +542,14 @@ export class FBMapComponent
         this.skres.newWaypointAt(pos);
         break;
       case 'add_note':
-        this.skres.showNoteEditor({ position: pos });
+        // showNoteEditor's param is typed null; consumers pass overlay objects
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.skres.showNoteEditor({ position: pos } as any);
         break;
       case 'nav_to':
-        this.app.data.activeWaypoint = null;
+        // activeWaypoint is declared string in FBAppData but course.store also sets it to null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.app.data as any).activeWaypoint = null;
         this.course.courseData().pointNames = [];
         this.course.setDestination({
           latitude: pos[1],
@@ -587,16 +609,15 @@ export class FBMapComponent
     this.mouse.xy = e.coordinate;
     this.mouse.coords = GeoUtils.normaliseCoords(e.lonlat as Position);
     if (this.mapInteract.isMeasuring()) {
+      const coords = this.mapInteract.measurement().coords ?? [];
       if (
         this.mapInteract.measureGeometryType === 'LineString' &&
-        this.mapInteract.measurement().coords.length !== 0
+        coords.length !== 0
       ) {
-        const c = e.lonlat;
-        const lm = this.mapInteract.distanceFromLastPoint(c as Position);
-        const b = GeoUtils.greatCircleBearing(
-          this.mapInteract.measurement().coords.slice(-1)[0],
-          c as Position
-        );
+        const c = e.lonlat as Position;
+        const lm = this.mapInteract.distanceFromLastPoint(c);
+        const lastCoord = coords[coords.length - 1];
+        const b = lastCoord ? GeoUtils.greatCircleBearing(lastCoord, c) : 0;
         this.overlay.update((current) => {
           return Object.assign({}, current, {
             position: c,
@@ -607,11 +628,11 @@ export class FBMapComponent
           });
         });
       } else if (this.mapInteract.measureGeometryType === 'Circle') {
-        const c = e.lonlat;
-        const lm = this.mapInteract.distanceFromCenter(c as Position);
+        const c = e.lonlat as Position;
+        const lm = this.mapInteract.distanceFromCenter(c);
         const b = GeoUtils.greatCircleBearing(
-          this.mapInteract.measurement().center ?? (c as Position),
-          c as Position
+          this.mapInteract.measurement().center ?? c,
+          c
         );
         this.overlay.update((current) => {
           return Object.assign({}, current, {
@@ -634,11 +655,14 @@ export class FBMapComponent
 
   protected onMapPointerDown(e: FBPointerEvent) {
     this.mouse.coords = GeoUtils.normaliseCoords(e.lonlat as Position);
-    this.contextMenuPosition.x = (e as any).clientX + 'px';
-    this.contextMenuPosition.y = (e as any).clientY + 'px';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ev = e as any;
+    this.contextMenuPosition.x = ev.clientX + 'px';
+    this.contextMenuPosition.y = ev.clientY + 'px';
   }
 
-  protected onMapSingleClick(e) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected onMapSingleClick(e: any) {
     this.app.data.map.atClick = {
       features: e.features,
       lonlat: e.lonlat
@@ -700,12 +724,13 @@ export class FBMapComponent
         return;
       }
       this.contextMenu.openMenu();
-      document
-        .getElementsByClassName('cdk-overlay-backdrop')[0]
-        .addEventListener('contextmenu', (offEvent) => {
-          offEvent.preventDefault(); // prevent default context menu for overlay
-          this.contextMenu.closeMenu();
-        });
+      const backdrop = document.getElementsByClassName(
+        'cdk-overlay-backdrop'
+      )[0];
+      backdrop?.addEventListener('contextmenu', (offEvent) => {
+        offEvent.preventDefault(); // prevent default context menu for overlay
+        this.contextMenu.closeMenu();
+      });
     }
   }
 
@@ -747,22 +772,24 @@ export class FBMapComponent
   /** Handle OL interaction start event */
   protected onMeasureStart(e: DrawEvent) {
     this.app.debug(`onMeasureStart()...`, this.mapInteract.measureGeometryType);
-    let ovPosition: any;
+    let ovPosition: Position;
     if (this.mapInteract.measureGeometryType === 'LineString') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let c = (e.feature.getGeometry() as any)
+      const geom = e.feature.getGeometry() as any;
+      let c: Position[] = geom
         .getCoordinates()
-        .map((c: Position) => toLonLat(c));
+        .map((p: Position) => toLonLat(p) as Position);
       c = c.slice(0, c.length - 1);
       this.mapInteract.measurementCoords = c;
-      ovPosition = c;
+      ovPosition = (c[0] ?? [0, 0]) as Position;
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const g = e.feature.getGeometry() as any;
       const center = toLonLat(g.getCenter());
-      const radius = g.getRadius();
+      const radius: number = g.getRadius();
       this.mapInteract.measurementCenter = center as Position;
       this.mapInteract.measurementRadius = radius;
-      ovPosition = this.mapInteract.measurementCenter;
+      ovPosition = center as Position;
       this.app.debug(this.mapInteract.measurement);
     }
     this.formatPopover(null, null);
@@ -782,17 +809,18 @@ export class FBMapComponent
     if (!Array.isArray(pt)) {
       return;
     }
-    const lastPt =
-      this.mapInteract.measurement().coords[
-        this.mapInteract.measurement().coords.length - 1
-      ];
-    if (pt[0] === lastPt[0] && pt[1] === lastPt[1]) {
+    const coords = this.mapInteract.measurement().coords ?? [];
+    const lastPt = coords[coords.length - 1];
+    if (lastPt && pt[0] === lastPt[0] && pt[1] === lastPt[1]) {
       return;
     }
     const lm = this.mapInteract.addMeasurementCoord(pt);
     // ** update popover measurement values
-    const c = this.mapInteract.measurement().coords.slice(-2);
-    const b = GeoUtils.greatCircleBearing(c[0], c[1]) ?? 0;
+    const newCoords = this.mapInteract.measurement().coords ?? [];
+    const tail = newCoords.slice(-2);
+    const t0 = tail[0];
+    const t1 = tail[1];
+    const b = t0 && t1 ? GeoUtils.greatCircleBearing(t0, t1) : 0;
     this.overlay.update((current) => {
       return Object.assign({}, current, {
         position: pt,
@@ -824,13 +852,14 @@ export class FBMapComponent
       return;
     }
     if (this.mapInteract.draw.resourceType === 'route') {
-      let rteCoords: Position[];
+      let rteCoords: Position[] = [];
       fa.forEach((f: Feature) => {
-        if (f.getGeometry().getType() === 'LineString') {
+        const geom = f.getGeometry();
+        if (geom?.getType() === 'LineString') {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rteCoords = (f.getGeometry() as any)
+          rteCoords = (geom as any)
             .getCoordinates()
-            .map((c: Position) => toLonLat(c));
+            .map((c: Position) => toLonLat(c) as Position);
           rteCoords = rteCoords.slice(0, rteCoords.length - 1);
         }
       });
@@ -851,10 +880,16 @@ export class FBMapComponent
     }
     this.mapInteract.startModifying(this.overlay());
     if (this.overlay().type === 'route') {
-      this.mapInteract.measurementCoords = this.skres.fromCache(
-        'routes',
-        this.overlay().id
-      )[1].feature.geometry.coordinates;
+      const overlayId = this.overlay().id;
+      if (overlayId !== null) {
+        const entry = this.skres.fromCache('routes', overlayId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const route = entry?.[1] as any;
+        if (route?.feature?.geometry?.coordinates) {
+          this.mapInteract.measurementCoords =
+            route.feature.geometry.coordinates;
+        }
+      }
     }
     if (featureType === 'anchor') {
       this.overlay().type = featureType;
@@ -866,6 +901,9 @@ export class FBMapComponent
   protected onModifyStart(e: ModifyEvent) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f: any = e.features.getArray()[0];
+    if (!f) {
+      return;
+    }
     this.mapInteract.draw.coordinates = f.getGeometry().getCoordinates();
     if (!this.mapInteract.draw.forSave.id) {
       // initialise save info
@@ -883,27 +921,32 @@ export class FBMapComponent
   protected onModifyEnd(e: ModifyEvent) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f: any = e.features.getArray()[0];
-    const fid = f.getId();
-    const c = f.getGeometry().getCoordinates();
+    if (!f) {
+      return;
+    }
+    const fid: string = f.getId();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c: any = f.getGeometry().getCoordinates();
     if (f.getGeometry().getType() === 'LineString') {
       this.updateCoordsMeta(
-        this.mapInteract.draw.coordinates,
+        this.mapInteract.draw.coordinates ?? [],
         c,
         this.mapInteract.draw.forSave.coordsMetadata
       );
     }
-    let pc;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let pc: any;
     if (fid.split('.')[0] === 'route') {
       pc = this.transformCoordsArray(c);
       this.mapInteract.measurementCoords = pc;
     } else if (fid.split('.')[0] === 'region') {
-      for (let e = 0; e < c.length; e++) {
-        if (this.isCoordsArray(c[e])) {
-          c[e] = this.transformCoordsArray(c[e]);
+      for (let i = 0; i < c.length; i++) {
+        if (this.isCoordsArray(c[i])) {
+          c[i] = this.transformCoordsArray(c[i]);
         } else {
-          for (let p = 0; p < c[e].length; p++) {
-            if (this.isCoordsArray(c[e][p])) {
-              c[e][p] = this.transformCoordsArray(c[e][p]);
+          for (let p = 0; p < c[i].length; p++) {
+            if (this.isCoordsArray(c[i][p])) {
+              c[i][p] = this.transformCoordsArray(c[i][p]);
             } else {
               console.log('Invalid polygon coordinates!');
             }
@@ -936,7 +979,8 @@ export class FBMapComponent
   }
 
   /** Process pointer click in non-interaction mode */
-  private processMapClick(e) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private processMapClick(e: any) {
     this.s57Features = {};
     const featureList = new Map<
       string,
@@ -956,35 +1000,37 @@ export class FBMapComponent
         text: string;
       }
     >(); // chart bounds under pointer
-    const fa = []; // features that can be the target of modify interaction
+    const fa: Feature[] = []; // features that can be the target of modify interaction
     let maskPopover = false; // suppress popover display
 
     // process list of features at click location
     e.features.forEach((feature: Feature) => {
-      let id = feature.getId() as string;
+      let id = feature.getId() as string | undefined;
       let addToFeatureList = false;
-      let aton: SKAtoN;
-      let sar: SKSaR;
-      let meteo: SKMeteo;
-      let aircraft: SKAircraft;
-      let vessel: SKVessel;
-      let icon: string;
-      let text: string;
+      let aton: SKAtoN | undefined;
+      let sar: SKSaR | undefined;
+      let meteo: SKMeteo | undefined;
+      let aircraft: SKAircraft | undefined;
+      let vessel: SKVessel | undefined;
+      let icon = '';
+      let text = '';
       if (id && typeof id === 'string') {
         const t = id.split('.');
-        if (t[0] === 'chart-backdrop') {
+        const prefix = t[0] ?? '';
+        const suffix = t[1] ?? '';
+        if (prefix === 'chart-backdrop') {
           maskPopover = true;
           return;
         }
-        if (t[0] === 'chart-bound') {
+        if (prefix === 'chart-bound') {
           chartBoundsFeatures.set(id, {
-            id: t[1],
+            id: suffix,
             coord: e.lonlat,
             icon: icon,
             text: feature.get('name')
           });
         }
-        switch (t[0]) {
+        switch (prefix) {
           case 'rset':
             addToFeatureList = true;
             icon = 'star';
@@ -998,31 +1044,37 @@ export class FBMapComponent
           case 'anchor':
             addToFeatureList = true;
             icon = 'anchor';
-            text = `${t[0]}`;
+            text = `${prefix}`;
             break;
           case 'dest':
             addToFeatureList = true;
             icon = 'flag';
             text = 'Destination';
             break;
-          case 'note':
+          case 'note': {
             icon = feature.get('icon');
             addToFeatureList = true;
-            const n = this.skres.fromCache('notes', t[1]);
-            text = n[1].name ?? '';
+            const n = this.skres.fromCache('notes', suffix);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            text = (n?.[1] as any)?.name ?? '';
             break;
-          case 'route':
+          }
+          case 'route': {
             icon = 'route'; //'directions';
             addToFeatureList = true;
-            const r = this.skres.fromCache('routes', t[1]);
-            text = r[1].name;
+            const r = this.skres.fromCache('routes', suffix);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            text = (r?.[1] as any)?.name ?? '';
             break;
-          case 'waypoint':
+          }
+          case 'waypoint': {
             icon = 'location_on';
             addToFeatureList = true;
-            const w = this.skres.fromCache('waypoints', t[1]);
-            text = w[1].name ?? '';
+            const w = this.skres.fromCache('waypoints', suffix);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            text = (w?.[1] as any)?.name ?? '';
             break;
+          }
           case 'atons':
           case 'aton':
           case 'shore':
@@ -1046,7 +1098,7 @@ export class FBMapComponent
           case 'ais-vessels':
             icon = 'directions_boat';
             addToFeatureList = true;
-            vessel = this.dfeat.ais.get(`vessels.${t[1]}`);
+            vessel = this.dfeat.ais.get(`vessels.${suffix}`);
             text = vessel ? vessel.name || vessel.mmsi : '';
             break;
           case 'vessels':
@@ -1071,16 +1123,16 @@ export class FBMapComponent
       } else if (!id && feature.getProperties) {
         const props = feature.getProperties();
         // S57 features
-        if (props.RCID && S57_CLICKABLE_LAYERS.has(props.layer)) {
-          id = `s57.${props.LNAM}`;
+        if (props['RCID'] && S57_CLICKABLE_LAYERS.has(props['layer'])) {
+          id = `s57.${props['LNAM']}`;
           addToFeatureList = true;
           icon = 'beenhere';
-          text = S57_NAMES[props.layer];
+          text = S57_NAMES[props['layer']] ?? '';
           this.s57Features[id] = props;
         }
       }
 
-      if (addToFeatureList && !featureList.has(id)) {
+      if (addToFeatureList && id && !featureList.has(id)) {
         featureList.set(id, {
           id: id,
           coord: e.lonlat,
@@ -1103,7 +1155,9 @@ export class FBMapComponent
     if (featureList.size === 1) {
       // only 1 feature
       const v = featureList.values().next().value;
-      this.formatPopover(v.id, v.coord);
+      if (v) {
+        this.formatPopover(v.id, v.coord);
+      }
     } else if (featureList.size > 1) {
       // show list of features
       this.formatPopover('list.', e.lonlat, featureList);
@@ -1122,11 +1176,12 @@ export class FBMapComponent
    * */
 
   protected formatPopover(
-    id: string,
-    coord: Position,
+    id: string | null,
+    coord: Position | null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     featureList?: Map<string, any>
   ) {
-    if (!id) {
+    if (!id || !coord) {
       this.overlay.update((current) => {
         return Object.assign({}, current, { show: false });
       });
@@ -1138,149 +1193,170 @@ export class FBMapComponent
       content: [],
       id: null,
       type: null,
-      title: null,
-      featureCount: this.mapInteract.draw.features?.getLength(),
+      title: '',
+      featureCount: this.mapInteract.draw.features?.getLength() ?? 0,
       position: coord,
       readOnly: false,
       isSelf: false
     };
 
-    let item = null;
     const t = id.split('.');
-    let aid: string;
+    const prefix = t[0] ?? '';
+    const suffix = t[1] ?? '';
 
-    switch (t[0]) {
-      case 's57':
+    switch (prefix) {
+      case 's57': {
         poData.id = id;
         poData.title = 'S57 Feature';
         poData.type = 's57';
-        poData.s57Feature = this.s57Features[id];
+        const s57 = this.s57Features[id];
+        if (s57) {
+          poData.s57Feature = s57;
+        }
         poData.position = coord;
         poData.show = true;
         poData.readOnly = true;
         break;
+      }
       case 'anchor':
         this.modifyFeature('anchor');
         return;
-      case 'bearing_dist':
-        const d =
-          GeoUtils.distanceTo(this.app.data.vessels.self.position, coord) ?? 0;
-        const b =
-          GeoUtils.greatCircleBearing(
-            this.app.data.vessels.self.position,
-            coord
-          ) ?? 0;
-        poData.type = t[0];
+      case 'bearing_dist': {
+        const selfPos = this.app.data.vessels.self.position;
+        const d = selfPos ? (GeoUtils.distanceTo(selfPos, coord) ?? 0) : 0;
+        const b = selfPos
+          ? (GeoUtils.greatCircleBearing(selfPos, coord) ?? 0)
+          : 0;
+        poData.type = prefix;
         poData.title = `${this.app.formatValueForDisplay(d, 'm')} ${this.app.formatValueForDisplay(b, 'deg')}`;
         poData.position = coord;
         poData.show = true;
         break;
+      }
       case 'list':
-        poData.type = t[0];
+        poData.type = prefix;
         poData.title = 'Features';
         poData.content = [];
-        featureList.forEach((f) => poData.content.push(f));
+        featureList?.forEach((f) => poData.content.push(f));
         poData.show = true;
         break;
       case 'chartlist':
-        poData.type = t[0];
+        poData.type = prefix;
         poData.content = [];
-        featureList.forEach((f) => poData.content.push(f));
+        featureList?.forEach((f) => poData.content.push(f));
         poData.show = true;
         break;
-      case 'alarm':
-        aid = id.split('.').slice(1).join('.');
+      case 'alarm': {
+        const aid = id.split('.').slice(1).join('.');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const alm = this.notiMgr.getAlert(aid) as any;
         if (!alm) {
-          return false;
+          return;
         }
-        poData.type = t[0];
+        poData.type = prefix;
         poData.alarm = alm;
         poData.id = aid;
         poData.show = true;
         break;
+      }
       case 'vessels':
         poData.type = 'ais';
         poData.isSelf = true;
         poData.vessel = this.dfeat.self;
-        poData.position = this.dfeat.self.position;
+        poData.position = this.dfeat.self.position ?? coord;
         poData.show = true;
         break;
-      case 'ais-vessels':
-        aid = id.slice(4);
-        if (!this.dfeat.ais.has(aid)) {
-          return false;
+      case 'ais-vessels': {
+        const aid = id.slice(4);
+        const v = this.dfeat.ais.get(aid);
+        if (!v) {
+          return;
         }
         poData.type = 'ais';
         poData.id = aid;
-        poData.vessel = this.dfeat.ais.get(aid);
-        poData.position = poData.vessel.position;
+        poData.vessel = v;
+        poData.position = v.position ?? coord;
         poData.show = true;
         break;
+      }
       case 'atons':
       case 'aton':
-      case 'shore':
-        if (!this.app.data.atons.has(id)) {
-          return false;
+      case 'shore': {
+        const at = this.app.data.atons.get(id);
+        if (!at) {
+          return;
         }
         poData.type = 'aton';
         poData.id = id;
-        poData.aton = this.app.data.atons.get(id);
-        poData.position = poData.aton.position;
+        poData.aton = at;
+        poData.position = at.position ?? coord;
         poData.show = true;
         break;
-      case 'sar':
-        if (!this.app.data.sar.has(id)) {
-          return false;
+      }
+      case 'sar': {
+        const sr = this.app.data.sar.get(id);
+        if (!sr) {
+          return;
         }
         poData.type = 'aton';
         poData.id = id;
-        poData.aton = this.app.data.sar.get(id);
-        poData.position = poData.aton.position;
+        poData.aton = sr;
+        poData.position = sr.position ?? coord;
         poData.show = true;
         break;
-      case 'meteo':
-        if (!this.app.data.meteo.has(id)) {
-          return false;
+      }
+      case 'meteo': {
+        const mt = this.app.data.meteo.get(id);
+        if (!mt) {
+          return;
         }
-        poData.type = t[0];
+        poData.type = prefix;
         poData.id = id;
-        poData.aton = this.app.data.meteo.get(id);
-        poData.position = poData.aton.position;
+        poData.aton = mt;
+        poData.position = mt.position ?? coord;
         poData.show = true;
         break;
-      case 'aircraft':
-        if (!this.app.data.aircraft.has(id)) {
-          return false;
+      }
+      case 'aircraft': {
+        const ac = this.app.data.aircraft.get(id);
+        if (!ac) {
+          return;
         }
-        poData.type = t[0];
+        poData.type = prefix;
         poData.id = id;
-        poData.aircraft = this.app.data.aircraft.get(id);
-        poData.position = poData.aircraft.position;
+        poData.aircraft = ac;
+        poData.position = ac.position ?? coord;
         poData.show = true;
         break;
-      case 'region':
-        item = [this.skres.fromCache('regions', t[1])];
-        if (!item) {
-          return false;
+      }
+      case 'region': {
+        const entry = this.skres.fromCache('regions', suffix);
+        if (!entry) {
+          return;
         }
-        poData.id = t[1];
-        poData.type = t[0];
+        poData.id = suffix;
+        poData.type = prefix;
         poData.title = 'Region';
-        poData.resource = item[0];
+        poData.resource = entry as IPopover['resource'];
         poData.show = true;
-        poData.readOnly = item[0][1]?.feature?.properties?.readOnly ?? false;
+        poData.readOnly =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
+          false;
         break;
-      case 'note':
-        item = this.skres.fromCache('notes', t[1]);
-        if (!item) {
-          return false;
+      }
+      case 'note': {
+        const entry = this.skres.fromCache('notes', suffix);
+        if (!entry) {
+          return;
         }
-        poData.readOnly = item[1]?.properties?.readOnly ?? false;
-        poData.id = t[1];
-        poData.type = t[0];
+        poData.readOnly =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((entry as any)?.[1]?.properties?.readOnly as boolean) ?? false;
+        poData.id = suffix;
+        poData.type = prefix;
         poData.title = 'Note';
-        poData.resource = item;
+        poData.resource = entry as IPopover['resource'];
         if (poData.readOnly) {
           poData.show = false;
           this.overlay.set(poData);
@@ -1289,34 +1365,43 @@ export class FBMapComponent
           poData.show = true;
         }
         break;
-      case 'route':
-        item = [this.skres.fromCache('routes', t[1])];
-        if (!item) {
-          return false;
+      }
+      case 'route': {
+        const entry = this.skres.fromCache('routes', suffix);
+        if (!entry) {
+          return;
         }
-        poData.id = t[1];
-        poData.type = t[0];
+        poData.id = suffix;
+        poData.type = prefix;
         poData.title = 'Route';
-        poData.resource = item[0];
+        poData.resource = entry as IPopover['resource'];
         poData.show = true;
-        poData.readOnly = item[0][1]?.feature?.properties?.readOnly ?? false;
+        poData.readOnly =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
+          false;
         break;
-      case 'waypoint':
-        item = [this.skres.fromCache('waypoints', t[1])];
-        if (!item) {
-          return false;
+      }
+      case 'waypoint': {
+        const entry = this.skres.fromCache('waypoints', suffix);
+        if (!entry) {
+          return;
         }
-        poData.id = t[1];
-        poData.type = t[0];
-        poData.resource = item[0];
+        poData.id = suffix;
+        poData.type = prefix;
+        poData.resource = entry as IPopover['resource'];
         poData.title = 'Waypoint';
         poData.show = true;
-        poData.readOnly = item[0][1]?.feature?.properties?.readOnly ?? false;
+        poData.readOnly =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((entry as any)?.[1]?.feature?.properties?.readOnly as boolean) ??
+          false;
         break;
+      }
       case 'dest':
         poData.id = id;
         poData.type = 'destination';
-        poData.resource = this.skres.buildWaypoint(coord) as [
+        poData.resource = this.skres.buildWaypoint(coord) as unknown as [
           string,
           SKWaypoint
         ];
@@ -1325,10 +1410,10 @@ export class FBMapComponent
         break;
       case 'rset':
         poData.id = id;
-        poData.type = t[0];
+        poData.type = prefix;
         poData.resource = this.skresOther.fromResourceSetCache(id, true);
         poData.title =
-          (poData.resource as GeoJsonFeature)?.properties?.name ??
+          (poData.resource as GeoJsonFeature)?.properties?.['name'] ??
           'Resource Set';
         poData.show = poData.resource ? true : false;
         break;
@@ -1339,10 +1424,10 @@ export class FBMapComponent
   }
 
   /** handle selection from the FeatureList popover */
-  protected featureListSelection(feature) {
+  protected featureListSelection(feature: { id: string; coord: Position }) {
     // trim the draw.features collection to the selected feature.id
     const sf = new Collection();
-    this.mapInteract.draw.features.forEach((e) => {
+    this.mapInteract.draw.features.forEach((e: Feature) => {
       if (e.getId() === feature.id) {
         sf.push(e);
       }
@@ -1354,13 +1439,19 @@ export class FBMapComponent
   /** handle popover info event */
   protected popoverInfo() {
     const collection = `${this.overlay().type}s` as SKResourceType;
+    const overlayId = this.overlay().id;
     if (
       ['notes', 'regions', 'waypoints', 'routes'].includes(collection) &&
-      this.app.useInfoPanel()
+      this.app.useInfoPanel() &&
+      overlayId !== null
     ) {
-      this.infoPanel.open(collection, this.overlay().id);
+      void this.infoPanel.open(collection, overlayId);
     } else {
-      this.skres.resourceProperties(this.overlay());
+      const ov = this.overlay();
+      this.skres.resourceProperties({
+        id: ov.id ?? '',
+        type: ov.type ?? ''
+      });
     }
   }
 
@@ -1371,10 +1462,17 @@ export class FBMapComponent
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private updateCoordsMeta(startCoords: any[], endCoords: any[], meta: any[]) {
+  private updateCoordsMeta(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    startCoords: any[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    endCoords: any[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    meta: any[]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any[] | undefined {
     if (!meta) {
-      return;
+      return undefined;
     }
     const mode =
       endCoords.length > startCoords.length
@@ -1392,18 +1490,18 @@ export class FBMapComponent
     if (mode === 'MOVE') {
       return meta;
     }
-    startCoords = stringifyCoords(startCoords);
-    endCoords = stringifyCoords(endCoords);
+    const startStr = stringifyCoords(startCoords);
+    const endStr = stringifyCoords(endCoords);
     if (mode === 'DELETE') {
-      for (let i = 0; i < startCoords.length; i++) {
-        if (!endCoords.includes(startCoords[i])) {
+      for (let i = 0; i < startStr.length; i++) {
+        if (!endStr.includes(startStr[i] ?? '')) {
           meta.splice(i, 1);
         }
       }
       return meta;
     } else if (mode === 'ADD') {
-      for (let i = 0; i < endCoords.length; i++) {
-        if (startCoords[i] !== endCoords[i]) {
+      for (let i = 0; i < endStr.length; i++) {
+        if (startStr[i] !== endStr[i]) {
           meta.splice(i, 0, { name: '' });
           break;
         }
@@ -1447,11 +1545,11 @@ export class FBMapComponent
   /** construct vessel lines for rendering */
   protected drawVesselLines(vesselUpdate = false) {
     const z = this.mapZoomLevel();
-    const offset = z < 29 ? zoomOffsetLevel[Math.floor(z)] : 60;
+    const offset = z < 29 ? (zoomOffsetLevel[Math.floor(z)] ?? 60) : 60;
     const wMax = 10; // max line length
 
     // update vessel trail
-    if (vesselUpdate) {
+    if (vesselUpdate && this.dfeat.self.position) {
       this.app.addToSelfTrail(this.dfeat.self.position);
     }
 
@@ -1463,23 +1561,22 @@ export class FBMapComponent
       const cog = this.dfeat.active.vectors.cog ?? [];
 
       const sog = this.dfeat.active.sog || 0;
-      let hl = 0;
-      if (this.app.config.vessels.selfLines.heading.length === -1) {
-        hl = (sog > wMax ? wMax : sog) * offset;
-      } else {
-        hl =
-          Convert.nauticalMilesToKm(
-            this.app.config.vessels.selfLines.heading.length
-          ) * 1000;
-      }
-      const heading = [
-        this.dfeat.active.position,
-        GeoUtils.rhumbDestination(
-          this.dfeat.active.position,
-          this.dfeat.active.orientation,
-          hl
-        )
-      ];
+      const headingLen = this.app.config.vessels.selfLines.heading.length;
+      const hl =
+        headingLen === -1
+          ? (sog > wMax ? wMax : sog) * offset
+          : Convert.nauticalMilesToKm(headingLen) * 1000;
+      const activePos = this.dfeat.active.position;
+      const heading: LineString = activePos
+        ? [
+            activePos,
+            GeoUtils.rhumbDestination(
+              activePos,
+              this.dfeat.active.orientation,
+              hl
+            )
+          ]
+        : [];
 
       return {
         cog: cog,
@@ -1490,153 +1587,155 @@ export class FBMapComponent
 
   /** calculate vessel & dest laylines & update signals */
   private buildLaylines() {
+    const navPos = this.dfeat.navData.position;
     if (
-      this.app.config.vessels.laylines &&
-      Array.isArray(this.dfeat.navData.position) &&
-      typeof this.dfeat.navData.position[0] === 'number' &&
-      typeof this.app.data.vessels.active.heading === 'number'
+      !this.app.config.vessels.laylines ||
+      !Array.isArray(navPos) ||
+      typeof navPos[0] !== 'number' ||
+      typeof this.app.data.vessels.active.heading !== 'number'
     ) {
-      const twd_deg = Convert.radiansToDegrees(
-        this.app.data.vessels.self.wind.direction ?? 0
-      );
-
-      const twd_inv = Angle.add(twd_deg, 180);
-
-      const destUpwind =
-        Math.abs(
-          Angle.difference(this.course.courseData().bearing.value, twd_deg)
-        ) < 90;
-
-      // beat angle
-      const ba_deg = Convert.radiansToDegrees(
-        this.app.data.vessels.self.performance.beatAngle ?? Math.PI / 4
-      );
-
-      // gybe angle
-      let ga_deg: number;
-      let ga_diff: number;
-      if (
-        typeof this.app.data.vessels.self.performance.gybeAngle === 'number'
-      ) {
-        ga_deg = Convert.radiansToDegrees(
-          this.app.data.vessels.self.performance.gybeAngle
-        );
-        ga_diff = 180 - Math.abs(ga_deg);
-      }
-
-      const destInTarget = destUpwind
-        ? Math.abs(
-            Angle.difference(this.course.courseData().bearing.value, twd_deg)
-          ) < ba_deg
-        : Math.abs(
-            Angle.difference(this.course.courseData().bearing.value, twd_inv)
-          ) < (ga_diff ?? 0);
-
-      const dtg =
-        this.app.config.units.distance === 'kilometer'
-          ? this.course.courseData().dtg * 1000
-          : Convert.nauticalMilesToKm(this.course.courseData().dtg * 1000);
-
-      // mark laylines
-      let markLines = [];
-      if (destUpwind) {
-        const bapt1 = GeoUtils.destCoordinate(
-          this.dfeat.navData.position,
-          Convert.degreesToRadians(Angle.add(twd_inv, ba_deg)),
-          dtg
-        );
-        const bapt2 = GeoUtils.destCoordinate(
-          this.dfeat.navData.position,
-          Convert.degreesToRadians(Angle.add(twd_inv, 0 - ba_deg)),
-          dtg
-        );
-
-        markLines = [bapt1, this.dfeat.navData.position, bapt2];
-      } else if (typeof ga_deg === 'number') {
-        const gapt1 = GeoUtils.destCoordinate(
-          this.dfeat.navData.position,
-          Convert.degreesToRadians(Angle.add(twd_inv, ga_deg)),
-          dtg
-        );
-        const gapt2 = GeoUtils.destCoordinate(
-          this.dfeat.navData.position,
-          Convert.degreesToRadians(Angle.add(twd_inv, 0 - ga_deg)),
-          dtg
-        );
-
-        markLines = [gapt1, this.dfeat.navData.position, gapt2];
-      }
-
-      this.perfTargetAngle.update(() => markLines);
-
-      // vessel laylines
-      if (destInTarget) {
-        const hbd_deg = Angle.difference(
-          twd_deg,
-          this.course.courseData().bearing.value
-        );
-        // Vector lengths
-        let b: number;
-        let c: number;
-        // intersection points
-        let ipts: Position;
-        let iptp: Position;
-
-        if (destUpwind) {
-          // Vector angles
-          const C_RAD = Convert.degreesToRadians(ba_deg - hbd_deg);
-          const B_RAD = Convert.degreesToRadians(ba_deg + hbd_deg);
-          const A_RAD = Math.PI - (B_RAD + C_RAD);
-          b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
-          c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
-          // intersection points
-          ipts = GeoUtils.destCoordinate(
-            this.app.data.vessels.active.position,
-            Convert.degreesToRadians(Angle.add(twd_deg, ba_deg)),
-            b
-          );
-          iptp = GeoUtils.destCoordinate(
-            this.app.data.vessels.active.position,
-            Convert.degreesToRadians(Angle.add(twd_deg, 0 - ba_deg)),
-            c
-          );
-        } else {
-          // downwind
-          if (markLines.length !== 0 && typeof ga_diff === 'number') {
-            // Vector angles
-            const C_RAD = Convert.degreesToRadians(ga_diff - hbd_deg);
-            const B_RAD = Convert.degreesToRadians(ga_diff + hbd_deg);
-            const A_RAD = Math.PI - (B_RAD + C_RAD);
-            b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
-            c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
-            // intersection points
-            ipts = GeoUtils.destCoordinate(
-              this.app.data.vessels.active.position,
-              Convert.degreesToRadians(Angle.add(twd_deg, ga_diff)),
-              b
-            );
-            iptp = GeoUtils.destCoordinate(
-              this.app.data.vessels.active.position,
-              Convert.degreesToRadians(Angle.add(twd_deg, 0 - ga_diff)),
-              c
-            );
-          }
-        }
-
-        this.perfLaylines.update(() => {
-          return {
-            port: [
-              [iptp, this.app.data.vessels.active.position],
-              [ipts, this.app.data.vessels.active.position]
-            ],
-            starboard: [
-              [ipts, markLines[1]],
-              [markLines[1], iptp]
-            ]
-          };
-        });
-      }
+      return;
     }
+    const twd_deg = Convert.radiansToDegrees(
+      this.app.data.vessels.self.wind.direction ?? 0
+    );
+
+    const twd_inv = Angle.add(twd_deg, 180);
+
+    const destUpwind =
+      Math.abs(
+        Angle.difference(this.course.courseData().bearing.value, twd_deg)
+      ) < 90;
+
+    // beat angle
+    const ba_deg = Convert.radiansToDegrees(
+      this.app.data.vessels.self.performance.beatAngle ?? Math.PI / 4
+    );
+
+    // gybe angle
+    let ga_deg: number | undefined;
+    let ga_diff: number | undefined;
+    if (typeof this.app.data.vessels.self.performance.gybeAngle === 'number') {
+      ga_deg = Convert.radiansToDegrees(
+        this.app.data.vessels.self.performance.gybeAngle
+      );
+      ga_diff = 180 - Math.abs(ga_deg);
+    }
+
+    const destInTarget = destUpwind
+      ? Math.abs(
+          Angle.difference(this.course.courseData().bearing.value, twd_deg)
+        ) < ba_deg
+      : Math.abs(
+          Angle.difference(this.course.courseData().bearing.value, twd_inv)
+        ) < (ga_diff ?? 0);
+
+    const dtg =
+      this.app.config.units.distance === 'kilometer'
+        ? this.course.courseData().dtg * 1000
+        : Convert.nauticalMilesToKm(this.course.courseData().dtg * 1000);
+
+    // mark laylines
+    let markLines: Position[] = [];
+    if (destUpwind) {
+      const bapt1 = GeoUtils.destCoordinate(
+        navPos,
+        Convert.degreesToRadians(Angle.add(twd_inv, ba_deg)),
+        dtg
+      );
+      const bapt2 = GeoUtils.destCoordinate(
+        navPos,
+        Convert.degreesToRadians(Angle.add(twd_inv, 0 - ba_deg)),
+        dtg
+      );
+
+      markLines = [bapt1, navPos, bapt2];
+    } else if (typeof ga_deg === 'number') {
+      const gapt1 = GeoUtils.destCoordinate(
+        navPos,
+        Convert.degreesToRadians(Angle.add(twd_inv, ga_deg)),
+        dtg
+      );
+      const gapt2 = GeoUtils.destCoordinate(
+        navPos,
+        Convert.degreesToRadians(Angle.add(twd_inv, 0 - ga_deg)),
+        dtg
+      );
+
+      markLines = [gapt1, navPos, gapt2];
+    }
+
+    this.perfTargetAngle.update(() => markLines);
+
+    // vessel laylines
+    if (!destInTarget) {
+      return;
+    }
+    const hbd_deg = Angle.difference(
+      twd_deg,
+      this.course.courseData().bearing.value
+    );
+    let ipts: Position | undefined;
+    let iptp: Position | undefined;
+    const activePos = this.app.data.vessels.active.position;
+
+    if (destUpwind && activePos) {
+      // Vector angles
+      const C_RAD = Convert.degreesToRadians(ba_deg - hbd_deg);
+      const B_RAD = Convert.degreesToRadians(ba_deg + hbd_deg);
+      const A_RAD = Math.PI - (B_RAD + C_RAD);
+      const b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
+      const c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
+      ipts = GeoUtils.destCoordinate(
+        activePos,
+        Convert.degreesToRadians(Angle.add(twd_deg, ba_deg)),
+        b
+      );
+      iptp = GeoUtils.destCoordinate(
+        activePos,
+        Convert.degreesToRadians(Angle.add(twd_deg, 0 - ba_deg)),
+        c
+      );
+    } else if (
+      !destUpwind &&
+      markLines.length !== 0 &&
+      typeof ga_diff === 'number' &&
+      activePos
+    ) {
+      // downwind
+      const C_RAD = Convert.degreesToRadians(ga_diff - hbd_deg);
+      const B_RAD = Convert.degreesToRadians(ga_diff + hbd_deg);
+      const A_RAD = Math.PI - (B_RAD + C_RAD);
+      const b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
+      const c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
+      ipts = GeoUtils.destCoordinate(
+        activePos,
+        Convert.degreesToRadians(Angle.add(twd_deg, ga_diff)),
+        b
+      );
+      iptp = GeoUtils.destCoordinate(
+        activePos,
+        Convert.degreesToRadians(Angle.add(twd_deg, 0 - ga_diff)),
+        c
+      );
+    }
+
+    const ml1 = markLines[1];
+    if (!ipts || !iptp || !activePos || !ml1) {
+      return;
+    }
+    this.perfLaylines.update(() => {
+      return {
+        port: [
+          [iptp as Position, activePos],
+          [ipts as Position, activePos]
+        ],
+        starboard: [
+          [ipts as Position, ml1],
+          [ml1, iptp as Position]
+        ]
+      };
+    });
   }
 
   // ********************
@@ -1645,32 +1744,39 @@ export class FBMapComponent
   protected deleteFeature(id: string, type: string) {
     switch (type) {
       case 'waypoint':
-        this.skres.deleteWaypoint(id);
+        void this.skres.deleteWaypoint(id);
         break;
       case 'route':
-        this.skres.deleteRoute(id);
+        void this.skres.deleteRoute(id);
         break;
       case 'note':
         this.skres.deleteNote(id);
         break;
       case 'region':
-        this.skres.deleteRegion(id);
+        void this.skres.deleteRegion(id);
         break;
     }
   }
 
   // ** activate route / waypoint
   protected setActiveFeature() {
+    const overlayId = this.overlay().id;
+    if (overlayId === null) {
+      return;
+    }
     if (this.overlay().type === 'waypoint') {
-      this.course.navigateToWaypoint(this.overlay().id);
+      this.course.navigateToWaypoint(overlayId);
     } else {
-      this.activate.emit(this.overlay().id);
+      this.activate.emit(overlayId);
     }
   }
 
   // ** deactivate route / waypoint
   protected clearActiveFeature() {
-    this.deactivate.emit(this.overlay().id);
+    const overlayId = this.overlay().id;
+    if (overlayId !== null) {
+      this.deactivate.emit(overlayId);
+    }
   }
 
   // ** emit info event **
@@ -1682,7 +1788,7 @@ export class FBMapComponent
     }
   }
 
-  protected setActiveVessel(id: string = null) {
+  protected setActiveVessel(id: string | null = null) {
     this.focusVessel.emit(id);
   }
 
@@ -1712,18 +1818,18 @@ export class FBMapComponent
 
   // ********************************************************
 
-  private isCoordsArray(ca: Position[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private isCoordsArray(ca: any): boolean {
     if (Array.isArray(ca)) {
-      return Array.isArray(ca[0]) && typeof ca[0][0] === 'number';
+      const first = ca[0];
+      return Array.isArray(first) && typeof first[0] === 'number';
     } else {
       return false;
     }
   }
 
-  private transformCoordsArray(ca: Position[]) {
-    return ca.map((i) => {
-      return toLonLat(i);
-    });
+  private transformCoordsArray(ca: Position[]): Position[] {
+    return ca.map((i) => toLonLat(i) as Position);
   }
 
   // apply default chart style (vectortile)
@@ -1740,14 +1846,14 @@ export class FBMapComponent
   }
 
   // ** called by onMapMoveEnd() to render features within map extent
-  private renderMapContents(zoomChanged?: boolean) {
+  private renderMapContents(zoomChanged = false) {
     if (this.shouldFetchNotes(zoomChanged)) {
-      this.skres.refreshNotes();
+      void this.skres.refreshNotes();
       this.app.debug(`fetching Notes...`);
     }
     if (this.shouldFetchResourceSets(zoomChanged)) {
       this.app.debug(`fetching ResourceSets...`);
-      this.skresOther.refreshResourceSetsInBounds();
+      void this.skresOther.refreshResourceSetsInBounds();
     }
   }
 
@@ -1808,7 +1914,7 @@ export class FBMapComponent
         this.app.config.map.zoomLevel >= this.app.config.resources.notes.minZoom
     );
 
-    this.app.debug(`lastGet: ${this.app.data.lastGet}`);
+    this.app.debug(`lastGet: ${JSON.stringify(this.app.data.lastGet)}`);
     this.app.debug(`getRadius: ${this.app.config.resources.notes.getRadius}`);
 
     if (zoomChanged) {
@@ -1829,7 +1935,8 @@ export class FBMapComponent
    * @todo Experiment
    */
   private getFeatureInfo() {
-    const f = [].concat(this.mapService.featureUrls());
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const f = [...this.mapService.featureUrls()];
     /*fetch(this.featureUrl)
     .then((response) => response.json())
     .then((json) => {

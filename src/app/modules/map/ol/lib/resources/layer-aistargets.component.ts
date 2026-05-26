@@ -4,7 +4,7 @@ import {
   Component
 } from '@angular/core';
 import { Feature } from 'ol';
-import { Style, RegularShape, Fill, Stroke, Text, Icon } from 'ol/style';
+import { Style, RegularShape, Fill, Stroke, Text } from 'ol/style';
 import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
@@ -40,19 +40,22 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
   }
 
   // update targets
-  override onUpdateTargets(ids: Array<string>) {
+  override onUpdateTargets(ids: string[]) {
     ids.forEach((id: string) => {
       if (id.includes(this.targetContext)) {
-        const f = this.source.getFeatureById(id) as Feature;
+        const f = this.source.getFeatureById(id) as Feature | null;
         if (this.okToRenderTarget(id)) {
           if (this.targets.has(id)) {
             if (f) {
               const target = this.targets.get(id);
+              if (!target) return;
               const label = this.buildLabel(target);
               if (target.position) {
                 f.setGeometry(new Point(fromLonLat(target.position)));
               }
-              const s = this.buildStyle(target).clone();
+              const built = this.buildStyle(target);
+              if (!built) return;
+              const s = built.clone();
               f.set('name', label, true);
               f.setStyle(
                 this.setTextLabel(
@@ -64,7 +67,7 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
               this.addTargetWithId(id);
             }
           }
-        } else {
+        } else if (f) {
           this.source.removeFeature(f);
         }
       }
@@ -72,10 +75,10 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
   }
 
   // remove target features
-  override onRemoveTargets(ids: Array<string>) {
+  override onRemoveTargets(ids: string[]) {
     ids.forEach((id) => {
       if (id.includes(this.targetContext)) {
-        const f = this.source.getFeatureById(id) as Feature;
+        const f = this.source.getFeatureById(id) as Feature | null;
         if (f) {
           this.source.removeFeature(f);
         }
@@ -89,6 +92,7 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
       return;
     }
     const target = this.targets.get(id);
+    if (!target) return;
     const label = this.buildLabel(target);
     if (target.position) {
       const f = new Feature({
@@ -97,7 +101,9 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
       });
       f.setId(id);
       f.set('name', label, true);
-      const s = this.buildStyle(target).clone();
+      const built = this.buildStyle(target);
+      if (!built) return;
+      const s = built.clone();
       f.setStyle(
         this.setTextLabel(this.setRotation(s, target.orientation), label)
       );
@@ -106,31 +112,32 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
   }
 
   // build target style
-  buildStyle(target: SKTarget): Style {
-    const icon = this.mapImages.getAtoN(target.type?.id, target.virtual);
+  buildStyle(target: SKTarget): Style | undefined {
+    const typeId = target.type?.id;
+    const icon =
+      typeof typeId === 'number' || typeof typeId === 'string'
+        ? this.mapImages.getAtoN(typeId, target.virtual)
+        : undefined;
     if (icon && typeof this.targetStyles === 'undefined') {
-      if (icon) {
-        return new Style({
-          image: icon,
-          text: new Text({
-            text: '',
-            offsetX: 0,
-            offsetY: -18
-          })
-        });
-      }
-      return;
+      return new Style({
+        image: icon,
+        text: new Text({
+          text: '',
+          offsetX: 0,
+          offsetY: -18
+        })
+      });
     }
-    let s: Style;
+    let s: Style | undefined;
     const setStale = this.isStale(target);
     if (typeof this.targetStyles !== 'undefined') {
       if (setStale) {
-        s = this.targetStyles.inactive ?? this.targetStyles.default;
+        s = this.targetStyles['inactive'] ?? this.targetStyles['default'];
       } else {
-        s = this.targetStyles.default;
+        s = this.targetStyles['default'];
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
-      s = this.layerProperties.style;
+    } else if (this.layerProperties?.['style']) {
+      s = this.layerProperties['style'] as Style;
     } else {
       s = new Style({
         image: new RegularShape({

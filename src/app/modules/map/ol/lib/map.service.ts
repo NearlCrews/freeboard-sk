@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Map } from 'ol';
 import BaseLayer from 'ol/layer/Base';
+import { Extent } from 'ol/extent';
 import { get as getProj } from 'ol/proj';
 import { register } from 'ol/proj/proj4.js';
 import proj4 from 'proj4';
@@ -36,19 +37,20 @@ export class MapService {
   /**
    * Returns a map object from the maps array
    */
-  getMapById(id: string): Map {
-    let map: Map = null;
+  getMapById(id: string): Map | null {
+    let map: Map | null = null;
     for (let i = 0; i < this.maps.length; i++) {
-      if (this.maps[i].getTarget() === id) {
-        map = this.maps[i];
+      const candidate = this.maps[i];
+      if (candidate && candidate.getTarget() === id) {
+        map = candidate;
         break;
       }
     }
     return map;
   }
 
-  getLayerByKey(key: string, value: string): BaseLayer {
-    let tl: BaseLayer;
+  getLayerByKey(key: string, value: string): BaseLayer | undefined {
+    let tl: BaseLayer | undefined;
     this.maps.forEach((map) => {
       map.getLayers().forEach((layer) => {
         if (layer.get(key) === value) {
@@ -69,13 +71,13 @@ export class MapService {
     });
   }
 
-  addProj4(epsg: string, proj4Def: string, extent?) {
+  addProj4(epsg: string, proj4Def: string, extent?: Extent) {
     let projection = getProj(epsg);
     if (!projection) {
       proj4.defs(epsg, proj4Def);
       register(proj4);
       projection = getProj(epsg);
-      if (extent) {
+      if (projection && extent) {
         projection.setExtent(extent);
       }
     }

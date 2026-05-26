@@ -27,14 +27,14 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
     this.changeDetectorRef.detach();
   }
 
-  @Input() features: Collection<Feature<Geometry>>;
+  @Input() features?: Collection<Feature<Geometry>>;
 
   readonly change = output<ModifyEvent>();
   readonly modifyStart = output<ModifyEvent>();
   readonly modifyEnd = output<ModifyEvent>();
 
-  private map: Map;
-  private interaction: Modify;
+  private map: Map | null = null;
+  private interaction: Modify | null = null;
 
   ngAfterViewInit() {
     this.map = this.mapComponent.getMap();
@@ -42,16 +42,19 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.map.removeInteraction(this.interaction);
-    this.interaction.un('change', this.emitChangeEvent);
-    this.interaction.un('modifystart', this.emitModifyStartEvent);
-    this.interaction.un('modifyend', this.emitModifyEndEvent);
-    this.interaction = null;
+    if (this.map && this.interaction) {
+      this.map.removeInteraction(this.interaction);
+      this.interaction.un('change', this.emitChangeEvent);
+      this.interaction.un('modifystart', this.emitModifyStartEvent);
+      this.interaction.un('modifyend', this.emitModifyEndEvent);
+      this.interaction = null;
+    }
   }
 
   addModifyInteraction() {
-    if (undefined !== this.map) {
-      this.interaction = new Modify({
+    const map = this.map;
+    if (undefined !== map && map !== null && this.features) {
+      const interaction = new Modify({
         features: this.features,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         deleteCondition: (e: MapBrowserEvent<any>) => {
@@ -66,10 +69,11 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
           }
         }
       });
-      this.interaction.on('change', this.emitChangeEvent);
-      this.interaction.on('modifystart', this.emitModifyStartEvent);
-      this.interaction.on('modifyend', this.emitModifyEndEvent);
-      this.map.addInteraction(this.interaction);
+      this.interaction = interaction;
+      interaction.on('change', this.emitChangeEvent);
+      interaction.on('modifystart', this.emitModifyStartEvent);
+      interaction.on('modifyend', this.emitModifyEndEvent);
+      map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }
   }

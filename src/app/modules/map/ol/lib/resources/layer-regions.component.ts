@@ -21,7 +21,7 @@ import { FBRegions } from 'src/app/types';
 })
 export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
   @Input() regions: FBRegions = [];
-  @Input() regionStyles: { [key: string]: Style };
+  @Input() regionStyles?: Record<string, Style>;
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -38,9 +38,10 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.source && 'regions' in changes) {
+    const regionsChange = changes['regions'];
+    if (this.source && regionsChange) {
       this.source.clear();
-      this.parseRegions(changes['regions'].currentValue);
+      this.parseRegions(regionsChange.currentValue);
     }
   }
 
@@ -54,8 +55,10 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
       const f = new Feature({
         geometry:
           r[1].feature.geometry.type === 'MultiPolygon'
-            ? new MultiPolygon(c)
-            : new Polygon(c),
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              new MultiPolygon(c as any)
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              new Polygon(c as any),
         name: r[1].name
       });
       f.setId('region.' + r[0]);
@@ -68,6 +71,7 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
   }
 
   // build region feature style
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildStyle(id: string, reg: any): Style {
     // default style
     let theStyle = this.setTextLabel(
@@ -88,19 +92,17 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
     );
 
     if (this.regionStyles) {
-      if (
-        reg.feature.properties?.skIcon &&
-        this.regionStyles[reg.feature.properties.skIcon]
-      ) {
-        theStyle = this.setTextLabel(
-          this.regionStyles[reg.feature.properties.skIcon],
-          reg.name
-        );
-      } else if (this.regionStyles.default) {
-        theStyle = this.setTextLabel(this.regionStyles.default, reg.name);
+      const skIcon = reg.feature?.properties?.skIcon;
+      if (typeof skIcon === 'string' && skIcon && this.regionStyles[skIcon]) {
+        theStyle = this.setTextLabel(this.regionStyles[skIcon], reg.name);
+      } else if (this.regionStyles['default']) {
+        theStyle = this.setTextLabel(this.regionStyles['default'], reg.name);
       }
-    } else if (this.layerProperties && this.layerProperties.style) {
-      theStyle = this.setTextLabel(this.layerProperties.style, reg.name);
+    } else if (this.layerProperties?.['style']) {
+      theStyle = this.setTextLabel(
+        this.layerProperties['style'] as Style,
+        reg.name
+      );
     }
 
     return theStyle;
@@ -108,19 +110,23 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
 
   // mapify and transform MultiLineString coordinates
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(coords: Array<any>, geomType: 'Polygon' | 'MultiPolygon') {
+  parseCoordinates(coords: any[], geomType: 'Polygon' | 'MultiPolygon') {
     if (geomType === 'MultiPolygon') {
-      const multipoly = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const multipoly: any[] = [];
       coords.forEach((mpoly) => {
-        const lines = [];
-        mpoly.forEach((poly) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const lines: any[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mpoly.forEach((poly: any) => {
           lines.push(mapifyCoords(poly));
         });
         multipoly.push(lines);
       });
       return fromLonLatArray(multipoly);
-    } else if (geomType === 'Polygon') {
-      const lines = [];
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lines: any[] = [];
       coords.forEach((line) => lines.push(mapifyCoords(line)));
       return fromLonLatArray(lines);
     }

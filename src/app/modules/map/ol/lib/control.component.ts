@@ -16,8 +16,8 @@ import { MapComponent } from './map.component';
   standalone: false
 })
 export class ControlComponent implements OnInit, OnDestroy {
-  protected control: Control;
-  public element: HTMLElement;
+  protected control: Control | null = null;
+  public element!: HTMLElement;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -31,13 +31,13 @@ export class ControlComponent implements OnInit, OnDestroy {
     if (this.elementRef.nativeElement) {
       this.element = this.elementRef.nativeElement;
       this.control = new Control({ element: this.element });
-      this.mapComponent.getMap().addControl(this.control);
+      this.mapComponent.getMap()?.addControl(this.control);
     }
   }
 
   ngOnDestroy() {
     if (this.control) {
-      this.mapComponent.getMap().removeControl(this.control);
+      this.mapComponent.getMap()?.removeControl(this.control);
       this.control = null;
     }
   }

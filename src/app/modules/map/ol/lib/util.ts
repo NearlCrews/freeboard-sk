@@ -4,7 +4,7 @@ import { getPointResolution, fromLonLat } from 'ol/proj';
 
 import { Coordinate } from './models';
 
-export function stringToEl(html: string) {
+export function stringToEl(html: string): ChildNode | null {
   const parser = new DOMParser();
   const DOM = parser.parseFromString(html, 'text/html');
   return DOM.body.firstChild;
@@ -23,17 +23,21 @@ export function osmSource() {
 }
 
 // Point | LineString | MultiLineString
+export function fromLonLatArray(coords: Coordinate): Coordinate;
+export function fromLonLatArray(coords: Coordinate[]): Coordinate[];
+export function fromLonLatArray(coords: Coordinate[][]): Coordinate[][];
 export function fromLonLatArray(
-  coords: Array<Array<Coordinate>> | Array<Coordinate> | Coordinate
-) {
+  coords: Coordinate | Coordinate[] | Coordinate[][]
+): Coordinate | Coordinate[] | Coordinate[][] {
   if (!Array.isArray(coords)) {
     return coords;
   }
-  if (typeof coords[0] === 'number') {
-    return fromLonLat(coords as Coordinate);
-  } else if (Array.isArray(coords[0])) {
-    return coords.map((c) => {
-      return fromLonLatArray(c);
+  const first = coords[0];
+  if (typeof first === 'number') {
+    return fromLonLat(coords as Coordinate) as Coordinate;
+  } else if (Array.isArray(first)) {
+    return (coords as Coordinate[]).map((c) => {
+      return fromLonLatArray(c) as Coordinate;
     });
   } else {
     return coords;
@@ -44,36 +48,35 @@ export function fromLonLatArray(
  * returns true if point is in the zone for dateline transition
  * zoneValue: lower end of 180 to xx range within which Longitude must fall for retun value to be true
  **/
-export function inDLCrossingZone(coord: Coordinate, zoneValue = 170) {
-  return Math.abs(coord[0]) >= zoneValue ? true : false;
+export function inDLCrossingZone(coord: Coordinate, zoneValue = 170): boolean {
+  return Math.abs(coord[0] ?? 0) >= zoneValue ? true : false;
 }
 
 // update linestring coords for map display (including dateline crossing)
 export function mapifyCoords(
-  coords: Array<Coordinate>,
+  coords: Coordinate[],
   zoneValue?: number
-): Array<Coordinate> {
+): Coordinate[] {
   if (coords.length === 0) {
     return coords;
   }
   let dlCrossing = 0;
   const last = coords[0];
+  if (!last) {
+    return coords;
+  }
+  const lastLon = last[0] ?? 0;
   for (let i = 0; i < coords.length; i++) {
-    if (
-      inDLCrossingZone(coords[i], zoneValue) ||
-      inDLCrossingZone(last, zoneValue)
-    ) {
-      dlCrossing =
-        last[0] > 0 && coords[i][0] < 0
-          ? 1
-          : last[0] < 0 && coords[i][0] > 0
-            ? -1
-            : 0;
+    const c = coords[i];
+    if (!c) continue;
+    const lon = c[0] ?? 0;
+    if (inDLCrossingZone(c, zoneValue) || inDLCrossingZone(last, zoneValue)) {
+      dlCrossing = lastLon > 0 && lon < 0 ? 1 : lastLon < 0 && lon > 0 ? -1 : 0;
       if (dlCrossing === 1) {
-        coords[i][0] = coords[i][0] + 360;
+        c[0] = lon + 360;
       }
       if (dlCrossing === -1) {
-        coords[i][0] = Math.abs(coords[i][0]) - 360;
+        c[0] = Math.abs(lon) - 360;
       }
     }
   }
@@ -81,9 +84,12 @@ export function mapifyCoords(
 }
 
 // ** return adjusted radius to correctly render circle on ground at given position.
-export function mapifyRadius(radius: number, position: Coordinate): number {
+export function mapifyRadius(
+  radius: number | undefined,
+  position: Coordinate | undefined
+): number {
   if (typeof radius === 'undefined' || typeof position === 'undefined') {
-    return radius;
+    return radius ?? 0;
   }
   return radius / getPointResolution('EPSG:3857', 1, fromLonLat(position));
 }

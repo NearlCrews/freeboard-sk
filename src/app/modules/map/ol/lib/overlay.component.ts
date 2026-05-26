@@ -21,16 +21,16 @@ import { Coordinate } from './models';
   standalone: false
 })
 export class OverlayComponent implements OnInit, OnChanges, OnDestroy {
-  protected overlay: Overlay;
-  public element: HTMLElement;
+  protected overlay: Overlay | null = null;
+  public element!: HTMLElement;
 
-  @Input() id: number | string;
-  @Input() className: string;
-  @Input() offset: number[];
-  @Input() position: Coordinate;
-  @Input() positioning: string;
-  @Input() stopEvent: boolean;
-  @Input() insertFirst: boolean;
+  @Input() id?: number | string;
+  @Input() className?: string;
+  @Input() offset?: number[];
+  @Input() position?: Coordinate;
+  @Input() positioning?: string;
+  @Input() stopEvent?: boolean;
+  @Input() insertFirst?: boolean;
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -43,8 +43,8 @@ export class OverlayComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit() {
     if (this.elementRef.nativeElement) {
       this.element = this.elementRef.nativeElement;
-      this.overlay = new Overlay(this as Options);
-      this.mapComponent.getMap().addOverlay(this.overlay);
+      this.overlay = new Overlay(this as unknown as Options);
+      this.mapComponent.getMap()?.addOverlay(this.overlay);
       if (this.position) {
         this.overlay.setPosition(fromLonLat(this.position));
       }
@@ -53,18 +53,19 @@ export class OverlayComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy() {
     if (this.overlay) {
-      this.mapComponent.getMap().removeOverlay(this.overlay);
+      this.mapComponent.getMap()?.removeOverlay(this.overlay);
       this.overlay = null;
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.overlay && changes.position) {
-      this.overlay.setPosition(fromLonLat(changes.position.currentValue));
+    const positionChange = changes['position'];
+    if (this.overlay && positionChange) {
+      this.overlay.setPosition(fromLonLat(positionChange.currentValue));
     }
   }
 
   panIntoView(panIntoViewOptions: PanIntoViewOptions) {
-    this.overlay.panIntoView(panIntoViewOptions);
+    this.overlay?.panIntoView(panIntoViewOptions);
   }
 }

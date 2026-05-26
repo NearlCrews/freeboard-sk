@@ -177,7 +177,11 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
         f.setStyle(st);
         fa.push(f);
         // point for text display: south (180 degrees = π radians)
-        const tp = GeoUtils.destCoordinate(this.position, Math.PI, d);
+        const tp = GeoUtils.destCoordinate(
+          this.position as [number, number],
+          Math.PI,
+          d
+        );
         const p = new Feature({
           geometry: new Point(fromLonLat(tp))
         });

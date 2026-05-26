@@ -21,7 +21,7 @@ import { AISBaseLayerComponent } from './ais-base.component';
 })
 export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() tracks: Map<string, any> = new Map();
+  @Input() tracks = new Map<string, any>();
   @Input() tracksMinZoom = 10;
   @Input() override mapZoom = 10;
   @Input() showTracks = true;
@@ -41,28 +41,27 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
     if (this.layer) {
-      const keys = Object.keys(changes);
-      if (
-        keys.includes('tracks') &&
-        changes['tracks'].previousValue.size === 0
-      ) {
+      const tracksChange = changes['tracks'];
+      const tracksMinZoomChange = changes['tracksMinZoom'];
+      const mapZoomChange = changes['mapZoom'];
+      if (tracksChange && tracksChange.previousValue?.size === 0) {
         this.reloadTracks();
       } else {
-        if (keys.includes('tracksMinZoom')) {
+        if (tracksMinZoomChange) {
           if (typeof this.mapZoom !== 'undefined') {
             this.reloadTracks();
           }
         }
-        if (keys.includes('mapZoom')) {
+        if (mapZoomChange) {
           if (typeof this.tracksMinZoom !== 'undefined') {
             if (
-              changes['mapZoom'].currentValue >= this.tracksMinZoom &&
-              changes['mapZoom'].previousValue < this.tracksMinZoom
+              mapZoomChange.currentValue >= this.tracksMinZoom &&
+              mapZoomChange.previousValue < this.tracksMinZoom
             ) {
               this.reloadTracks();
             } else if (
-              changes['mapZoom'].currentValue < this.tracksMinZoom &&
-              changes['mapZoom'].previousValue >= this.tracksMinZoom
+              mapZoomChange.currentValue < this.tracksMinZoom &&
+              mapZoomChange.previousValue >= this.tracksMinZoom
             ) {
               this.source.clear();
             }
@@ -87,24 +86,25 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   }
 
   // update track features
-  override onUpdateTargets(ids: Array<string>) {
+  override onUpdateTargets(ids: string[]) {
     if (this.okToRenderTracks) {
       ids.forEach((id: string) => {
         if (id.includes(this.targetContext)) {
-          const f = this.source.getFeatureById('track-' + id) as Feature;
+          const f = this.source.getFeatureById('track-' + id) as Feature | null;
           if (this.okToRenderTarget(id)) {
             if (this.tracks.has(id)) {
               const track = this.tracks.get(id);
               if (f) {
                 f.setGeometry(
-                  new MultiLineString(this.parseCoordinates(track))
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  new MultiLineString(this.parseCoordinates(track) as any)
                 );
                 f.setStyle(this.buildStyle(id));
               } else {
                 this.addTrackWithId(id);
               }
             }
-          } else {
+          } else if (f) {
             this.source.removeFeature(f);
           }
         }
@@ -113,9 +113,9 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   }
 
   // remove track features
-  override onRemoveTargets(ids: Array<string>) {
+  override onRemoveTargets(ids: string[]) {
     ids.forEach((w) => {
-      const f = this.source.getFeatureById('track-' + w) as Feature;
+      const f = this.source.getFeatureById('track-' + w) as Feature | null;
       if (f) {
         this.source.removeFeature(f);
       }
@@ -129,7 +129,8 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
     }
     const track = this.tracks.get(id);
     const f = new Feature({
-      geometry: new MultiLineString(this.parseCoordinates(track))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      geometry: new MultiLineString(this.parseCoordinates(track) as any)
     });
     f.setId('track-' + id);
     f.setStyle(this.buildStyle(id));
@@ -138,15 +139,17 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
 
   // build track style
   buildStyle(id: string): Style {
-    const rgb = id.indexOf('aircraft') !== -1 ? '0, 0, 255' : '255, 0, 255';
+    const rgb = id.includes('aircraft') ? '0, 0, 255' : '255, 0, 255';
     let color =
       this.mapZoom < this.tracksMinZoom ? `rgba(${rgb},0)` : `rgba(${rgb},1)`;
     color = this.showTracks ? `rgba(${rgb},1)` : `rgba(${rgb},0)`;
-    if (this.layerProperties && this.layerProperties.style) {
-      const cs = this.layerProperties.style.clone();
+    if (this.layerProperties?.['style']) {
+      const cs = (this.layerProperties['style'] as Style).clone();
       const ls = cs.getStroke();
-      ls.setColor(color);
-      cs.setStroke(ls);
+      if (ls) {
+        ls.setColor(color);
+        cs.setStroke(ls);
+      }
       return cs;
     } else {
       return new Style({
@@ -161,11 +164,11 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
 
   // ** mapify and transform MultiLineString coordinates
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(trk: Array<any>) {
+  parseCoordinates(trk: any[]) {
     // ** handle dateline crossing **
     const tc = trk.map((mls) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lines: Array<any> = [];
+      const lines: any[] = [];
       mls.forEach((line) => lines.push(mapifyCoords(line)));
       return lines;
     });

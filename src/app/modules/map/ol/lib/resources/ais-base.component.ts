@@ -26,17 +26,17 @@ export class AISBaseLayerComponent
   extends FBFeatureLayerComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input() targets: Map<string, SKTarget> = new Map();
-  @Input() targetContext: string; // e.g. 'vessels', 'atons', 'aircraft', 'meteo'
-  @Input() targetStyles: { [key: string]: Style };
-  @Input() focusId: string;
+  @Input() targets = new Map<string, SKTarget>();
+  @Input() targetContext = ''; // e.g. 'vessels', 'atons', 'aircraft', 'meteo'
+  @Input() targetStyles?: Record<string, Style>;
+  @Input() focusId?: string;
   @Input() inactiveTime = 180000; // in ms (3 mins)
-  @Input() filterByShipType: boolean;
-  @Input() filterShipTypes: Array<number>;
-  @Input() filterIds: Array<string>;
-  @Input() updateIds: Array<string> = [];
-  @Input() staleIds: Array<string> = [];
-  @Input() removeIds: Array<string> = [];
+  @Input() filterByShipType?: boolean;
+  @Input() filterShipTypes?: number[];
+  @Input() filterIds?: string[];
+  @Input() updateIds: string[] = [];
+  @Input() staleIds: string[] = [];
+  @Input() removeIds: string[] = [];
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -55,26 +55,29 @@ export class AISBaseLayerComponent
     super.ngOnChanges(changes);
     if (this.layer) {
       const keys = Object.keys(changes);
+      const targetsChange = changes['targets'];
+      const removeIdsChange = changes['removeIds'];
+      const updateIdsChange = changes['updateIds'];
+      const staleIdsChange = changes['staleIds'];
+      const targetStylesChange = changes['targetStyles'];
       if (
-        (keys.includes('targets') &&
-          changes['targets'].previousValue.size === 0) ||
+        (targetsChange && targetsChange.previousValue?.size === 0) ||
         keys.includes('filterShipTypes') ||
         keys.includes('filterByShipType')
       ) {
         this.reloadTargets();
       } else {
-        if (keys.includes('removeIds')) {
-          this.removeTargetIds(changes['removeIds'].currentValue);
+        if (removeIdsChange) {
+          this.removeTargetIds(removeIdsChange.currentValue);
         }
-        if (keys.includes('updateIds')) {
-          this.updateTargetIds(changes['updateIds'].currentValue);
+        if (updateIdsChange) {
+          this.updateTargetIds(updateIdsChange.currentValue);
         }
-        if (keys.includes('staleIds')) {
-          this.updateTargetIds(changes['staleIds'].currentValue, true);
+        if (staleIdsChange) {
+          this.updateTargetIds(staleIdsChange.currentValue, true);
         }
         if (
-          (keys.includes('targetStyles') &&
-            !changes['targetStyles'].firstChange) ||
+          (targetStylesChange && !targetStylesChange.firstChange) ||
           keys.some((k) => ['focusId', 'filterIds', 'inactiveTime'].includes(k))
         ) {
           this.updateTargetIds(this.extractKeys(this.targets));
@@ -87,9 +90,9 @@ export class AISBaseLayerComponent
    * @param m Map object containing AIS targets of targetContext
    * @returns array of target ids
    */
-  protected extractKeys(m: Map<string, SKTarget>): Array<string> {
-    const keys = [];
-    m.forEach((v, k) => {
+  protected extractKeys(m: Map<string, SKTarget>): string[] {
+    const keys: string[] = [];
+    m.forEach((_v, k) => {
       if (k.includes(this.targetContext)) {
         keys.push(k);
       }
@@ -108,8 +111,8 @@ export class AISBaseLayerComponent
         Array.isArray(this.filterShipTypes) &&
         this.filterShipTypes.includes(-999);
       if (imo) {
-        const t = this.targets.get(id);
-        if ('imo' in (t as SKVessel).registrations) {
+        const t = this.targets.get(id) as SKVessel | undefined;
+        if (t && 'imo' in t.registrations) {
           return true;
         } else {
           return false;
@@ -120,7 +123,11 @@ export class AISBaseLayerComponent
     };
 
     if (this.filterByShipType && Array.isArray(this.filterShipTypes)) {
-      const st = Math.floor(this.targets.get(id).type.id / 10) * 10;
+      const typeId = this.targets.get(id)?.type?.id;
+      if (typeof typeId !== 'number') {
+        return false;
+      }
+      const st = Math.floor(typeId / 10) * 10;
       return this.filterShipTypes.includes(st) && checkImo(id);
     }
     if (!this.filterIds) {
@@ -141,8 +148,7 @@ export class AISBaseLayerComponent
     if (isNaN(this.inactiveTime)) {
       return false;
     }
-    const now = new Date().valueOf();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const now = Date.now();
     return target.lastUpdated.valueOf() < now - this.inactiveTime;
   }
 
@@ -171,26 +177,26 @@ export class AISBaseLayerComponent
   }
 
   // update Features with supplied ids
-  private updateTargetIds(ids: Array<string>, areStale = false) {
+  private updateTargetIds(ids: string[], areStale = false) {
     if (!this.source || !Array.isArray(ids)) {
       return;
     }
     this.onUpdateTargets(ids, areStale);
   }
 
-  protected onUpdateTargets(ids: Array<string>, areStale: boolean) {
+  protected onUpdateTargets(ids: string[], areStale: boolean) {
     // overloadable
   }
 
   // remove target features
-  private removeTargetIds(ids: Array<string>) {
+  private removeTargetIds(ids: string[]) {
     if (!this.source || !Array.isArray(ids)) {
       return;
     }
     this.onRemoveTargets(ids);
   }
 
-  protected onRemoveTargets(ids: Array<string>) {
+  protected onRemoveTargets(ids: string[]) {
     // overloadable
   }
 }

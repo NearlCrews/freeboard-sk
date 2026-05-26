@@ -41,9 +41,10 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.source && 'notes' in changes) {
+    const notesChange = changes['notes'];
+    if (this.source && notesChange) {
       this.source.clear();
-      this.parseFBNotes(changes['notes'].currentValue);
+      this.parseFBNotes(notesChange.currentValue);
     }
   }
 
@@ -60,12 +61,8 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
         name: n[1].name
       });
       f.setId('note.' + n[0]);
-      f.set(
-        'icon',
-        n[1].properties?.skIcon
-          ? `sk-${n[1].properties?.skIcon}`
-          : 'local_offer'
-      );
+      const skIcon = n[1].properties?.['skIcon'];
+      f.set('icon', skIcon ? `sk-${skIcon}` : 'local_offer');
       f.setStyle(this.buildStyle(n[1]).clone());
       fa.push(f);
     }
@@ -74,7 +71,10 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
 
   // build note feature style
   buildStyle(note: SKNote | NoteResource): Style {
-    const icon = this.mapImages.getPOI(note.properties.skIcon ?? 'default');
+    const skIcon = note.properties?.['skIcon'];
+    const icon = this.mapImages.getPOI(
+      typeof skIcon === 'string' ? skIcon : 'default'
+    );
     if (icon) {
       return new Style({
         image: icon,

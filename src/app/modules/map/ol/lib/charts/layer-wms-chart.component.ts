@@ -39,8 +39,8 @@ export class WmsChartLayerComponent implements OnDestroy {
   private mapComponent = inject(MapComponent);
   private mapService = inject(MapService);
 
-  private map: Map;
-  private featureUrl?: string;
+  private map: Map | null;
+  private featureUrl: string | undefined;
 
   constructor() {
     this.changeDetectorRef.detach();
@@ -62,7 +62,7 @@ export class WmsChartLayerComponent implements OnDestroy {
     effect(() => {
       const ev = this.mapComponent.pointerDownSignal();
       const chart = this.chart();
-      if (!ev || !this.layer || !chart) {
+      if (!ev || !this.layer || !chart || !this.map) {
         return;
       }
       const view = this.map.getView();
