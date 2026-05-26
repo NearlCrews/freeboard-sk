@@ -12,12 +12,17 @@
 - **Hardware-accelerated night mode.** Tile darkening runs through OffscreenCanvas per tile, replacing the legacy CSS `filter` on the whole map element. The previous approach forced a full repaint on every pan; the new path stays inside the tile pipeline.
 - **OnPush change detection across 56 components.** The map, popovers, panels, and dialogs no longer re-render on every Angular tick. Side effect: panning and scrolling are noticeably smoother under heavy AIS load.
 - **Zoneless Angular.** The app runs without zone.js. Reactivity flows through Angular signals end-to-end; RxJS retreats to the WebSocket and HTTP boundary only.
+- **AIS and chart render hot-paths re-optimized.** Per-frame `Style`, `Stroke`, `Fill`, and `Text` allocations across 12 OpenLayers layer components are now hoisted to module constants and cached by resolved color, so a fleet of 100+ AIS targets stops churning the GC on every label refresh, COG-line redraw, and zoom-threshold cross. AIS filter lookups (`okToRenderTarget`, flagged-id, ship-type) are O(1) Set membership instead of O(n) `Array.includes`. The delta processor's hot signal writes use `set()` instead of `update(() => ...)` closures at the 1 to 10 Hz tick rate.
+- **Twelve subscribe-time leak paths closed.** The delta-stream service, facade, and resource hot-paths now register with `takeUntilDestroyed` so reload and HMR cycles release cleanly.
 
 ### Visual + UX
 
 - **3 themes via design tokens.** Light, dark, and night-red, switchable via `data-theme` on `<html>`. Night-red is IEC 62288 / IMO MSC.302(87) compliant: alarm reds and warning yellows stay correct in night mode. 87 tokens cover color, spacing, typography, focus rings, and safety-state surfaces.
 - **Notes palette refresh.** Switched from cream / copper + navy to white / black + rust. Sidebar contrast and low-contrast label issues fixed.
 - **Tailwind v4 (CSS-first config).** Replaces the legacy Tailwind v2 + Material-only styling. Tier-1 (button, dialog, sheet) and tier-2 (list-pane, detail-pane, filter-bar) primitives backed by Angular CDK ship in `src/app/design-system/`.
+- **Resources 3-pane shell.** Routes, waypoints, and regions now share a Bear / Notes style three-pane layout: left nav (All / Routes / Waypoints / Regions with live counts), filter bar, middle list, and right detail. Replaces three separate panels with one consistent surface; matches the Notes redesign.
+- **Settings and Weather rebuilt on tier-2 primitives.** Both modals migrated off bespoke layout to the shared `fb-list-pane` and `fb-detail-pane` components. Token coverage tightened across the weather forecast grid; safety colors stay theme-invariant per IEC 62288.
+- **Accessibility burndown.** Icon-only buttons gained `aria-label`s across alarms, autopilot, weather, gpx, settings, and the dialog set. Dialog titles are now real `<h2>` elements (axe heading-order). Three `<div (click)>` handlers became real `<button>` elements with focus-visible outlines. The unacknowledged-alert blink is gated behind `prefers-reduced-motion: no-preference`; the resting state stays visible at full opacity so the cue is preserved without motion.
 
 ### New features
 
@@ -35,10 +40,15 @@
 - **`MulitPoint` typo in the resource-set layer style dispatcher** caused MultiPoint geometries to fall through to the Polygon-style branch. Fixed.
 - **Anchor-watch and anchor.service** now handle the case where `Convert.transform` returns null. Legacy code assumed it always returned a number, which produced silent NaN propagation into the rode-length input.
 - **Several `e.dataTransfer` / `e.originalEvent` null-reads** in the map drop, right-click, and modify handlers now properly guard; pre-existing crashes on certain browser drag flows are gone.
+- **Signal K subscription `minPeriod` was being clobbered by `period`.** The internal stream-API copy of the SignalK Angular client was overwriting `subscribe.minPeriod` with `subscribe.period`, neutralizing the minPeriod field on the wire. Callers passing a min-rate now get a correct subscription frame.
+- **`AlarmState` enum was missing the `nominal` state.** Per spec, notifications have six states (nominal, normal, alert, warn, alarm, emergency); two vendored enum copies omitted `nominal` so producers could not construct a "monitored and currently fine" notification. Both copies now match the spec.
+- **Notification path detection used substring match.** `path.includes('notifications.')` would treat any path containing the word as a notification (e.g. `mySetting.notifications.foo`). Switched to `startsWith('notifications.')` everywhere the gate fires.
 
 ### Under the hood (so you can audit the change)
 
 - **TypeScript strict mode at root.** All 7 strict flags on (strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noImplicitOverride, noPropertyAccessFromIndexSignature, noImplicitReturns, noFallthroughCasesInSwitch). Every `.ts` file plus every Angular template type-check block passes. This is what caught most of the bugs above.
+- **`any` baseline tightened.** The SignalK WebSocket client surface, the FBAppData shape, several resource types, and the delta-processor signatures dropped ~49 baseline `any` slots in one pass: typed `Subject<UpdateMessage | TrailMessage>` for the message bus, `WebSocket | null` and `MessageEvent` on the wire, nullable widening on the fields that actually go `null` at runtime.
+- **Notes and the new resources shell migrated to `@angular/forms/signals`.** The note-dialog name field uses the experimental `form()` API; the rest of the dialog set is queued behind the same shape.
 - **172 unit tests, 19 spec files** (Vitest 4 + Angular TestBed in jsdom). Upstream has none.
 - **CI floor.** Eight-job pipeline: typecheck, lint with a per-file baseline ratchet, unit tests, build, bundle-size budgets, e2e smoke + a11y, Lighthouse gating, dependency-cruiser. Every job must pass before merge.
 - **Stack pinned to current.** Angular 21.2.14, OpenLayers 10.9.0, pmtiles 4.4.1, ol-mapbox-style 13.4.1, TypeScript 5.9.3, pnpm 11.2.2 via Corepack, Node 24 LTS. The SignalK API client is unchanged so this fork still loads the same delta stream and resource endpoints as upstream.
