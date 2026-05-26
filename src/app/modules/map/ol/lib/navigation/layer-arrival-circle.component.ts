@@ -21,6 +21,16 @@ import { Extent, Coordinate } from '../models';
 import { mapifyRadius } from '../util';
 import { AsyncSubject } from 'rxjs';
 
+// Default arrival circle style: shared across instances/renders.
+const DEFAULT_ARRIVAL_STYLE = new Style({
+  fill: new Fill({ color: 'rgba(255, 255, 255, .1)' }),
+  stroke: new Stroke({
+    color: 'rgba(242, 153, 10, 1)',
+    width: 2,
+    lineDash: [5, 5]
+  })
+});
+
 // ** Freeboard Arrival Circle component **
 @Component({
   selector: 'ol-map > fb-arrival-circle',
@@ -126,20 +136,9 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
 
   // build target style
   buildStyle(): Style {
-    let cs: Style;
     if (this.layerProperties?.['style']) {
-      cs = this.layerProperties['style'] as Style;
-    } else {
-      // default style
-      cs = new Style({
-        fill: new Fill({ color: 'rgba(255, 255, 255, .1)' }),
-        stroke: new Stroke({
-          color: 'rgba(242, 153, 10, 1)',
-          width: 2,
-          lineDash: [5, 5]
-        })
-      });
+      return this.layerProperties['style'] as Style;
     }
-    return cs;
+    return DEFAULT_ARRIVAL_STYLE;
   }
 }

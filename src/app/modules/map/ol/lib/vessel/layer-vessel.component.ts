@@ -216,45 +216,31 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.selfStyle) {
       this.generateSelfStyle();
     }
-    // default style with specified scale
     let cs: Style | undefined = this.selfStyle;
     const vesselStyles = this.vesselStyles();
-    const activeId = this.activeId();
-    const id = this.id();
     const fixedLocation = this.fixedLocation();
-    const layerProperties = this.layerProperties();
+    const activeId = this.activeId();
+    const isInactive = !fixedLocation && !!activeId && activeId !== this.id();
 
     if (vesselStyles) {
-      // use supplied styles
       if (fixedLocation) {
-        const fixed = vesselStyles['fixed'];
-        if (fixed) {
-          cs = fixed;
-        }
+        cs = vesselStyles['fixed'] ?? cs;
+      } else if (isInactive) {
+        cs = vesselStyles['inactive'] ?? cs;
       } else {
-        if (activeId && activeId !== id) {
-          const inactive = vesselStyles['inactive'];
-          if (inactive) {
-            cs = inactive;
-          }
-        } else {
-          const def = vesselStyles['default'];
-          if (def) {
-            cs = def;
-          }
-        }
+        cs = vesselStyles['default'] ?? cs;
       }
-    } else if (layerProperties?.['style']) {
-      cs = layerProperties['style'] as Style;
-    } else {
-      // use default styles
-      if (fixedLocation) {
-        cs = fixedVesselStyle;
-      } else {
-        if (activeId && activeId !== id) {
-          cs = inactiveVesselStyle;
-        }
-      }
+      return cs;
+    }
+    const layerProperties = this.layerProperties();
+    if (layerProperties?.['style']) {
+      return layerProperties['style'] as Style;
+    }
+    if (fixedLocation) {
+      return fixedVesselStyle;
+    }
+    if (isInactive) {
+      return inactiveVesselStyle;
     }
     return cs;
   }

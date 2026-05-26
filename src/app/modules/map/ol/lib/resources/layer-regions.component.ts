@@ -51,6 +51,9 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
 
   parseRegions(regions: FBRegions = this.regions) {
     const fa: Feature[] = [];
+    // Snapshot palette once per parse; buildStyle() previously read the
+    // signal per region.
+    const regionColor = this.mapTheme.palette().region;
     for (const r of regions) {
       const c = this.parseCoordinates(
         r[1].feature.geometry.coordinates,
@@ -68,7 +71,7 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
       f.setId('region.' + r[0]);
       f.set('name', r[1].name);
       f.set('icon', 'region');
-      f.setStyle(this.buildStyle(r[0], r[1]));
+      f.setStyle(this.buildStyle(r[0], r[1], regionColor));
       fa.push(f);
     }
     this.source.addFeatures(fa);
@@ -76,23 +79,15 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
 
   // build region feature style
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildStyle(id: string, reg: any): Style {
-    const regionColor = this.mapTheme.palette().region;
-    const fillColor = `color-mix(in srgb, ${regionColor} 10%, transparent)`;
+  buildStyle(id: string, reg: any, regionColor?: string): Style {
+    const color = regionColor ?? this.mapTheme.palette().region;
+    const fillColor = `color-mix(in srgb, ${color} 10%, transparent)`;
     // default style
     let theStyle = this.setTextLabel(
       new Style({
-        fill: new Fill({
-          color: fillColor
-        }),
-        stroke: new Stroke({
-          color: regionColor,
-          width: 1
-        }),
-        text: new Text({
-          text: '',
-          offsetY: 0
-        })
+        fill: new Fill({ color: fillColor }),
+        stroke: new Stroke({ color: color, width: 1 }),
+        text: new Text({ text: '', offsetY: 0 })
       }),
       reg.name
     );

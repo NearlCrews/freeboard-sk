@@ -41,38 +41,39 @@ export class AISTargetsLayerComponent extends AISBaseLayerComponent {
 
   // update targets
   override onUpdateTargets(ids: string[]) {
+    const context = this.targetContext;
     ids.forEach((id: string) => {
-      if (id.includes(this.targetContext)) {
-        const f = this.source.getFeatureById(id) as Feature | null;
-        if (this.okToRenderTarget(id)) {
-          if (this.targets.has(id)) {
-            if (f) {
-              const target = this.targets.get(id);
-              if (!target) return;
-              const label = this.buildLabel(target);
-              if (target.position) {
-                f.setGeometry(
-                  new Point(fromLonLat(target.position as [number, number]))
-                );
-              }
-              const built = this.buildStyle(target);
-              if (!built) return;
-              const s = built.clone();
-              f.set('name', label, true);
-              f.setStyle(
-                this.setTextLabel(
-                  this.setRotation(s, target.orientation),
-                  label
-                )
-              );
-            } else {
-              this.addTargetWithId(id);
-            }
-          }
-        } else if (f) {
+      if (!id.includes(context)) {
+        return;
+      }
+      const f = this.source.getFeatureById(id) as Feature | null;
+      if (!this.okToRenderTarget(id)) {
+        if (f) {
           this.source.removeFeature(f);
         }
+        return;
       }
+      const target = this.targets.get(id);
+      if (!target) {
+        return;
+      }
+      if (!f) {
+        this.addTargetWithId(id);
+        return;
+      }
+      const label = this.buildLabel(target);
+      if (target.position) {
+        f.setGeometry(
+          new Point(fromLonLat(target.position as [number, number]))
+        );
+      }
+      const built = this.buildStyle(target);
+      if (!built) return;
+      const s = built.clone();
+      f.set('name', label, true);
+      f.setStyle(
+        this.setTextLabel(this.setRotation(s, target.orientation), label)
+      );
     });
   }
 

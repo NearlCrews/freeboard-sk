@@ -1,29 +1,31 @@
 import { Subject, Observable } from 'rxjs';
 import * as uuid from 'uuid';
 
-export class SKStreamAPI {
-  private _connect: Subject<any>;
-  private _close: Subject<any>;
-  private _error: Subject<any>;
-  private _message: Subject<any>;
+type SKMessage = Record<string, unknown>;
 
-  private ws: any;
-  private _filter: string = ''; // id of vessel to filter delta messages
+export class SKStreamAPI {
+  private _connect: Subject<Event>;
+  private _close: Subject<CloseEvent>;
+  private _error: Subject<Event>;
+  private _message: Subject<SKMessage>;
+
+  private ws: WebSocket | null = null;
+  private _filter = ''; // id of vessel to filter delta messages
   private _wsTimeout = 20000; // websocket connection timeout
-  private _token: string = '';
-  private _playbackMode: boolean = false;
+  private _token = '';
+  private _playbackMode = false;
 
   // **************** ATTRIBUTES ***************************
 
-  public onConnect: Observable<any>;
-  public onClose: Observable<any>;
-  public onError: Observable<any>;
-  public onMessage: Observable<any>;
+  public onConnect: Observable<Event>;
+  public onClose: Observable<CloseEvent>;
+  public onError: Observable<Event>;
+  public onMessage: Observable<SKMessage>;
 
-  public version: number = 1;
-  public endpoint: string = '';
-  public selfId: string = '';
-  public _source: any = null;
+  public version = 1;
+  public endpoint = '';
+  public selfId = '';
+  public _source: Record<string, string> | null = null;
 
   /** set source label for use in messages */
   set source(val: string) {
@@ -47,7 +49,7 @@ export class SKStreamAPI {
   }
   /** is WS Stream connected? */
   get isOpen(): boolean {
-    return this.ws && this.ws.readyState != 1 && this.ws.readyState != 3
+    return this.ws && this.ws.readyState !== 1 && this.ws.readyState !== 3
       ? true
       : false;
   }
@@ -57,7 +59,7 @@ export class SKStreamAPI {
   }
   /** set filter= null to remove message filtering */
   set filter(id: string) {
-    if (id && id.indexOf('self') != -1) {
+    if (id && id.includes('self')) {
       // ** self
       this._filter = this.selfId ? this.selfId : '';
     } else {
@@ -72,13 +74,13 @@ export class SKStreamAPI {
   // ******************************************************
 
   constructor() {
-    this._connect = new Subject<any>();
+    this._connect = new Subject<Event>();
     this.onConnect = this._connect.asObservable();
-    this._close = new Subject<any>();
+    this._close = new Subject<CloseEvent>();
     this.onClose = this._close.asObservable();
-    this._error = new Subject<any>();
+    this._error = new Subject<Event>();
     this.onError = this._error.asObservable();
-    this._message = new Subject<any>();
+    this._message = new Subject<SKMessage>();
     this.onMessage = this._message.asObservable();
   }
 
@@ -100,7 +102,7 @@ export class SKStreamAPI {
     if (!url) {
       return;
     }
-    let q = url.indexOf('?') == -1 ? '?' : '&';
+    const q = url.includes('?') ? '&' : '?';
     if (subscribe) {
       url += `${q}subscribe=${subscribe}`;
     }
@@ -112,7 +114,7 @@ export class SKStreamAPI {
     this.ws = new WebSocket(url);
     // ** start connection watchdog **
     setTimeout(() => {
-      if (this.ws && this.ws.readyState != 1 && this.ws.readyState != 3) {
+      if (this.ws && this.ws.readyState !== 1 && this.ws.readyState !== 3) {
         console.warn(
           `Connection watchdog expired (${this._wsTimeout / 1000} sec): ${
             this.ws.readyState
@@ -122,43 +124,45 @@ export class SKStreamAPI {
       }
     }, this._wsTimeout);
 
-    this.ws.onopen = (e: any) => {
+    this.ws.onopen = (e: Event) => {
       this._connect.next(e);
     };
-    this.ws.onclose = (e: any) => {
+    this.ws.onclose = (e: CloseEvent) => {
       this._close.next(e);
     };
-    this.ws.onerror = (e: any) => {
+    this.ws.onerror = (e: Event) => {
       this._error.next(e);
     };
-    this.ws.onmessage = (e: any) => {
+    this.ws.onmessage = (e: MessageEvent) => {
       this.parseOnMessage(e);
     };
   }
 
   /** parse received message */
-  private parseOnMessage(e: any) {
-    let data: any;
+  private parseOnMessage(e: MessageEvent) {
+    let data: SKMessage | undefined;
     if (typeof e.data === 'string') {
       try {
-        data = JSON.parse(e.data);
-      } catch (e) {
+        data = JSON.parse(e.data) as SKMessage;
+      } catch {
         return;
       }
     }
+    if (!data) {
+      return;
+    }
     if (this.isHello(data)) {
-      this.selfId = data.self;
-      this._playbackMode = typeof data.startTime != 'undefined' ? true : false;
+      this.selfId = (data['self'] as string) ?? '';
+      this._playbackMode = typeof data['startTime'] !== 'undefined';
       this._message.next(data);
     } else if (this.isResponse(data)) {
-      if (typeof data.login !== 'undefined') {
-        if (typeof data.login.token !== 'undefined') {
-          this._token = data.login.token;
-        }
+      const login = data['login'] as { token?: string } | undefined;
+      if (login && typeof login.token !== 'undefined') {
+        this._token = login.token;
       }
       this._message.next(data);
     } else if (this._filter && this.isDelta(data)) {
-      if (data.context == this._filter) {
+      if (data['context'] === this._filter) {
         this._message.next(data);
       }
     } else {
@@ -167,26 +171,25 @@ export class SKStreamAPI {
   }
 
   /** send request via Delta stream */
-  sendRequest(value: any): string {
+  sendRequest(value: SKMessage): string {
     if (typeof value !== 'object') {
       return '';
     }
-    let msg: any = Message.request();
-    if (typeof value.login === 'undefined' && this._token) {
+    const msg: SKMessage = Message.request();
+    if (typeof value['login'] === 'undefined' && this._token) {
       msg['token'] = this._token;
     }
-    let keys = Object.keys(value);
-    keys.forEach((k) => {
+    Object.keys(value).forEach((k) => {
       msg[k] = value[k];
     });
     this.send(msg);
-    return msg.requestId;
+    return msg['requestId'] as string;
   }
 
   /** send put request via Delta stream */
-  put(context: string, path: string, value: any): string {
-    let msg = {
-      context: context == 'self' ? 'vessels.self' : context,
+  put(context: string, path: string, value: unknown): string {
+    const msg = {
+      context: context === 'self' ? 'vessels.self' : context,
       put: { path: path, value: value }
     };
     return this.sendRequest(msg);
@@ -194,80 +197,72 @@ export class SKStreamAPI {
 
   /** get auth token for supplied user details */
   login(username: string, password: string) {
-    let msg = {
+    const msg = {
       login: { username: username, password: password }
     };
     return this.sendRequest(msg);
   }
 
   /** send data to Signal K stream */
-  send(data: any) {
+  send(data: unknown) {
     if (this.ws) {
-      if (typeof data === 'object') {
-        data = JSON.stringify(data);
-      }
-      this.ws.send(data);
+      const payload =
+        typeof data === 'object' ? JSON.stringify(data) : (data as string);
+      this.ws.send(payload);
     }
   }
 
   /** send value(s) via delta stream update */
-  sendUpdate(context: string, path: Array<any>): void;
-  sendUpdate(context: string, path: string, value: any): void;
+  sendUpdate(context: string, path: unknown[]): void;
+  sendUpdate(context: string, path: string, value: unknown): void;
   sendUpdate(
-    context: string = 'self',
-    path: string | Array<any>,
-    value?: any
+    context = 'self',
+    path: string | unknown[],
+    value?: unknown
   ): void {
-    let val: any = Message.updates();
+    const val: SKMessage = Message.updates();
     if (this._token) {
       val['token'] = this._token;
     }
-    val.context = context == 'self' ? 'vessels.self' : context;
-    if (this._token) {
-      val['token'] = this._token;
-    }
+    val['context'] = context === 'self' ? 'vessels.self' : context;
 
-    let uValues = [];
+    let uValues: unknown[] = [];
     if (typeof path === 'string') {
       uValues.push({ path: path, value: value });
     }
     if (typeof path === 'object' && Array.isArray(path)) {
       uValues = path;
     }
-    let u: any = {
+    const u: SKMessage = {
       timestamp: new Date().toISOString(),
       values: uValues
     };
     if (this._source) {
       u['source'] = this._source;
     }
-    val.updates.push(u);
+    (val['updates'] as unknown[]).push(u);
     this.send(val);
   }
 
   /** Subscribe to Delta stream messages options: {..} */
-  subscribe(context: string, path: Array<any>): void;
-  subscribe(context: string, path: string, options?: any): void;
+  subscribe(context: string, path: unknown[]): void;
+  subscribe(context: string, path: string, options?: SKMessage): void;
   subscribe(
-    context: string = '*',
-    path: string | Array<any> = '*',
-    options?: any
+    context = '*',
+    path: string | unknown[] = '*',
+    options?: SKMessage
   ): void {
-    let val: any = Message.subscribe();
+    const val: SKMessage = Message.subscribe();
     if (this._token) {
       val['token'] = this._token;
     }
-    val.context = context == 'self' ? 'vessels.self' : context;
-    if (this._token) {
-      val['token'] = this._token;
-    }
+    val['context'] = context === 'self' ? 'vessels.self' : context;
 
     if (typeof path === 'object' && Array.isArray(path)) {
-      val.subscribe = path;
+      val['subscribe'] = path;
     }
     if (typeof path === 'string') {
-      let sValue: any = {};
-      sValue['path'] = path;
+      const sValue: SKMessage = { path };
       if (options && typeof options === 'object') {
         if (options['period']) {
           sValue['period'] = options['period'];
@@ -277,40 +272,37 @@ export class SKStreamAPI {
         }
         if (
           options['format'] &&
-          (options['format'] == 'delta' || options['format'] == 'full')
+          (options['format'] === 'delta' || options['format'] === 'full')
         ) {
           sValue['format'] = options['format'];
         }
         if (
           options['policy'] &&
-          (options['policy'] == 'instant' ||
-            options['policy'] == 'ideal' ||
-            options['policy'] == 'fixed')
+          (options['policy'] === 'instant' ||
+            options['policy'] === 'ideal' ||
+            options['policy'] === 'fixed')
         ) {
           sValue['policy'] = options['policy'];
         }
       }
-      val.subscribe.push(sValue);
+      (val['subscribe'] as unknown[]).push(sValue);
     }
     this.send(val);
   }
 
   // ** Unsubscribe from Delta stream messages **
-  unsubscribe(context: string = '*', path: any = '*') {
-    let val: any = Message.unsubscribe();
+  unsubscribe(context = '*', path: string | unknown[] = '*') {
+    const val: SKMessage = Message.unsubscribe();
     if (this._token) {
       val['token'] = this._token;
     }
-    val.context = context == 'self' ? 'vessels.self' : context;
-    if (this._token) {
-      val['token'] = this._token;
-    }
+    val['context'] = context === 'self' ? 'vessels.self' : context;
 
     if (typeof path === 'object' && Array.isArray(path)) {
-      val.unsubscribe = path;
+      val['unsubscribe'] = path;
     }
     if (typeof path === 'string') {
-      val.unsubscribe.push({ path: path });
+      (val['unsubscribe'] as unknown[]).push({ path: path });
     }
     this.send(val);
   }
@@ -318,42 +310,40 @@ export class SKStreamAPI {
   /** raise alarm for path */
   raiseAlarm(context: string, name: string, alarm: Alarm): void;
   raiseAlarm(context: string, type: AlarmType, alarm: Alarm): void;
-  raiseAlarm(context: string = '*', alarmId: any, alarm: Alarm): void {
-    let path: string;
-    if (typeof alarmId === 'string') {
-      path =
-        alarmId.indexOf('notifications.') == -1
-          ? `notifications.${alarmId}`
-          : alarmId;
-    } else {
-      path = alarmId;
-    }
+  raiseAlarm(context = '*', alarmId: string | AlarmType, alarm: Alarm): void {
+    const path = alarmId.includes('notifications.')
+      ? alarmId
+      : `notifications.${alarmId}`;
     this.put(context, path, alarm.value);
   }
 
   /** raise alarm for path */
-  clearAlarm(context: string = '*', name: string) {
-    let path =
-      name.indexOf('notifications.') == -1 ? `notifications.${name}` : name;
+  clearAlarm(context = '*', name: string) {
+    const path = name.includes('notifications.')
+      ? name
+      : `notifications.${name}`;
     this.put(context, path, null);
   }
 
   // *************** MESSAGE PARSING ******************************
   /** returns true if message context is 'self' */
-  isSelf(msg: any): boolean {
-    return msg.context == this.selfId;
+  isSelf(msg: SKMessage): boolean {
+    return msg['context'] === this.selfId;
   }
   /** returns true if message is a Delta message */
-  isDelta(msg: any): boolean {
-    return typeof msg.context != 'undefined';
+  isDelta(msg: SKMessage): boolean {
+    return typeof msg['context'] !== 'undefined';
   }
   /** returns true if message is a Hello message */
-  isHello(msg: any): boolean {
-    return typeof msg.version != 'undefined' && typeof msg.self != 'undefined';
+  isHello(msg: SKMessage): boolean {
+    return (
+      typeof msg['version'] !== 'undefined' &&
+      typeof msg['self'] !== 'undefined'
+    );
   }
   /** returns true if message is a request Response message */
-  isResponse(msg: any): boolean {
-    return typeof msg.requestId != 'undefined';
+  isResponse(msg: SKMessage): boolean {
+    return typeof msg['requestId'] !== 'undefined';
   }
 }
 
@@ -362,13 +352,13 @@ export class Message {
   /** return UPDATES message object
    * @returns  array of { values: [ {path: xx, value: xx } ] }
    */
-  static updates() {
+  static updates(): SKMessage {
     return {
       context: null,
       updates: []
     };
   }
-  /** 
+  /**
    * @description return SUBSCRIBE message object
    * @returns array of {
         "path": "path.to.key",
@@ -376,9 +366,9 @@ export class Message {
         "format": "delta",
         "policy": "ideal",
         "minPeriod": 200
-    } 
+    }
     */
-  static subscribe() {
+  static subscribe(): SKMessage {
     return {
       context: null,
       subscribe: []
@@ -388,7 +378,7 @@ export class Message {
    * @description return UNSUBSCRIBE message object
    * @returns array of { "path": "path.to.key" }
    */
-  static unsubscribe() {
+  static unsubscribe(): SKMessage {
     return {
       context: null,
       unsubscribe: []
@@ -398,7 +388,7 @@ export class Message {
    * @description return REQUEST message object
    * @returns value { "requestId": <uuid v4> }
    */
-  static request() {
+  static request(): SKMessage {
     return {
       requestId: uuid.v4()
     };
@@ -408,8 +398,8 @@ export class Message {
 /** Alarm message */
 export class Alarm {
   private _state: AlarmState;
-  private _method: Array<AlarmMethod> = [];
-  private _message: string = '';
+  private _method: AlarmMethod[] = [];
+  private _message = '';
 
   constructor(
     message: string,

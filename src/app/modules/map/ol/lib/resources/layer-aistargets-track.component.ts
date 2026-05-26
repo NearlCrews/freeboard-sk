@@ -86,29 +86,35 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
 
   // update track features
   override onUpdateTargets(ids: string[]) {
-    if (this.okToRenderTracks()) {
-      ids.forEach((id: string) => {
-        if (id.includes(this.targetContext)) {
-          const f = this.source.getFeatureById('track-' + id) as Feature | null;
-          if (this.okToRenderTarget(id)) {
-            if (this.tracks.has(id)) {
-              const track = this.tracks.get(id);
-              if (f) {
-                f.setGeometry(
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  new MultiLineString(this.parseCoordinates(track) as any)
-                );
-                f.setStyle(this.buildStyle(id));
-              } else {
-                this.addTrackWithId(id);
-              }
-            }
-          } else if (f) {
-            this.source.removeFeature(f);
-          }
-        }
-      });
+    if (!this.okToRenderTracks()) {
+      return;
     }
+    const context = this.targetContext;
+    ids.forEach((id: string) => {
+      if (!id.includes(context)) {
+        return;
+      }
+      const f = this.source.getFeatureById('track-' + id) as Feature | null;
+      if (!this.okToRenderTarget(id)) {
+        if (f) {
+          this.source.removeFeature(f);
+        }
+        return;
+      }
+      const track = this.tracks.get(id);
+      if (!track) {
+        return;
+      }
+      if (!f) {
+        this.addTrackWithId(id);
+        return;
+      }
+      f.setGeometry(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        new MultiLineString(this.parseCoordinates(track) as any)
+      );
+      f.setStyle(this.buildStyle(id));
+    });
   }
 
   // remove track features
@@ -151,15 +157,22 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
         cs.setStroke(ls);
       }
       return cs;
-    } else {
-      return new Style({
-        stroke: new Stroke({
-          width: 1,
-          color: color,
-          lineDash: [2, 2]
-        })
-      });
     }
+    return this.defaultStyleFor(color);
+  }
+
+  private defaultStyleCache = new Map<string, Style>();
+
+  private defaultStyleFor(color: string): Style {
+    const cached = this.defaultStyleCache.get(color);
+    if (cached) {
+      return cached;
+    }
+    const style = new Style({
+      stroke: new Stroke({ width: 1, color, lineDash: [2, 2] })
+    });
+    this.defaultStyleCache.set(color, style);
+    return style;
   }
 
   // ** mapify and transform MultiLineString coordinates

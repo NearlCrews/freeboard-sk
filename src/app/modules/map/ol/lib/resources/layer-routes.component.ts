@@ -17,6 +17,10 @@ import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { MapThemeService } from '../theme';
 import type { FBRoutes, Position } from 'src/app/types';
 
+// Reused white strokes for waypoint markers; hoisted out of per-segment hot
+// path. Each segment of every route previously allocated three fresh strokes.
+const POINT_STROKE_WIDE = new Stroke({ width: 1, color: 'white' });
+
 // ** Freeboard resource collection format **
 @Component({
   selector: 'ol-map > fb-routes',
@@ -79,25 +83,25 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
   parseFBRoutes(routes: FBRoutes = this.routes) {
     const fa: Feature[] = [];
     for (const r of routes) {
-      if (r[2]) {
-        // selected
-        const mc = mapifyCoords(
-          r[1].feature.geometry.coordinates as [number, number][]
-        );
-        const c = fromLonLatArray(mc);
-        const f = new Feature({
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          geometry: new LineString(c as any),
-          name: r[1].name
-        });
-        f.setId('route.' + r[0]);
-        const props = r[1].feature.properties as
-          | Record<string, unknown>
-          | undefined;
-        f.set('pointMetadata', props?.['coordinatesMeta'] ?? null);
-        f.setStyle(this.buildStyle(f));
-        fa.push(f);
+      if (!r[2]) {
+        continue;
       }
+      const mc = mapifyCoords(
+        r[1].feature.geometry.coordinates as [number, number][]
+      );
+      const c = fromLonLatArray(mc);
+      const f = new Feature({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        geometry: new LineString(c as any),
+        name: r[1].name
+      });
+      f.setId('route.' + r[0]);
+      const props = r[1].feature.properties as
+        | Record<string, unknown>
+        | undefined;
+      f.set('pointMetadata', props?.['coordinatesMeta'] ?? null);
+      f.setStyle(this.buildStyle(f));
+      fa.push(f);
     }
     this.source.addFeatures(fa);
     this.updateLabels();
@@ -152,72 +156,56 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     let idx = 0;
     const l = geometry.getCoordinates().length;
     geometry.forEachSegment((start, end) => {
-      // start point
       if (idx === 0) {
         styles.push(
           new Style({
             geometry: new Point(start),
             image: new Circle({
               radius: 5,
-              stroke: new Stroke({
-                width: 1,
-                color: 'white'
-              }),
+              stroke: POINT_STROKE_WIDE,
+              fill: ptFill
+            })
+          })
+        );
+      } else if (isActive) {
+        styles.push(
+          new Style({
+            geometry: new Point(start),
+            image: new Circle({
+              radius: 4,
+              stroke: POINT_STROKE_WIDE,
               fill: ptFill
             })
           })
         );
       } else {
-        if (isActive) {
-          styles.push(
-            new Style({
-              geometry: new Point(start),
-              image: new Circle({
-                radius: 4,
-                stroke: new Stroke({
-                  width: 1,
-                  color: 'white'
-                }),
-                fill: ptFill
-              })
+        const d = GeoUtils.rhumbLineBearing(
+          toLonLat(start) as Position,
+          toLonLat(end) as Position
+        );
+        const rotation = (d * Math.PI) / 180;
+        styles.push(
+          new Style({
+            geometry: new Point(start),
+            image: new RegularShape({
+              radius: 6,
+              stroke: POINT_STROKE_WIDE,
+              fill: ptFill,
+              points: 3,
+              angle: 0,
+              rotateWithView: true,
+              rotation: rotation
             })
-          );
-        } else {
-          const d = GeoUtils.rhumbLineBearing(
-            toLonLat(start) as Position,
-            toLonLat(end) as Position
-          );
-          const rotation = (d * Math.PI) / 180;
-          styles.push(
-            new Style({
-              geometry: new Point(start),
-              image: new RegularShape({
-                radius: 6,
-                stroke: new Stroke({
-                  width: 1,
-                  color: 'white'
-                }),
-                fill: ptFill,
-                points: 3,
-                angle: 0,
-                rotateWithView: true,
-                rotation: rotation
-              })
-            })
-          );
-        }
+          })
+        );
       }
-      // last point
       if (idx === l - 2) {
         styles.push(
           new Style({
             geometry: new Point(end),
             image: new RegularShape({
               radius: 6,
-              stroke: new Stroke({
-                width: 1,
-                color: 'white'
-              }),
+              stroke: POINT_STROKE_WIDE,
               fill: ptFill,
               points: 4,
               angle: Math.PI / 4

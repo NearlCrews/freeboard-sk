@@ -93,7 +93,7 @@ export class VesselTrailFetcher {
 
     try {
       const res = await Promise.all(reqs);
-      let trail: [number, number][][] = [];
+      const trail: [number, number][][] = [];
       const lastIdx = reqs.length - 1;
       for (let idx = 0; idx < res.length; idx++) {
         const r = res[idx] as {
@@ -121,7 +121,9 @@ export class VesselTrailFetcher {
           }
         } else {
           // last hour: no simplification
-          trail = trail.concat(r.coordinates);
+          for (const seg of r.coordinates) {
+            trail.push(seg);
+          }
         }
       }
       msg.result = trail as never;
@@ -145,8 +147,7 @@ export class VesselTrailFetcher {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private apiGet(url: string): Promise<any> {
+  private apiGet(url: string): Promise<unknown> {
     return fetch(url).then((r) => r.json());
   }
 }

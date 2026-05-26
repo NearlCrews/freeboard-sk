@@ -6,7 +6,8 @@ export type MultiPolygon = Polygon[];
 
 interface Feature {
   type: 'Feature';
-  properties?: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties?: Record<string, any>;
   id?: string;
 }
 

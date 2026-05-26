@@ -46,10 +46,8 @@ export interface NoteResource {
   url?: string;
   // ca reports attributes
   group?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authors?: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: Record<string, any>;
+  authors?: unknown[];
+  properties: Record<string, unknown>;
   timestamp: string;
   source: string;
   // Legacy server fields. resources.service.ts#transformNote migrates these

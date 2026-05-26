@@ -67,25 +67,32 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
 
   parseFBWaypoints(waypoints: FBWaypoints = this.waypoints) {
     const fa: Feature[] = [];
+    // Snapshot palette once per parse: buildStyle() previously read the
+    // signal for every waypoint in the default-style branch.
+    const palette = this.mapTheme.palette();
     for (const w of waypoints) {
-      if (w[2]) {
-        // selected
-        const f = new Feature({
-          geometry: new Point(
-            fromLonLat(w[1].feature.geometry.coordinates as [number, number])
-          ),
-          name: w[1].name
-        });
-        f.setId('waypoint.' + w[0]);
-        f.setStyle(this.buildStyle(w[0], w[1]).clone());
-        fa.push(f);
+      if (!w[2]) {
+        continue;
       }
+      const f = new Feature({
+        geometry: new Point(
+          fromLonLat(w[1].feature.geometry.coordinates as [number, number])
+        ),
+        name: w[1].name
+      });
+      f.setId('waypoint.' + w[0]);
+      f.setStyle(this.buildStyle(w[0], w[1], palette).clone());
+      fa.push(f);
     }
     this.source.addFeatures(fa);
   }
 
   // build waypoint style
-  buildStyle(id: string, wpt: SKWaypoint): Style {
+  buildStyle(
+    id: string,
+    wpt: SKWaypoint,
+    palette?: ReturnType<MapThemeService['palette']>
+  ): Style {
     const props = wpt.feature.properties as Record<string, unknown> | undefined;
     const skIcon = props?.['skIcon'];
     const icon = this.mapImages.getWaypoint(
@@ -95,11 +102,7 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
     if (icon && typeof this.waypointStyles === 'undefined') {
       const s = new Style({
         image: icon,
-        text: new Text({
-          text: '',
-          offsetX: 0,
-          offsetY: -28
-        })
+        text: new Text({ text: '', offsetX: 0, offsetY: -28 })
       });
       return this.setTextLabel(s, wpt.name);
     }
@@ -118,30 +121,21 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
         this.waypointStyles['default'] ?? new Style(),
         wpt.name
       );
-    } else {
-      const layerProps = this.layerProperties();
-      if (layerProps?.['style']) {
-        return this.setTextLabel(layerProps['style'] as Style, wpt.name);
-      }
-      // default styles
-      const palette = this.mapTheme.palette();
-      const fillColor =
-        id === this.activeWaypoint ? palette.routeActive : palette.waypoint;
-      const s = new Style({
-        image: new Circle({
-          radius: 5,
-          fill: new Fill({ color: fillColor }),
-          stroke: new Stroke({
-            color: 'black',
-            width: 2
-          })
-        }),
-        text: new Text({
-          text: '',
-          offsetY: -12
-        })
-      });
-      return this.setTextLabel(s, wpt.name);
     }
+    const layerProps = this.layerProperties();
+    if (layerProps?.['style']) {
+      return this.setTextLabel(layerProps['style'] as Style, wpt.name);
+    }
+    const p = palette ?? this.mapTheme.palette();
+    const fillColor = id === this.activeWaypoint ? p.routeActive : p.waypoint;
+    const s = new Style({
+      image: new Circle({
+        radius: 5,
+        fill: new Fill({ color: fillColor }),
+        stroke: new Stroke({ color: 'black', width: 2 })
+      }),
+      text: new Text({ text: '', offsetY: -12 })
+    });
+    return this.setTextLabel(s, wpt.name);
   }
 }

@@ -14,6 +14,14 @@ import { SKTrack } from 'src/app/modules';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBTracks } from 'src/app/types';
 
+// Shared stroke for the default track style; setTextLabel below clones the
+// Text fill out of a per-feature label fill cache.
+const DEFAULT_TRACK_STROKE = new Stroke({
+  color: 'rgb(146,11,153)',
+  width: 2,
+  lineDash: [5, 5]
+});
+
 // ** Freeboard Track resources collection format **
 @Component({
   selector: 'ol-map > fb-tracks',
@@ -88,15 +96,8 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
       }
       // default styles
       const s = new Style({
-        stroke: new Stroke({
-          color: 'rgb(146,11,153)',
-          width: 2,
-          lineDash: [5, 5]
-        }),
-        text: new Text({
-          text: '',
-          textAlign: 'center'
-        })
+        stroke: DEFAULT_TRACK_STROKE,
+        text: new Text({ text: '', textAlign: 'center' })
       });
       return this.setTextLabel(s, name ?? '');
     }

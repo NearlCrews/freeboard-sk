@@ -213,8 +213,7 @@ export interface IAppConfig {
     aisTargetTypes: number[];
     aisFilterByShipType: boolean;
     aisState: string[]; // list of ais state values used to filter targets
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resourceSets: Record<string, any>; // additional resources
+    resourceSets: Record<string, string[]>; // additional resources
     infolayers: string[];
   };
 }
@@ -225,21 +224,19 @@ export interface FBAppData {
     show: boolean;
     charts: FBCharts;
   };
-  selfId: string;
-  activeRoute: string;
+  selfId: string | null;
+  activeRoute: string | null;
   activeRouteReversed: boolean;
   activeRouteCircular: boolean;
   activeRouteIsEditing: boolean;
-  editingId: string;
-  activeWaypoint: string;
+  editingId: string | null;
+  activeWaypoint: string | null;
   serverTrail: boolean; // trail received from server
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  server: Record<string, any>; // SK server info
+  server: Record<string, unknown> | null; // SK server info
   lastGet: Position; // map position of last resources GET
   map: {
     atClick: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      features: any[];
+      features: unknown[];
       lonlat: Position;
     };
   };
@@ -249,7 +246,7 @@ export interface FBAppData {
     self: SKVessel;
     aisTargets: Map<string, SKVessel>;
     aisTracks: Map<string, MultiLineString>; // AIS targets track (tracks plugin)
-    activeId: string;
+    activeId: string | null;
     active: SKVessel;
     closest: string[];
     prefAvailablePaths: Record<string, string>; // preference paths available from source

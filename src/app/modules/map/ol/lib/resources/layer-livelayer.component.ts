@@ -172,15 +172,19 @@ export class FreeboardLiveLayerComponent
       } else {
         // update layer
         const layer = existing.layer;
+        const values = l[1].values;
+        const opacity = values?.opacity ?? 1;
+        const minZoom = values?.minZoom ?? 1;
+        const maxZoom = values?.maxZoom ?? 24;
 
-        if (layer.getOpacity() !== (l[1].values?.opacity ?? 1)) {
-          layer.setOpacity(l[1].values?.opacity ?? 1);
+        if (layer.getOpacity() !== opacity) {
+          layer.setOpacity(opacity);
         }
-        if (layer.getMinZoom() !== (l[1].values?.minZoom ?? 1)) {
-          layer.setMinZoom(l[1].values?.minZoom ?? 1);
+        if (layer.getMinZoom() !== minZoom) {
+          layer.setMinZoom(minZoom);
         }
-        if (layer.getMaxZoom() !== (l[1].values?.maxZoom ?? 24)) {
-          layer.setMaxZoom(l[1].values?.maxZoom ?? 24);
+        if (layer.getMaxZoom() !== maxZoom) {
+          layer.setMaxZoom(maxZoom);
         }
         this.layerMap.set(l[0], {
           layer: layer,

@@ -32,6 +32,39 @@ const LightTheme = {
   }
 };
 
+// Resolution -> circle range (meters) buckets, ordered high to low. The first
+// entry whose resolution threshold is exceeded wins. Hoisted from a 12-deep
+// nested ternary in parseValues() so the table is shared instead of
+// re-parsed each render.
+const RESOLUTION_RANGE_BUCKETS: readonly (readonly [number, number])[] = [
+  [5000, 150000],
+  [2000, 75000],
+  [1500, 25000],
+  [1000, 20000],
+  [600, 15000],
+  [300, 10000],
+  [100, 5000],
+  [40, 2000],
+  [20, 1000],
+  [10, 500]
+];
+const RANGE_MIN = 250;
+
+function rangeForResolution(resolution: number): number {
+  for (const [threshold, range] of RESOLUTION_RANGE_BUCKETS) {
+    if (resolution > threshold) {
+      return range;
+    }
+  }
+  return RANGE_MIN;
+}
+
+// Transparent fills/strokes for the per-circle text feature: the canvas needs
+// a no-op fill/stroke so OL draws just the text. Allocating these per circle
+// per render was wasteful (maxCircles * N renders); one instance is enough.
+const TRANSPARENT_FILL = new Fill({ color: 'rgba(255, 255, 255, 0)' });
+const TRANSPARENT_STROKE = new Stroke({ color: 'rgba(255, 255, 255, 0)' });
+
 // ** Freeboard Range Circles component **
 @Component({
   selector: 'ol-map > fb-range-circles',
@@ -138,34 +171,13 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
 
   parseValues() {
     let range: number;
-    if (!this.fixedMode()) {
+    if (this.fixedMode()) {
+      range = this.fixedDistance();
+    } else {
       const map = this.mapComponent.getMap();
       if (!map) return;
       const zoomResolution = map.getView().getResolutionForZoom(this.mapZoom);
-      range =
-        zoomResolution > 5000
-          ? 150000
-          : zoomResolution > 2000
-            ? 75000
-            : zoomResolution > 1500
-              ? 25000
-              : zoomResolution > 1000
-                ? 20000
-                : zoomResolution > 600
-                  ? 15000
-                  : zoomResolution > 300
-                    ? 10000
-                    : zoomResolution > 100
-                      ? 5000
-                      : zoomResolution > 40
-                        ? 2000
-                        : zoomResolution > 20
-                          ? 1000
-                          : zoomResolution > 10
-                            ? 500
-                            : 250;
-    } else {
-      range = this.fixedDistance();
+      range = rangeForResolution(zoomResolution);
     }
     const fa: Feature[] = [];
     if (this.position && this.mapZoom >= this.minZoom) {
@@ -222,8 +234,8 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
 
   buildTextStyle(value: number) {
     return new Style({
-      fill: new Fill({ color: 'rgba(255, 255, 255, 0)' }),
-      stroke: new Stroke({ color: 'rgba(255, 255, 255, 0)' }),
+      fill: TRANSPARENT_FILL,
+      stroke: TRANSPARENT_STROKE,
       text: new Text({
         text: value ? this.formatLabel(value) : '',
         offsetX: 0,

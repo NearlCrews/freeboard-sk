@@ -16,6 +16,10 @@ import { SKVessel } from 'src/app/modules/skresources';
 import { fromLonLatArray } from '../util';
 import { MapImageRegistry } from '../map-image-registry.service';
 
+// Reused transparent fill for COG segment markers; new Fill() per segment per
+// render was a measurable allocation churn when many AIS targets had cog lines.
+const COG_SEGMENT_FILL = new Fill({ color: 'transparent' });
+
 // ** Signal K AIS Vessel targets **
 @Component({
   selector: 'ol-map > sk-ais-vessels',
@@ -58,43 +62,38 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   // update targets
   override onUpdateTargets(ids: string[]) {
     if (!this.source) return;
+    const context = this.targetContext;
     ids.forEach((id: string) => {
-      if (id.includes(this.targetContext)) {
-        if (this.okToRenderTarget(id)) {
-          if (this.targets.has(id)) {
-            const f = this.source.getFeatureById('ais-' + id) as Feature | null;
-            if (f) {
-              const target = this.targets.get(id) as SKVessel | undefined;
-              if (!target) return;
-              const label = this.buildLabel(target);
-              if (target.position) {
-                f.setGeometry(
-                  new Point(fromLonLat(target.position as [number, number]))
-                );
-              }
-              const built = this.buildVesselStyle(
-                target,
-                label,
-                this.isStale(target)
-              );
-              if (!built) return;
-              const s = built.clone();
-              f.set('name', label, true);
-              f.setStyle(
-                this.setTextLabel(
-                  this.setRotation(s, target.orientation),
-                  label
-                )
-              );
-              this.parseCogLine(id, target);
-            } else {
-              this.addTargetWithId(id);
-            }
-          }
-        } else {
-          this.onRemoveTargets([id]);
-        }
+      if (!id.includes(context)) {
+        return;
       }
+      if (!this.okToRenderTarget(id)) {
+        this.onRemoveTargets([id]);
+        return;
+      }
+      const target = this.targets.get(id) as SKVessel | undefined;
+      if (!target) {
+        return;
+      }
+      const f = this.source.getFeatureById('ais-' + id) as Feature | null;
+      if (!f) {
+        this.addTargetWithId(id);
+        return;
+      }
+      const label = this.buildLabel(target);
+      if (target.position) {
+        f.setGeometry(
+          new Point(fromLonLat(target.position as [number, number]))
+        );
+      }
+      const built = this.buildVesselStyle(target, label, this.isStale(target));
+      if (!built) return;
+      const s = built.clone();
+      f.set('name', label, true);
+      f.setStyle(
+        this.setTextLabel(this.setRotation(s, target.orientation), label)
+      );
+      this.parseCogLine(id, target);
     });
   }
 
@@ -317,8 +316,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       this.okToRenderTarget(id) && this.okToRenderCogLines() ? 0.7 : 0;
     const geometry = feature.getGeometry() as LineString;
     const color = `rgba(0,0,0, ${opacity})`;
-    const styles: Style[] = [];
-    styles.push(
+    const styles: Style[] = [
       new Style({
         stroke: new Stroke({
           color: color,
@@ -326,8 +324,8 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
           lineDash: [5, 5]
         })
       })
-    );
-    geometry.forEachSegment((start: Coordinate, end: Coordinate) => {
+    ];
+    geometry.forEachSegment((_start: Coordinate, end: Coordinate) => {
       styles.push(
         new Style({
           geometry: new Point(end),
@@ -337,7 +335,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
               color: color,
               width: 1
             }),
-            fill: new Fill({ color: 'transparent' })
+            fill: COG_SEGMENT_FILL
           })
         })
       );

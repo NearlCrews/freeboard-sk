@@ -14,6 +14,14 @@ import { AISBaseLayerComponent } from './ais-base.component';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKVessel } from 'src/app/modules/skresources';
 
+// Wind vector styles only vary by apparent vs true; one instance each.
+const TRUE_WIND_STYLE = new Style({
+  stroke: new Stroke({ width: 2, color: 'rgba(128, 128, 0,1)' })
+});
+const APPARENT_WIND_STYLE = new Style({
+  stroke: new Stroke({ width: 2, color: 'rgba(16, 75, 16,1)' })
+});
+
 // ** Signal K AIS Vessel Wind vector  **
 @Component({
   selector: 'ol-map > sk-ais-wind',
@@ -86,13 +94,7 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
 
   // build wind vector style
   buildVectorStyle(): Style {
-    const color = this.vectorApparent ? '16, 75, 16' : '128, 128, 0';
-    return new Style({
-      stroke: new Stroke({
-        width: 2,
-        color: `rgba(${color},1)`
-      })
-    });
+    return this.vectorApparent ? APPARENT_WIND_STYLE : TRUE_WIND_STYLE;
   }
 
   // reload all Features from this.targets
@@ -104,28 +106,32 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
 
   // update wind vector feature when target updated
   override onUpdateTargets(ids: string[]) {
+    const context = this.targetContext;
+    const style = this.buildVectorStyle();
     ids.forEach((id: string) => {
-      if (id.includes(this.targetContext)) {
-        const f = this.source?.getFeatureById('wind-' + id) as Feature | null;
-        if (this.okToRenderTarget(id)) {
-          if (this.targets.has(id)) {
-            if (f) {
-              const target = this.targets.get(id) as SKVessel | undefined;
-              if (!target) return;
-              const position = target.position;
-              const v = this.calcVector(target);
-              if (position && v.length === 2) {
-                f.setGeometry(new LineString(v));
-              }
-              f.setStyle(this.buildVectorStyle());
-            } else {
-              this.addWindVectorWithId(id);
-            }
-          }
-        } else if (f) {
+      if (!id.includes(context)) {
+        return;
+      }
+      const f = this.source?.getFeatureById('wind-' + id) as Feature | null;
+      if (!this.okToRenderTarget(id)) {
+        if (f) {
           this.source.removeFeature(f);
         }
+        return;
       }
+      const target = this.targets.get(id) as SKVessel | undefined;
+      if (!target) {
+        return;
+      }
+      if (!f) {
+        this.addWindVectorWithId(id);
+        return;
+      }
+      const v = this.calcVector(target);
+      if (target.position && v.length === 2) {
+        f.setGeometry(new LineString(v));
+      }
+      f.setStyle(style);
     });
   }
 

@@ -88,6 +88,7 @@ import { compareSemver, parseSemver } from 'src/app/lib/semver';
 
 import {
   LineString,
+  MultiLineString,
   NotificationMessage,
   Polygon,
   Position,
@@ -500,7 +501,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected onInfoLayerParamChange(param: {
     id: string;
-    param: Record<string, any>;
+    param: Record<string, unknown>;
   }) {
     this.skresOther.infoLayerParams.update(() => [param]);
   }
@@ -551,12 +552,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   // ********* SIGNAL K CONNECTION ****************
 
   private connectSignalKServer() {
-    // FBAppData declares selfId/server as non-null but the connect-reset
-    // path sets them to null until the SK handshake populates them.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.app.data as any).selfId = null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.app.data as any).server = null;
+    this.app.data.selfId = null;
+    this.app.data.server = null;
     this.signalk.proxied = this.app.config.signalk.proxied;
     this.signalk
       .connect(
@@ -689,14 +686,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       }
       this.app.selfTrail.update((current) => current.slice(-5000));
     } else {
-      const lastseg = trailData.slice(-1);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let lastpt: any = [];
+      // trailData arrives shaped as Position[][] at runtime even though
+      // typed LineString; the .slice(-1) chain takes the trailing point of
+      // the trailing segment. Behavior preserved.
+      const segments = trailData as unknown as Position[][];
+      const lastseg = segments.slice(-1);
+      let lastpt: LineString = [];
       const first = lastseg[0];
       if (lastseg.length !== 0 && first) {
         lastpt = first.slice(-1);
-      } else if (trailData.length > 1) {
-        const prev = trailData[trailData.length - 2];
+      } else if (segments.length > 1) {
+        const prev = segments[segments.length - 2];
         if (prev) lastpt = prev.slice(-1);
       }
       this.app.selfTrail.update(() => lastpt);
@@ -705,12 +705,21 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.app.db.saveTrail(trailId, this.app.selfTrail());
   }
 
-  private handleTrailUpdate(e: { action: string; mode: string; data: any[] }) {
+  private handleTrailUpdate(e: {
+    action: string;
+    mode: string;
+    data: MultiLineString;
+  }) {
     if (e.action === 'get' && e.mode === 'trail') {
       if (this.app.config.vessels.trailFromServer) {
-        this.app.selfTrailFromServer.update(() => e.data);
+        // selfTrailFromServer signal is typed LineString but consumers in
+        // the layer-vessel-trail OL component expect Coordinate[][]
+        // (MultiLineString shape). Phase 6 will reconcile.
+        this.app.selfTrailFromServer.update(
+          () => e.data as unknown as LineString
+        );
       }
-      this.processTrail(e.data);
+      this.processTrail(e.data as unknown as LineString);
     }
   }
 
@@ -956,25 +965,20 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   // ********* MODE ACTIONS ****************
 
   protected switchActiveVessel(uuid: string | null = null) {
-    // FBAppData declares activeId/activeRoute as non-null but the deactivate
-    // path resets them to null until the next selection lands.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.app.data.vessels as any).activeId = uuid;
+    this.app.data.vessels.activeId = uuid;
     if (!uuid) {
       this.app.data.vessels.active = this.app.data.vessels.self;
     } else {
       const av = this.app.data.vessels.aisTargets.get(uuid);
       if (!av) {
         this.app.data.vessels.active = this.app.data.vessels.self;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.app.data.vessels as any).activeId = null;
+        this.app.data.vessels.activeId = null;
       } else {
         this.app.data.vessels.active = av;
         this.sideright?.close();
       }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.app.data as any).activeRoute = null;
+    this.app.data.activeRoute = null;
     this.clearCourseData();
     this.app.debug(`** Active vessel: ${this.app.data.vessels.activeId} `);
     this.app.debug(this.app.data.vessels.active);
@@ -1103,7 +1107,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     forSave: {
       id: string;
       coords: Position | Position[] | Position[][];
-      coordsMetadata?: unknown;
+      coordsMetadata?: { name?: string; href?: string }[];
     }
   ) {
     const r = forSave.id.split('.');
@@ -1114,8 +1118,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.skres.updateRouteCoords(
           subId,
           forSave.coords as Position[],
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          forSave.coordsMetadata as any[] | undefined
+          forSave.coordsMetadata
         );
       } else if (kind === 'waypoint') {
         const wptCoords = forSave.coords as Position;

@@ -87,8 +87,9 @@ export class AppFacade extends InfoService {
   };
 
   private AudioContext =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    window.AudioContext || (window as any).webkitAudioContext;
+    window.AudioContext ||
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
   public audio = { context: new AudioContext() };
 
   public db = new AppDB();

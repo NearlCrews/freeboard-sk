@@ -29,9 +29,15 @@ import type {
   Position,
   SKPosition
 } from 'src/app/types';
+import { textSnippet } from 'src/app/lib/text-snippet';
 import { SKResourceService } from '../../resources.service';
 import { SKNote } from '../../resource-classes';
 import { NotePanel } from './note-panel';
+import {
+  RECENT_WINDOW_MS,
+  groupColor as groupColorOf,
+  timeAgo as timeAgoOf
+} from './note-helpers';
 
 interface NavItem extends FbListPaneItem {
   readonly kind: 'all' | 'recent' | 'untagged' | 'group';
@@ -46,19 +52,6 @@ interface NoteListItem extends FbListPaneItem {
 const NAV_ALL = '__all';
 const NAV_RECENT = '__recent';
 const NAV_UNTAGGED = '__untagged';
-
-const RECENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-
-const GROUP_PALETTE = [
-  '#b66428',
-  '#5b7b8b',
-  '#8b5e5e',
-  '#5e8b6e',
-  '#8e7948',
-  '#6e5b8b',
-  '#8b6e48',
-  '#487b8b'
-];
 
 @Component({
   selector: 'notes-shell',
@@ -290,62 +283,15 @@ export class NotesShellComponent {
   }
 
   protected snippet(note: { description?: string; mimeType?: string }): string {
-    const body = note?.description;
-    if (!body) {
-      return '';
-    }
-    let text = body.replace(/<[^>]+>/g, ' ');
-    text = text
-      .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/[#*_`~>]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return text.length > 140 ? text.slice(0, 140).trim() + '...' : text;
+    return textSnippet(note?.description);
   }
 
   protected timeAgo(timestamp: string | number | undefined): string {
-    if (!timestamp) {
-      return '';
-    }
-    const t = typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
-    if (isNaN(t)) {
-      return '';
-    }
-    const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
-    if (sec < 60) return 'just now';
-    const min = Math.floor(sec / 60);
-    if (min < 60) return min === 1 ? '1 min ago' : `${min} mins ago`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return hr === 1 ? '1 hour ago' : `${hr} hours ago`;
-    const day = Math.floor(hr / 24);
-    if (day === 1) return 'yesterday';
-    if (day < 7) return `${day} days ago`;
-    if (day < 30) {
-      const w = Math.floor(day / 7);
-      return w === 1 ? '1 week ago' : `${w} weeks ago`;
-    }
-    if (day < 365) {
-      const m = Math.floor(day / 30);
-      return m === 1 ? '1 month ago' : `${m} months ago`;
-    }
-    const y = Math.floor(day / 365);
-    return y === 1 ? '1 year ago' : `${y} years ago`;
+    return timeAgoOf(timestamp);
   }
 
   protected groupColor(name: string | undefined): string {
-    if (!name) {
-      return 'var(--notes-text-muted)';
-    }
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = (hash << 5) - hash + name.charCodeAt(i);
-      hash |= 0;
-    }
-    return (
-      GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length] ??
-      'var(--notes-text-muted)'
-    );
+    return groupColorOf(name);
   }
 
   private timestampOf(meta: SKNote): number | null {

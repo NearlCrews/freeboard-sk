@@ -97,25 +97,32 @@ export class AISFlagsLayerComponent extends AISBaseLayerComponent {
   override onUpdateTargets(ids: string[]) {
     const flagged = this.flagged;
     if (!flagged) return;
+    const context = this.targetContext;
+    // Set lookup of flagged ids is O(1); flagged.includes() in the loop was O(n) per target.
+    const flaggedSet = new Set(flagged);
     ids.forEach((id: string) => {
-      if (id.includes(this.targetContext) && flagged.includes(id)) {
-        const f = this.source.getFeatureById('flag-' + id) as Feature | null;
-        if (this.okToRenderTarget(id)) {
-          if (this.targets.has(id)) {
-            if (f) {
-              const position = this.targets.get(id)?.position;
-              if (position) {
-                f.setGeometry(
-                  new Point(fromLonLat(position as [number, number]))
-                );
-              }
-            } else {
-              this.addFlagWithId(id);
-            }
-          }
-        } else if (f) {
+      if (!id.includes(context) || !flaggedSet.has(id)) {
+        return;
+      }
+      const f = this.source.getFeatureById('flag-' + id) as Feature | null;
+      if (!this.okToRenderTarget(id)) {
+        if (f) {
           this.source.removeFeature(f);
         }
+        return;
+      }
+      const target = this.targets.get(id);
+      if (!target) {
+        return;
+      }
+      if (!f) {
+        this.addFlagWithId(id);
+        return;
+      }
+      if (target.position) {
+        f.setGeometry(
+          new Point(fromLonLat(target.position as [number, number]))
+        );
       }
     });
   }

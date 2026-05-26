@@ -136,6 +136,8 @@ enum INTERACTION_MODE {
   MODIFY
 }
 
+const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
+
 @Component({
   selector: 'fb-map',
   imports: [
@@ -453,48 +455,46 @@ export class FBMapComponent
   // ********** EVENT HANDLERS *****************
 
   private onVessels() {
+    const vesselsData = this.app.data.vessels;
     //store last position incase new position is null
     const lastPos = this.dfeat.self.position;
-    this.dfeat.self = this.app.data.vessels.self;
+    this.dfeat.self = vesselsData.self;
     if (!this.dfeat.self.position || !Array.isArray(this.dfeat.self.position)) {
       this.dfeat.self.position = lastPos;
     }
-    this.dfeat.ais = this.app.data.vessels.aisTargets;
+    this.dfeat.ais = vesselsData.aisTargets;
     this.aisCount.set(this.dfeat.ais.size);
     this.dfeat.aircraft = this.app.data.aircraft;
     this.dfeat.sar = this.app.data.sar;
     this.dfeat.meteo = this.app.data.meteo;
     this.dfeat.atons = this.app.data.atons;
-    this.dfeat.active = this.app.data.vessels.active;
-    this.dfeat.navData.position = this.course.courseData().position;
-    this.dfeat.navData.startPosition = this.course.courseData().startPosition;
+    this.dfeat.active = vesselsData.active;
+    const courseData = this.course.courseData();
+    this.dfeat.navData.position = courseData.position;
+    this.dfeat.navData.startPosition = courseData.startPosition;
     // calculate CPA lines
-    const parseClosest = (): LineString[] => {
-      const v: LineString[] = [];
-      const selfPos = this.app.data.vessels.self.position;
-      if (selfPos) {
-        this.app.data.vessels.closest.forEach((id: string) => {
-          const a = this.app.data.vessels.aisTargets.get(id);
-          if (a?.position) {
-            v.push([a.position, selfPos]);
-          }
-        });
-      }
-      return v;
-    };
-
-    this.dfeat.closest = parseClosest();
+    const selfPos = vesselsData.self.position;
+    const closest: LineString[] = [];
+    if (selfPos) {
+      vesselsData.closest.forEach((id: string) => {
+        const a = vesselsData.aisTargets.get(id);
+        if (a?.position) {
+          closest.push([a.position, selfPos]);
+        }
+      });
+    }
+    this.dfeat.closest = closest;
 
     // ** update vessel on map **
     if (this.dfeat.self.positionReceived) {
-      this.app.data.vessels.showSelf = true;
+      vesselsData.showSelf = true;
     }
     // ** locate vessel popover
     const ov = this.overlay();
     if (
       ov.show &&
       ov.type !== null &&
-      ['ais', 'aton', 'aircraft'].includes(ov.type)
+      POSITIONABLE_OVERLAY_TYPES.has(ov.type)
     ) {
       if (ov.isSelf) {
         const selfPos = this.dfeat.self.position;
@@ -1581,32 +1581,22 @@ export class FBMapComponent
     this.buildLaylines();
 
     // render cog, heading, twd, awa for focused vessel
-    this.vesselLines.update(() => {
-      const cog = this.dfeat.active.vectors.cog ?? [];
-
-      const sog = this.dfeat.active.sog || 0;
-      const headingLen = this.app.config.vessels.selfLines.heading.length;
-      const hl =
-        headingLen === -1
-          ? (sog > wMax ? wMax : sog) * offset
-          : Convert.nauticalMilesToKm(headingLen) * 1000;
-      const activePos = this.dfeat.active.position;
-      const heading: LineString = activePos
-        ? [
-            activePos,
-            GeoUtils.rhumbDestination(
-              activePos,
-              this.dfeat.active.orientation,
-              hl
-            )
-          ]
-        : [];
-
-      return {
-        cog: cog,
-        heading: heading
-      };
-    });
+    const active = this.dfeat.active;
+    const cog = active.vectors.cog ?? [];
+    const sog = active.sog || 0;
+    const headingLen = this.app.config.vessels.selfLines.heading.length;
+    const hl =
+      headingLen === -1
+        ? (sog > wMax ? wMax : sog) * offset
+        : Convert.nauticalMilesToKm(headingLen) * 1000;
+    const activePos = active.position;
+    const heading: LineString = activePos
+      ? [
+          activePos,
+          GeoUtils.rhumbDestination(activePos, active.orientation, hl)
+        ]
+      : [];
+    this.vesselLines.set({ cog, heading });
   }
 
   /** calculate vessel & dest laylines & update signals */

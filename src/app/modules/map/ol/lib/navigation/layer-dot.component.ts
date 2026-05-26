@@ -22,6 +22,10 @@ import { AsyncSubject } from 'rxjs';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { Position } from 'src/app/types';
 
+// Shared blue triangle fill + stroke for direction-of-travel dots.
+const DOT_FILL = new Fill({ color: 'blue' });
+const DOT_STROKE = new Stroke({ color: 'white', width: 1 });
+
 // ** Freeboard direction of travel component **
 @Component({
   selector: 'ol-map > fb-route-direction',
@@ -116,19 +120,11 @@ export class DirectionOfTravelComponent
 
   parseValues() {
     const fa: Feature[] = [];
-    const arrows: number[] = [];
-    if (this.points && this.points.length !== 0) {
-      if (this.points.length < 4) {
-        arrows.push(0);
-      } else {
-        for (let idx = 1; idx < this.points.length - 2; idx = idx + 2) {
-          arrows.push(idx);
-        }
-      }
-
-      arrows.forEach((idx: number) => {
+    const pts = this.points;
+    if (pts && pts.length !== 0) {
+      const addArrow = (idx: number) => {
         const pctr = GeoUtils.geographicCenter(
-          this.points.slice(idx, idx + 2) as Position[]
+          pts.slice(idx, idx + 2) as Position[]
         );
         const f = new Feature({
           geometry: new Point(fromLonLat(pctr as [number, number]))
@@ -136,9 +132,15 @@ export class DirectionOfTravelComponent
         f.setId(`dot.${idx}`);
         f.setStyle(this.buildStyle(idx));
         fa.push(f);
-      });
+      };
+      if (pts.length < 4) {
+        addArrow(0);
+      } else {
+        for (let idx = 1; idx < pts.length - 2; idx += 2) {
+          addArrow(idx);
+        }
+      }
     }
-
     this.features = fa;
   }
 
@@ -148,11 +150,8 @@ export class DirectionOfTravelComponent
       image: new RegularShape({
         points: 3,
         radius: 7,
-        fill: new Fill({ color: 'blue' }),
-        stroke: new Stroke({
-          color: 'white',
-          width: 1
-        }),
+        fill: DOT_FILL,
+        stroke: DOT_STROKE,
         rotateWithView: true,
         rotation: this.getOrientation(index)
       })

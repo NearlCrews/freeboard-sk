@@ -6,7 +6,8 @@
  * keeps the same public surface so SKStreamFacade and AppFacade are
  * unaffected.
  */
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 
 import {
@@ -26,8 +27,11 @@ import {
 import { VesselTrailFetcher } from './vessel-trail.fetcher';
 
 interface StreamServiceCommand {
+  // options shape varies per cmd; each branch in postMessage() narrows it
+  // before passing to a typed processor method. Phase 6 will tighten the
+  // discriminated union per cmd.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: any;
+  options?: any;
   cmd: string;
 }
 
@@ -47,8 +51,7 @@ export class SKWorkerService {
   };
 
   private readonly trailSubject = new Subject<TrailMessage>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly messageSource = new Subject<any>();
+  private readonly messageSource = new Subject<UpdateMessage | TrailMessage>();
   private readonly notificationSource = new Subject<NotificationMessage>();
   private readonly resourceUpdatesSource = new Subject<PathValue[]>();
   private readonly resourceDeltaSignal = signal<ResourceDeltaSignal>({
@@ -59,6 +62,7 @@ export class SKWorkerService {
 
   private readonly processor: SignalKDeltaProcessor;
   private readonly trailFetcher: VesselTrailFetcher;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.worker = new Worker(new URL('./skstream.worker', import.meta.url));
@@ -99,8 +103,7 @@ export class SKWorkerService {
     return this.notificationSource.asObservable();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  settings(value: any) {
+  settings(value: unknown) {
     this.postMessage({ cmd: 'settings', options: value });
   }
 
@@ -152,17 +155,26 @@ export class SKWorkerService {
 
   // ************ Internal wiring ************
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleWorkerMessage(data: any): void {
-    if (!data || typeof data.action !== 'string') {
+  private handleWorkerMessage(data: unknown): void {
+    if (!data || typeof data !== 'object') {
       return;
     }
-    if (data.action === 'simplified') {
-      this.trailFetcher.onSimplified(data);
+    const msg = data as {
+      action?: string;
+      result?: unknown;
+      requestId?: number;
+    };
+    if (typeof msg.action !== 'string') {
       return;
     }
-    if (data.action === 'ais-expiry') {
-      this.processor.applyAisExpiry(data.result as AisExpiryPayload);
+    if (msg.action === 'simplified') {
+      this.trailFetcher.onSimplified(
+        msg as { requestId: number; result: [number, number][] }
+      );
+      return;
+    }
+    if (msg.action === 'ais-expiry') {
+      this.processor.applyAisExpiry(msg.result as AisExpiryPayload);
       return;
     }
   }
@@ -173,37 +185,55 @@ export class SKWorkerService {
    * untouched.
    */
   private wireEventsToLegacySources(): void {
-    this.events.connect.subscribe((m) => this.messageSource.next(m));
-    this.events.close.subscribe((m) => this.messageSource.next(m));
-    this.events.error.subscribe((m) => this.messageSource.next(m));
-    this.events.hello.subscribe((m) => this.messageSource.next(m));
-    this.events.response.subscribe((m) => this.messageSource.next(m));
-    this.events.update.subscribe((m) => this.handleUpdateMessage(m));
-    this.events.resource.subscribe((m) => this.handleResourceMessage(m));
-    this.events.notification.subscribe((m) => this.notificationSource.next(m));
-    this.trailSubject.subscribe((m) => this.messageSource.next(m));
+    const ref = this.destroyRef;
+    this.events.connect
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
+    this.events.close
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
+    this.events.error
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
+    this.events.hello
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
+    this.events.response
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
+    this.events.update
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.handleUpdateMessage(m));
+    this.events.resource
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.handleResourceMessage(m));
+    this.events.notification
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.notificationSource.next(m));
+    this.trailSubject
+      .pipe(takeUntilDestroyed(ref))
+      .subscribe((m) => this.messageSource.next(m));
   }
 
   private handleUpdateMessage(msg: UpdateMessage): void {
+    const result = msg.result as
+      | { self?: { resourceUpdates?: PathValue[] } }
+      | undefined;
     if (
       msg.action === 'update' &&
       !msg.playback &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Array.isArray((msg.result as any)?.self?.resourceUpdates) &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (msg.result as any).self.resourceUpdates.length !== 0
+      Array.isArray(result?.self?.resourceUpdates) &&
+      result.self.resourceUpdates.length !== 0
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.resourceUpdatesSource.next((msg.result as any).self.resourceUpdates);
+      this.resourceUpdatesSource.next(result.self.resourceUpdates);
     }
     this.messageSource.next(msg);
   }
 
   private handleResourceMessage(msg: ResourceMessage): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const r = msg.result as any;
+    const r = msg.result as ResourceDeltaSignal | null;
     if (r) {
-      this.resourceDeltaSignal.set(r as ResourceDeltaSignal);
+      this.resourceDeltaSignal.set(r);
     }
   }
 }

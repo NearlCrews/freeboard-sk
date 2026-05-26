@@ -28,6 +28,7 @@ import type {
   FBRegion,
   Position
 } from 'src/app/types';
+import { textSnippet } from 'src/app/lib/text-snippet';
 import { SKResourceService } from '../resources.service';
 import { SKRoute, SKWaypoint, SKRegion } from '../resource-classes';
 import { RoutePanel } from './routes/route-panel';
@@ -60,10 +61,49 @@ interface RegionRow extends FbListPaneItem {
 
 type ResourceRow = RouteRow | WaypointRow | RegionRow;
 
-const NAV_ALL = 'all';
-const NAV_ROUTES = 'routes';
-const NAV_WAYPOINTS = 'waypoints';
-const NAV_REGIONS = 'regions';
+const NAV_ALL: NavKind = 'all';
+const NAV_KIND_SET = new Set<NavKind>([
+  'all',
+  'routes',
+  'waypoints',
+  'regions'
+]);
+
+function isNavKind(id: string): id is NavKind {
+  return (NAV_KIND_SET as Set<string>).has(id);
+}
+
+interface ResourceKindMeta {
+  readonly icon: string;
+  readonly label: string;
+  readonly labelPlural: string;
+  readonly unnamed: string;
+  readonly order: number;
+}
+
+const RESOURCE_KIND_META: Record<ResourceKind, ResourceKindMeta> = {
+  routes: {
+    icon: 'route',
+    label: 'Route',
+    labelPlural: 'Routes',
+    unnamed: 'Unnamed route',
+    order: 0
+  },
+  waypoints: {
+    icon: 'place',
+    label: 'Waypoint',
+    labelPlural: 'Waypoints',
+    unnamed: 'Unnamed waypoint',
+    order: 1
+  },
+  regions: {
+    icon: 'crop_square',
+    label: 'Region',
+    labelPlural: 'Regions',
+    unnamed: 'Unnamed region',
+    order: 2
+  }
+};
 
 @Component({
   selector: 'resources-shell',
@@ -108,38 +148,27 @@ export class ResourcesShellComponent {
   protected readonly regions = this.skres.regions;
 
   protected readonly leftItems = computed<readonly NavItem[]>(() => {
-    const r = this.routes().length;
-    const w = this.waypoints().length;
-    const g = this.regions().length;
+    const counts: Record<ResourceKind, number> = {
+      routes: this.routes().length,
+      waypoints: this.waypoints().length,
+      regions: this.regions().length
+    };
+    const kinds: readonly ResourceKind[] = ['routes', 'waypoints', 'regions'];
     return [
       {
         id: NAV_ALL,
         label: 'All',
         kind: 'all',
-        count: r + w + g,
+        count: counts.routes + counts.waypoints + counts.regions,
         icon: 'view_list'
       },
-      {
-        id: NAV_ROUTES,
-        label: 'Routes',
-        kind: 'routes',
-        count: r,
-        icon: 'route'
-      },
-      {
-        id: NAV_WAYPOINTS,
-        label: 'Waypoints',
-        kind: 'waypoints',
-        count: w,
-        icon: 'place'
-      },
-      {
-        id: NAV_REGIONS,
-        label: 'Regions',
-        kind: 'regions',
-        count: g,
-        icon: 'crop_square'
-      }
+      ...kinds.map<NavItem>((kind) => ({
+        id: kind,
+        label: RESOURCE_KIND_META[kind].labelPlural,
+        kind,
+        count: counts[kind],
+        icon: RESOURCE_KIND_META[kind].icon
+      }))
     ];
   });
 
@@ -157,7 +186,7 @@ export class ResourcesShellComponent {
     const rows: ResourceRow[] = [];
     if (nav === 'all' || nav === 'routes') {
       for (const r of this.routes()) {
-        const name = r[1].name || 'Unnamed route';
+        const name = r[1].name || RESOURCE_KIND_META.routes.unnamed;
         if (!include(name, r[1].description)) {
           continue;
         }
@@ -171,7 +200,7 @@ export class ResourcesShellComponent {
     }
     if (nav === 'all' || nav === 'waypoints') {
       for (const w of this.waypoints()) {
-        const name = w[1].name || 'Unnamed waypoint';
+        const name = w[1].name || RESOURCE_KIND_META.waypoints.unnamed;
         if (!include(name, w[1].description)) {
           continue;
         }
@@ -185,7 +214,7 @@ export class ResourcesShellComponent {
     }
     if (nav === 'all' || nav === 'regions') {
       for (const g of this.regions()) {
-        const name = g[1].name || 'Unnamed region';
+        const name = g[1].name || RESOURCE_KIND_META.regions.unnamed;
         if (!include(name, g[1].description)) {
           continue;
         }
@@ -199,7 +228,9 @@ export class ResourcesShellComponent {
     }
     rows.sort((a, b) => {
       if (a.kind !== b.kind) {
-        return this.kindOrder(a.kind) - this.kindOrder(b.kind);
+        return (
+          RESOURCE_KIND_META[a.kind].order - RESOURCE_KIND_META[b.kind].order
+        );
       }
       return a.label.toUpperCase() <= b.label.toUpperCase() ? -1 : 1;
     });
@@ -245,17 +276,7 @@ export class ResourcesShellComponent {
 
   protected readonly selectedDetailSubtitle = computed<string | null>(() => {
     const row = this.selectedRow();
-    if (!row) {
-      return null;
-    }
-    switch (row.kind) {
-      case 'routes':
-        return 'Route';
-      case 'waypoints':
-        return 'Waypoint';
-      case 'regions':
-        return 'Region';
-    }
+    return row ? RESOURCE_KIND_META[row.kind].label : null;
   });
 
   protected readonly selectedRouteIsActive = computed<boolean>(() => {
@@ -289,12 +310,7 @@ export class ResourcesShellComponent {
   }
 
   protected onNavSelect(id: string) {
-    if (
-      id === NAV_ALL ||
-      id === NAV_ROUTES ||
-      id === NAV_WAYPOINTS ||
-      id === NAV_REGIONS
-    ) {
+    if (isNavKind(id)) {
       this.activeNav.set(id);
     }
   }
@@ -409,17 +425,7 @@ export class ResourcesShellComponent {
   }
 
   protected snippet(text: string | undefined): string {
-    if (!text) {
-      return '';
-    }
-    let body = text.replace(/<[^>]+>/g, ' ');
-    body = body
-      .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/[#*_`~>]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return body.length > 140 ? body.slice(0, 140).trim() + '...' : body;
+    return textSnippet(text);
   }
 
   protected routeDistance(route: SKRoute): string {
@@ -444,25 +450,11 @@ export class ResourcesShellComponent {
   }
 
   protected kindIcon(kind: ResourceKind): string {
-    switch (kind) {
-      case 'routes':
-        return 'route';
-      case 'waypoints':
-        return 'place';
-      case 'regions':
-        return 'crop_square';
-    }
+    return RESOURCE_KIND_META[kind].icon;
   }
 
   protected kindLabel(kind: ResourceKind): string {
-    switch (kind) {
-      case 'routes':
-        return 'Route';
-      case 'waypoints':
-        return 'Waypoint';
-      case 'regions':
-        return 'Region';
-    }
+    return RESOURCE_KIND_META[kind].label;
   }
 
   protected isRouteRow(row: ResourceRow): row is RouteRow {
@@ -479,16 +471,5 @@ export class ResourcesShellComponent {
 
   private rowId(kind: ResourceKind, id: string): string {
     return `${kind}:${id}`;
-  }
-
-  private kindOrder(kind: ResourceKind): number {
-    switch (kind) {
-      case 'routes':
-        return 0;
-      case 'waypoints':
-        return 1;
-      case 'regions':
-        return 2;
-    }
   }
 }

@@ -75,7 +75,7 @@ interface WorkerMessageBase {
 
 export interface ResourceDeltaSignal {
   path: string;
-  value: any;
+  value: unknown;
   sourceRef?: string;
 }
 

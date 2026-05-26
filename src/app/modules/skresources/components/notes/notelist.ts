@@ -21,7 +21,12 @@ import type {
   FBResourceSelect,
   SKPosition
 } from 'src/app/types';
+import { textSnippet } from 'src/app/lib/text-snippet';
 import { SKResourceService } from '../../resources.service';
+import {
+  groupColor as groupColorOf,
+  timeAgo as timeAgoOf
+} from './note-helpers';
 
 interface GroupChip {
   name: string;
@@ -29,19 +34,6 @@ interface GroupChip {
   color: string;
   count: number;
 }
-
-// Eight-stop palette for group dots. Hues sit alongside the cream/navy
-// surface so they read calmly together. Names map deterministically.
-const GROUP_PALETTE = [
-  '#b66428',
-  '#5b7b8b',
-  '#8b5e5e',
-  '#5e8b6e',
-  '#8e7948',
-  '#6e5b8b',
-  '#8b6e48',
-  '#487b8b'
-];
 
 @Component({
   selector: 'note-list',
@@ -222,78 +214,16 @@ export class NoteListComponent implements OnInit, OnChanges {
 
   trackById = (_: number, r: FBNote) => r[0];
 
-  /**
-   * Stable colour per group name using a small hash so the same group
-   * keeps the same hue across renders (and across the list and detail
-   * views).
-   */
   groupColor(name: string | undefined): string {
-    if (!name) {
-      return 'var(--notes-text-muted)';
-    }
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = (hash << 5) - hash + name.charCodeAt(i);
-      hash |= 0;
-    }
-    return (
-      GROUP_PALETTE[Math.abs(hash) % GROUP_PALETTE.length] ??
-      'var(--notes-text-muted)'
-    );
+    return groupColorOf(name);
   }
 
-  /** Relative time formatter; falls back to '' if the timestamp is unparseable. */
   timeAgo(timestamp: string | number | undefined): string {
-    if (!timestamp) {
-      return '';
-    }
-    const t = typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
-    if (isNaN(t)) {
-      return '';
-    }
-    const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
-    if (sec < 60) return 'just now';
-    const min = Math.floor(sec / 60);
-    if (min < 60) return min === 1 ? '1 min ago' : `${min} mins ago`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return hr === 1 ? '1 hour ago' : `${hr} hours ago`;
-    const day = Math.floor(hr / 24);
-    if (day === 1) return 'yesterday';
-    if (day < 7) return `${day} days ago`;
-    if (day < 30) {
-      const w = Math.floor(day / 7);
-      return w === 1 ? '1 week ago' : `${w} weeks ago`;
-    }
-    if (day < 365) {
-      const m = Math.floor(day / 30);
-      return m === 1 ? '1 month ago' : `${m} months ago`;
-    }
-    const y = Math.floor(day / 365);
-    return y === 1 ? '1 year ago' : `${y} years ago`;
+    return timeAgoOf(timestamp);
   }
 
-  /**
-   * Strip Markdown / HTML to a clean plaintext preview, truncated to ~140
-   * characters with an ellipsis. Returns '' (falsy) when there is no body
-   * so the template's `@if` skips rendering an empty snippet line.
-   */
   snippet(note: { description?: string; mimeType?: string }): string {
-    const body = note?.description;
-    if (!body) {
-      return '';
-    }
-    let text = body;
-    // Strip HTML tags regardless; many notes mark themselves markdown but
-    // still contain inline HTML.
-    text = text.replace(/<[^>]+>/g, ' ');
-    // Strip Markdown noise: images, links to label, formatting marks.
-    text = text
-      .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/[#*_`~>]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return text.length > 140 ? text.slice(0, 140).trim() + '...' : text;
+    return textSnippet(note?.description);
   }
 
   /** `47.612°N 122.345°W` style coordinate pill. */

@@ -8,30 +8,30 @@ import {
 
 // *** Freeboard defined RESOURCE types
 
-export type Tracks = { [id: string]: TrackResource };
+export type Tracks = Record<string, TrackResource>;
 
 export interface TrackResource {
   feature: MultiLineStringFeature;
 }
 
-export type ResourceSets = { [id: string]: ResourceSet };
+export type ResourceSets = Record<string, ResourceSet>;
 
 export interface ResourceSet extends CustomResource {
   type: 'ResourceSet';
   styles?: CustomStyles;
   values: {
     type: 'FeatureCollection';
-    features: Array<
+    features: (
       | PointFeature
       | LineStringFeature
       | MultiLineStringFeature
       | PolygonFeature
       | MultiPolygonFeature
-    >;
+    )[];
   };
 }
 
-export type InfoLayers = { [id: string]: InfoLayerResource };
+export type InfoLayers = Record<string, InfoLayerResource>;
 
 export interface InfoLayerResource extends CustomResource {
   name: string;
@@ -48,14 +48,15 @@ export interface InfoLayerResource extends CustomResource {
   };
 }
 
-export type CustomResources = { [id: string]: CustomResource };
+export type CustomResources = Record<string, CustomResource>;
 
 export interface CustomResource {
   id?: string;
   name?: string | null;
   description?: string | null;
   type: string;
-  values: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values: Record<string, any>;
 }
 
 export interface CustomStyles {
@@ -67,5 +68,5 @@ export interface CustomStyle {
   stroke: string;
   fill: string;
   width: number;
-  lineDash?: Array<number>;
+  lineDash?: number[];
 }

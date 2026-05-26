@@ -25,6 +25,24 @@ import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { AsyncSubject } from 'rxjs';
 
+// Default bearing line + marker styles. Static templates: the per-feature
+// label text gets set on the Text via updateLabel(), so the underlying Style
+// instances themselves are safe to share.
+const DEFAULT_BEARING_STYLES: Style[] = [
+  new Style({
+    stroke: new Stroke({ color: 'white', width: 6 })
+  }),
+  new Style({
+    image: new Circle({
+      radius: 5,
+      stroke: new Stroke({ width: 2, color: 'white' }),
+      fill: new Fill({ color: 'rgba(221, 149, 0, 1)' })
+    }),
+    stroke: new Stroke({ color: 'rgba(221, 149, 0, 1)', width: 2 }),
+    text: new Text({ text: '', offsetX: 0, offsetY: -29 })
+  })
+];
+
 // ** Freeboard Bearing line component **
 @Component({
   selector: 'ol-map > fb-bearing-line',
@@ -168,42 +186,11 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
   buildStyle(key: string): Style | Style[] {
     if (this.bearingStyles?.[key]) {
       return this.bearingStyles[key] as Style | Style[];
-    } else {
-      if (this.layerProperties?.['style']) {
-        return this.layerProperties['style'] as Style | Style[];
-      } else {
-        // default style
-        return [
-          new Style({
-            stroke: new Stroke({
-              color: 'white',
-              width: 6
-            })
-          }),
-          new Style({
-            image: new Circle({
-              radius: 5,
-              stroke: new Stroke({
-                width: 2,
-                color: 'white'
-              }),
-              fill: new Fill({
-                color: 'rgba(221, 149, 0, 1)'
-              })
-            }),
-            stroke: new Stroke({
-              color: 'rgba(221, 149, 0, 1)',
-              width: 2
-            }),
-            text: new Text({
-              text: '',
-              offsetX: 0,
-              offsetY: -29
-            })
-          })
-        ];
-      }
     }
+    if (this.layerProperties?.['style']) {
+      return this.layerProperties['style'] as Style | Style[];
+    }
+    return DEFAULT_BEARING_STYLES;
   }
 
   // ** assess attribute change **

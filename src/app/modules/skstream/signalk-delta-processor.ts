@@ -12,7 +12,7 @@
  * Per-path delta caching is the job of src/lib/signalk-store (Batch 2).
  */
 
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 import { Convert } from 'src/app/lib/convert';
 import { Extent, GeoUtils } from 'src/app/lib/geoutils';
@@ -59,9 +59,20 @@ interface AisStatus {
 }
 
 interface AisFilter {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signalk: Record<string, any>;
+  signalk: Record<string, unknown>;
   aisState: string[];
+}
+
+interface DeltaUpdate {
+  $source?: string;
+  timestamp?: string;
+  values?: PathValue[];
+}
+
+interface SignalKDelta {
+  context: string;
+  updates?: DeltaUpdate[];
+  [k: string]: unknown;
 }
 
 type GroupFilter = Map<string, SKVessel | SKSaR | SKAircraft | SKAtoN>;
@@ -94,8 +105,7 @@ export interface AlarmOptions {
 
 export interface SubscribeOptions {
   context: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  path: any[];
+  path: unknown[];
 }
 
 export interface AisExpiryPayload {
@@ -136,8 +146,7 @@ export class SignalKDeltaProcessor {
   private extRecalcCounter = 0;
   private targetStatus: AisStatus = { updated: {}, stale: {}, expired: {} };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private preferredPaths: Record<string, any> = {};
+  private preferredPaths: Record<string, string> = {};
   private msgInterval = DEFAULT_MSG_INTERVAL_MS;
   private playbackMode = false;
   private playbackTime = '';
@@ -146,8 +155,11 @@ export class SignalKDeltaProcessor {
     staleAge: 360_000,
     maxTrack: 20
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private vesselPrefs: Record<string, any> = {
+  private vesselPrefs: {
+    selfLines: { cog: { length: number } };
+    aisCogLine: number;
+    [k: string]: unknown;
+  } = {
     selfLines: { cog: { length: 10 } },
     aisCogLine: 10
   };
@@ -155,8 +167,7 @@ export class SignalKDeltaProcessor {
   private vessels!: ResultPayload;
   private stream: SKStreamAPI | null = null;
   private skToken = '';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private subscriptions: any[] = [];
+  private subscriptions: Subscription[] = [];
   private timers: ReturnType<typeof setInterval>[] = [];
   private updateReceived = false;
   private apiUrl = '';
@@ -372,13 +383,13 @@ export class SignalKDeltaProcessor {
 
   // ************ stream lifecycle ************
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private onStreamConnect(msg: any): void {
+  private onStreamConnect(msg: Event): void {
+    const target = msg?.target as WebSocket | null;
     this.events.connect.next(
       Object.assign(new UpdateMessage(), {
         action: 'open',
         playback: this.playbackMode,
-        result: msg?.target?.readyState
+        result: target?.readyState
       })
     );
     this.watchDog.msgCount = 0;
@@ -424,8 +435,7 @@ export class SignalKDeltaProcessor {
 
   // ************ delta parsing ************
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseStreamMessage(data: any): void {
+  private parseStreamMessage(data: Record<string, unknown>): void {
     if (!this.stream) {
       return;
     }
@@ -434,7 +444,7 @@ export class SignalKDeltaProcessor {
         Object.assign(new UpdateMessage(), {
           action: 'hello',
           result: data,
-          self: data.self,
+          self: data['self'],
           playback: this.playbackMode
         })
       );
@@ -447,22 +457,22 @@ export class SignalKDeltaProcessor {
       this.watchDog.msgCount++;
       this.updateReceived = true;
       const touchedAisIds = new Set<string>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data.updates.forEach((u: any) => {
+      const delta = data as SignalKDelta;
+      const updates = delta.updates ?? [];
+      updates.forEach((u: DeltaUpdate) => {
         if (!u.values) {
           return;
         }
-        this.$source = u.$source;
-        this.$timestamp = u.timestamp;
-        this.playbackTime = u.timestamp;
+        this.$source = u.$source ?? '';
+        this.$timestamp = u.timestamp ?? '';
+        this.playbackTime = u.timestamp ?? '';
         // Context is set on every well-formed master delta; drop the whole
         // update if a producer sent it without one.
-        if (!data.context) {
+        if (!delta.context) {
           return;
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        u.values.forEach((v: any) => {
-          this.dispatchValue(data, v, touchedAisIds);
+        u.values.forEach((v: PathValue) => {
+          this.dispatchValue(delta, v, touchedAisIds);
         });
       });
       if (touchedAisIds.size) {
@@ -482,8 +492,7 @@ export class SignalKDeltaProcessor {
   }
 
   private dispatchValue(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any,
+    data: SignalKDelta,
     v: PathValue,
     touchedAisIds: Set<string>
   ): void {
@@ -569,7 +578,7 @@ export class SignalKDeltaProcessor {
   private filterContext(
     context: string,
     group: GroupFilter,
-    enabled = true,
+    enabled: unknown = true,
     state: string[] = []
   ): void {
     if (!enabled) {
@@ -629,14 +638,16 @@ export class SignalKDeltaProcessor {
     this.vessels.self.resourceUpdates = [];
     // extent recalc
     if (this.extRecalcCounter === 0) {
+      const maxRadius = this.targetFilter?.signalk['maxRadius'];
       if (
         this.vessels.self.positionReceived &&
         this.vessels.self.position &&
-        this.targetFilter?.signalk['maxRadius']
+        maxRadius &&
+        typeof maxRadius === 'number'
       ) {
         this.targetExtent = GeoUtils.calcMapifiedExtent(
           this.vessels.self.position,
-          this.targetFilter.signalk['maxRadius']
+          maxRadius
         );
         this.extRecalcCounter++;
       }
@@ -744,8 +755,12 @@ export class SignalKDeltaProcessor {
     this.applyCommonVesselValue(d, v, isSelf);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyCommonVesselValue(d: SKVessel, v: any, isSelf: boolean): void {
+  private applyCommonVesselValue(
+    d: SKVessel,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    v: any,
+    isSelf: boolean
+  ): void {
     if (v.path === '') {
       if (typeof v.value.name !== 'undefined') {
         d.name = v.value.name;
@@ -883,8 +898,8 @@ export class SignalKDeltaProcessor {
       return;
     }
     const cogLen = isSelf
-      ? this.vesselPrefs['selfLines'].cog.length
-      : this.vesselPrefs['aisCogLine'];
+      ? this.vesselPrefs.selfLines.cog.length
+      : this.vesselPrefs.aisCogLine;
     const cvlen = (d.sog ?? 0) * (cogLen * 60);
     const lon = d.position[0];
     const lat = d.position[1];

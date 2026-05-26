@@ -1,6 +1,7 @@
 /** Signal K Stream Provider abstraction Facade
  * ************************************/
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject } from 'rxjs';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -64,6 +65,8 @@ export class SKStreamFacade {
   private watchDogAlarmSignal = signal<boolean>(false);
   readonly watchDogAlarm = this.watchDogAlarmSignal.asReadonly();
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private app: AppFacade,
     private signalk: SignalKClient,
@@ -72,35 +75,42 @@ export class SKStreamFacade {
     private settings: SettingsFacade
   ) {
     // ** SIGNAL K STREAM **
-    this.worker.message$().subscribe((msg: UpdateMessage | TrailMessage) => {
-      if (msg.action === 'open') {
-        this.post({
-          cmd: 'auth',
-          options: {
-            token: this.app.getFBToken()
-          }
-        });
-        this.onConnect.next(msg);
-      } else if (msg.action === 'close') {
-        this.onClose.next(msg);
-      } else if (msg.action === 'error') {
-        this.onError.next(msg);
-      } else if (msg.action === 'trail') {
-        this.parseSelfTrail(msg as TrailMessage);
-      } else {
-        this.parseUpdateMessage(msg);
-        this.watchDogAlarmSignal.update(() => msg.watchDogAlarm);
-        this.onMessage.next(msg as UpdateMessage);
-      }
-    });
+    this.worker
+      .message$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg) => {
+        if (msg.action === 'open') {
+          this.post({
+            cmd: 'auth',
+            options: {
+              token: this.app.getFBToken()
+            }
+          });
+          this.onConnect.next(msg);
+        } else if (msg.action === 'close') {
+          this.onClose.next(msg);
+        } else if (msg.action === 'error') {
+          this.onError.next(msg);
+        } else if (msg.action === 'trail') {
+          this.parseSelfTrail(msg as TrailMessage);
+        } else {
+          this.parseUpdateMessage(msg);
+          this.watchDogAlarmSignal.set(msg.watchDogAlarm);
+          this.onMessage.next(msg as UpdateMessage);
+        }
+      });
 
     // ** Handle app.config$ / settings.change$ events
-    this.settings.change$.subscribe(() => this.sendConfig());
-    this.app.config$.subscribe((value: string) => {
-      if (value === 'ready') {
-        this.sendConfig();
-      }
-    });
+    this.settings.change$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.sendConfig());
+    this.app.config$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value: string) => {
+        if (value === 'ready') {
+          this.sendConfig();
+        }
+      });
   }
   // ** SKStream WebSocket messages **
   connect$(): Observable<UpdateMessage> {
@@ -136,8 +146,7 @@ export class SKStreamFacade {
     this.worker.close();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  post(msg: any) {
+  post(msg: { cmd: string; options?: unknown }) {
     this.worker.postMessage(msg);
   }
 
@@ -271,13 +280,8 @@ export class SKStreamFacade {
    * Refresh the aisLifecycle().updated list.
    */
   aisTargetUpdated() {
-    const av: string[] = [];
-    this.app.data.vessels.aisTargets.forEach((v, k) => {
-      av.push(k);
-    });
-    this.aisLifecycle.update((current) => {
-      return Object.assign({}, current, { updated: av });
-    });
+    const updated = Array.from(this.app.data.vessels.aisTargets.keys());
+    this.aisLifecycle.update((current) => ({ ...current, updated }));
   }
 
   // ** process selfTrail message from worker and emit trail$ **
@@ -324,26 +328,28 @@ export class SKStreamFacade {
       this.app.data.aircraft = msg.result.aircraft;
 
       // update AIS Lifecycle signal
-      this.aisLifecycle.update(() => {
-        return {
-          updated: msg.result.aisStatus.updated,
-          stale: msg.result.aisStatus.stale,
-          expired: msg.result.aisStatus.expired
-        };
+      const aisStatus = msg.result.aisStatus;
+      this.aisLifecycle.set({
+        updated: aisStatus.updated,
+        stale: aisStatus.stale,
+        expired: aisStatus.expired
       });
 
       // process AIS tracks
-      this.aisLifecycle().updated.forEach((id) => {
+      const aisTracks = this.app.data.vessels.aisTracks;
+      const aisTargets = this.app.data.vessels.aisTargets;
+      const aircraft = this.app.data.aircraft;
+      for (const id of aisStatus.updated) {
         const v = id.includes('aircraft')
-          ? this.app.data.aircraft.get(id)
-          : this.app.data.vessels.aisTargets.get(id);
+          ? aircraft.get(id)
+          : aisTargets.get(id);
         if (v) {
-          this.app.data.vessels.aisTracks.set(id, v.track);
+          aisTracks.set(id, v.track);
         }
-      });
-      this.aisLifecycle().expired.forEach((id) => {
-        this.app.data.vessels.aisTracks.delete(id);
-      });
+      }
+      for (const id of aisStatus.expired) {
+        aisTracks.delete(id);
+      }
 
       this.vesselsUpdate.next();
     }
@@ -361,22 +367,18 @@ export class SKStreamFacade {
 
     this.course.parseSelf(v);
 
-    this.anchorSignal.update(() => {
-      return {
-        position: v.anchor.position
-          ? [v.anchor.position.longitude, v.anchor.position.latitude]
-          : null,
-        maxRadius: v.anchor.maxRadius ?? -1,
-        radius: v.anchor.radius?.value ?? null
-      };
+    this.anchorSignal.set({
+      position: v.anchor.position
+        ? [v.anchor.position.longitude, v.anchor.position.latitude]
+        : null,
+      maxRadius: v.anchor.maxRadius ?? -1,
+      radius: v.anchor.radius?.value ?? null
     });
 
-    this.nightModeSignal.update(() => {
-      return (
-        v.environment.mode === 'night' &&
+    this.nightModeSignal.set(
+      v.environment.mode === 'night' &&
         (this.app.config.display.nightMode ?? false)
-      );
-    });
+    );
   }
 
   private parseSelfRacing(v: SKVessel) {

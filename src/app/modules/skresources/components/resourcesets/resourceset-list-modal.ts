@@ -48,7 +48,7 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
           <button
             mat-icon-button
             [disabled]="
-              app.config.selections.resourceSets[data.path].length === 0
+              (app.config.selections.resourceSets[data.path]?.length ?? 0) === 0
             "
             matTooltip="Clear selections"
             matTooltipPosition="below"

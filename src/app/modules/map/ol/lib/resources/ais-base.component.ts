@@ -15,6 +15,9 @@ import { FBFeatureLayerComponent } from '../sk-feature.component';
 
 export type SKTarget = SKVessel | SKAircraft | SKAtoN | SKSaR | SKMeteo;
 
+// Magic value used in `filterShipTypes` to mean "IMO-registered vessels only".
+const IMO_ONLY_FILTER = -999;
+
 // ** Signal K AIS Target Base Compnent  **
 @Component({
   selector: 'ol-map > sk-ais-target-base',
@@ -38,6 +41,12 @@ export class AISBaseLayerComponent
   @Input() staleIds: string[] = [];
   @Input() removeIds: string[] = [];
 
+  // Cached Set views of filterIds/filterShipTypes to make okToRenderTarget()
+  // O(1) per call instead of O(n) Array.includes() over inputs that can hold
+  // hundreds of entries.
+  private filterIdsSet: Set<string> | null = null;
+  private filterShipTypesSet: Set<number> | null = null;
+
   constructor(
     protected override mapComponent: MapComponent,
     protected override changeDetectorRef: ChangeDetectorRef
@@ -53,36 +62,48 @@ export class AISBaseLayerComponent
 
   override ngOnChanges(changes: SimpleChanges) {
     super.ngOnChanges(changes);
-    if (this.layer) {
-      const keys = Object.keys(changes);
-      const targetsChange = changes['targets'];
-      const removeIdsChange = changes['removeIds'];
-      const updateIdsChange = changes['updateIds'];
-      const staleIdsChange = changes['staleIds'];
-      const targetStylesChange = changes['targetStyles'];
-      if (
-        (targetsChange && targetsChange.previousValue?.size === 0) ||
-        keys.includes('filterShipTypes') ||
-        keys.includes('filterByShipType')
-      ) {
-        this.reloadTargets();
-      } else {
-        if (removeIdsChange) {
-          this.removeTargetIds(removeIdsChange.currentValue);
-        }
-        if (updateIdsChange) {
-          this.updateTargetIds(updateIdsChange.currentValue);
-        }
-        if (staleIdsChange) {
-          this.updateTargetIds(staleIdsChange.currentValue, true);
-        }
-        if (
-          (targetStylesChange && !targetStylesChange.firstChange) ||
-          keys.some((k) => ['focusId', 'filterIds', 'inactiveTime'].includes(k))
-        ) {
-          this.updateTargetIds(this.extractKeys(this.targets));
-        }
-      }
+    if (!this.layer) {
+      return;
+    }
+    if (changes['filterIds']) {
+      this.filterIdsSet = Array.isArray(this.filterIds)
+        ? new Set(this.filterIds)
+        : null;
+    }
+    if (changes['filterShipTypes']) {
+      this.filterShipTypesSet = Array.isArray(this.filterShipTypes)
+        ? new Set(this.filterShipTypes)
+        : null;
+    }
+    const targetsChange = changes['targets'];
+    const removeIdsChange = changes['removeIds'];
+    const updateIdsChange = changes['updateIds'];
+    const staleIdsChange = changes['staleIds'];
+    const targetStylesChange = changes['targetStyles'];
+    if (
+      (targetsChange && targetsChange.previousValue?.size === 0) ||
+      'filterShipTypes' in changes ||
+      'filterByShipType' in changes
+    ) {
+      this.reloadTargets();
+      return;
+    }
+    if (removeIdsChange) {
+      this.removeTargetIds(removeIdsChange.currentValue);
+    }
+    if (updateIdsChange) {
+      this.updateTargetIds(updateIdsChange.currentValue);
+    }
+    if (staleIdsChange) {
+      this.updateTargetIds(staleIdsChange.currentValue, true);
+    }
+    if (
+      (targetStylesChange && !targetStylesChange.firstChange) ||
+      'focusId' in changes ||
+      'filterIds' in changes ||
+      'inactiveTime' in changes
+    ) {
+      this.updateTargetIds(this.extractKeys(this.targets));
     }
   }
 
@@ -105,39 +126,29 @@ export class AISBaseLayerComponent
    * @returns true if target should be rendered
    */
   protected okToRenderTarget(id: string): boolean {
-    // IMO only
-    const checkImo = (id: string) => {
-      const imo =
-        Array.isArray(this.filterShipTypes) &&
-        this.filterShipTypes.includes(-999);
-      if (imo) {
-        const t = this.targets.get(id) as SKVessel | undefined;
-        if (t && 'imo' in t.registrations) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
+    const shipTypes = this.filterShipTypesSet;
+    const imoOnly = shipTypes?.has(IMO_ONLY_FILTER) === true;
+    const passesImo = (): boolean => {
+      if (!imoOnly) {
         return true;
       }
+      const t = this.targets.get(id) as SKVessel | undefined;
+      return !!t && 'imo' in t.registrations;
     };
 
-    if (this.filterByShipType && Array.isArray(this.filterShipTypes)) {
+    if (this.filterByShipType && shipTypes) {
       const typeId = this.targets.get(id)?.type?.id;
       if (typeof typeId !== 'number') {
         return false;
       }
       const st = Math.floor(typeId / 10) * 10;
-      return this.filterShipTypes.includes(st) && checkImo(id);
+      return shipTypes.has(st) && passesImo();
     }
-    if (!this.filterIds) {
-      return checkImo(id);
+    const ids = this.filterIdsSet;
+    if (!ids) {
+      return passesImo();
     }
-    if (Array.isArray(this.filterIds)) {
-      return this.filterIds.includes(id) && checkImo(id);
-    } else {
-      return checkImo(id);
-    }
+    return ids.has(id) && passesImo();
   }
 
   /** Determine if target is stale

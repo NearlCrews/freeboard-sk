@@ -54,27 +54,31 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
 
   parseFBNotes(notes: FBNotes = this.notes) {
     const fa: Feature[] = [];
+    // Snapshot the palette once per parse rather than reading the signal
+    // through buildStyle() for every note.
+    const noteColor = this.mapTheme.palette().note;
     for (const n of notes) {
-      if (!n[1].position) {
+      const note = n[1];
+      if (!note.position) {
         continue;
       }
       const f = new Feature({
         geometry: new Point(
-          fromLonLat([n[1].position.longitude, n[1].position.latitude])
+          fromLonLat([note.position.longitude, note.position.latitude])
         ),
-        name: n[1].name
+        name: note.name
       });
       f.setId('note.' + n[0]);
-      const skIcon = n[1].properties?.['skIcon'];
+      const skIcon = note.properties?.['skIcon'];
       f.set('icon', skIcon ? `sk-${skIcon}` : 'local_offer');
-      f.setStyle(this.buildStyle(n[1]).clone());
+      f.setStyle(this.buildStyle(note, noteColor).clone());
       fa.push(f);
     }
     this.source.addFeatures(fa);
   }
 
   // build note feature style
-  buildStyle(note: SKNote | NoteResource): Style {
+  buildStyle(note: SKNote | NoteResource, noteColor?: string): Style {
     const skIcon = note.properties?.['skIcon'];
     const icon = this.mapImages.getPOI(
       typeof skIcon === 'string' ? skIcon : 'default'
@@ -82,25 +86,17 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
     if (icon) {
       return new Style({
         image: icon,
-        text: new Text({
-          text: '',
-          offsetX: 0,
-          offsetY: -12
-        })
-      });
-    } else {
-      return new Style({
-        image: new RegularShape({
-          points: 4,
-          radius: 10,
-          fill: new Fill({ color: this.mapTheme.palette().note }),
-          stroke: new Stroke({
-            color: 'black',
-            width: 1
-          }),
-          rotation: (Math.PI / 180) * 45
-        })
+        text: new Text({ text: '', offsetX: 0, offsetY: -12 })
       });
     }
+    return new Style({
+      image: new RegularShape({
+        points: 4,
+        radius: 10,
+        fill: new Fill({ color: noteColor ?? this.mapTheme.palette().note }),
+        stroke: new Stroke({ color: 'black', width: 1 }),
+        rotation: (Math.PI / 180) * 45
+      })
+    });
   }
 }

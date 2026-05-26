@@ -23,6 +23,19 @@ import { Extent } from './models';
 import { AsyncSubject } from 'rxjs';
 import { LightTheme, DarkTheme } from './themes';
 
+// Reusable label fills, keyed by the resolved color string. Avoids allocating
+// a fresh Fill per feature per label refresh in setTextLabel().
+const LABEL_FILL_CACHE = new Map<string, Fill>();
+function getLabelFill(color: string): Fill {
+  const cached = LABEL_FILL_CACHE.get(color);
+  if (cached) {
+    return cached;
+  }
+  const fill = new Fill({ color });
+  LABEL_FILL_CACHE.set(color, fill);
+  return fill;
+}
+
 @Component({
   selector: 'ol-map > fb-feature-layer',
   template: '<ng-content></ng-content>',
@@ -168,9 +181,13 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.source) {
       return;
     }
+    const prefixes = this.labelPrefixes;
+    if (prefixes.length === 0) {
+      return;
+    }
     this.source.getFeatures().forEach((f: Feature) => {
       const id = f.getId() as string;
-      if (this.labelPrefixes.some((i: string) => id.includes(i))) {
+      if (prefixes.some((i: string) => id.includes(i))) {
         const s: Style = f.getStyle() as Style;
         f.setStyle(this.setTextLabel(s, f.get('name')));
       }
@@ -182,23 +199,18 @@ export class FBFeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
    * @param text string containing
    */
   setTextLabel(style: Style, text: string): Style {
-    let ts: Text | null = null;
     if (!style || typeof style === 'function') {
       return style;
-    } else if (Array.isArray(style)) {
-      if (style.length !== 0) {
-        ts = (style[0] as Style).getText() ?? null;
-      }
-    } else {
-      ts = style.getText() ?? null;
     }
+    const targetStyle: Style | undefined = Array.isArray(style)
+      ? (style[0] as Style | undefined)
+      : style;
+    const ts: Text | null = targetStyle?.getText() ?? null;
     if (ts) {
       ts.setText(Math.abs(this.mapZoom()) >= this.labelMinZoom() ? text : '');
-      ts.setFill(new Fill({ color: this.theme.labelText.color }));
-      if (Array.isArray(style)) {
-        (style[0] as Style).setText(ts);
-      } else {
-        style.setText(ts);
+      ts.setFill(getLabelFill(this.theme.labelText.color));
+      if (targetStyle) {
+        targetStyle.setText(ts);
       }
     }
     return style;
