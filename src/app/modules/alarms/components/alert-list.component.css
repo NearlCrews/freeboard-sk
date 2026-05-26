@@ -69,12 +69,27 @@
   text-overflow: ellipsis;
 }
 
-.red-text {
-  color: red;
+/* SignalK alert severity classes backed by theme-invariant safety tokens
+   (see src/tokens.css --safety-alert-*). State to token mapping: emergency
+   and alarm to --safety-alert-emergency / --safety-alert-alarm (red), warn
+   to --safety-alert-warn (yellow), alert to --safety-alert-caution (lower
+   intensity yellow). nominal and normal stay untokenised. Pair with shape,
+   label, or animation per WCAG 1.4.1 (the .blink-text class on
+   unacknowledged alerts satisfies this). */
+.fb-alert-emergency {
+  color: var(--safety-alert-emergency);
 }
 
-.amber-text {
-  color: rgb(179, 101, 5);
+.fb-alert-alarm {
+  color: var(--safety-alert-alarm);
+}
+
+.fb-alert-warn {
+  color: var(--safety-alert-warn);
+}
+
+.fb-alert-caution {
+  color: var(--safety-alert-caution);
 }
 
 .blink-text {

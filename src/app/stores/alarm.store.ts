@@ -39,26 +39,29 @@ interface WelcomeContentItem {
  * Single-fire highest-severity selection over a unified alarm queue lands
  * in Phase 7.
  *
- * Phase 7 wiring gap (intentional, not a regression):
+ * Safety-token wiring (landed):
  *
  *   Phase 3 Batch 2 introduced --safety-alert-emergency, --safety-alert-alarm,
  *   --safety-alert-warn, and --safety-alert-caution in src/tokens.css. These
  *   are theme-invariant by design so a Signal K `state: 'alarm'` notification
  *   stays red, and a `state: 'warn'` stays yellow, in dark mode and night-red
- *   (IEC 62288 / IMO MSC.302(87)). AlarmStore deliberately does NOT consume
- *   them: the SK severity is classified inside NotificationManager and the
- *   resulting CSS class is applied by alert-list.component.ts (currently the
- *   legacy `red-text` and `amber-text` literals at lines 117 to 122) and by
- *   alert.component.ts. Those files are out of Phase 3 scope.
+ *   (IEC 62288 / IMO MSC.302(87)). AlarmStore itself does not consume them:
+ *   the SK severity is classified inside NotificationManager and the
+ *   token-backed CSS class is resolved by the shared `alertSeverityClass()`
+ *   helper in src/app/modules/alarms/components/alert-severity.ts and applied
+ *   by alert-list.component.ts, alert.component.ts, and
+ *   alert-properties-modal.ts.
  *
- *   When Phase 7 unifies the alarm queue, it should: (a) replace the
- *   `red-text` and `amber-text` classes with token-backed classes that read
- *   from `var(--safety-alert-*)`, (b) map the full ALARM_STATE enum
- *   (nominal | normal | alert | warn | alarm | emergency) to the token set
- *   (alert maps to --safety-alert-caution, warn maps to --safety-alert-warn,
- *   alarm and emergency map to their same-name tokens; nominal and normal
- *   stay untokenised), and (c) close the present rendering gap where
- *   `priority === 'warn'` falls through with no severity class at all.
+ *   ALARM_STATE to class to token mapping (single source of truth in
+ *   alert-severity.ts):
+ *     - nominal, normal: no class (no safety color).
+ *     - alert: .fb-alert-caution to --safety-alert-caution.
+ *     - warn: .fb-alert-warn to --safety-alert-warn.
+ *     - alarm: .fb-alert-alarm to --safety-alert-alarm.
+ *     - emergency: .fb-alert-emergency to --safety-alert-emergency.
+ *
+ *   This also closed the prior rendering gap where `priority === 'warn'`
+ *   fell through with no severity class at all.
  */
 @Injectable({ providedIn: 'root' })
 export class AlarmStore {

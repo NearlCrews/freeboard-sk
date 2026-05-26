@@ -52,26 +52,39 @@ const TYPE_LABEL: Record<string, string> = {
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
+      /* 8px 6px 8px 14px: 8 = --space-sm, 6 and 14 are off-grid (no clean
+         token step). Left over from the original info-bar geometry; leaving
+         literal to avoid drift until --space-2xs (4px) and --space-pad
+         (14px) tokens exist. */
       padding: 8px 6px 8px 14px;
-      border-bottom: 1.5px solid var(--mat-sys-outline-variant, #b8b8b8);
-      background: var(--mat-sys-surface, #ffffff);
-      min-height: 44px;
+      border-bottom: 1.5px solid var(--color-border);
+      background: var(--color-surface);
+      min-height: var(--touch-secondary);
     }
 
     .info-bar-label {
-      font:
-        700 13px/1 Roboto,
-        system-ui,
-        sans-serif;
+      font-family: var(--font-family-sans);
+      font-weight: var(--font-weight-bold);
+      /* 13px is between --font-size-xs (12px) and --font-size-sm (14px).
+         Kept literal to preserve the existing label sizing. */
+      font-size: 13px;
+      line-height: 1;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--mat-sys-on-surface-variant, #2e2e2e);
+      color: var(--color-text-muted);
     }
 
     .info-body {
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
+    }
+
+    /* WCAG 2.5.5 secondary touch-target floor (44px). Material's
+       mat-icon-button defaults to 40px. */
+    .info-bar button[mat-icon-button] {
+      min-width: var(--touch-secondary);
+      min-height: var(--touch-secondary);
     }
   `,
   imports: [MatIconModule, MatButtonModule, MatTooltipModule]

@@ -18,6 +18,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { SignalKDetailsComponent } from '../../skresources';
 import type { AlertData } from './alert.component';
 import { NotificationManager } from '../notification-manager';
+import { alertSeverityClass } from './alert-severity';
 
 /********* AlertPropertiesModal **********
 	data: {
@@ -87,7 +88,9 @@ import { NotificationManager } from '../notification-manager';
             </div>
             <div style="display:flex;">
               <div class="key-label">Priority:</div>
-              <div style="flex: 1 1 auto;">{{ data.alert.priority }}</div>
+              <div style="flex: 1 1 auto;" [class]="severityClass()">
+                {{ data.alert.priority }}
+              </div>
             </div>
             <div style="display:flex;">
               <div class="key-label">Raised at:</div>
@@ -123,6 +126,18 @@ import { NotificationManager } from '../notification-manager';
         width: 150px;
         font-weight: bold;
       }
+      .fb-alert-emergency {
+        color: var(--safety-alert-emergency);
+      }
+      .fb-alert-alarm {
+        color: var(--safety-alert-alarm);
+      }
+      .fb-alert-warn {
+        color: var(--safety-alert-warn);
+      }
+      .fb-alert-caution {
+        color: var(--safety-alert-caution);
+      }
     `
   ]
 })
@@ -148,6 +163,10 @@ export class AlertPropertiesModal implements OnInit {
 
   toggleProperties() {
     this.showProperties = !this.showProperties;
+  }
+
+  protected severityClass(): string {
+    return alertSeverityClass(this.data.alert.priority);
   }
 
   private parseAlertInfo() {

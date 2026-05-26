@@ -19,8 +19,9 @@ import { TimerButtonComponent } from './timer-button.component';
 import { AppFacade } from 'src/app/app.facade';
 import { NotificationManager } from '../notification-manager';
 import { AppIconDef } from '../../icons';
-import { ALARM_STATE } from 'src/app/types';
+import { ALARM_STATE } from 'src/app/types/stream';
 import { CourseService } from '../../course';
+import { alertSeverityClass } from './alert-severity';
 
 export interface AlertData {
   id?: string;
@@ -81,6 +82,7 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                   >
                 </div>
                 <div
+                  [class]="severityClass()"
                   style="overflow: hidden;
                   display: -webkit-box;
                   -webkit-box-orient: vertical;
@@ -195,7 +197,22 @@ const SoundFiles: Record<ALARM_STATE, string> = {
       }
     }
   `,
-  styles: []
+  styles: [
+    `
+      .fb-alert-emergency {
+        color: var(--safety-alert-emergency);
+      }
+      .fb-alert-alarm {
+        color: var(--safety-alert-alarm);
+      }
+      .fb-alert-warn {
+        color: var(--safety-alert-warn);
+      }
+      .fb-alert-caution {
+        color: var(--safety-alert-caution);
+      }
+    `
+  ]
 })
 export class AlertComponent implements OnDestroy {
   alert = input.required<AlertData>();
@@ -269,6 +286,10 @@ export class AlertComponent implements OnDestroy {
     }
     this.audio = null;
     this.source = null;
+  }
+
+  protected severityClass(): string {
+    return alertSeverityClass(this.alert().priority);
   }
 
   protected hide() {

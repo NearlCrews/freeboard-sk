@@ -223,24 +223,37 @@ interface WeatherData {
   styles: [
     `
       ._weather-forecast {
-        font-family: arial;
+        font-family: var(--font-family-sans);
       }
       ._weather-forecast .key-label {
         width: 150px;
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
+      }
+
+      /* WCAG 2.5.5 secondary touch-target floor (44px). Material's
+         mat-icon-button defaults to 40px. */
+      ._weather-forecast mat-toolbar button[mat-icon-button] {
+        min-width: var(--touch-secondary);
+        min-height: var(--touch-secondary);
       }
 
       .meteo {
         overflow: auto;
+        /* CSS keyword 'small' (~13.3px) sits between --font-size-xs (12px)
+           and --font-size-sm (14px). Keeping the keyword preserves the
+           original grid sizing. */
         font-size: small;
       }
       .meteo-row {
         display: flex;
         text-wrap-mode: nowrap;
+        /* CSS keyword 'gray' (oklch ~57%) is darker than --color-border
+           (oklch 85% in light theme). Leaving literal to preserve the grid
+           contrast until a --color-grid-rule token is added. */
         border-color: gray;
         border-style: solid;
         border-width: 0;
-        font-weight: bold;
+        font-weight: var(--font-weight-bold);
       }
 
       .meteo-row-label,
@@ -267,9 +280,16 @@ interface WeatherData {
       }
 
       .meteo-row:first-child div {
+        /* Matches .meteo-row's gray border for grid contrast. See note
+           above; switch when --color-grid-rule lands. */
         border-top: gray 1px solid;
       }
 
+      /* Banded row highlight pinned to a pale-mint sRGB that reads as a
+         meteorology grid, not a safety signal. Color and text deliberately
+         stay literal: in night-red the row must still read as a recessive
+         band, not be retinted to red. Candidate for a future
+         --weather-row-band token if the spec adds one. */
       .meteo-row:nth-child(odd) div {
         background-color: rgb(209 243 209 / 60%);
         color: black;

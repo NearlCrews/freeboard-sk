@@ -22,6 +22,8 @@ import { AppFacade } from 'src/app/app.facade';
 import { getAlertIcon } from '../../icons';
 import { AlertData } from './alert.component';
 import { NotificationManager } from '../notification-manager';
+import { ALARM_STATE } from 'src/app/types/stream';
+import { alertSeverityClass } from './alert-severity';
 
 @Component({
   selector: 'alert-list',
@@ -112,14 +114,12 @@ import { NotificationManager } from '../notification-manager';
                   <div
                     class="alert-text"
                     (click)="notiMgr.showAlertInfo(item[1].path)"
-                    [ngClass]="{
-                      'blink-text':
-                        item[1].canAcknowledge && !item[1].acknowledged,
-                      'red-text': ['emergency', 'alarm'].includes(
-                        item[1].priority
-                      ),
-                      'amber-text': item[1].priority === 'alert'
-                    }"
+                    [ngClass]="[
+                      item[1].canAcknowledge && !item[1].acknowledged
+                        ? 'blink-text'
+                        : '',
+                      severityClass(item[1].priority)
+                    ]"
                   >
                     {{ item[1].message }}
                   </div>
@@ -235,5 +235,9 @@ export class AlertListComponent {
    */
   protected setIcon(alert: AlertData): string {
     return getAlertIcon(alert).svgIcon ?? '';
+  }
+
+  protected severityClass(priority: ALARM_STATE): string {
+    return alertSeverityClass(priority);
   }
 }

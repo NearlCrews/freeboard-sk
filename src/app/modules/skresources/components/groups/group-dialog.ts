@@ -3,11 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  inject
+  computed,
+  inject,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,7 +49,7 @@ interface GroupItem {
   selector: 'ap-resourcegroupdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
+    FormField,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
@@ -84,14 +86,11 @@ interface GroupItem {
               <div>
                 <mat-form-field floatLabel="always" style="width:100%">
                   <mat-label>Name</mat-label>
-                  <input
-                    matInput
-                    #inpname="ngModel"
-                    type="text"
-                    required
-                    [(ngModel)]="gItem.name"
-                  />
-                  @if (inpname.invalid && (inpname.dirty || inpname.touched)) {
+                  <input matInput type="text" [formField]="gForm.name" />
+                  @if (
+                    gForm.name().invalid() &&
+                    (gForm.name().dirty() || gForm.name().touched())
+                  ) {
                     <mat-error> Please enter a name.</mat-error>
                   }
                 </mat-form-field>
@@ -99,12 +98,7 @@ interface GroupItem {
               <div>
                 <mat-form-field floatLabel="always" style="width:100%">
                   <mat-label>Description</mat-label>
-                  <textarea
-                    matInput
-                    rows="3"
-                    #inpcmt="ngModel"
-                    [(ngModel)]="gItem.description"
-                  >
+                  <textarea matInput rows="3" [formField]="gForm.description">
                   </textarea>
                 </mat-form-field>
               </div>
@@ -248,7 +242,7 @@ interface GroupItem {
         <div style="text-align:right;flex: 1;">
           <button
             mat-flat-button
-            [disabled]="inpname.invalid"
+            [disabled]="saveDisabled()"
             (click)="handleClose(true)"
           >
             SAVE
@@ -286,6 +280,15 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
     charts: false
   };
 
+  protected gModel = signal<{ name: string; description: string }>({
+    name: '',
+    description: ''
+  });
+  protected gForm = form(this.gModel, (p) => {
+    required(p.name);
+  });
+  protected saveDisabled = computed(() => this.gForm().invalid());
+
   private dialogRef = inject(MatDialogRef<ResourceGroupDialog>);
   private skres = inject(SKResourceService);
   protected dialog = inject(MatDialog);
@@ -306,6 +309,10 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
       regions: [],
       charts: []
     };
+    this.gModel.set({
+      name: this.gItem.name,
+      description: this.gItem.description
+    });
   }
 
   ngAfterViewInit() {
@@ -380,8 +387,9 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
 
   handleClose(save: boolean) {
     if (save) {
-      this.data.group.name = this.gItem.name;
-      this.data.group.description = this.gItem.description;
+      const v = this.gModel();
+      this.data.group.name = v.name;
+      this.data.group.description = v.description;
 
       if (this.gItem.routes.length !== 0) {
         this.data.group.routes = this.gItem.routes.map((r) => r.id);

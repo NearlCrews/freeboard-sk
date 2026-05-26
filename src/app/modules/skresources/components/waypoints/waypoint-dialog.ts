@@ -1,17 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import {
-  FormsModule,
-  FormControl,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,8 +24,6 @@ import {
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import type { SKWaypoint } from '../../resource-classes';
-import { merge } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -93,7 +88,7 @@ interface WaypointTypeOption {
     MatCheckboxModule,
     MatDialogModule,
     CoordsPipe,
-    ReactiveFormsModule,
+    FormField,
     MatTooltip
   ],
   template: `
@@ -117,15 +112,11 @@ interface WaypointTypeOption {
             <div>
               <mat-form-field floatLabel="always" style="width:100%;">
                 <mat-label>Name</mat-label>
-                <input
-                  matInput
-                  type="text"
-                  required
-                  [readonly]="wptReadOnly"
-                  [formControl]="inpName"
-                  (blur)="updateErrorMessage()"
-                />
-                @if (inpName.invalid && (inpName.dirty || inpName.touched)) {
+                <input matInput type="text" [formField]="wptForm.name" />
+                @if (
+                  wptForm.name().invalid() &&
+                  (wptForm.name().dirty() || wptForm.name().touched())
+                ) {
                   <mat-error>{{ errorMessage() }}</mat-error>
                 }
               </mat-form-field>
@@ -225,16 +216,11 @@ interface WaypointTypeOption {
                   <div style="flex: 1 1 auto;">
                     <mat-form-field floatLabel="always">
                       <mat-label>Latitude</mat-label>
-                      <input
-                        matInput
-                        type="number"
-                        min="-90"
-                        max="90"
-                        required
-                        [formControl]="inpLat"
-                        (blur)="updateErrorMessage()"
-                      />
-                      @if (inpLat.invalid && (inpLat.dirty || inpLat.touched)) {
+                      <input matInput type="number" [formField]="wptForm.lat" />
+                      @if (
+                        wptForm.lat().invalid() &&
+                        (wptForm.lat().dirty() || wptForm.lat().touched())
+                      ) {
                         <mat-error>{{ errorMessage() }}</mat-error>
                       }
                     </mat-form-field>
@@ -254,15 +240,11 @@ interface WaypointTypeOption {
                   <div style="flex: 1 1 auto;">
                     <mat-form-field floatLabel="always">
                       <mat-label>Longitude</mat-label>
-                      <input
-                        matInput
-                        type="number"
-                        min="-180"
-                        max="180"
-                        [formControl]="inpLon"
-                        (blur)="updateErrorMessage()"
-                      />
-                      @if (inpLon.invalid && (inpLon.dirty || inpLon.touched)) {
+                      <input matInput type="number" [formField]="wptForm.lon" />
+                      @if (
+                        wptForm.lon().invalid() &&
+                        (wptForm.lon().dirty() || wptForm.lon().touched())
+                      ) {
                         <mat-error>{{ errorMessage() }}</mat-error>
                       }
                     </mat-form-field>
@@ -277,9 +259,7 @@ interface WaypointTypeOption {
         <mat-dialog-actions align="end">
           <button
             mat-flat-button
-            [disabled]="
-              inpLat.invalid || inpLon.invalid || inpName.invalid || wptReadOnly
-            "
+            [disabled]="saveDisabled() || wptReadOnly"
             (click)="handleClose(true)"
           >
             SAVE
@@ -317,11 +297,28 @@ export class WaypointDialog {
   protected wptLon: number;
 
   protected skIcon: string | undefined;
-  protected inpLat: FormControl<number | null>;
-  protected inpLon: FormControl<number | null>;
-  protected inpName: FormControl<string | null>;
 
-  protected errorMessage = signal('');
+  protected wptModel = signal<{
+    name: string;
+    lat: number | null;
+    lon: number | null;
+  }>({ name: '', lat: 0, lon: 0 });
+  protected wptForm = form(this.wptModel, (p) => {
+    required(p.name, { message: 'Please enter a waypoint name.' });
+    required(p.lat, { message: 'You must enter a value.' });
+    required(p.lon, { message: 'You must enter a value.' });
+    min(p.lat, -90, { message: 'Value must be > -90 and < 90' });
+    max(p.lat, 90, { message: 'Value must be > -90 and < 90' });
+    min(p.lon, -180, { message: 'Value must be > -180 and < 180' });
+    max(p.lon, 180, { message: 'Value must be > -180 and < 180' });
+  });
+  protected errorMessage = computed(() => {
+    const errs = this.wptForm().errorSummary();
+    const first = errs[0];
+    return first?.message ?? '';
+  });
+  protected saveDisabled = computed(() => this.wptForm().invalid());
+
   protected iconsForSelection = signal<AppIconDef[]>([]);
   protected selectableIcons = ['pseudoaton'];
 
@@ -343,53 +340,24 @@ export class WaypointDialog {
     this.wptLat = coords[1] ?? 0;
     this.wptLon = coords[0] ?? 0;
 
-    this.inpLat = new FormControl<number | null>(this.wptLat, [
-      Validators.required
-    ]);
-    this.inpLon = new FormControl<number | null>(this.wptLon, [
-      Validators.required
-    ]);
-    this.inpName = new FormControl<string | null>(
-      this.data.waypoint.name ?? '',
-      [Validators.required]
-    );
+    this.wptModel.set({
+      name: this.data.waypoint.name ?? '',
+      lat: this.wptLat,
+      lon: this.wptLon
+    });
 
     this.waypointTypeSelections = this.buildWptSelections();
-
-    merge(
-      this.inpLat.statusChanges,
-      this.inpLat.valueChanges,
-      this.inpLon.statusChanges,
-      this.inpLon.valueChanges,
-      this.inpName.statusChanges,
-      this.inpName.valueChanges
-    )
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessage());
-  }
-
-  protected updateErrorMessage() {
-    if (this.inpLat.hasError('required') || this.inpLon.hasError('required')) {
-      this.errorMessage.set('You must enter a value.');
-    } else if (this.inpName.hasError('required')) {
-      this.errorMessage.set('Please enter a waypoint name.');
-    } else if (this.inpLat.hasError('min') || this.inpLat.hasError('max')) {
-      this.errorMessage.set(`Value must be > -90 and < 90`);
-    } else if (this.inpLon.hasError('min') || this.inpLon.hasError('max')) {
-      this.errorMessage.set(`Value must be > -180 and < 180`);
-    } else {
-      this.errorMessage.set('');
-    }
   }
 
   protected handleClose(save: boolean) {
     if (save) {
-      this.data.waypoint.name = this.inpName.value ?? '';
+      const v = this.wptModel();
+      this.data.waypoint.name = v.name ?? '';
       this.data.waypoint.description = this.wptDescription;
       this.data.waypoint.type = this.wptType;
       this.data.waypoint.feature.geometry.coordinates = [
-        this.inpLon.value ?? 0,
-        this.inpLat.value ?? 0
+        v.lon ?? 0,
+        v.lat ?? 0
       ];
       const props = this.data.waypoint.feature.properties ?? {};
       if (this.skIcon) {

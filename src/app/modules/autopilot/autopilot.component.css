@@ -1,3 +1,11 @@
+/* Geometry literals (top, left, width, height, border-radius, padding,
+   font-size in pt) are pinned to the autopilot.png raster behind the
+   console. Tokenizing them would misalign the dial face. The literal off-
+   white title color (rgb(237, 224, 221)) and the black LCD text are also
+   pinned to the raster and must read identically across themes. Token
+   substitutions here are limited to font-family (the only safe-to-swap
+   typography token) and touch-target floors. */
+
 .autopilot-console {
   position: absolute;
   z-index: 6010;
@@ -5,7 +13,7 @@
   left: 50px;
   display: flex;
   flex-direction: column;
-  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-sans);
   font-size: 10pt;
   width: 238px;
   height: 400px;
@@ -41,7 +49,7 @@
 }
 
 .autopilot-console .content .dial-text {
-  font-family: roboto;
+  font-family: var(--font-family-sans);
   flex: 1 1 auto;
 }
 
@@ -70,4 +78,23 @@
   display: flex;
   flex-wrap: nowrap;
   padding: 10px 0 0 0;
+}
+
+/* Touch-target floor (WCAG 2.5.5 / Apple HIG, --touch-secondary = 44px).
+   Material's mat-mini-fab and mat-icon-button default to 40px which is
+   below the floor. Height-only on the dial buttons because their X
+   positions sit inside fixed-width gutters on the autopilot.png raster;
+   a min-width would push them off the dial geometry. The close icon at
+   the top has free space and can take the square floor. */
+.autopilot-console .title .icon-warn {
+  min-width: var(--touch-secondary);
+  min-height: var(--touch-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.autopilot-console .content .button-bar button,
+.autopilot-console .content .button-bar-thin button {
+  min-height: var(--touch-secondary);
 }
