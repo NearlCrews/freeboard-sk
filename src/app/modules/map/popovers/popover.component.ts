@@ -54,9 +54,9 @@ measure: boolean= measure mode;
               ></country-flag>
             </mat-icon>
           }
-          @if (icon) {
-            <mat-icon [class]="icon.class" [svgIcon]="icon.svgIcon">{{
-              icon.name
+          @if (icon; as ic) {
+            <mat-icon [class]="ic.class ?? ''" [svgIcon]="ic.svgIcon ?? ''">{{
+              ic.name
             }}</mat-icon>
           }
           &nbsp;{{ title }}
@@ -92,7 +92,9 @@ measure: boolean= measure mode;
 export class PopoverComponent {
   @Input() title = '';
   @Input() mmsi = '';
-  @Input() icon: { class: string; name?: string; svgIcon?: string } | undefined;
+  @Input() icon:
+    | { class?: string; name?: string; svgIcon?: string }
+    | undefined;
   @Input() canClose = true;
   @Input() measure = false;
   @Input() navTo = false;

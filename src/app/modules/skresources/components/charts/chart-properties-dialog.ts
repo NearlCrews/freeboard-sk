@@ -53,7 +53,7 @@ import { NodeListSelect } from './node-list-select';
     <div class="_ap-chartinfo">
       <mat-toolbar style="background-color: transparent">
         <span class="dialog-icon"
-          ><mat-icon>{{ isLocal(data['url']) }}</mat-icon></span
+          ><mat-icon>{{ isLocal(data.url) }}</mat-icon></span
         >
         <span style="flex: 1 1 auto; text-align: center">Chart Properties</span>
         <span style="text-align: right">
@@ -119,7 +119,7 @@ import { NodeListSelect } from './node-list-select';
               </div>
             </div>
           </div>
-          @if (data.bounds) {
+          @if (data.bounds; as bounds) {
             <div style="display:flex;">
               <div class="key-label">Bounds:</div>
               <div
@@ -129,26 +129,26 @@ import { NodeListSelect } from './node-list-select';
                 <div style="text-align:right;">
                   <span
                     style="flex: 1 1 auto;"
-                    [innerText]="data.bounds[3] | coords: 'HDd' : true"
+                    [innerText]="bounds[3] ?? 0 | coords: 'HDd' : true"
                   >
                   </span
                   ><br />
                   <span
                     style="flex: 1 1 auto;"
-                    [innerText]="data.bounds[2] | coords: 'HDd'"
+                    [innerText]="bounds[2] ?? 0 | coords: 'HDd'"
                   >
                   </span>
                 </div>
                 <div>
                   <span
                     style="flex: 1 1 auto;"
-                    [innerText]="data.bounds[1] | coords: 'HDd' : true"
+                    [innerText]="bounds[1] ?? 0 | coords: 'HDd' : true"
                   >
                   </span
                   ><br />
                   <span
                     style="flex: 1 1 auto;"
-                    [innerText]="data.bounds[0] | coords: 'HDd'"
+                    [innerText]="bounds[0] ?? 0 | coords: 'HDd'"
                   >
                   </span>
                 </div>

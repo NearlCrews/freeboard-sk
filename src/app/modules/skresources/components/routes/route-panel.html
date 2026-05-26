@@ -10,11 +10,11 @@
   <div>
     <div style="display: flex">
       <div>
-        @if(!icon.svgIcon) {
-        <mat-icon [class]="icon.class">{{icon.name}}</mat-icon>
+        @if (icon; as ic) { @if(!ic.svgIcon) {
+        <mat-icon [class]="ic.class ?? ''">{{ic.name}}</mat-icon>
         } @else {
-        <mat-icon [svgIcon]="icon.svgIcon" [class]="icon.class"></mat-icon>
-        }
+        <mat-icon [svgIcon]="ic.svgIcon" [class]="ic.class ?? ''"></mat-icon>
+        } }
         <br />
       </div>
       <div style="flex: 1; padding: 0 0 0 10px; text-align: right">
@@ -29,7 +29,7 @@
       <div>
         <button
           mat-button
-          [disabled]="_route()?.feature?.properties?.readOnly"
+          [disabled]="!!_route()?.feature?.properties?.['readOnly']"
           (click)="onEdit()"
           matTooltip="Edit Route"
         >
@@ -69,7 +69,7 @@
         &nbsp;
         <button
           mat-button
-          [disabled]="_route()?.feature?.properties?.readOnly || this.app.data.activeRoute === id()"
+          [disabled]="!!_route()?.feature?.properties?.['readOnly'] || this.app.data.activeRoute === id()"
           (click)="onDelete()"
           matTooltip="Delete Route"
         >

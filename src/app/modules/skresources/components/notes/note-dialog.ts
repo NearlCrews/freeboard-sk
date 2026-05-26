@@ -38,7 +38,7 @@ interface DialogData {
   note: SKNote;
   editable: boolean;
   addMode: boolean;
-  position: SKPosition;
+  position?: SKPosition;
 }
 
 @Component({
@@ -145,8 +145,6 @@ export class NoteDialog implements OnInit {
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<NoteDialog>);
-
-  constructor() {}
 
   ngOnInit() {
     if (!this.data.note.properties) {

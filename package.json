@@ -33,7 +33,6 @@
     "prebuild:all": "pnpm codegen",
     "build:prod": "pnpm build:all",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "typecheck:strict": "node scripts/typecheck-strict.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:baseline": "node scripts/verify-baseline.mjs",
@@ -57,7 +56,7 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged",
     "commit-msg": "pnpm exec commitlint --edit \"$1\"",
-    "pre-push": "pnpm typecheck:strict && pnpm cruise"
+    "pre-push": "pnpm typecheck && pnpm cruise"
   },
   "author": "AdrianP",
   "contributors": [

@@ -72,8 +72,11 @@ import {
   RouteListComponent,
   RouteNextPointComponent,
   SettingsFacade,
+  SKNote,
   SKRegion,
   SKResourceService,
+  SKRoute,
+  SKWaypoint,
   SKSTREAM_MODE,
   SKStreamFacade,
   StreamOptions,
@@ -228,6 +231,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected audioStatus = () => this.audio.status();
   protected get themeAttr() {
     return this.shell.themeAttr;
+  }
+
+  // InfoPanel resource accessors: narrow the union to the concrete
+  // SK type matched by InfoPanelItem.type so panel inputs typecheck
+  // without leaking unsafe casts into the template.
+  protected infoPanelNote(): SKNote {
+    return this.infoPanel.item()?.resource as SKNote;
+  }
+  protected infoPanelRegion(): SKRegion {
+    return this.infoPanel.item()?.resource as SKRegion;
+  }
+  protected infoPanelWaypoint(): SKWaypoint {
+    return this.infoPanel.item()?.resource as SKWaypoint;
+  }
+  protected infoPanelRoute(): SKRoute {
+    return this.infoPanel.item()?.resource as SKRoute;
   }
 
   constructor() {

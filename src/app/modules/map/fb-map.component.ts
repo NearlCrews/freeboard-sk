@@ -1743,6 +1743,32 @@ export class FBMapComponent
     }
   }
 
+  // Template proxies that absorb IPopover's nullable id/type so the
+  // strict TCB can call the string-typed downstream APIs safely.
+  protected deleteOverlay(ov: IPopover) {
+    if (ov.id !== null && ov.type !== null) {
+      this.deleteFeature(ov.id, ov.type);
+    }
+  }
+  protected itemInfoFromOverlay(ov: IPopover) {
+    if (ov.id !== null && ov.type !== null) {
+      this.itemInfo(ov.id, ov.type, ov.isSelf ?? false);
+    }
+  }
+  protected addNoteFromOverlay(ov: IPopover) {
+    if (ov.id !== null && ov.type !== null) {
+      void this.skres.showNoteEditor({
+        type: ov.type,
+        href: { id: ov.id, exists: true }
+      });
+    }
+  }
+  protected showRelatedNotesFromOverlay(ov: IPopover) {
+    if (ov.id !== null && ov.type !== null) {
+      void this.skres.showRelatedNotes(ov.id, ov.type, ov.readOnly);
+    }
+  }
+
   // ** activate route / waypoint
   protected setActiveFeature() {
     const overlayId = this.overlay().id;

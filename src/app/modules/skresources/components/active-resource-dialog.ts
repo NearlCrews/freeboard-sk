@@ -131,16 +131,16 @@ interface CoordinatesMetaEntry {
                       <div class="key-label"></div>
                       <div
                         style="flex: 1 1 auto;font-weight:bold;"
-                        [innerText]="pointMeta[i].name"
+                        [innerText]="pointMeta[i]?.name ?? ''"
                       ></div>
                     </div>
 
-                    @if (pointMeta[i].description) {
+                    @if (pointMeta[i]?.description) {
                       <div style="display:flex;">
                         <div class="key-label">Desc:</div>
                         <div
                           style="flex: 1 1 auto;"
-                          [innerText]="pointMeta[i].description"
+                          [innerText]="pointMeta[i]?.description ?? ''"
                         ></div>
                       </div>
                     }
@@ -148,9 +148,9 @@ interface CoordinatesMetaEntry {
                     <div style="display:flex;">
                       <div class="key-label"></div>
                       <div style="flex: 1 1 auto;font-style:italic">
-                        <span [innerText]="legs[i].bearing"></span>
+                        <span [innerText]="legs[i]?.bearing ?? ''"></span>
                         &nbsp;
-                        <span [innerText]="legs[i].distance"></span>
+                        <span [innerText]="legs[i]?.distance ?? ''"></span>
                       </div>
                     </div>
                   </div>

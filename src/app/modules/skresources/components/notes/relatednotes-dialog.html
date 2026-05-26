@@ -17,14 +17,14 @@
       @for (n of data.notes; track n[0]) {
       <article
         class="note-card"
-        [class.draft]="n[1].properties?.draft"
+        [class.draft]="n[1].properties['draft']"
         [style.--group-color]="groupColor(n[1].group)"
       >
         <header class="card-head">
-          @if (n[1].properties?.skIcon) {
+          @if (n[1].properties['skIcon']) {
           <mat-icon
             class="card-icon"
-            [svgIcon]="'sk-' + n[1].properties?.skIcon"
+            [svgIcon]="'sk-' + n[1].properties['skIcon']"
             aria-hidden="true"
           ></mat-icon>
           } @else {
@@ -32,13 +32,13 @@
           }
           <div class="card-title">
             <h2>{{ n[1].name || 'Untitled note' }}</h2>
-            @if (n[1].timestamp) {
-            <time class="card-time" [attr.datetime]="n[1].timestamp">
-              {{ n[1].timestamp.slice(0, 10) }}
+            @if ($any(n[1]).timestamp; as ts) {
+            <time class="card-time" [attr.datetime]="ts">
+              {{ ts.slice(0, 10) }}
             </time>
             }
           </div>
-          @if (n[1].properties?.draft) {
+          @if (n[1].properties['draft']) {
           <span class="draft-pill" aria-label="Draft">Draft</span>
           }
         </header>
@@ -70,7 +70,7 @@
           >
             <mat-icon>open_in_new</mat-icon>
           </button>
-          } @if (!n[1].properties?.readOnly) {
+          } @if (!n[1].properties['readOnly']) {
           <button
             mat-icon-button
             [disabled]="data.readOnly"

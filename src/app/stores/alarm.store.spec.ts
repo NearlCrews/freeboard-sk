@@ -41,7 +41,7 @@ describe('AlarmStore', () => {
   it('showAlert opens AlertDialog with the supplied payload', () => {
     store.showAlert('Title', 'Body', 'OK');
     expect(openSpy).toHaveBeenCalledTimes(1);
-    const cfg = openSpy.mock.calls[0][1];
+    const cfg = openSpy.mock.calls[0]![1];
     expect(cfg.data).toEqual({
       title: 'Title',
       message: 'Body',
@@ -52,7 +52,7 @@ describe('AlarmStore', () => {
 
   it('showConfirm opens ConfirmDialog with disableClose true', () => {
     store.showConfirm('msg', 'title', 'Yes', 'No', 'remember');
-    const cfg = openSpy.mock.calls[0][1];
+    const cfg = openSpy.mock.calls[0]![1];
     expect(cfg.disableClose).toBe(true);
     expect(cfg.data).toEqual({
       message: 'msg',
@@ -66,26 +66,26 @@ describe('AlarmStore', () => {
   it('showMessage forwards to MatSnackBar.openFromComponent', () => {
     store.showMessage('hello', true, 1234);
     expect(snackSpy).toHaveBeenCalledTimes(1);
-    const cfg = snackSpy.mock.calls[0][1];
+    const cfg = snackSpy.mock.calls[0]![1];
     expect(cfg.duration).toBe(1234);
     expect(cfg.data).toEqual({ message: 'hello', sound: true });
   });
 
   it('parseHttpErrorResponse uses the auth message on 401 and 403', () => {
     store.parseHttpErrorResponse(new HttpErrorResponse({ status: 401 }));
-    const data1 = openSpy.mock.calls[0][1].data;
+    const data1 = openSpy.mock.calls[0]![1].data;
     expect(data1.title).toBe('401');
     expect(data1.message).toContain('requires authentication');
 
     store.parseHttpErrorResponse(new HttpErrorResponse({ status: 403 }));
-    const data2 = openSpy.mock.calls[1][1].data;
+    const data2 = openSpy.mock.calls[1]![1].data;
     expect(data2.title).toBe('403');
     expect(data2.message).toContain('requires authentication');
   });
 
   it('parseHttpErrorResponse uses the generic message on other statuses', () => {
     store.parseHttpErrorResponse(new HttpErrorResponse({ status: 500 }));
-    const data = openSpy.mock.calls[0][1].data;
+    const data = openSpy.mock.calls[0]![1].data;
     expect(data.title).toBe('500');
     expect(data.message).toContain('could not be completed');
   });

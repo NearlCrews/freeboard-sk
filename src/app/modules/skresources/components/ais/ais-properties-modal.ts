@@ -102,11 +102,11 @@ interface AISDisplay {
                 <div style="flex: 1 1 auto;">{{ data.target.port }}</div>
               </div>
             }
-            @if (data.target.registrations?.imo) {
+            @if (data.target.registrations?.['imo']) {
               <div style="display:flex;">
                 <div class="key-label">IMO:</div>
                 <div style="flex: 1 1 auto;">
-                  {{ data.target.registrations?.imo }}
+                  {{ data.target.registrations?.['imo'] }}
                 </div>
               </div>
             }
@@ -123,7 +123,8 @@ interface AISDisplay {
               </div>
             }
             @if (
-              data.target.design.length?.overall && data.target.design?.beam
+              data.target.design['length']?.overall &&
+              data.target.design['beam']
             ) {
               <div style="display:flex;">
                 <div class="key-label">Dimensions:</div>
@@ -133,7 +134,7 @@ interface AISDisplay {
                 </div>
               </div>
             }
-            @if (data.target.design.draft?.current) {
+            @if (data.target.design['draft']?.current) {
               <div style="display:flex;">
                 <div class="key-label">Draft:</div>
                 <div style="flex: 1 1 auto;">
@@ -141,7 +142,7 @@ interface AISDisplay {
                 </div>
               </div>
             }
-            @if (data.target.design.draft?.maximum) {
+            @if (data.target.design['draft']?.maximum) {
               <div style="display:flex;">
                 <div class="key-label">Draft (max):</div>
                 <div style="flex: 1 1 auto;">
@@ -149,7 +150,7 @@ interface AISDisplay {
                 </div>
               </div>
             }
-            @if (data.target.design?.airHeight) {
+            @if (data.target.design['airHeight']) {
               <div style="display:flex;">
                 <div class="key-label">Height:</div>
                 <div style="flex: 1 1 auto;">
@@ -163,19 +164,19 @@ interface AISDisplay {
                 <div style="flex: 1 1 auto;">{{ data.target.state }}</div>
               </div>
             }
-            @if (data.target.destination?.name) {
+            @if (data.target.destination?.name; as destName) {
               <div style="display:flex;">
                 <div class="key-label">Destination:</div>
                 <div style="flex: 1 1 auto;">
-                  {{ data.target.destination.name }}
+                  {{ destName }}
                 </div>
               </div>
             }
-            @if (data.target.destination?.eta) {
+            @if (data.target.destination?.eta; as destEta) {
               <div style="display:flex;">
                 <div class="key-label">ETA:</div>
                 <div style="flex: 1 1 auto;">
-                  {{ data.target.destination.eta.toLocaleString() }}
+                  {{ destEta.toLocaleString() }}
                 </div>
               </div>
             }

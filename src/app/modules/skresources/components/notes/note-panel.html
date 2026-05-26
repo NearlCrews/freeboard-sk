@@ -2,38 +2,37 @@
   <header class="detail-head">
     <div class="head-row">
       <div class="detail-icon-wrap" aria-hidden="true">
-        @if (!icon.svgIcon) {
-        <mat-icon [class]="icon.class">{{ icon.name }}</mat-icon>
+        @if (!icon?.svgIcon) {
+        <mat-icon [class]="icon?.class ?? ''">{{ icon?.name }}</mat-icon>
         } @else {
-        <mat-icon [svgIcon]="icon.svgIcon"></mat-icon>
+        <mat-icon [svgIcon]="icon?.svgIcon ?? ''"></mat-icon>
         }
       </div>
       <div class="detail-title-block">
-        <h1 class="detail-title">{{ _note()?.name || 'Untitled note' }}</h1>
-        @if (_note()?.position || _note()?.group || _note()?.properties?.draft
-        || _note()?.timestamp) {
+        <h1 class="detail-title">{{ _note().name || 'Untitled note' }}</h1>
+        @if (_note().position || _note().group || _note().properties['draft'] ||
+        $any(_note()).timestamp) {
         <div class="detail-meta-row">
-          @if (_note()?.properties?.draft) {
+          @if (_note().properties['draft']) {
           <span class="pill draft" aria-label="Draft note">Draft</span>
-          } @if (_note()?.group) {
+          } @if (_note().group) {
           <span
             class="pill group"
-            [style.--pill-color]="groupColor(_note()?.group)"
+            [style.--pill-color]="groupColor(_note().group)"
           >
-            <span class="dot" aria-hidden="true"></span>{{ _note()?.group }}
+            <span class="dot" aria-hidden="true"></span>{{ _note().group }}
           </span>
-          } @if (_note()?.position) {
+          } @if (_note().position; as pos) {
           <span class="pill pos">
             <mat-icon aria-hidden="true">place</mat-icon>
-            {{ _note()?.position?.latitude | coords :
-            app.config.units.positionFormat : true }} · {{
-            _note()?.position?.longitude | coords :
-            app.config.units.positionFormat : false }}
+            {{ pos.latitude | coords : app.config.units.positionFormat : true }}
+            · {{ pos.longitude | coords : app.config.units.positionFormat :
+            false }}
           </span>
-          } @if (_note()?.timestamp) {
+          } @if ($any(_note()).timestamp; as ts) {
           <span class="pill">
             <mat-icon aria-hidden="true">schedule</mat-icon>
-            {{ timeAgo(_note()?.timestamp) }}
+            {{ timeAgo(ts) }}
           </span>
           }
         </div>
@@ -47,14 +46,14 @@
       <button
         mat-stroked-button
         class="action-btn"
-        [disabled]="_note()?.properties?.readOnly"
+        [disabled]="!!_note().properties['readOnly']"
         (click)="onEdit()"
         matTooltip="Edit note"
       >
         <mat-icon>edit</mat-icon>
         Edit
       </button>
-      @if (_note()?.url) {
+      @if (_note().url) {
       <button
         mat-stroked-button
         class="action-btn"
@@ -64,7 +63,7 @@
         <mat-icon>open_in_new</mat-icon>
         Link
       </button>
-      } @if (_note()?.position) {
+      } @if (_note().position) {
       <button
         mat-stroked-button
         class="action-btn"
@@ -88,7 +87,7 @@
     <button
       mat-stroked-button
       class="action-btn danger"
-      [disabled]="_note()?.properties?.readOnly"
+      [disabled]="!!_note().properties['readOnly']"
       (click)="onDelete()"
       matTooltip="Delete note"
     >

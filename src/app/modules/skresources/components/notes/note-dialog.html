@@ -33,8 +33,8 @@
   <mat-toolbar style="background-color: transparent">
     <span>
       @if(!data.editable) {
-      <mat-icon [class]="icon?.class" [svgIcon]="icon?.svgIcon"
-        >{{icon?.name}}</mat-icon
+      <mat-icon [class]="icon.class ?? ''" [svgIcon]="icon.svgIcon ?? ''"
+        >{{icon.name}}</mat-icon
       >
       }
     </span>
@@ -56,19 +56,19 @@
   <mat-dialog-content>
     <mat-card appearance="outlined">
       <mat-card-content>
-        @if(data.note.properties.draft) {
+        @if(data.note.properties['draft']) {
         <p class="draft-watermark">Draft</p>
         }
         <div style="display: flex; flex-direction: column">
           <div style="padding-bottom: 5px; display: flex">
             <div style="font-weight: bold; vertical-align: top">Name:</div>
-            <div style="padding-left: 10px">{{data.note?.name}}</div>
+            <div style="padding-left: 10px">{{data.note.name}}</div>
           </div>
           @if(data.note.group) {
           <div style="padding-bottom: 5px; display: flex">
             <div style="font-weight: bold; vertical-align: top">Group:</div>
             <div style="padding-left: 10px; flex: 1 1 auto">
-              {{data.note?.group}}
+              {{data.note.group}}
             </div>
             @if(data.note.group && app.config.resources.notes.groupNameEdit) {
             <div>
@@ -102,7 +102,7 @@
           </div>
         </div>
       </mat-card-content>
-      @if(data.note.url || !data.note.properties.readOnly){
+      @if(data.note.url || !data.note.properties['readOnly']){
       <mat-card-actions>
         <div style="display: flex; width: 100%">
           <div>
@@ -114,7 +114,7 @@
             >
               <mat-icon>open_in_new</mat-icon>
             </button>
-            &nbsp; } @if(!data.note.properties.readOnly) {
+            &nbsp; } @if(!data.note.properties['readOnly']) {
             <button
               mat-icon-button
               (click)="dialogRef.close({result:true, data: 'edit'})"
@@ -132,20 +132,18 @@
             </button>
             }
           </div>
-          @if(data.note.position) {
+          @if(data.note.position; as pos) {
           <div
             class="nosmall block"
             style="flex: 1; font-size: 10pt; padding: 0 0 0 10px"
           >
-            <span style="font-weight: bold">Lat:</span>&nbsp;
-            {{data.note?.position?.latitude | coords :
-            app.config.units.positionFormat : true}}
+            <span style="font-weight: bold">Lat:</span>&nbsp; {{pos.latitude |
+            coords : app.config.units.positionFormat : true}}
 
             <br />
             <span>
-              <span style="font-weight: bold">Lon:</span>&nbsp;
-              {{data.note?.position?.longitude | coords :
-              app.config.units.positionFormat : false}}
+              <span style="font-weight: bold">Lon:</span>&nbsp; {{pos.longitude
+              | coords : app.config.units.positionFormat : false}}
             </span>
           </div>
           }
@@ -227,10 +225,10 @@
                 (ngModelChange)="onIconSelected($event)"
               >
                 <mat-select-trigger>
-                  @if(icon?.svgIcon?.length) {
-                  <mat-icon [svgIcon]="icon?.svgIcon"></mat-icon>
+                  @if(icon.svgIcon?.length) {
+                  <mat-icon [svgIcon]="icon.svgIcon ?? ''"></mat-icon>
                   } @else {
-                  <mat-icon>{{icon?.name}}</mat-icon>
+                  <mat-icon>{{icon.name}}</mat-icon>
                   }
                 </mat-select-trigger>
                 @for(i of poiIcons; track i.id) {
@@ -250,15 +248,15 @@
               </mat-select>
             </mat-form-field>
           </div>
-          @if(data.position) {
+          @if(data.position && data.note.position; as pos) {
           <div style="font-size: 10pt">
             <div style="display: flex">
               <div style="width: 45px; font-weight: bold">Lat:</div>
-              <div style="flex: 1 1 auto">{{data.note.position.latitude}}</div>
+              <div style="flex: 1 1 auto">{{pos.latitude}}</div>
             </div>
             <div style="display: flex">
               <div style="width: 45px; font-weight: bold">Lon:</div>
-              <div style="flex: 1 1 auto">{{data.note.position.longitude}}</div>
+              <div style="flex: 1 1 auto">{{pos.longitude}}</div>
             </div>
           </div>
           }
@@ -271,8 +269,8 @@
       <mat-slide-toggle
         labelPosition="before"
         [hideIcon]="true"
-        [checked]="data.note.properties.draft"
-        (change)="data.note.properties.draft=$event.checked;"
+        [checked]="!!data.note.properties['draft']"
+        (change)="data.note.properties['draft']=$event.checked;"
       >
         Draft:
       </mat-slide-toggle>

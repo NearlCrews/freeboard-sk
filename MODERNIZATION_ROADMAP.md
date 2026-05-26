@@ -171,42 +171,29 @@ Phase 4c (perf, weeks 14 to 15):
 
 ### Phase 5: TS strict ratchet completion (weeks 6 to 14, qa-lead + everyone, parallel)
 
-Status (2026-05-26): the .ts surface is fully strict-clean. Every
-`src/**/*.ts` file outside specs, workers, and the generated proto
-compiles under the strict-mode preset (strict, noUncheckedIndexedAccess,
-exactOptionalPropertyTypes, noImplicitOverride,
-noPropertyAccessFromIndexSignature, noImplicitReturns,
-noFallthroughCasesInSwitch). The strict include list in
-`tsconfig.strict.json` covers:
+Status (2026-05-26): COMPLETE. Root `tsconfig.json` has `strict: true`,
+`noUncheckedIndexedAccess: true`, `exactOptionalPropertyTypes: true`,
+`noImplicitOverride: true`, `noPropertyAccessFromIndexSignature: true`,
+`noImplicitReturns: true`, `noFallthroughCasesInSwitch: true`. Every
+`.ts` file plus every Angular template TCB passes. Pre-push gate
+collapsed back to `pnpm typecheck`. The parallel gating script
+`scripts/typecheck-strict.mjs` and `tsconfig.strict.json` retired.
 
-- `src/lib/`, `src/types/`, `src/app/lib/`
-- `src/app/modules/skstream/`, `src/app/modules/map/`,
-  `src/app/modules/skresources/`
-- `src/app/modules/alarms/`, `src/app/modules/course/`,
-  `src/app/modules/icons/`, `src/app/modules/autopilot/`,
-  `src/app/modules/radar/`, `src/app/modules/settings/`,
-  `src/app/modules/info-panel/`, `src/app/modules/weather/`,
-  `src/app/modules/gpx/`
-- `src/app/stores/`, `src/app/shell/`
-- `src/app/app.config.ts`, `src/app/app.facade.ts`,
-  `src/app/app.bootstrap.ts`, `src/app/app.component.ts`
+Phase 5e (template TCB sweep) landed via 3 parallel agents:
 
-Pre-push hook gates on `pnpm typecheck:strict`. Root
-`tsconfig.json strict: true` deferred to Phase 5e (template TCB
-sweep) because Angular template type-check propagates strict TS
-compiler options into the template type-check block and uncovers
-~218 cascading template errors.
+- Shell + map + settings templates (12+12+7 errors)
+- Notes templates (62 errors)
+- Panels + popovers + dialogs (~30 errors)
+- Lead drove final cascade fixes (autopilot, fb-map wind-lines,
+  vessel-popover formatSpeed nullability, waypoint-dialog
+  handleIconSelected, alarm.store.spec mock tuple access).
 
-#### Phase 5e: template-strict TCB sweep (deferred)
-
-When the root flips `strict: true`, Angular's template TCB will
-reject roughly 218 sites. The recurring patterns are: SKNote.position
-and SKVessel.position truthy-guards needing strict-null narrowing in
-the template, `app.hostDef.params.token` style dot access where the
-underlying type is `Record<string, T>`, `infoPanel.item().X` reads
-where `item()` is `T | undefined`, and showLogin / null literal
-passes through templates. Estimated work: 1 to 2 days of mechanical
-template edits.
+Spec files updated to access vitest `mock.calls[i]` tuples via `!`
+non-null assertion since the test arrangement guarantees the call
+fired. `formatSpeed` on AppFacade and SettingsStore widened to
+accept `number | null` so SKVessel.wind nullable readings flow
+through without per-binding guards. The strict-mode preset is
+the new project default for all .ts and template code.
 
 ### Phase 6: Forms, settings, weather, PWA (weeks 15 to 18, ux-lead + build-lead)
 

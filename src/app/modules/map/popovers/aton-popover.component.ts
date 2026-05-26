@@ -37,24 +37,24 @@ import { Convert } from 'src/app/lib/convert';
         <div style="font-weight:bold;">Type:</div>
         <div style="flex: 1 1 auto;text-align:right;">{{ aton.type.name }}</div>
       </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Latitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            aton.position[1] | coords: app.config.units.positionFormat : true
-          "
-        ></div>
-      </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Longitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            aton.position[0] | coords: app.config.units.positionFormat
-          "
-        ></div>
-      </div>
+      @if (aton.position; as pos) {
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Latitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="
+              pos[1] ?? 0 | coords: app.config.units.positionFormat : true
+            "
+          ></div>
+        </div>
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Longitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="pos[0] ?? 0 | coords: app.config.units.positionFormat"
+          ></div>
+        </div>
+      }
       <div style="display:flex;">
         <div style="font-weight:bold;">Last Update:</div>
         <div style="flex: 1 1 auto;text-align:right;">

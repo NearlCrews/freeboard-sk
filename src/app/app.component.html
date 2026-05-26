@@ -171,13 +171,12 @@
       </a>
       <mat-divider></mat-divider>
       @if (app.data.vessels.showSelf) {
-        <a
-          mat-menu-item
-          (click)="skres.newWaypointAt(app.data.vessels.active.position)"
-        >
-          <mat-icon class="icon-waypoint">add_location</mat-icon>
-          <span>Add Waypoint at Vessel</span>
-        </a>
+        @if (app.data.vessels.active.position; as activePos) {
+          <a mat-menu-item (click)="skres.newWaypointAt(activePos)">
+            <mat-icon class="icon-waypoint">add_location</mat-icon>
+            <span>Add Waypoint at Vessel</span>
+          </a>
+        }
       }
       <a mat-menu-item (click)="drawFeature('waypoint')">
         <mat-icon class="icon-waypoint">add_location_alt</mat-icon>
@@ -199,8 +198,8 @@
     </mat-menu>
 
     <mat-menu #mainmenu="matMenu">
-      @if (!app.hostDef.params.token && app.data.loginRequired) {
-        <a mat-menu-item (click)="showLogin(null, false)">
+      @if (!app.hostDef.params['token'] && app.data.loginRequired) {
+        <a mat-menu-item (click)="showLogin(undefined, false)">
           <mat-icon
             matBadge="!"
             matBadgeOverlap="true"
@@ -284,45 +283,47 @@
           style="width: 380px"
         >
           <info-panel>
-            @if (infoPanel.item()?.type === 'notes') {
-              <note-panel
-                [note]="infoPanel.item().resource"
-                [id]="infoPanel.item().id"
-                (edit)="
-                  skres.showNoteEditor({
-                    id: $event
-                  })
-                "
-                (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
-              />
-            }
-            @if (infoPanel.item()?.type === 'regions') {
-              <region-panel
-                [region]="infoPanel.item().resource"
-                [id]="infoPanel.item().id"
-                [related]="infoPanel.related()"
-                (edit)="skres.editRegionInfo($event)"
-                (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
-              />
-            }
-            @if (infoPanel.item()?.type === 'waypoints') {
-              <waypoint-panel
-                [waypoint]="infoPanel.item().resource"
-                [id]="infoPanel.item().id"
-                [related]="infoPanel.related()"
-                (edit)="skres.editWaypointInfo($event)"
-                (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
-              />
-            }
-            @if (infoPanel.item()?.type === 'routes') {
-              <route-panel
-                [route]="infoPanel.item().resource"
-                [id]="infoPanel.item().id"
-                [related]="infoPanel.related()"
-                (edit)="skres.editRouteInfo($event)"
-                (activate)="activateRoute($event)"
-                (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
-              />
+            @if (infoPanel.item(); as ipItem) {
+              @if (ipItem.type === 'notes') {
+                <note-panel
+                  [note]="infoPanelNote()"
+                  [id]="ipItem.id"
+                  (edit)="
+                    skres.showNoteEditor({
+                      id: $event
+                    })
+                  "
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.type === 'regions') {
+                <region-panel
+                  [region]="infoPanelRegion()"
+                  [id]="ipItem.id"
+                  [related]="infoPanel.related()"
+                  (edit)="skres.editRegionInfo($event)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.type === 'waypoints') {
+                <waypoint-panel
+                  [waypoint]="infoPanelWaypoint()"
+                  [id]="ipItem.id"
+                  [related]="infoPanel.related()"
+                  (edit)="skres.editWaypointInfo($event)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.type === 'routes') {
+                <route-panel
+                  [route]="infoPanelRoute()"
+                  [id]="ipItem.id"
+                  [related]="infoPanel.related()"
+                  (edit)="skres.editRouteInfo($event)"
+                  (activate)="activateRoute($event)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
             }
           </info-panel>
         </mat-sidenav>
@@ -790,7 +791,7 @@
                     <button
                       class="button-toolbar"
                       mat-mini-fab
-                      (click)="sideright.toggle()"
+                      (click)="sideright?.toggle()"
                       matTooltip="Instruments"
                       matTooltipPosition="before"
                     >

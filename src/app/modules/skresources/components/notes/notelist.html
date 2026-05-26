@@ -104,17 +104,17 @@
       role="option"
       tabindex="0"
       [class.selected]="selectedIndex === i"
-      [class.draft]="r[1].properties?.draft"
+      [class.draft]="!!r[1].properties['draft']"
       [style.--group-color]="groupColor(r[1].group)"
       [attr.aria-selected]="selectedIndex === i"
       (click)="selectNote(r, i)"
       (keydown)="onCardKey($event, r, i)"
     >
       <header class="card-head">
-        @if (r[1].properties?.skIcon) {
+        @if (r[1].properties['skIcon']) {
         <mat-icon
           class="card-icon"
-          [svgIcon]="'sk-' + r[1].properties?.skIcon"
+          [svgIcon]="'sk-' + r[1].properties['skIcon']"
           aria-hidden="true"
         ></mat-icon>
         } @else {
@@ -122,13 +122,13 @@
         }
         <div class="card-title">
           <h2>{{ r[1].name || 'Untitled note' }}</h2>
-          @if (r[1].timestamp) {
-          <time class="card-time" [attr.datetime]="r[1].timestamp">
-            {{ timeAgo(r[1].timestamp) }}
+          @if ($any(r[1]).timestamp; as ts) {
+          <time class="card-time" [attr.datetime]="ts">
+            {{ timeAgo(ts) }}
           </time>
           }
         </div>
-        @if (r[1].properties?.draft) {
+        @if (r[1].properties['draft']) {
         <span class="draft-pill" aria-label="Draft">Draft</span>
         }
       </header>

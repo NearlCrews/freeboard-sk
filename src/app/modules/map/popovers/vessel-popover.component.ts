@@ -287,11 +287,11 @@ export class VesselPopoverComponent implements OnInit, OnChanges {
         this.vessel.callsignVhf ??
         this.vessel.callsignHf;
       ('Vessel:');
-      this.position = [
-        vesselChange.currentValue.position[0],
-        vesselChange.currentValue.position[1]
-      ];
-      this.position = GeoUtils.normaliseCoords(this.position);
+      const pos = vesselChange.currentValue.position as Position | null;
+      if (pos) {
+        this.position = [pos[0], pos[1]];
+        this.position = GeoUtils.normaliseCoords(this.position);
+      }
       if (this.vessel.positionTimestamp) {
         const pts = new Date(this.vessel.positionTimestamp);
         this.positionTimestamp = `${pts.getHours()}:${(

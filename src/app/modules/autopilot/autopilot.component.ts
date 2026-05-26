@@ -496,7 +496,7 @@ export class AutopilotComponent {
     );
   }
 
-  formatLabel(value: string) {
+  formatLabel(value: string | undefined) {
     return value ? value.toUpperCase() : '...';
   }
 

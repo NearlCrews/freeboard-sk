@@ -358,6 +358,16 @@ export class SettingsDialog implements OnInit {
     this.facade.clearToken();
   }
 
+  // AppListEntry.url is `string | null` in the facade. The favourites
+  // string[] cannot include null, so guard the nullable case here so
+  // the template stays under strict template checks.
+  isFavouriteSelected(url: string | null): boolean {
+    if (url === null) {
+      return false;
+    }
+    return this.facade.settings.display.plugins.favourites.includes(url);
+  }
+
   renderSymbol(unit: TARGET_UNIT) {
     return Convert.getSymbol(unit);
   }

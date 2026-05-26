@@ -10,14 +10,14 @@
   <div>
     <div style="display: flex">
       <div>
-        @if(!icon.svgIcon) {
-        <mat-icon [class]="icon.class">{{icon.name}}</mat-icon>
+        @if (icon; as ic) { @if(!ic.svgIcon) {
+        <mat-icon [class]="ic.class ?? ''">{{ic.name}}</mat-icon>
         } @else {
-        <mat-icon [svgIcon]="icon.svgIcon"></mat-icon>
-        }
+        <mat-icon [svgIcon]="ic.svgIcon"></mat-icon>
+        } }
       </div>
       <div>
-        &nbsp; @if(_region().feature.properties?.skIcon === 'hazard') {
+        &nbsp; @if(_region().feature.properties?.['skIcon'] === 'hazard') {
         {{'Hazardous '}} } Region
       </div>
     </div>
@@ -28,7 +28,7 @@
       <div>
         <button
           mat-button
-          [disabled]="_region()?.feature?.properties?.readOnly"
+          [disabled]="!!_region()?.feature?.properties?.['readOnly']"
           (click)="onEdit()"
           matTooltip="Edit Region"
         >
@@ -48,7 +48,7 @@
         &nbsp;
         <button
           mat-button
-          [disabled]="_region()?.feature?.properties?.readOnly"
+          [disabled]="!!_region()?.feature?.properties?.['readOnly']"
           (click)="onDelete()"
           matTooltip="Delete Region"
         >

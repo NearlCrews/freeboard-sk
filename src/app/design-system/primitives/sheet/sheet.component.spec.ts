@@ -93,7 +93,7 @@ describe('FbSheetService', () => {
     class Body {}
     svc.open(Body, { data: 'forecast' });
     expect(open).toHaveBeenCalledOnce();
-    const config = open.mock.calls[0][1];
+    const config = open.mock.calls[0]![1];
     expect(config.autoFocus).toBe('first-tabbable');
     expect(config.restoreFocus).toBe(true);
     expect(config.hasBackdrop).toBe(true);

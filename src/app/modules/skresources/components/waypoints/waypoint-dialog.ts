@@ -508,7 +508,8 @@ export class WaypointDialog {
     }
   }
 
-  protected handleIconSelected(skIcon: string) {
+  protected handleIconSelected(skIcon: string | undefined) {
+    if (!skIcon) return;
     this.skIcon = skIcon;
     const w: SKWaypoint = { ...this.data.waypoint };
     const props = w.feature.properties ?? {};

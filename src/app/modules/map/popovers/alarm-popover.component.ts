@@ -56,26 +56,27 @@ import { AlertData } from '../../alarms';
         <div style="font-weight:bold;">Type:</div>
         <div style="flex: 1 1 auto;text-align:right;">{{ alarm.type }}</div>
       </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Latitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            alarm.properties.position.latitude
-              | coords: app.config.units.positionFormat : true
-          "
-        ></div>
-      </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Longitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            alarm.properties.position.longitude
-              | coords: app.config.units.positionFormat : false
-          "
-        ></div>
-      </div>
+      @if (alarm.properties?.['position']; as alarmPos) {
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Latitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="
+              alarmPos.latitude | coords: app.config.units.positionFormat : true
+            "
+          ></div>
+        </div>
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Longitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="
+              alarmPos.longitude
+                | coords: app.config.units.positionFormat : false
+            "
+          ></div>
+        </div>
+      }
       <div style="display:flex;">
         <div style="flex:1 1 auto;">&nbsp;</div>
         <div class="popover-action-button">

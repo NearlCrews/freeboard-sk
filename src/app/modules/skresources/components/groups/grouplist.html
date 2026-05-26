@@ -93,8 +93,8 @@
             </div>
             <div style="text-align: right">
               <mat-checkbox
-                [checked]="r[2]"
-                [disabled]="r[2]"
+                [checked]="!!r[2]"
+                [disabled]="!!r[2]"
                 (change)="itemSelect($event.checked, r[0])"
                 matTooltip="Display Group Resources"
                 matTooltipPosition="left"

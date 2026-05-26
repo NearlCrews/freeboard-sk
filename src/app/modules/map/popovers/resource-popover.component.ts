@@ -96,14 +96,14 @@ interface PopoverCtrl {
             <div
               style="flex: 1 1 auto;text-align:right;"
               [innerText]="
-                p[1] | coords: app.config.units.positionFormat : true
+                $any(p[1]) | coords: app.config.units.positionFormat : true
               "
             ></div>
           }
           @if (p[0] === 'Longitude') {
             <div
               style="flex: 1 1 auto;text-align:right;"
-              [innerText]="p[1] | coords: app.config.units.positionFormat"
+              [innerText]="$any(p[1]) | coords: app.config.units.positionFormat"
             ></div>
           }
         </div>
@@ -256,7 +256,7 @@ export class ResourcePopoverComponent implements OnChanges {
   points = output<void>();
   notes = output<void>();
 
-  properties: unknown[] = []; // ** resource properties
+  protected properties: [string, unknown][] = []; // ** resource properties
   ctrl: PopoverCtrl = {
     showInfoButton: false,
     showModifyButton: false,
@@ -523,14 +523,14 @@ id: string - resource id
   styleUrls: [`./popover.component.scss`]
 })
 export class ResourceSetPopoverComponent implements OnChanges {
-  title = input<string>();
+  title = input<string>('');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resource = input<any>();
-  canClose = input<boolean>();
+  canClose = input<boolean>(false);
   info = output<void>();
   closed = output<void>();
 
-  protected properties: unknown[] = []; // ** resource properties
+  protected properties: [string, unknown][] = []; // ** resource properties
   protected app = inject(AppFacade);
 
   constructor() {

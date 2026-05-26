@@ -542,7 +542,8 @@ export class AppFacade extends InfoService {
     return this.settings.formatNumericDisplay(value, precision);
   }
 
-  formatSpeed(value: number, asString = false): string | number {
+  formatSpeed(value: number | null, asString = false): string | number {
+    if (value === null) return asString ? '-.-' : NaN;
     const out = this.settings.formatSpeed(this.config, value, asString);
     this.formattedSpeedUnits = this.settings.formatSpeed(
       this.config,

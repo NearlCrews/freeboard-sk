@@ -85,7 +85,7 @@ describe('FbDialogService', () => {
     class Body {}
     svc.open(Body, { data: 42 });
     expect(open).toHaveBeenCalledOnce();
-    const config = open.mock.calls[0][1];
+    const config = open.mock.calls[0]![1];
     expect(config.autoFocus).toBe('first-tabbable');
     expect(config.restoreFocus).toBe(true);
     expect(config.hasBackdrop).toBe(true);
@@ -104,7 +104,7 @@ describe('FbDialogService', () => {
     @Component({ standalone: true, template: '' })
     class Body {}
     svc.open(Body, { hasBackdrop: false, disableClose: true });
-    const config = open.mock.calls[0][1];
+    const config = open.mock.calls[0]![1];
     expect(config.hasBackdrop).toBe(false);
     expect(config.disableClose).toBe(true);
   });

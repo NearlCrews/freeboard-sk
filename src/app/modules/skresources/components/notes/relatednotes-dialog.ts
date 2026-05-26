@@ -18,10 +18,10 @@ import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
 
 import { AppFacade } from 'src/app/app.facade';
-import type { SKNote } from '../../resource-classes';
+import type { FBNote } from 'src/app/types';
 
 interface DialogData {
-  notes: SKNote[];
+  notes: FBNote[];
   relatedBy: string;
   readOnly: boolean;
 }

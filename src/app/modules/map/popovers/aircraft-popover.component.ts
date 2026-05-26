@@ -46,25 +46,24 @@ import { SKAircraft } from 'src/app/modules';
           {{ aircraft.callsignHf }}
         </div>
       </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Latitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            aircraft.position[1]
-              | coords: app.config.units.positionFormat : true
-          "
-        ></div>
-      </div>
-      <div style="display:flex;">
-        <div style="font-weight:bold;">Longitude:</div>
-        <div
-          style="flex: 1 1 auto;text-align:right;"
-          [innerText]="
-            aircraft.position[0] | coords: app.config.units.positionFormat
-          "
-        ></div>
-      </div>
+      @if (aircraft.position; as pos) {
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Latitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="
+              pos[1] ?? 0 | coords: app.config.units.positionFormat : true
+            "
+          ></div>
+        </div>
+        <div style="display:flex;">
+          <div style="font-weight:bold;">Longitude:</div>
+          <div
+            style="flex: 1 1 auto;text-align:right;"
+            [innerText]="pos[0] ?? 0 | coords: app.config.units.positionFormat"
+          ></div>
+        </div>
+      }
       <div style="display:flex;">
         <div style="font-weight:bold;">Last Update:</div>
         <div style="flex: 1 1 auto;text-align:right;">

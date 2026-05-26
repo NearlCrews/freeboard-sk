@@ -53,7 +53,7 @@ describe('signalk plugin contract (package.json)', () => {
   });
 
   it('prepack runs build:all so npm pack produces a runnable artefact', () => {
-    expect(pkg.scripts.prepack).toContain('build:all');
+    expect(pkg.scripts['prepack']).toContain('build:all');
   });
 
   it('declares a semver-shaped version (signalk-server admin UI surfaces it from package.json)', () => {
