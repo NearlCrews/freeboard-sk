@@ -32,7 +32,6 @@ interface LiveLayer {
   infoLayer: SKInfoLayer;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface LayerParam {
   id: string;
   param: Record<string, any>;
@@ -194,12 +193,12 @@ export class FreeboardLiveLayerComponent
     layerGroup.setLayers(lc);
     map.render();
     // clean-up layerMap
-    const ar = Array.from(this.layerMap).map((i) => i[0]);
-    ar.forEach((arid) => {
-      if (!ids.includes(arid)) {
+    const keep = new Set(ids);
+    for (const arid of this.layerMap.keys()) {
+      if (!keep.has(arid)) {
         this.layerMap.delete(arid);
       }
-    });
+    }
   }
 
   /** @returns TileLayer */

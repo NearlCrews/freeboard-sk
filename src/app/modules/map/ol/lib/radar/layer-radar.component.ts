@@ -14,6 +14,7 @@ import { Layer } from 'ol/layer';
 import { Coordinate } from '../models';
 import { BehaviorSubject, AsyncSubject } from 'rxjs';
 import ImageLayer from 'ol/layer/Image';
+import type ImageSource from 'ol/source/Image';
 import { RadarRenderService } from './radar-render.service';
 import { ShipState } from './ship-state.model';
 import { MapComponent } from '../map.component';
@@ -40,8 +41,7 @@ export class RadarComponent implements OnInit, OnChanges, OnDestroy {
     location: [0, 0],
     heading: 0
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected layer: ImageLayer<any> | null = null;
+  protected layer: ImageLayer<ImageSource> | null = null;
 
   private radarRenderService = inject(RadarRenderService);
   protected mapComponent = inject(MapComponent);

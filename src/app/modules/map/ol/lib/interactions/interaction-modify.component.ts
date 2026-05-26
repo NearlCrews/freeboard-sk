@@ -44,50 +44,32 @@ export class InteractionModifyComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map && this.interaction) {
       this.map.removeInteraction(this.interaction);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('change', this.emitChangeEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('modifystart', this.emitModifyStartEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('modifyend', this.emitModifyEndEvent);
+      (this.interaction.un as (k: 'change', h: unknown) => void)(
+        'change',
+        this.emitChangeEvent
+      );
+      this.interaction.un('modifystart', this.emitModifyStartEvent);
+      this.interaction.un('modifyend', this.emitModifyEndEvent);
       this.interaction = null;
     }
   }
 
   addModifyInteraction() {
     const map = this.map;
-    if (undefined !== map && map !== null && this.features) {
+    if (map && this.features) {
       const interaction = new Modify({
         features: this.features,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        deleteCondition: (e: MapBrowserEvent<any>) => {
-          if (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (e.type === 'click' && (e.originalEvent as any).ctrlKey) ||
-            e.type === 'contextmenu'
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        }
+        deleteCondition: (e: MapBrowserEvent) =>
+          (e.type === 'click' && (e.originalEvent as PointerEvent).ctrlKey) ||
+          e.type === 'contextmenu'
       });
       this.interaction = interaction;
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+      (interaction.on as (k: 'change', h: unknown) => void)(
         'change',
         this.emitChangeEvent
       );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'modifystart',
-        this.emitModifyStartEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'modifyend',
-        this.emitModifyEndEvent
-      );
+      interaction.on('modifystart', this.emitModifyStartEvent);
+      interaction.on('modifyend', this.emitModifyEndEvent);
       map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }

@@ -42,52 +42,34 @@ export class InteractionDragBoxComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map && this.interaction) {
       this.map.removeInteraction(this.interaction);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('change', this.emitChangeEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('boxstart', this.emitBoxStartEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('boxend', this.emitBoxEndEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('boxdrag', this.emitBoxDragEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('boxcancel', this.emitBoxCancelEvent);
+      // 'change' is the base ObjectEvent listener in OL: typed-handler casts
+      // are needed for that single key. The DragBox-specific events are
+      // typed via DragBoxOnSignature and accepted directly.
+      (this.interaction.un as (k: 'change', h: unknown) => void)(
+        'change',
+        this.emitChangeEvent
+      );
+      this.interaction.un('boxstart', this.emitBoxStartEvent);
+      this.interaction.un('boxend', this.emitBoxEndEvent);
+      this.interaction.un('boxdrag', this.emitBoxDragEvent);
+      this.interaction.un('boxcancel', this.emitBoxCancelEvent);
       this.interaction = null;
     }
   }
 
   addDragBoxInteraction() {
     const map = this.map;
-    if (undefined !== map && map !== null) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const opt: any = {};
-      const interaction = new DragBox(opt);
+    if (map) {
+      const interaction = new DragBox({});
       this.interaction = interaction;
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+      (interaction.on as (k: 'change', h: unknown) => void)(
         'change',
         this.emitChangeEvent
       );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'boxstart',
-        this.emitBoxStartEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'boxend',
-        this.emitBoxEndEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'boxdrag',
-        this.emitBoxDragEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'boxcancel',
-        this.emitBoxCancelEvent
-      );
+      interaction.on('boxstart', this.emitBoxStartEvent);
+      interaction.on('boxend', this.emitBoxEndEvent);
+      interaction.on('boxdrag', this.emitBoxDragEvent);
+      interaction.on('boxcancel', this.emitBoxCancelEvent);
       map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }

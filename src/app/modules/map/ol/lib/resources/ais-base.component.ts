@@ -92,11 +92,11 @@ export class AISBaseLayerComponent
    */
   protected extractKeys(m: Map<string, SKTarget>): string[] {
     const keys: string[] = [];
-    m.forEach((_v, k) => {
+    for (const k of m.keys()) {
       if (k.includes(this.targetContext)) {
         keys.push(k);
       }
-    });
+    }
     return keys;
   }
 

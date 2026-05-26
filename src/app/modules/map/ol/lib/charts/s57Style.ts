@@ -207,36 +207,12 @@ export class S57Style {
         retval.push('LC(LOWACC21');
       }
     } else {
-      if (featureProperties['layer'] === 'COALNE') {
-        // Latent bug carried over from the legacy S57 port: the COALNE
-        // branch reads CONRAD into the unrelated `quapos`/`bquapos`
-        // locals and never sets `conrad`/`bconrad`, so the
-        // `if (bconrad)` branch never fires. Typed as `let` here so
-        // strictPropertyInitialization tolerates the dead-code state;
-        // the real fix belongs in the S57 chart-rendering pass that
-        // owns the CS_QUAPOS01 conversion table.
-        const conrad = 0;
-        const bconrad = false;
-        if (featureProperties['CONRAD']) {
-          quapos = parseFloat(featureProperties['CONRAD']);
-          bquapos = true;
-        }
-        // Silence unused-variable warning until the latent bug is fixed.
-        void conrad;
-        void bconrad;
-        if (bconrad) {
-          if ((conrad as number) === 1) {
-            retval.push('LS(SOLD,3,CHMGF)');
-            retval.push('LS(SOLD,1,CSTLN)');
-          } else {
-            retval.push('LS(SOLD,1,CSTLN)');
-          }
-        } else {
-          retval.push('LS(SOLD,1,CSTLN)');
-        }
-      } else {
-        retval.push('LS(SOLD,1,CSTLN)');
-      }
+      // Legacy S57 port omitted the CONRAD-driven CHMGF case: COALNE with
+      // CONRAD == 1 should add LS(SOLD,3,CHMGF) before LS(SOLD,1,CSTLN).
+      // Reinstating that branch belongs to the S57 chart-rendering pass
+      // that owns CS_QUAPOS01; until then this falls through to plain
+      // coastline for every COALNE / non-COALNE feature without QUAPOS.
+      retval.push('LS(SOLD,1,CSTLN)');
     }
 
     return retval;
@@ -1156,17 +1132,15 @@ export class S57Style {
     // Proper fix: compute safe contour in a pre-render pass over all features.
     const o1 = this.updateSafeContour(feature1);
     const o2 = this.updateSafeContour(feature2);
-    const f1 = feature1 as unknown as Record<string, number | undefined>;
-    const f2 = feature2 as unknown as Record<string, number | undefined>;
-    let lupIndex1 = f1[LOOKUPINDEXKEY];
-    let lupIndex2 = f2[LOOKUPINDEXKEY];
-    if (!lupIndex1) {
+    let lupIndex1 = feature1.get(LOOKUPINDEXKEY) as number | undefined;
+    let lupIndex2 = feature2.get(LOOKUPINDEXKEY) as number | undefined;
+    if (lupIndex1 === undefined) {
       lupIndex1 = this.s57Service.selectLookup(feature1);
-      f1[LOOKUPINDEXKEY] = lupIndex1;
+      feature1.set(LOOKUPINDEXKEY, lupIndex1);
     }
-    if (!lupIndex2) {
+    if (lupIndex2 === undefined) {
       lupIndex2 = this.s57Service.selectLookup(feature2);
-      f2[LOOKUPINDEXKEY] = lupIndex2;
+      feature2.set(LOOKUPINDEXKEY, lupIndex2);
     }
 
     if (l1 !== l2) {
@@ -1192,13 +1166,12 @@ export class S57Style {
     return 0;
   };
 
-  public getStyle = (feature: Feature, resolution: number): Style[] | null => {
+  public getStyle = (feature: Feature, resolution: number): Style[] | void => {
     this.currentResolution = resolution;
-    const f = feature as unknown as Record<string, number | undefined | null>;
-    let lupIndex = f[LOOKUPINDEXKEY];
+    let lupIndex = feature.get(LOOKUPINDEXKEY) as number | undefined | null;
     if (lupIndex === undefined || lupIndex === null) {
       lupIndex = this.s57Service.selectLookup(feature);
-      f[LOOKUPINDEXKEY] = lupIndex;
+      feature.set(LOOKUPINDEXKEY, lupIndex);
     }
     if (lupIndex >= 0) {
       const lup = this.s57Service.getLookup(lupIndex);
@@ -1213,6 +1186,6 @@ export class S57Style {
         return this.getStylesFromRules(lup, feature);
       }
     }
-    return null;
+    return;
   };
 }

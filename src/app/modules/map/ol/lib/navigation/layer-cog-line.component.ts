@@ -36,6 +36,11 @@ const LightTheme = {
   }
 };
 
+// Shared transparent fill: the OL canvas treats `null` fill as "no fill" and
+// new Fill({ color: 'transparent' }) was being allocated per segment per
+// render frame.
+const TRANSPARENT_FILL = new Fill({ color: 'transparent' });
+
 // ** Freeboard COG line component **
 @Component({
   selector: 'ol-map > fb-cog-line',
@@ -176,28 +181,23 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
         const defaultColor = 'rgba(204, 12, 225, 0.7)';
 
         const ls = this.lineStyle();
-        const stroke = !ls
-          ? new Stroke({ color: defaultColor, width: 1 })
-          : new Stroke({
-              ...ls.stroke,
+        const stroke = ls
+          ? new Stroke({
+              color: ls.stroke.color,
+              width: ls.stroke.width,
               lineDash: ls.stroke.lineDash ?? undefined
-            });
+            })
+          : new Stroke({ color: defaultColor, width: 1 });
 
-        const styles: Style[] = [];
-        styles.push(
-          new Style({
-            stroke: stroke
-          })
-        );
-
+        const styles: Style[] = [new Style({ stroke })];
         geometry.forEachSegment((_start: Coordinate, end: Coordinate) => {
           styles.push(
             new Style({
               geometry: new Point(end),
               image: new Circle({
                 radius: 2,
-                stroke: stroke,
-                fill: new Fill({ color: 'transparent' })
+                stroke,
+                fill: TRANSPARENT_FILL
               }),
               text: this.buildLabelStyle()
             })

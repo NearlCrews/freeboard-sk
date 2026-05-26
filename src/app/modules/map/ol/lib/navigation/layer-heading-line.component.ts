@@ -125,16 +125,17 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
       const heading = new Feature({
         geometry: new LineString(fromLonLatArray(this.mapifiedLine))
       });
-      heading.setId('cogSelf');
+      heading.setId('headingSelf');
       const ls = this.lineStyle();
       heading.setStyle(
         new Style({
-          stroke: !ls
-            ? new Stroke({ color: 'rgba(221, 99, 0, 0.5)', width: 4 })
-            : new Stroke({
-                ...ls.stroke,
+          stroke: ls
+            ? new Stroke({
+                color: ls.stroke.color,
+                width: ls.stroke.width,
                 lineDash: ls.stroke.lineDash ?? undefined
               })
+            : new Stroke({ color: 'rgba(221, 99, 0, 0.5)', width: 4 })
         })
       );
       fa.push(heading);

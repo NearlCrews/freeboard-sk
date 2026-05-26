@@ -41,7 +41,7 @@ const AtoNsType2: AppIconSet = {
   anchor: [23, 49]
 };
 
-export const ATON_TYPE_IDS = {
+export const ATON_TYPE_IDS: Record<string, string> = {
   aton: 'aton',
   '-2': 'basestation',
   '-1': 'weatherStation',
@@ -92,7 +92,7 @@ export const getAtoNDefs = () => {
   };
   addToList(AtoNsType1);
   addToList(AtoNsType2);
-  atonList['real']['weatherStation'] = WeatherStation;
-  atonList['virtual']['weatherStation'] = WeatherStation;
+  atonList.real.weatherStation = WeatherStation;
+  atonList.virtual.weatherStation = WeatherStation;
   return atonList;
 };

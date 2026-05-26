@@ -47,51 +47,33 @@ export class InteractionDrawComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.map && this.interaction) {
       this.map.removeInteraction(this.interaction);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('change', this.emitChangeEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('drawstart', this.emitDrawStartEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('drawend', this.emitDrawEndEvent);
-      (
-        this.interaction as unknown as { un: (a: string, b: unknown) => void }
-      ).un('drawabort', this.emitDrawAbortEvent);
+      (this.interaction.un as (k: 'change', h: unknown) => void)(
+        'change',
+        this.emitChangeEvent
+      );
+      this.interaction.un('drawstart', this.emitDrawStartEvent);
+      this.interaction.un('drawend', this.emitDrawEndEvent);
+      this.interaction.un('drawabort', this.emitDrawAbortEvent);
       this.interaction = null;
     }
   }
 
   addDrawInteraction() {
     const map = this.map;
-    if (undefined !== map && map !== null) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const opt: any = {
-        type: this.type,
-        stopClick: this.stopClick ?? true
-      };
-      if (this.style) {
-        opt.style = this.style;
-      }
-      const interaction = new Draw(opt);
+    if (map) {
+      const interaction = new Draw({
+        type: this.type as 'Point' | 'LineString' | 'Polygon' | 'Circle',
+        stopClick: this.stopClick ?? true,
+        ...(this.style ? { style: this.style } : {})
+      });
       this.interaction = interaction;
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
+      (interaction.on as (k: 'change', h: unknown) => void)(
         'change',
         this.emitChangeEvent
       );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'drawstart',
-        this.emitDrawStartEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'drawend',
-        this.emitDrawEndEvent
-      );
-      (interaction as unknown as { on: (a: string, b: unknown) => void }).on(
-        'drawabort',
-        this.emitDrawAbortEvent
-      );
+      interaction.on('drawstart', this.emitDrawStartEvent);
+      interaction.on('drawend', this.emitDrawEndEvent);
+      interaction.on('drawabort', this.emitDrawAbortEvent);
       map.addInteraction(interaction);
       this.changeDetectorRef.detectChanges();
     }

@@ -109,26 +109,16 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
   }
 
   // mapify and transform MultiLineString coordinates
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(coords: any[], geomType: 'Polygon' | 'MultiPolygon') {
+  parseCoordinates(
+    coords: [number, number, number?][][] | [number, number, number?][][][],
+    geomType: 'Polygon' | 'MultiPolygon'
+  ) {
+    const m2 = (lines: [number, number, number?][][]) =>
+      lines.map((line) => mapifyCoords(line as [number, number][]));
     if (geomType === 'MultiPolygon') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const multipoly: any[] = [];
-      coords.forEach((mpoly) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const lines: any[] = [];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        mpoly.forEach((poly: any) => {
-          lines.push(mapifyCoords(poly));
-        });
-        multipoly.push(lines);
-      });
-      return fromLonLatArray(multipoly);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lines: any[] = [];
-      coords.forEach((line) => lines.push(mapifyCoords(line)));
-      return fromLonLatArray(lines);
+      const multipoly = (coords as [number, number, number?][][][]).map(m2);
+      return multipoly.map((poly) => fromLonLatArray(poly));
     }
+    return fromLonLatArray(m2(coords as [number, number, number?][][]));
   }
 }

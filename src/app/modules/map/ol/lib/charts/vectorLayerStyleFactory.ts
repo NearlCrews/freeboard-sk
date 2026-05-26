@@ -57,6 +57,8 @@ class S57LayerStyler extends VectorLayerStyler {
 
     vectorLayer.setSource(source as never);
     vectorLayer.setPreload(0);
+    // FeatureLike (= Feature | RenderFeature) vs Feature variance is the
+    // only reason for these casts: S57Style narrows to Feature internally.
     vectorLayer.setStyle(style.getStyle as unknown as StyleFunction);
     vectorLayer.setMinZoom(this.chart.minZoom);
     vectorLayer.setMaxZoom(23);

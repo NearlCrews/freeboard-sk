@@ -62,8 +62,7 @@ export class MapImageRegistry {
    * @returns Icon object
    */
   getAtoN(id: number | string, virtual?: boolean): Icon {
-    const typeIds = ATON_TYPE_IDS as unknown as Record<string, string>;
-    const vid = typeIds[String(id)] ?? 'aton';
+    const vid = ATON_TYPE_IDS[String(id)] ?? 'aton';
     if (!this.icons.atons[vid]) {
       this.buildIcon(
         this.icons.atons,
@@ -81,11 +80,8 @@ export class MapImageRegistry {
    */
   getVessel(id: number | string, moored?: boolean): Icon | Circle {
     if (moored) {
-      const mooredStyles = AIS_MOORED_STYLE_IDS as unknown as Record<
-        string,
-        [string, string]
-      >;
-      const s = mooredStyles[String(id)] ?? mooredStyles['default'] ?? ['', ''];
+      const s = AIS_MOORED_STYLE_IDS[String(id)] ??
+        AIS_MOORED_STYLE_IDS['default'] ?? ['', ''];
       return new Circle({
         radius: 5,
         stroke: new Stroke({
@@ -97,8 +93,7 @@ export class MapImageRegistry {
         })
       });
     } else {
-      const typeIds = AIS_TYPE_IDS as unknown as Record<string, string>;
-      const vid = typeIds[String(id)] ?? 'default';
+      const vid = AIS_TYPE_IDS[String(id)] ?? 'default';
       if (!this.icons.vessels[vid]) {
         this.buildIcon(this.icons.vessels, this.vesselImageDefs, vid, true);
       }

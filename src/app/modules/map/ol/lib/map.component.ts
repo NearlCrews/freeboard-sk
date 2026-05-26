@@ -170,24 +170,16 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     if (!map) {
       return;
     }
-    // OL's typed on/un overloads narrow the listener per event name to
-    // ListenerFunction<MapBrowserEvent | MapEvent | RenderEvent | etc>.
-    // Our handlers are pre-typed by event family and call through the
-    // typed output signals. Casting at the boundary is the lightest
-    // path; the alternative would be Listener-generic handlers that
-    // re-narrow inside each.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const m = map as any;
-    m.un('singleclick', this.emitSingleClickEvent);
-    m.un('dblclick', this.emitDblClickEvent);
-    m.un('click', this.emitClickEvent);
-    m.un('movestart', this.emitMoveStartEvent);
-    m.un('moveend', this.emitMoveEndEvent);
-    m.un('pointerdrag', this.emitPointerDragEvent);
-    m.un('pointermove', this.emitPointerMoveEvent);
-    m.un('postcompose', this.emitPostComposeEvent);
-    m.un('postrender', this.emitPostRenderEvent);
-    m.un('precompose', this.emitPreComposeEvent);
+    map.un('singleclick', this.emitSingleClickEvent);
+    map.un('dblclick', this.emitDblClickEvent);
+    map.un('click', this.emitClickEvent);
+    map.un('movestart', this.emitMoveStartEvent);
+    map.un('moveend', this.emitMoveEndEvent);
+    map.un('pointerdrag', this.emitPointerDragEvent);
+    map.un('pointermove', this.emitPointerMoveEvent);
+    map.un('postcompose', this.emitPostComposeEvent);
+    map.un('postrender', this.emitPostRenderEvent);
+    map.un('precompose', this.emitPreComposeEvent);
     // right click handler
     map
       .getViewport()
@@ -213,19 +205,16 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
   afterMapReady() {
     const map = this.map;
     if (!map) return;
-    // register map events (see ngOnDestroy comment on the cast)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const m = map as any;
-    m.on('singleclick', this.emitSingleClickEvent);
-    m.on('dblclick', this.emitDblClickEvent);
-    m.on('click', this.emitClickEvent);
-    m.on('movestart', this.emitMoveStartEvent);
-    m.on('moveend', this.emitMoveEndEvent);
-    m.on('pointerdrag', this.emitPointerDragEvent);
-    m.on('pointermove', this.emitPointerMoveEvent);
-    m.on('postcompose', this.emitPostComposeEvent);
-    m.on('postrender', this.emitPostRenderEvent);
-    m.on('precompose', this.emitPreComposeEvent);
+    map.on('singleclick', this.emitSingleClickEvent);
+    map.on('dblclick', this.emitDblClickEvent);
+    map.on('click', this.emitClickEvent);
+    map.on('movestart', this.emitMoveStartEvent);
+    map.on('moveend', this.emitMoveEndEvent);
+    map.on('pointerdrag', this.emitPointerDragEvent);
+    map.on('pointermove', this.emitPointerMoveEvent);
+    map.on('postcompose', this.emitPostComposeEvent);
+    map.on('postrender', this.emitPostRenderEvent);
+    map.on('precompose', this.emitPreComposeEvent);
 
     // right click handler
     map.getViewport().addEventListener('contextmenu', this.rightClickHandler);
@@ -287,7 +276,7 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     this.emitRightClickEvent(event);
   };
 
-  private emitClickEvent = (event: MapBrowserEvent<PointerEvent>) => {
+  private emitClickEvent = (event: MapBrowserEvent) => {
     this.mapClick.emit(this.augmentClickEvent(event));
   };
 
@@ -303,22 +292,22 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
       lonlat: toLonLat(c)
     });
   };
-  private emitSingleClickEvent = (event: MapBrowserEvent<PointerEvent>) => {
+  private emitSingleClickEvent = (event: MapBrowserEvent) => {
     this.mapSingleClick.emit(this.augmentClickEvent(event));
   };
-  private emitDblClickEvent = (event: MapBrowserEvent<PointerEvent>) => {
+  private emitDblClickEvent = (event: MapBrowserEvent) => {
     this.mapDblClick.emit(this.augmentClickEvent(event));
   };
 
   // ** add {lonlat, features}fields to event
-  private augmentClickEvent(event: MapBrowserEvent<PointerEvent>) {
+  private augmentClickEvent(event: MapBrowserEvent) {
     return Object.assign(event, {
       features:
         this.map?.getFeaturesAtPixel(event.pixel, {
           hitTolerance: this.hitTolerance
         }) ?? [],
       lonlat: toLonLat(event.coordinate)
-    });
+    }) as FBClickEvent;
   }
 
   private zoomAtStart: number | undefined;
@@ -346,18 +335,20 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  private emitPointerDragEvent = (event: MapBrowserEvent<PointerEvent>) => {
+  private emitPointerDragEvent = (event: MapBrowserEvent) => {
     this.clearTouchTimer();
     this.mapPointerDrag.emit(this.augmentPointerEvent(event));
   };
-  private emitPointerMoveEvent = (event: MapBrowserEvent<PointerEvent>) => {
+  private emitPointerMoveEvent = (event: MapBrowserEvent) => {
     this.clearTouchTimer();
     this.mapPointerMove.emit(this.augmentPointerEvent(event));
   };
 
   // ** add {lonlat} field to event
-  private augmentPointerEvent(event: MapBrowserEvent<PointerEvent>) {
-    return Object.assign(event, { lonlat: toLonLat(event.coordinate) });
+  private augmentPointerEvent(event: MapBrowserEvent) {
+    return Object.assign(event, {
+      lonlat: toLonLat(event.coordinate)
+    }) as FBPointerEvent;
   }
 
   private emitPostComposeEvent = (event: RenderEvent) =>

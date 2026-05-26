@@ -28,7 +28,7 @@ export const VesselAisIcons: AppIconSet = {
   ]
 };
 
-export const AIS_TYPE_IDS = {
+export const AIS_TYPE_IDS: Record<string, string> = {
   10: 'ais_active',
   20: 'ais_active',
   30: 'ais_active',
@@ -44,7 +44,7 @@ export const AIS_TYPE_IDS = {
   buddy: 'ais_buddy'
 };
 
-export const AIS_MOORED_STYLE_IDS = {
+export const AIS_MOORED_STYLE_IDS: Record<string, [string, string]> = {
   // [stroke, fill]
   10: ['white', '#FF00FF'],
   20: ['white', '#FF00FF'],

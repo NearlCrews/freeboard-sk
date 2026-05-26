@@ -10,6 +10,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import View from 'ol/View';
+import type { ObjectEvent } from 'ol/Object';
 import { transformExtent, toLonLat, fromLonLat, ProjectionLike } from 'ol/proj';
 import { Coordinate, Extent } from './models';
 import { MapComponent } from './map.component';
@@ -149,57 +150,28 @@ export class ViewDirective
   }
 
   // Only arrow function works with addEventListener
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private emitCenterChange = (e: any) => {
+  private emitCenterChange = (_e: ObjectEvent) => {
     clearTimeout(this.timerCenterId);
     this.timerCenterId = setTimeout(() => {
       const center = this.view.getCenter();
-      const size = this.mapComponent.getMap()?.getSize();
-      if (!center || !size) return;
-      this.centerChange.emit(
-        Object.assign(e, {
-          lonlat: toLonLat(center),
-          zoom: this.view.getZoom(),
-          extent: transformExtent(
-            this.view.calculateExtent(size),
-            this.view.getProjection().getCode(),
-            'EPSG:4326'
-          ),
-          projCode: this.view.getProjection().getCode(),
-          key: e.target.get(e.key)
-        })
-      );
+      if (!center) return;
+      this.centerChange.emit(toLonLat(center));
     }, animateDuration + 10);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private emitZoomChange = (e: any) => {
+  private emitZoomChange = (_e: ObjectEvent) => {
     clearTimeout(this.timerZoomId);
     this.timerZoomId = setTimeout(() => {
-      const center = this.view.getCenter();
-      const size = this.mapComponent.getMap()?.getSize();
-      if (!center || !size) return;
-      this.zoomChange.emit(
-        Object.assign(e, {
-          lonlat: toLonLat(center),
-          zoom: this.view.getZoom(),
-          extent: transformExtent(
-            this.view.calculateExtent(size),
-            this.view.getProjection().getCode(),
-            'EPSG:4326'
-          ),
-          projCode: this.view.getProjection().getCode(),
-          key: e.target.get(e.key)
-        })
-      );
+      const zoom = this.view.getZoom();
+      if (zoom === undefined) return;
+      this.zoomChange.emit(zoom);
     }, animateDuration + 10);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private emitRotationChange = (e: any) => {
+  private emitRotationChange = (e: ObjectEvent) => {
     clearTimeout(this.timerRotationId);
     this.timerRotationId = setTimeout(
-      () => this.rotationChange.emit(e.target.get(e.key)),
+      () => this.rotationChange.emit(e.target.get(e.key) as number),
       animateDuration + 10
     );
   };

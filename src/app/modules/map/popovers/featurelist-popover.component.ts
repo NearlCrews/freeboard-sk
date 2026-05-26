@@ -57,11 +57,9 @@ export class FeatureListPopoverComponent {
   @Input() features: { text: string; icon: string }[] = [];
   @Input() canClose = false;
   readonly closed = output<void>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly selected = output<any>();
+  readonly selected = output<{ text: string; icon: string }>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleSelect(item: any) {
+  handleSelect(item: { text: string; icon: string }) {
     this.selected.emit(item);
   }
   handleClose() {

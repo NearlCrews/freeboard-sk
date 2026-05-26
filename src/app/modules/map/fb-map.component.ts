@@ -89,6 +89,7 @@ import {
 } from './mapconfig';
 import { ModifyEvent } from 'ol/interaction/Modify';
 import { DrawEvent } from 'ol/interaction/Draw';
+import { LineString as OlLineString, Circle as OlCircle } from 'ol/geom';
 import { Coordinate } from 'ol/coordinate';
 import {
   FBMapEvent,
@@ -450,14 +451,13 @@ export class FBMapComponent
       this.app.data.vessels.showSelf = true;
     }
     // ** locate vessel popover
-    const overlayType = this.overlay().type;
-    const overlayId = this.overlay().id;
+    const ov = this.overlay();
     if (
-      this.overlay().show &&
-      overlayType !== null &&
-      ['ais', 'aton', 'aircraft'].includes(overlayType)
+      ov.show &&
+      ov.type !== null &&
+      ['ais', 'aton', 'aircraft'].includes(ov.type)
     ) {
-      if (this.overlay().isSelf) {
+      if (ov.isSelf) {
         const selfPos = this.dfeat.self.position;
         this.overlay.update((current) => {
           return Object.assign({}, current, {
@@ -465,14 +465,14 @@ export class FBMapComponent
             vessel: this.dfeat.self
           });
         });
-      } else if (overlayId !== null) {
+      } else if (ov.id !== null) {
         if (
-          (overlayType === 'ais' && !this.dfeat.ais.has(overlayId)) ||
-          (overlayType === 'atons' && !this.dfeat.atons.has(overlayId)) ||
-          (overlayType === 'aircraft' && !this.dfeat.aircraft.has(overlayId))
+          (ov.type === 'ais' && !this.dfeat.ais.has(ov.id)) ||
+          (ov.type === 'atons' && !this.dfeat.atons.has(ov.id)) ||
+          (ov.type === 'aircraft' && !this.dfeat.aircraft.has(ov.id))
         ) {
-          this.overlay().show = false;
-        } else if (overlayType === 'ais') {
+          this.overlay.update((current) => ({ ...current, show: false }));
+        } else if (ov.type === 'ais') {
           this.overlay.update((current) => {
             const id = current.id;
             if (id === null) return current;
@@ -495,10 +495,8 @@ export class FBMapComponent
         ext2 > 180
       ) {
         // if dateline is in view adjust overlay position to stay with vessel
-        if (
-          this.overlay().position[0] < 0 &&
-          this.overlay().position[0] > -180
-        ) {
+        const ovPos = this.overlay().position;
+        if (ovPos[0] < 0 && ovPos[0] > -180) {
           this.overlay.update((current) => {
             return Object.assign({}, current, {
               position: [
@@ -572,9 +570,6 @@ export class FBMapComponent
         break;
       case 'measure':
         this.mapInteract.startMeasuring();
-        break;
-      case 'get_feature_info':
-        this.getFeatureInfo();
         break;
       default:
         this.menuItemSelected.emit(action);
@@ -656,10 +651,9 @@ export class FBMapComponent
 
   protected onMapPointerDown(e: FBPointerEvent) {
     this.mouse.coords = GeoUtils.normaliseCoords(e.lonlat as Position);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ev = e as any;
-    this.contextMenuPosition.x = ev.clientX + 'px';
-    this.contextMenuPosition.y = ev.clientY + 'px';
+    const orig = e.originalEvent as PointerEvent;
+    this.contextMenuPosition.x = orig.clientX + 'px';
+    this.contextMenuPosition.y = orig.clientY + 'px';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -777,17 +771,15 @@ export class FBMapComponent
     this.app.debug(`onMeasureStart()...`, this.mapInteract.measureGeometryType);
     let ovPosition: Position;
     if (this.mapInteract.measureGeometryType === 'LineString') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const geom = e.feature.getGeometry() as any;
+      const geom = e.feature.getGeometry() as OlLineString;
       let c: Position[] = geom
         .getCoordinates()
-        .map((p: Position) => toLonLat(p as [number, number]) as Position);
+        .map((p) => toLonLat(p as [number, number]) as Position);
       c = c.slice(0, c.length - 1);
       this.mapInteract.measurementCoords = c;
       ovPosition = (c[0] ?? [0, 0]) as Position;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const g = e.feature.getGeometry() as any;
+      const g = e.feature.getGeometry() as OlCircle;
       const center = toLonLat(g.getCenter());
       const radius: number = g.getRadius();
       this.mapInteract.measurementCenter = center as Position;
@@ -902,17 +894,17 @@ export class FBMapComponent
 
   /** Handle OL modify start event */
   protected onModifyStart(e: ModifyEvent) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const f: any = e.features.getArray()[0];
+    const f = e.features.getArray()[0];
     if (!f) {
       return;
     }
-    this.mapInteract.draw.coordinates = f.getGeometry().getCoordinates();
+    const geom = f.getGeometry() as OlLineString | undefined;
+    this.mapInteract.draw.coordinates = geom?.getCoordinates() ?? null;
     if (!this.mapInteract.draw.forSave.id) {
       // initialise save info
-      this.mapInteract.draw.forSave.id = f.getId();
+      this.mapInteract.draw.forSave.id = f.getId() as string;
     }
-    if (f.getGeometry().getType() === 'LineString') {
+    if (geom?.getType() === 'LineString') {
       const meta = f.get('pointMetadata');
       if (meta) {
         this.mapInteract.draw.forSave.coordsMetadata = meta;
@@ -922,15 +914,15 @@ export class FBMapComponent
 
   /** Handle OL modify end event */
   protected onModifyEnd(e: ModifyEvent) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const f: any = e.features.getArray()[0];
+    const f = e.features.getArray()[0];
     if (!f) {
       return;
     }
-    const fid: string = f.getId();
+    const fid = f.getId() as string;
+    const geom = f.getGeometry() as OlLineString | undefined;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const c: any = f.getGeometry().getCoordinates();
-    if (f.getGeometry().getType() === 'LineString') {
+    const c: any = geom?.getCoordinates();
+    if (geom?.getType() === 'LineString') {
       this.updateCoordsMeta(
         this.mapInteract.draw.coordinates ?? [],
         c,
@@ -1935,44 +1927,5 @@ export class FBMapComponent
     return this.mapMoveThresholdExceeded(
       this.app.config.resources.notes.getRadius
     );
-  }
-
-  /**
-   * @decsription Retrieves and displays feature information
-   * @param pos Position of feature(s) to retrieve
-   * @todo Experiment
-   */
-  private getFeatureInfo() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const f = [...this.mapService.featureUrls()];
-    /*fetch(this.featureUrl)
-    .then((response) => response.json())
-    .then((json) => {
-      console.log(json);
-    });*/
-    /*
-    if (!this.app.config.resources.featureServer.url) return;
-    // parse url tokens
-    const u = this.app.config.resources.featureServer.url
-      .replaceAll('%longitude%', pos[0].toString())
-      .replaceAll('%latitude%', pos[1].toString())
-      .replaceAll('%map:zoom%', this.mapZoomLevel().toFixed(1));
-
-    this.http.get(u).subscribe(
-      (r: { type: string; features: Feature[] }) => {
-        if (Array.isArray(r?.features)) {
-          this.bottomSheet.open(FeaturePropertiesModal, {
-            disableClose: true,
-            data: r.features
-          });
-        } else {
-          this.app.showAlert('Invalid Response', 'Invalid data received!');
-        }
-      },
-      (error) => {
-        this.app.parseHttpErrorResponse(error);
-      }
-    );
-    */
   }
 }

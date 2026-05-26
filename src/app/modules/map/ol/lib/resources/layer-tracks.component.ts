@@ -52,10 +52,7 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
     for (const t of tracks) {
       const f = new Feature({
         geometry: new MultiLineString(
-          this.parseCoordinates(
-            t[1].feature.geometry.coordinates
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) as any
+          this.parseCoordinates(t[1].feature.geometry.coordinates)
         ),
         name: t[1].name
       });
@@ -107,11 +104,9 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
   }
 
   // ** mapify and transform MultiLineString coordinates
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(mls: any[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lines: any[] = [];
-    mls.forEach((line) => lines.push(mapifyCoords(line)));
-    return fromLonLatArray(lines);
+  parseCoordinates(mls: [number, number, number?][][]) {
+    return fromLonLatArray(
+      mls.map((line) => mapifyCoords(line as [number, number][]))
+    );
   }
 }

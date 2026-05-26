@@ -264,7 +264,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
 
     let cf = this.source.getFeatureById('cog-' + id) as Feature | null;
     if (
-      !this.okToRenderCogLines ||
+      !this.okToRenderCogLines() ||
       !this.okToRenderTarget(id) ||
       !target.position
     ) {
@@ -274,8 +274,7 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cogCoords = fromLonLatArray(target.vectors.cog as any) as any;
+    const cogCoords = fromLonLatArray(target.vectors.cog as Coordinate[]);
     if (cf) {
       // update vector
       cf.setGeometry(new LineString(cogCoords));
@@ -292,16 +291,22 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   // show / hide cog vector
   toggleCogLines(show: boolean) {
     if (show) {
-      this.targets.forEach((v, k) => {
+      for (const [k, v] of this.targets) {
         this.parseCogLine(k, v as SKVessel);
-      });
+      }
     } else {
+      // Collect first to avoid mutating the source mid-iteration; OL does
+      // not document forEachFeature as safe under concurrent removal.
+      const toRemove: Feature[] = [];
       this.source.forEachFeature((cl) => {
         const fid = cl.getId();
-        if (typeof fid === 'string' && fid.includes('cog-')) {
-          this.source.removeFeature(cl);
+        if (typeof fid === 'string' && fid.startsWith('cog-')) {
+          toRemove.push(cl);
         }
       });
+      for (const f of toRemove) {
+        this.source.removeFeature(f);
+      }
     }
   }
 

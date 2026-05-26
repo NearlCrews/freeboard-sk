@@ -163,15 +163,11 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   }
 
   // ** mapify and transform MultiLineString coordinates
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseCoordinates(trk: any[]) {
+  parseCoordinates(trk: [number, number][][][]) {
     // ** handle dateline crossing **
-    const tc = trk.map((mls) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lines: any[] = [];
-      mls.forEach((line: [number, number][]) => lines.push(mapifyCoords(line)));
-      return lines;
-    });
-    return fromLonLatArray(tc);
+    // fromLonLatArray overloads cover up to Coordinate[][]; we feed a
+    // MultiPolygon-shape (3 levels) so the outer map projects each
+    // MultiLineString separately.
+    return trk.map((mls) => fromLonLatArray(mls.map(mapifyCoords)));
   }
 }

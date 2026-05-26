@@ -152,7 +152,7 @@ export class ResourceSetLayerComponent extends FBFeatureLayerComponent {
   ): Style {
     const def = styleDef ?? {};
     const s = new Style();
-    if (geom === 'Point' || geom === 'MulitPoint') {
+    if (geom === 'Point' || geom === 'MultiPoint') {
       s.setImage(
         new Circle({
           radius: (def['width'] as number) ?? 5,
