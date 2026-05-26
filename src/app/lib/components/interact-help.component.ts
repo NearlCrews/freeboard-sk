@@ -133,7 +133,12 @@ export class InteractionHelpComponent {
   protected showHelpPanel: Signal<boolean>;
   protected showMeasurePanel: Signal<boolean>;
 
-  protected mode = {
+  protected mode: {
+    iconName: string;
+    iconText: string;
+    description: string;
+    steps: string[];
+  } = {
     iconName: '',
     iconText: '',
     description: '',

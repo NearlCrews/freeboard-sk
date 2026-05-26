@@ -5,6 +5,7 @@ import type { OnInit, AfterViewInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   Inject,
   ViewChild
 } from '@angular/core';
@@ -93,18 +94,21 @@ import { MatInputModule } from '@angular/material/input';
   `
 })
 export class LoginDialog implements OnInit, AfterViewInit {
-  @ViewChild('username', { static: false }) username;
+  @ViewChild('username', { static: false })
+  username: ElementRef<HTMLInputElement> | undefined;
 
   public imgSource = 'assets/img/success.png';
-  private result = {
-    cancel: false,
-    user: null,
-    pwd: null
-  };
+  private result: { cancel: boolean; user: string | null; pwd: string | null } =
+    {
+      cancel: false,
+      user: null,
+      pwd: null
+    };
 
   constructor(
     public dialogRef: MatDialogRef<LoginDialog>,
-    @Inject(MAT_DIALOG_DATA) public data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   ngOnInit() {
@@ -114,17 +118,18 @@ export class LoginDialog implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.username.nativeElement.focus(), 500);
+    setTimeout(() => this.username?.nativeElement.focus(), 500);
   }
 
-  keyUp(e, u, p) {
+  keyUp(e: KeyboardEvent, u: HTMLInputElement, p: HTMLInputElement) {
     if (e.key === 'Enter') {
       this.login(u.value, p.value);
     }
   }
 
-  handleFocus(e) {
-    e.currentTarget.select(0, e.currentTarget.value.length);
+  handleFocus(e: FocusEvent) {
+    const target = e.currentTarget as HTMLInputElement;
+    target.setSelectionRange(0, target.value.length);
   }
 
   // ** cancelled login

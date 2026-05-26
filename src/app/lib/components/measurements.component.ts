@@ -105,9 +105,9 @@ export class Measurements implements OnChanges {
   @Input() totalOnly = false;
   readonly cancel = output<void>();
 
-  protected totalDistance: string;
-  protected legDistance: string;
-  protected legBearing: string;
+  protected totalDistance = '--';
+  protected legDistance = '--';
+  protected legBearing = '--';
   protected btnDisable = {
     prev: false,
     next: false
@@ -140,12 +140,12 @@ export class Measurements implements OnChanges {
       this.init();
       return;
     }
-    if (changes.index) {
-      if (isNaN(changes.index.currentValue)) {
+    if (changes['index']) {
+      if (isNaN(changes['index'].currentValue)) {
         return;
       } else if (
-        changes.index.currentValue < -1 &&
-        changes.index.currentValue >= this.coords.length
+        changes['index'].currentValue < -1 &&
+        changes['index'].currentValue >= this.coords.length
       ) {
         return;
       }
@@ -173,8 +173,10 @@ export class Measurements implements OnChanges {
     if (leg.length < 2) {
       this.init(true);
     } else {
-      const ld = GeoUtils.distanceTo(leg[0], leg[1]);
-      const lb = GeoUtils.greatCircleBearing(leg[0], leg[1]);
+      const a = leg[0]!;
+      const b = leg[1]!;
+      const ld = GeoUtils.distanceTo(a, b);
+      const lb = GeoUtils.greatCircleBearing(a, b);
       this.legDistance = this.app.formatValueForDisplay(ld, 'm');
       this.legBearing = this.app.formatValueForDisplay(lb, 'deg');
     }

@@ -48,7 +48,14 @@ import { AppFacade } from 'src/app/app.facade';
   styleUrls: ['./geojson-dialog.css']
 })
 export class GeoJSONImportDialog implements OnInit {
-  public geoData = {
+  public geoData: {
+    name: string;
+    routes: any[];
+    waypoints: any[];
+    tracks: any[];
+    regions: any[];
+    value: any;
+  } = {
     name: '',
     routes: [],
     waypoints: [],
