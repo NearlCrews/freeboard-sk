@@ -53,6 +53,7 @@ import { MapStyleJsonChartLayerComponent } from './lib/charts/layer-mapstylejson
 import { S57ChartLayerComponent } from './lib/charts/layer-s57-chart.component';
 import { ChartBoundsLayerComponent } from './lib/charts/layer-chart-bounds.component';
 import { RadarComponent } from './lib/radar/layer-radar.component';
+import { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.component';
 
 export * from './lib/util';
 export { MapService } from './lib/map.service';
@@ -110,6 +111,7 @@ export { MapStyleJsonChartLayerComponent } from './lib/charts/layer-mapstylejson
 export { S57ChartLayerComponent } from './lib/charts/layer-s57-chart.component';
 export { ChartBoundsLayerComponent } from './lib/charts/layer-chart-bounds.component';
 export { RadarComponent } from './lib/radar/layer-radar.component';
+export { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.component';
 
 const declarations = [
   ContentComponent,
@@ -160,7 +162,8 @@ const declarations = [
   WmtsChartLayerComponent,
   TileJsonChartLayerComponent,
   MapStyleJsonChartLayerComponent,
-  S57ChartLayerComponent
+  S57ChartLayerComponent,
+  WebGLAISLayerComponent
 ];
 
 @NgModule({
@@ -174,3 +177,4 @@ export class FreeboardOpenlayersModule {}
 // and consumers can import via the ol barrel.
 export * from './lib/adapter';
 export * from './lib/theme';
+export * from './lib/webgl';
