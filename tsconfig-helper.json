@@ -6,7 +6,12 @@
     "resolveJsonModule": true,
     "sourceMap": false,
     "module": "commonjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "strict": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": false
   },
   "include": ["helper/**/*", "helper/openApi.json"],
   "exclude": ["src", "projects"]

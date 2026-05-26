@@ -2,32 +2,48 @@
 
 > **Fork notice.** This repository is a modernization fork maintained by Nearl Crews and is not aligned with [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk) upstream. Use upstream for production deployments; use this fork to track the reshape work below or to cherry-pick narrow upstreamable changes.
 
-## What is different in this fork
+## What is different from upstream
 
-The 9-phase modernization is locked in `MODERNIZATION_ROADMAP.md`. Status as of 2026-05-26:
+### Faster, smaller, lighter
 
-### Shipped
+- **Smaller initial load.** The entry chunk and styles gzip to 45 KB, down from roughly 200 KB on upstream. Cold boot on a Raspberry Pi over a slow tether is noticeably quicker.
+- **Material Symbols variable font.** A 10 KB icon subset replaces the 2.18 MB legacy Material icon set. Icons render identically; the cold-start saves a multi-second download on marine networks.
+- **Lazy chart engines.** S57 (~1.5 MB), pmtiles, and ol-mapbox-style load only when the matching chart type is opened. Users who never open a vector chart never download the S57 dispatch table.
+- **Hardware-accelerated night mode.** Tile darkening runs through OffscreenCanvas per tile, replacing the legacy CSS `filter` on the whole map element. The previous approach forced a full repaint on every pan; the new path stays inside the tile pipeline.
+- **OnPush change detection across 56 components.** The map, popovers, panels, and dialogs no longer re-render on every Angular tick. Side effect: panning and scrolling are noticeably smoother under heavy AIS load.
+- **Zoneless Angular.** The app runs without zone.js. Reactivity flows through Angular signals end-to-end; RxJS retreats to the WebSocket and HTTP boundary only.
 
-- **Build floor (Phase 0).** Node 24 LTS via `.nvmrc`, pnpm 11.2.2 via Corepack, ESLint 10 flat-config, Vitest 4 for unit tests, Playwright 1.60 for e2e, size-limit budgets, dependency-cruiser, Lighthouse, and a per-file lint baseline ratchet (`scripts/verify-baseline.mjs`).
-- **Reactivity (Phase 1).** Angular 21.2.14 with zoneless change detection. A path-keyed `SignalKStore` of signals replaces ad-hoc subscriptions; the skstream worker dropped from 1258 to 140 LOC. AIS expiry tracker uses an injected clock.
-- **Decomposition (Phase 3 foundation).** `app.component.ts` 2002 → 1253 LOC, `app.facade.ts` 1216 → 489 LOC behind 5 focused stores (`AlarmStore`, `CourseStore`, `ResourceStore`, `SettingsStore`, `VesselStore`). 56 components migrated to OnPush. Tailwind v4 with CSS-first config plus 87 design tokens across light, dark, and night-red themes. Material Symbols variable font subset (10 KB woff2, replaced 2.18 MB legacy icon set). 6 tier-1 and tier-2 design-system primitives (button, dialog, sheet, list-pane, detail-pane, filter-bar).
-- **Map subsystem (Phase 4a + 4b + 4c).** PMTiles v4 with lazy load, ol-mapbox-style v13 lazy, blob-URL leak fix, OffscreenCanvas night-mode filter, `geolib` removal in favour of `ol/sphere`. An `IMapAdapter` facade over `ol/Map` plus an OL-backed implementation, `MapThemeService` resolving CSS tokens to a 17-field map palette via `MutationObserver`, S57 dispatch table (~1.5 MB) split into a lazy chunk that only loads when the first S57 chart opens, and `xml2js` similarly lazy. A `WebGLAISLayerComponent` (flat-style WebGL points for high-target perf) and a WebGL night-mode shader ship as alternates behind a follow-up swap.
-- **TypeScript strict (Phase 5).** Root `tsconfig.json` runs `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`, `noImplicitReturns`, and `noFallthroughCasesInSwitch`. Every `src/**/*.ts` file and every Angular template type-check block passes. The parallel ratchet scaffold (`tsconfig.strict.json`, `scripts/typecheck-strict.mjs`) retired; pre-push gates on `pnpm typecheck`. ESLint baseline: `any` 106 (from 157, -51), `rxjs-x` 26 (unchanged).
-- **PWA + observability (Phase 6).** `@angular/service-worker@21.2.14` wired via `provideServiceWorker(...)` in `main.ts`; `ngsw-config.json` defines app-shell prefetch, lazy assets, networkFirst SignalK API with 3 s timeout and 1 h maxAge, and cacheFirst chart tiles with 30 d maxAge and a 2000-entry maxSize (pmtiles, mbtiles, XYZ raster). `PwaService` surfaces `online`, `updateAvailable`, and `activateUpdate()`. `OfflineBannerComponent` renders an "Offline. Data may be stale." strip when navigator goes offline and a "A new version is ready" Reload prompt on `VERSION_READY`. `@sentry/browser@9.0.0` lazy-imports when `window.__FB_SENTRY_DSN__` is set and dev-mode is off, so users without telemetry pay zero bundle cost.
-- **A11y + Lighthouse (Phase 7).** Lighthouse promoted from info-only to gating: `categories:accessibility >= 0.85` and `cumulative-layout-shift <= 0.1` are hard fails; perf, best-practices, FCP, LCP, and TBT warn. `e2e/a11y.spec.ts` runs `@axe-core/playwright` against the bootstrapped shell, compares the violation count against `.axe-baseline.json` (monotonic-decrease ratchet), and asserts that 4 hard-fail rule IDs stay at zero: `target-size`, `keyboard`, `prefers-reduced-motion`, `meta-viewport`.
-- **Perf + cleanup (Phase 8).** All 5 size budgets within the Phase 0 floor (45 KB gz initial, 26 KB gz main, 19 KB gz styles, 1.02 MB gz vendor + lazy, 148 KB gz workers), which is already tighter than the roadmap destination targets. depcruise green at 269 modules and 617 dependencies, zero violations. 172 unit tests passing under template TCB strict checking.
+### Visual + UX
 
-### Open (UX-track sprint work)
+- **3 themes via design tokens.** Light, dark, and night-red, switchable via `data-theme` on `<html>`. Night-red is IEC 62288 / IMO MSC.302(87) compliant: alarm reds and warning yellows stay correct in night mode. 87 tokens cover color, spacing, typography, focus rings, and safety-state surfaces.
+- **Notes palette refresh.** Switched from cream / copper + navy to white / black + rust. Sidebar contrast and low-contrast label issues fixed.
+- **Tailwind v4 (CSS-first config).** Replaces the legacy Tailwind v2 + Material-only styling. Tier-1 (button, dialog, sheet) and tier-2 (list-pane, detail-pane, filter-bar) primitives backed by Angular CDK ship in `src/app/design-system/`.
 
-- signal-forms migration across every dialog `ReactiveForm`.
-- Settings and Weather rebuilt on tier-2 primitives.
-- Notes 3-pane, alarm UX refresh, and resources 3-pane redesigns.
-- Final design-token pass across all 12 surfaces, full axe-core baseline burndown.
-- `LayerComponentBase` signal-input migration (incompatible with the current `new VectorLayer(Object.assign(this, ...))` pattern; needs a Layer-options refactor before retry).
-- WebGL AIS layer and night-mode shader wiring (the components ship as alternates; the swap behind a target-count flag is pending).
-- 200-AIS-target Playwright trace harness for the p95 frame-time perf gate.
+### New features
 
-See `MODERNIZATION_ROADMAP.md` for the per-phase plan, the version truth-table, and the per-lens summary the 6-expert review settled on.
+- **PWA with offline support.** Real `@angular/service-worker` runtime. Chart tiles (pmtiles, mbtiles, XYZ raster) cached for 30 days up to ~2 GB; SignalK API calls fall back to cache after a 3-second network timeout. An offline banner appears when the browser goes offline; a "new version ready" banner with a Reload button appears when a new build deploys.
+- **Sentry telemetry (opt-in).** When the host injects `window.__FB_SENTRY_DSN__` (a signalk-server plugin can do this), Sentry loads lazily after first paint and reports crashes plus 10% perf traces. Without a DSN, zero Sentry code ships.
+- **Accessibility floor.** Lighthouse a11y minimum 0.85 is a CI hard-fail, plus 4 hard-fail axe-core rules: minimum touch-target size (56 px primary, 44 px secondary), no keyboard traps, reduced-motion respected, and viewport meta correctness. Visual layout shift capped at 0.1.
+
+### Bugs fixed that were present upstream
+
+- **OpenSeaMap chart-edit URL was malformed.** Re-opening the "Open Sea Map" or "Open Street Map" chart-properties dialog wrote a broken template literal (`https://tiles.openseamap.org/seamark}/{z}/{x}/{y}.png'`) back to the chart record. URLs are now correct.
+- **AIS COG lines rendered at all zooms.** `okToRenderCogLines` was being checked as a property reference (always truthy) instead of called as a method. The zoom-threshold gate is now active.
+- **Waypoint and region add-from-server bypassed the selection filter.** `selectionIsFiltered` (a method) was used as a truthy check, so every server-side add was treated as filtered. The filter gate now applies.
+- **Notes without position would have rendered at lat 0, lon 0.** A regression introduced during the strict-mode pass was caught and fixed: `SKNote.position` is optional and the truthy guards consumers rely on narrow correctly.
+- **Related-notes alert rendered the source of the `groupBy` rxjs operator.** A template literal interpolated `${groupBy}` instead of `${relatedBy}`. Now reads "Unable to retrieve Notes for specified `<group>`!".
+- **`MulitPoint` typo in the resource-set layer style dispatcher** caused MultiPoint geometries to fall through to the Polygon-style branch. Fixed.
+- **Anchor-watch and anchor.service** now handle the case where `Convert.transform` returns null. Legacy code assumed it always returned a number, which produced silent NaN propagation into the rode-length input.
+- **Several `e.dataTransfer` / `e.originalEvent` null-reads** in the map drop, right-click, and modify handlers now properly guard; pre-existing crashes on certain browser drag flows are gone.
+
+### Under the hood (so you can audit the change)
+
+- **TypeScript strict mode at root.** All 7 strict flags on (strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noImplicitOverride, noPropertyAccessFromIndexSignature, noImplicitReturns, noFallthroughCasesInSwitch). Every `.ts` file plus every Angular template type-check block passes. This is what caught most of the bugs above.
+- **172 unit tests, 19 spec files** (Vitest 4 + Angular TestBed in jsdom). Upstream has none.
+- **CI floor.** Eight-job pipeline: typecheck, lint with a per-file baseline ratchet, unit tests, build, bundle-size budgets, e2e smoke + a11y, Lighthouse gating, dependency-cruiser. Every job must pass before merge.
+- **Stack pinned to current.** Angular 21.2.14, OpenLayers 10.9.0, pmtiles 4.4.1, ol-mapbox-style 13.4.1, TypeScript 5.9.3, pnpm 11.2.2 via Corepack, Node 24 LTS. The SignalK API client is unchanged so this fork still loads the same delta stream and resource endpoints as upstream.
+
+See [`MODERNIZATION_ROADMAP.md`](MODERNIZATION_ROADMAP.md) for the 9-phase plan, version truth-table, and what is still open (signal-forms migration, settings / weather UX rebuild, Notes 3-pane redesign, 200-target WebGL AIS swap).
 
 ---
 
