@@ -31,7 +31,7 @@ import {
   UpdateMessage
 } from 'src/app/types/stream';
 
-import { Alarm, SKStreamAPI } from './stream-api';
+import { Alarm, AlarmState, SKStreamAPI } from './stream-api';
 
 const PREF_SOURCE_PATHS = new Set<string>([
   'environment.wind.speedTrue',
@@ -252,14 +252,14 @@ export class SignalKDeltaProcessor {
     if (!this.stream) {
       return;
     }
-    const n = opt.type.includes('notifications.')
+    const n = opt.type.startsWith('notifications.')
       ? opt.type
       : `notifications.${opt.type}`;
     if (opt.raise) {
       this.stream.raiseAlarm(
         'self',
         n,
-        new Alarm(opt.message, opt.state as never, true, true)
+        new Alarm(opt.message, opt.state as AlarmState, true, true)
       );
     } else {
       this.stream.clearAlarm('self', n);
@@ -931,7 +931,7 @@ export class SignalKDeltaProcessor {
   }
 
   private processNotifications(v: PathValue): void {
-    if (!v.path.includes('notifications.')) {
+    if (!v.path.startsWith('notifications.')) {
       return;
     }
     const msg = new NotificationMessage();

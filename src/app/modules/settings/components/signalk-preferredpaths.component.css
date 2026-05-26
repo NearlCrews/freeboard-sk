@@ -39,7 +39,7 @@
   line-height: 26px;
   border-width: 0 0 0 0;
   border-style: solid;
-  border-color: gray;
+  border-color: var(--color-border);
   padding-left: 5px;
 }
 .sk-details .content .item {

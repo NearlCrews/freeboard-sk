@@ -1,9 +1,25 @@
 <div class="geojsonload-dialog">
   <mat-toolbar style="background-color: transparent">
-    <span class="dialog-icon"><mat-icon>public</mat-icon></span>
-    <span style="flex: 1 1 auto; text-align: center">Load GeoJSON</span>
+    <span class="dialog-icon"
+      ><mat-icon aria-hidden="true">public</mat-icon></span
+    >
+    <h2
+      style="
+        flex: 1 1 auto;
+        text-align: center;
+        margin: 0;
+        font-size: inherit;
+        font-weight: 500;
+      "
+    >
+      Load GeoJSON
+    </h2>
     <span style="text-align: right">
-      <button mat-icon-button (click)="this.dialogRef.close(-1);">
+      <button
+        mat-icon-button
+        aria-label="Cancel GeoJSON load"
+        (click)="this.dialogRef.close(-1);"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </span>

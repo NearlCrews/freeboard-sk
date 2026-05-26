@@ -2,9 +2,19 @@
   <span class="dialog-icon">
     <mat-icon>settings</mat-icon>
   </span>
-  <span style="flex: 1 1 auto; text-align: center">Settings</span>
+  <h2
+    style="
+      flex: 1 1 auto;
+      text-align: center;
+      margin: 0;
+      font-size: inherit;
+      font-weight: 500;
+    "
+  >
+    Settings
+  </h2>
   <span style="text-align: right">
-    <button mat-icon-button (click)="handleClose()">
+    <button mat-icon-button aria-label="Close settings" (click)="handleClose()">
       <mat-icon>close</mat-icon>
     </button>
   </span>
@@ -1207,6 +1217,7 @@
                     <button
                       matSuffix
                       mat-icon-button
+                      aria-label="Clear notes filter"
                       (click)="notesrootfilter.value=''"
                     >
                       <mat-icon>close</mat-icon>
@@ -1410,6 +1421,7 @@
                   <button
                     mat-icon-button
                     matTooltip="Clear Auth Token"
+                    aria-label="Clear auth token"
                     (click)="clearAuthToken()"
                   >
                     <mat-icon>key_off</mat-icon>

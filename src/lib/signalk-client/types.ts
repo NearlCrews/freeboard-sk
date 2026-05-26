@@ -2,6 +2,7 @@
 // Pure ESM, named exports, tree-shakable.
 
 export enum AlarmState {
+  nominal = 'nominal',
   normal = 'normal',
   alert = 'alert',
   warn = 'warn',

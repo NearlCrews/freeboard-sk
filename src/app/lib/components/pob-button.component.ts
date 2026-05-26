@@ -15,6 +15,7 @@ import { NotificationManager } from 'src/app/modules';
       (click)="raiseAlarm()"
       matTooltip="Raise POB Alarm"
       matTooltipPosition="above"
+      aria-label="Raise person overboard alarm"
     >
       <mat-icon class="ob" svgIcon="alarm-mob"></mat-icon>
     </button>

@@ -1,5 +1,5 @@
 .gpxsave-dialog {
-  font-family: roboto;
+  font-family: var(--font-family-sans);
   position: relative;
 }
 

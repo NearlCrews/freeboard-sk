@@ -268,7 +268,7 @@ export class SKStreamAPI {
           sValue['period'] = options['period'];
         }
         if (options['minPeriod']) {
-          sValue['minPeriod'] = options['period'];
+          sValue['minPeriod'] = options['minPeriod'];
         }
         if (
           options['format'] &&
@@ -311,15 +311,15 @@ export class SKStreamAPI {
   raiseAlarm(context: string, name: string, alarm: Alarm): void;
   raiseAlarm(context: string, type: AlarmType, alarm: Alarm): void;
   raiseAlarm(context = '*', alarmId: string | AlarmType, alarm: Alarm): void {
-    const path = alarmId.includes('notifications.')
+    const path = alarmId.startsWith('notifications.')
       ? alarmId
       : `notifications.${alarmId}`;
     this.put(context, path, alarm.value);
   }
 
-  /** raise alarm for path */
+  /** clear alarm for path */
   clearAlarm(context = '*', name: string) {
-    const path = name.includes('notifications.')
+    const path = name.startsWith('notifications.')
       ? name
       : `notifications.${name}`;
     this.put(context, path, null);
@@ -427,6 +427,7 @@ export class Alarm {
 }
 
 export enum AlarmState {
+  nominal = 'nominal',
   normal = 'normal',
   alert = 'alert',
   warn = 'warn',

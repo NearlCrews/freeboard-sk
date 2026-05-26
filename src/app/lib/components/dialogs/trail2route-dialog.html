@@ -1,11 +1,23 @@
 <div class="_ap-trail2route">
   <mat-toolbar style="background-color: transparent">
-    <span><mat-icon>insights</mat-icon></span>
-    <span style="flex: 1 1 auto; text-align: center"
-      >Vessel Trail to Route</span
+    <span><mat-icon aria-hidden="true">insights</mat-icon></span>
+    <h2
+      style="
+        flex: 1 1 auto;
+        text-align: center;
+        margin: 0;
+        font-size: inherit;
+        font-weight: 500;
+      "
     >
+      Vessel Trail to Route
+    </h2>
     <span style="text-align: right">
-      <button mat-icon-button (click)="doClose(false);">
+      <button
+        mat-icon-button
+        aria-label="Cancel trail conversion"
+        (click)="doClose(false);"
+      >
         <mat-icon>close</mat-icon>
       </button>
     </span>

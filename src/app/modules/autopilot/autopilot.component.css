@@ -94,6 +94,22 @@
   justify-content: center;
 }
 
+/* Native button wrapper for the close icon. Previously a bare <mat-icon
+   (click)>, which axe flags under the keyboard rule (no focus, no
+   Enter/Space). Reset chrome so the icon renders identically on the
+   raster while staying focusable and operable from the keyboard. */
+.autopilot-console .title .close-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+.autopilot-console .title .close-btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
 .autopilot-console .content .button-bar button,
 .autopilot-console .content .button-bar-thin button {
   min-height: var(--touch-secondary);

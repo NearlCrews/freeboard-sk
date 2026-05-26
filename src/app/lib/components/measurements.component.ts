@@ -56,6 +56,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
             <button
               matTooltip="Cancel"
               matTooltipPosition="below"
+              aria-label="Cancel measurement"
               mat-icon-button
               (click)="close()"
             >

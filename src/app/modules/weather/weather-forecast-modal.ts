@@ -80,15 +80,16 @@ interface WeatherData {
         <span>
           <mat-icon>air</mat-icon>
         </span>
-        <span class="weather-toolbar-title">
+        <h2 class="weather-toolbar-title">
           {{ data.title }}
-        </span>
+        </h2>
         <span>
           <button
             mat-icon-button
             (click)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
+            aria-label="Close weather forecast"
           >
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
@@ -233,6 +234,9 @@ interface WeatherData {
         flex: 1 1 auto;
         padding-left: var(--space-xl);
         text-align: center;
+        margin: 0;
+        font-size: inherit;
+        font-weight: var(--font-weight-medium);
       }
 
       /* WCAG 2.5.5 secondary touch-target floor (44px). Material's

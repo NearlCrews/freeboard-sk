@@ -16,10 +16,21 @@
         </button>
         }
       </div>
-      <div style="flex: 1 1 auto; text-align: center">Import GPX</div>
+      <h2
+        style="
+          flex: 1 1 auto;
+          text-align: center;
+          margin: 0;
+          font-size: inherit;
+          font-weight: 500;
+        "
+      >
+        Import GPX
+      </h2>
       <div style="text-align: right">
         <button
           mat-icon-button
+          aria-label="Close import dialog"
           [disabled]="app.sIsFetching()"
           (click)="this.dialogRef.close(-1);"
         >

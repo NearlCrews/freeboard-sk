@@ -5,28 +5,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: ['22', '24']
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install
-        run: |
-          npm i
-      - name: npm run build
-        run: |
-          npm run build:all
+      - name: build:all
+        run: pnpm build:all
       - name: upload build artifact
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4

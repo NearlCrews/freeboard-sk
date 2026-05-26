@@ -294,8 +294,7 @@ export class SignalKStream {
           sValue['period'] = options.period;
         }
         if (options.minPeriod) {
-          // Parity with original: minPeriod source uses options.period.
-          sValue['minPeriod'] = options.period;
+          sValue['minPeriod'] = options.minPeriod;
         }
         if (
           options.format &&
@@ -341,7 +340,7 @@ export class SignalKStream {
   raiseAlarm(context = '*', alarmId: string | AlarmType, alarm: Alarm): void {
     let path: string;
     if (typeof alarmId === 'string') {
-      path = alarmId.includes('notifications.')
+      path = alarmId.startsWith('notifications.')
         ? alarmId
         : `notifications.${alarmId}`;
     } else {
@@ -352,7 +351,7 @@ export class SignalKStream {
 
   // Clear alarm for path.
   clearAlarm(context = '*', name: string): void {
-    const path = name.includes('notifications.')
+    const path = name.startsWith('notifications.')
       ? name
       : `notifications.${name}`;
     this.put(context, path, null);

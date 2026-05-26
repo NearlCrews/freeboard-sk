@@ -58,7 +58,12 @@ import type { AppIconDef } from 'src/app/modules/icons';
           <h1 mat-dialog-title>{{ data.title ?? 'Select Item' }}</h1>
         </div>
         <div style="width:50px;padding: 15px 0 0 10px;">
-          <button #btncancel mat-icon-button (click)="handleClose()">
+          <button
+            #btncancel
+            mat-icon-button
+            aria-label="Cancel selection"
+            (click)="handleClose()"
+          >
             <mat-icon>close</mat-icon>
           </button>
         </div>

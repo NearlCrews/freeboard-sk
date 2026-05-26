@@ -2,12 +2,12 @@ name: ci
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   pull_request:
-    branches: [master]
+    branches: [master, main]
   workflow_dispatch:
 
-# Cancel superseded PR runs on the same ref. Push runs to master always finish.
+# Cancel superseded PR runs on the same ref. Push runs to master or main always finish.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

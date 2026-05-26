@@ -13,9 +13,23 @@
           <mat-icon>save</mat-icon>&nbsp;Save&nbsp;
         </button>
       </div>
-      <div style="flex: 1 1 auto; text-align: center">Export to GPX</div>
+      <h2
+        style="
+          flex: 1 1 auto;
+          text-align: center;
+          margin: 0;
+          font-size: inherit;
+          font-weight: 500;
+        "
+      >
+        Export to GPX
+      </h2>
       <div style="text-align: right">
-        <button mat-icon-button (click)="this.dialogRef.close(-1);">
+        <button
+          mat-icon-button
+          aria-label="Close export dialog"
+          (click)="this.dialogRef.close(-1);"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </div>

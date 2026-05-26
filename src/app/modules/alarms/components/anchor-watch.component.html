@@ -8,6 +8,7 @@
             (click)="close()"
             matTooltip="Close"
             matTooltipPosition="left"
+            aria-label="Close anchor watch"
           >
             <mat-icon>arrow_back</mat-icon>
           </button>
@@ -52,6 +53,7 @@
             [hideIcon]="true"
             [disabled]="disableRaiseDrop || ctlAlarmRadius.invalid"
             [checked]="!raised"
+            [attr.aria-label]="raised ? 'Drop anchor' : 'Raise anchor'"
             (change)="dropRaiseAnchor($event)"
           >
           </mat-slide-toggle>
@@ -102,6 +104,7 @@
               (change)="onSetManualCheck($event)"
               [checked]="useSetManual"
               [disabled]="!raised || useDefaultRadius"
+              aria-label="Use manual anchor set"
             >
             </mat-checkbox>
           </div>

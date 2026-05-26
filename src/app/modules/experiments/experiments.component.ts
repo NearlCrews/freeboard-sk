@@ -37,6 +37,7 @@ import { MatMenuModule } from '@angular/material/menu';
         [matMenuTriggerFor]="experimentsmenu"
         matTooltip="Experiments"
         matTooltipPosition="left"
+        aria-label="Experiments menu"
       >
         <mat-icon>science</mat-icon>
       </button>

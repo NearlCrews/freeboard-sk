@@ -47,15 +47,18 @@ import { alertSeverityClass } from './alert-severity';
             {{ data.alert.icon.name }}</mat-icon
           >
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <h2
+          style="flex: 1 1 auto; padding-left:20px;text-align:center;margin:0;font-size:inherit;font-weight:inherit;"
+        >
           Alert Information
-        </span>
+        </h2>
         <span>
           <button
             mat-icon-button
             (click)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
+            aria-label="Close alert information"
           >
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
@@ -119,7 +122,7 @@ import { alertSeverityClass } from './alert-severity';
   styles: [
     `
       ._ap-alert {
-        font-family: arial;
+        font-family: var(--font-family-sans);
         min-width: 300px;
       }
       ._ap-alert .key-label {

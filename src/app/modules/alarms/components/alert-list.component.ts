@@ -56,6 +56,7 @@ import { alertSeverityClass } from './alert-severity';
                 class="button-warn"
                 mat-raised-button
                 matTooltip="Raise Alarm"
+                aria-label="Raise alarm"
                 [matMenuTriggerFor]="alarmsmenu"
               >
                 <mat-icon>warning</mat-icon>
@@ -63,19 +64,22 @@ import { alertSeverityClass } from './alert-severity';
               </button>
             </div>
           }
-          <div
+          <h2
             style="flex: 1 1 auto;
             font-size: 14pt;
             line-height: 2.5em;
             text-align: center;
-            cursor: grab;"
+            cursor: grab;
+            margin: 0;
+            font-weight: 500;"
           >
             Alert List
-          </div>
+          </h2>
           <div style="display:flex">
             <button
               mat-icon-button
               matTooltip="Silence All"
+              aria-label="Silence all alerts"
               (click)="silenceAll()"
             >
               <mat-icon class="ob" svgIcon="sound-off-fill"></mat-icon>
@@ -84,13 +88,19 @@ import { alertSeverityClass } from './alert-severity';
             <div>
               <mat-slide-toggle
                 matTooltip="Sound on /off"
+                aria-label="Toggle alert sound"
                 [checked]="!this.app.config.display.muteSound"
                 (toggleChange)="togglePlaySound()"
               >
               </mat-slide-toggle>
             </div>
             &nbsp;
-            <button mat-icon-button (click)="handleClose()">
+            <button
+              mat-icon-button
+              matTooltip="Close"
+              aria-label="Close alert list"
+              (click)="handleClose()"
+            >
               <mat-icon>close</mat-icon>
             </button>
           </div>
@@ -101,19 +111,23 @@ import { alertSeverityClass } from './alert-severity';
             <div class="alert-list">
               @for (item of alerts(); track item[0]) {
                 <div class="alert-box">
-                  <div
-                    style="width:40px;"
+                  <button
+                    type="button"
+                    class="alert-info-trigger alert-info-icon"
                     (click)="notiMgr.showAlertInfo(item[1].path)"
+                    [attr.aria-label]="'Show details for ' + item[1].message"
                   >
                     <mat-icon
                       [class]="item[1].icon.class"
                       [svgIcon]="item[1].icon.svgIcon"
                       >{{ item[1].icon.name }}</mat-icon
                     >
-                  </div>
-                  <div
-                    class="alert-text"
+                  </button>
+                  <button
+                    type="button"
+                    class="alert-info-trigger alert-text"
                     (click)="notiMgr.showAlertInfo(item[1].path)"
+                    [attr.aria-label]="'Show details for ' + item[1].message"
                     [ngClass]="[
                       item[1].canAcknowledge && !item[1].acknowledged
                         ? 'blink-text'
@@ -122,7 +136,7 @@ import { alertSeverityClass } from './alert-severity';
                     ]"
                   >
                     {{ item[1].message }}
-                  </div>
+                  </button>
                   <div style="width:90px;">
                     @if (
                       app.featureFlags().notificationApi &&
@@ -133,6 +147,9 @@ import { alertSeverityClass } from './alert-severity';
                         mat-icon-button
                         [matTooltip]="item[1].silenced ? 'Silenced' : 'Silence'"
                         matTooltipPosition="below"
+                        [attr.aria-label]="
+                          item[1].silenced ? 'Alert silenced' : 'Silence alert'
+                        "
                         [disabled]="item[1].acknowledged || item[1].silenced"
                         (click)="muteAlert(item[1].path)"
                       >
@@ -156,6 +173,7 @@ import { alertSeverityClass } from './alert-severity';
                           mat-icon-button
                           matTooltip="Acknowledge"
                           matTooltipPosition="below"
+                          aria-label="Acknowledge alert"
                           [disabled]="item[1].acknowledged"
                           (click)="ackAlert(item[1].path)"
                         >
@@ -167,6 +185,7 @@ import { alertSeverityClass } from './alert-severity';
                             mat-icon-button
                             matTooltip="Clear / Cancel"
                             matTooltipPosition="below"
+                            aria-label="Clear alert"
                             [disabled]="!item[1].acknowledged"
                             (click)="clearAlert(item[1].path)"
                           >

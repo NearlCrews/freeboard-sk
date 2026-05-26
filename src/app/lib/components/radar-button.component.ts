@@ -27,6 +27,7 @@ import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
       (click)="handleClick()"
       matTooltip="Radar Overlay"
       matTooltipPosition="above"
+      aria-label="Toggle radar overlay"
     >
       @if (app.uiCtrl().radarLayer) {
         <mat-icon class="ob" svgIcon="chart-radar-overlay-iec"></mat-icon>

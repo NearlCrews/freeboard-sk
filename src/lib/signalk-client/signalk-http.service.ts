@@ -67,7 +67,7 @@ export class SignalKHttp {
     let path: string;
     if (typeof p1 === 'number') {
       ep = this.endpoint.replace(V_RE, `/v${p1}/`);
-      path = p2 as string;
+      path = p2!;
     } else {
       ep = this.endpoint;
       path = p1;
@@ -220,7 +220,7 @@ export class SignalKHttp {
     let path: string;
     if (typeof p1 === 'number') {
       ep = this.endpoint.replace(V_RE, `/v${p1}/`);
-      path = p2 as string;
+      path = p2!;
     } else {
       ep = this.endpoint;
       path = p1;
@@ -247,7 +247,7 @@ export class SignalKHttp {
   raiseAlarm(context = '*', alarmId: string | AlarmType, alarm: Alarm): any {
     let path: string;
     if (typeof alarmId === 'string') {
-      path = alarmId.includes('notifications.')
+      path = alarmId.startsWith('notifications.')
         ? alarmId
         : `notifications.${alarmId}`;
     } else {
@@ -258,7 +258,7 @@ export class SignalKHttp {
 
   // Clear alarm for path (name); returns Observable.
   clearAlarm(context = '*', name: string): any {
-    const path = name.includes('notifications.')
+    const path = name.startsWith('notifications.')
       ? name
       : `notifications.${name}`;
     return this.putWithContext(context, path, null);

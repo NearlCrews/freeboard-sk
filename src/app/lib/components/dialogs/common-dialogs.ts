@@ -83,7 +83,7 @@ export class MsgBox implements OnInit {
     <div class="_ap-alert">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon style="color: orange;">warning</mat-icon>
+          <mat-icon style="color: var(--safety-alert-warn);">warning</mat-icon>
           &nbsp;{{ data.title }}
         </h1>
       </div>
@@ -146,7 +146,7 @@ export class AlertDialog implements OnInit {
     <div class="_ap-confirm">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon style="color:orange;">help</mat-icon>
+          <mat-icon style="color: var(--color-accent);">help</mat-icon>
           &nbsp;{{ data.title }}
         </h1>
       </div>
@@ -269,6 +269,7 @@ export class MessageBarComponent {
                   @if (i !== 0 && data.content.length > 1) {
                     <button
                       mat-icon-button
+                      aria-label="Previous page"
                       (click)="currentPage = currentPage - 1"
                       matStepperPrevious
                     >
@@ -281,6 +282,7 @@ export class MessageBarComponent {
                   @if (i !== data.content.length - 1) {
                     <button
                       mat-icon-button
+                      aria-label="Next page"
                       (click)="currentPage = currentPage + 1"
                       matStepperNext
                     >

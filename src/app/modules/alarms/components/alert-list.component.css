@@ -7,11 +7,11 @@
   left: calc((var(--lA) * 0.1));
   display: flex;
   flex-direction: column;
-  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-sans);
   width: 90vw;
   max-width: 650px;
   height: 40vh;
-  border: 2px gray solid;
+  border: 2px solid var(--color-border);
 }
 .alert-list-main .title {
   padding: 3px 5px 0 5px;
@@ -67,6 +67,35 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   text-overflow: ellipsis;
+  min-height: var(--touch-secondary);
+}
+
+/* Keyboard-accessible alert detail triggers. Previously rendered as
+   <div (click)> which axe flags under the keyboard rule (no key handler,
+   no tabindex, no role). Switched to <button> to inherit native focus
+   and Enter/Space activation. The reset removes default button chrome so
+   the icon and text continue to read like a row, not buttons. WCAG 2.5.5
+   floor met via min-height on the icon-trigger. */
+.alert-info-trigger {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.alert-info-trigger:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.alert-info-icon {
+  width: 40px;
+  min-height: var(--touch-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* SignalK alert severity classes backed by theme-invariant safety tokens
@@ -92,19 +121,30 @@
   color: var(--safety-alert-caution);
 }
 
+/* WCAG 2.3.3 / axe prefers-reduced-motion: gate the unacknowledged-alert
+   blink behind a motion preference. When motion is reduced, fall back to
+   a static opacity so the visual cue persists without flashing. The
+   --safety-alert-* color and the alert label already communicate priority
+   per WCAG 1.4.1, so removing motion is safe. */
 .blink-text {
-  animation: blink 1s infinite;
-  animation-fill-mode: both;
+  opacity: 1;
 }
 
-@keyframes blink {
-  0% {
-    opacity: 1;
+@media (prefers-reduced-motion: no-preference) {
+  .blink-text {
+    animation: blink 1s infinite;
+    animation-fill-mode: both;
   }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 }

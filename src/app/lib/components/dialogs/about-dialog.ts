@@ -43,7 +43,7 @@ import { MatIconModule } from '@angular/material/icon';
       </mat-dialog-content>
       <mat-dialog-actions align="center">
         @if (data.url) {
-          <a mat-button [href]="data.url" target="_web" rel="noopener"
+          <a mat-button [href]="data.url" target="_blank" rel="noopener"
             >Visit Website</a
           >
           &nbsp;

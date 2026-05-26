@@ -28,6 +28,7 @@ import { AppFacade } from 'src/app/app.facade';
       (click)="handleClick()"
       matTooltip="Autopilot Console"
       matTooltipPosition="above"
+      aria-label="Toggle autopilot console"
     >
       <mat-icon class="ob" svgIcon="command-autopilot"></mat-icon>
     </button>

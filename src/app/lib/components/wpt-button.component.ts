@@ -22,6 +22,7 @@ import type { Position } from 'src/app/types';
       (click)="dropWaypoint()"
       matTooltip="Mark Vessel Position"
       matTooltipPosition="above"
+      aria-label="Drop waypoint at vessel position"
     >
       <mat-icon>add_location</mat-icon>
     </button>

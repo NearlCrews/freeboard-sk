@@ -72,13 +72,15 @@ import { AutopilotService } from './autopilot.service';
       >
         <div class="title" style="cursor: grab;">
           <div style="text-align: center;width: 100%;">
-            <mat-icon
-              class="icon-warn"
-              style="cursor: pointer;"
+            <button
+              type="button"
+              class="icon-warn close-btn"
               matTooltip="Close"
+              aria-label="Close autopilot console"
               (click)="handleClose()"
-              >close</mat-icon
             >
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
         </div>
         <mat-card-content>
@@ -152,6 +154,11 @@ import { AutopilotService } from './autopilot.service';
                     [disabled]="noPilot()"
                     (toggleChange)="toggleEngaged()"
                     [matTooltip]="apData().enabled ? 'Disengage' : 'Engage'"
+                    [attr.aria-label]="
+                      apData().enabled
+                        ? 'Disengage autopilot'
+                        : 'Engage autopilot'
+                    "
                   ></mat-slide-toggle>
                 }
               </div>
@@ -176,6 +183,7 @@ import { AutopilotService } from './autopilot.service';
                   <button
                     class="button-secondary"
                     mat-mini-fab
+                    aria-label="Dodge port 10 degrees"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
@@ -186,6 +194,7 @@ import { AutopilotService } from './autopilot.service';
                   <button
                     class="button-toolbar"
                     mat-mini-fab
+                    aria-label="Dodge port 1 degree"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
@@ -199,6 +208,7 @@ import { AutopilotService } from './autopilot.service';
                   <button
                     class="button-toolbar"
                     mat-mini-fab
+                    aria-label="Dodge starboard 1 degree"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
@@ -209,6 +219,7 @@ import { AutopilotService } from './autopilot.service';
                   <button
                     class="button-secondary"
                     mat-mini-fab
+                    aria-label="Dodge starboard 10 degrees"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
