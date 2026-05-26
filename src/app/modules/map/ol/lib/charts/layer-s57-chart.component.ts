@@ -17,7 +17,6 @@ import { FBChart } from 'src/app/types';
 import { extentFromBounds } from './chart-utils';
 import { applyMapboxStyle } from './mapbox-style-utils';
 
-// ** Freeboard S-57 Chart **
 @Component({
   selector: 'ol-map > fb-s57-chart',
   template: '<ng-content></ng-content>',
@@ -61,21 +60,18 @@ export class S57ChartLayerComponent implements OnDestroy {
         chart[1]
       );
       this.layer = styleFactory.CreateLayer();
-      if (this.layer) {
-        styleFactory.ApplyStyle(this.layer as VectorTileLayer<never>);
-        this.layer.setZIndex(this.zIndex());
-        this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
-        if (chart[1].style) {
-          void applyMapboxStyle(this.layer, chart[1].style);
-        }
-        this.layer.setExtent(extentFromBounds(chart[1].bounds));
-
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        map.addLayer(this.layer);
+      styleFactory.ApplyStyle(this.layer as VectorTileLayer<never>);
+      this.layer.setZIndex(this.zIndex());
+      this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
+      if (chart[1].style) {
+        void applyMapboxStyle(this.layer, chart[1].style);
       }
+      this.layer.setExtent(extentFromBounds(chart[1].bounds));
+      this.layer.set('id', chart[0]);
+      this.layer.set('chartId', chart[0]);
+      this.layer.set('chartType', chart[1].type);
+      this.layer.set('chartFormat', chart[1].format);
+      map.addLayer(this.layer);
     } else {
       this.layer.setZIndex(this.zIndex());
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);

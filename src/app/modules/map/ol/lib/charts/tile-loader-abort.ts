@@ -1,4 +1,5 @@
 import TileState from 'ol/TileState';
+import type ImageTile from 'ol/ImageTile';
 import type Tile from 'ol/Tile';
 import type VectorTile from 'ol/VectorTile';
 import type { FeatureLike } from 'ol/Feature';
@@ -35,7 +36,7 @@ function releaseController(
   pending: PendingByZoom,
   z: number,
   controller: AbortController
-) {
+): void {
   const s = pending.get(z);
   if (s) {
     s.delete(controller);
@@ -55,18 +56,14 @@ export function createAbortableRasterTileLoader(): (
 ) => void {
   const pending: PendingByZoom = new Map();
 
-  // The `tile` parameter is intentionally untyped inside the closure: OL's
-  // Tile.getImage union (HTMLImageElement | HTMLCanvasElement | HTMLVideoElement)
-  // requires a cast that's awkwardly verbose for this raster-only path.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function loader(tile: any, src: string) {
+  return function loader(tile: Tile, src: string) {
     const z = tile.getTileCoord()[0];
     const bucket = bucketForZoom(pending, z);
 
     const controller = new AbortController();
     bucket.add(controller);
 
-    const img: HTMLImageElement = tile.getImage();
+    const img = (tile as ImageTile).getImage() as HTMLImageElement;
     tile.setState(TileState.LOADING);
 
     fetch(src, { signal: controller.signal })
@@ -75,10 +72,10 @@ export function createAbortableRasterTileLoader(): (
       .then(() => {
         tile.setState(TileState.LOADED);
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         // On AbortError the tile will be re-requested when its zoom
         // returns to view; setting ERROR would block that re-request.
-        if (err?.name !== 'AbortError') {
+        if (!(err instanceof Error) || err.name !== 'AbortError') {
           tile.setState(TileState.ERROR);
         }
       })
@@ -117,12 +114,11 @@ export function createAbortableVectorTileLoader(): (
               extent,
               featureProjection: projection
             }) as FeatureLike[];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (tile as any).setFeatures(features);
+            tile.setFeatures(features);
             tile.setState(TileState.LOADED);
           })
-          .catch((err) => {
-            if (err?.name !== 'AbortError') {
+          .catch((err: unknown) => {
+            if (!(err instanceof Error) || err.name !== 'AbortError') {
               tile.setState(TileState.ERROR);
             }
           })

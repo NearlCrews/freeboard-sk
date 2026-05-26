@@ -33,7 +33,7 @@ export const chartNightMode = signal<boolean>(false);
  * `createImageBitmap`. When false, `applyChartNightFilter` is a no-op
  * and the original blob is returned unchanged.
  */
-export const OFFSCREEN_CANVAS_SUPPORTED: boolean =
+const OFFSCREEN_CANVAS_SUPPORTED: boolean =
   typeof OffscreenCanvas !== 'undefined' &&
   typeof createImageBitmap === 'function';
 

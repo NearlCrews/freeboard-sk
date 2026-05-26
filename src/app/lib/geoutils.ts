@@ -1,6 +1,3 @@
-/*******************************
-    GeoUtils Class Module
-*******************************/
 import { Convert } from './convert';
 import { getDistance, offset } from 'ol/sphere';
 import { containsCoordinate } from 'ol/extent';
@@ -251,7 +248,7 @@ export class GeoUtils {
    * @param position Coordinate to test
    **/
   static inDLCrossingZone(coord: Position, zoneValue = 170) {
-    return Math.abs(coord[0]) >= zoneValue ? true : false;
+    return Math.abs(coord[0]) >= zoneValue;
   }
 
   // returns true if point is inside the supplied extent

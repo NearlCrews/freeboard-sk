@@ -21,7 +21,6 @@ import { VECTOR_TILE_CACHE_SIZE } from './tile-source.constants';
 import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableVectorTileLoader } from './tile-loader-abort';
 
-// ** Freeboard Vector TileLayer Chart **
 @Component({
   selector: 'ol-map > fb-tilelayer-vector',
   template: '<ng-content></ng-content>',
@@ -94,9 +93,9 @@ export class VectorChartLayerComponent implements OnDestroy {
       );
 
       if (chart[1].url.includes('.pmtiles')) {
-        // pmtiles is lazy-loaded, so init is async. Guard against re-entry
-        // while the chunk is in flight; the next signal change will run
-        // another parseChart once the layer exists.
+        // pmtiles is lazy-loaded; guard against re-entry while the chunk
+        // is in flight, then re-run parseChart so the else-branch picks
+        // up any signal values that changed during async init.
         if (this.layerInitPending) {
           return;
         }
@@ -108,9 +107,6 @@ export class VectorChartLayerComponent implements OnDestroy {
           }
           this.layer = layer;
           this.finalizeNewLayer(chart, minZ, layerMaxZ);
-          // Re-apply latest signal values in case signals changed during
-          // async init; this takes the else-branch in parseChart and only
-          // updates zoom/opacity/extent on the existing layer.
           this.parseChart();
         });
         return;

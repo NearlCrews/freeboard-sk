@@ -18,8 +18,7 @@ import { MVT } from 'ol/format';
 import { assignImageBlob } from './chart-utils';
 
 // Lazy-load pmtiles so the v4 decoder stays out of the eager main bundle.
-// The first call to any PMTiles initializer triggers the chunk; the module
-// promise is cached so subsequent calls reuse the same resolved module.
+// First call triggers the chunk; the module promise is cached.
 let pmtilesModulePromise: Promise<typeof import('pmtiles')> | undefined;
 function loadPmtilesModule(): Promise<typeof import('pmtiles')> {
   if (pmtilesModulePromise === undefined) {
@@ -32,7 +31,13 @@ function loadPmtilesModule(): Promise<typeof import('pmtiles')> {
 // back out here. Hoisted to module scope to avoid recompiling per tile load.
 const PMTILES_URL_PATTERN = /pmtiles:\/\/(.+)\/(\d+)\/(\d+)\/(\d+)/;
 
-// create a PMTile WebGLtile layer
+function parsePmtilesUrl(
+  url: string
+): readonly [z: number, x: number, y: number] | undefined {
+  const m = PMTILES_URL_PATTERN.exec(url);
+  return m ? [+m[2], +m[3], +m[4]] : undefined;
+}
+
 export async function initPMTilesWebGLLayer(
   url: string,
   minZoom: number,
@@ -81,7 +86,6 @@ export async function initPMTilesWebGLLayer(
   });
 }
 
-// create a PMTile XYZ source TileLayer
 export async function initPMTilesXYZLayer(
   chart: SKChart,
   zIndex: number
@@ -91,18 +95,16 @@ export async function initPMTilesXYZLayer(
 
   function loader(tile: ImageTile, url: string): void {
     tile.setState(TileState.LOADING);
-    const result = PMTILES_URL_PATTERN.exec(url);
-    if (!result) {
+    const coord = parsePmtilesUrl(url);
+    if (!coord) {
       tile.setState(TileState.ERROR);
       return;
     }
-    const z = +result[2];
-    const x = +result[3];
-    const y = +result[4];
+    const [z, x, y] = coord;
 
-    void tiles.getZxy(z, x, y).then(async (tile_result) => {
-      if (tile_result) {
-        const blob = new Blob([tile_result.data]);
+    void tiles.getZxy(z, x, y).then(async (result) => {
+      if (result) {
+        const blob = new Blob([result.data]);
         await assignImageBlob(tile.getImage() as HTMLImageElement, blob);
         tile.setState(TileState.LOADED);
       } else {
@@ -126,7 +128,6 @@ export async function initPMTilesXYZLayer(
   });
 }
 
-// create a PMTile Vector layer
 export async function initPMTilesVectorLayer(
   chart: SKChart,
   zIndex: number
@@ -135,22 +136,20 @@ export async function initPMTilesVectorLayer(
   const tiles = new PMTiles(chart.url);
 
   function loader(tile: VectorTile<never>, url: string): void {
-    const result = PMTILES_URL_PATTERN.exec(url);
-    if (!result) {
+    const coord = parsePmtilesUrl(url);
+    if (!coord) {
       tile.setState(TileState.ERROR);
       return;
     }
-    const z = +result[2];
-    const x = +result[3];
-    const y = +result[4];
+    const [z, x, y] = coord;
 
     tile.setLoader(
       (extent: Extent, _resolution: number, projection: Projection) => {
         tile.setState(TileState.LOADING);
-        void tiles.getZxy(z, x, y).then((tile_result) => {
-          if (tile_result) {
+        void tiles.getZxy(z, x, y).then((result) => {
+          if (result) {
             const format = tile.getFormat();
-            const features = format.readFeatures(tile_result.data, {
+            const features = format.readFeatures(result.data, {
               extent: extent,
               featureProjection: projection
             });

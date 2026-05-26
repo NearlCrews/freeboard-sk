@@ -124,10 +124,10 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor() {
     this.changeDetectorRef.detach();
-    // Phase 4a Batch 3: when chart night-mode toggles, invalidate raster
-    // tile caches so subsequent fetches run through the OffscreenCanvas
-    // filter in `assignImageBlob`. Narrowing to TileSource avoids touching
-    // VectorSource feature layers (which would clear vessel/AIS state).
+    // When chart night-mode toggles, invalidate raster tile caches so
+    // subsequent fetches run through the OffscreenCanvas filter in
+    // `assignImageBlob`. The TileSource check avoids touching VectorSource
+    // feature layers (which would clear vessel/AIS state).
     effect(() => {
       chartNightMode();
       if (!this.map) {

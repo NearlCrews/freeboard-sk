@@ -5,6 +5,7 @@ import {
   Delta,
   Path,
   SignalKStore,
+  asContext,
   asPath,
   asSourceRef,
   batchedDeltas
@@ -189,6 +190,43 @@ describe('SignalKStore: age and freshness transitions', () => {
     const ctx = makeStore();
     ctx.store.applyDeltas([deltaAt(T0 + 1_000, [{ path: NAV_SOG, value: 5 }])]);
     expect(ctx.store.select(NAV_SOG)().age).toBe(0);
+  });
+});
+
+describe('SignalKStore: contract pins for reset and context handling', () => {
+  it('reset clears value, restores missing state, and preserves selector identity', () => {
+    const ctx = makeStore();
+    const sel = ctx.store.select(NAV_SOG);
+    ctx.store.applyDeltas([deltaAt(T0, [{ path: NAV_SOG, value: 5 }])]);
+    expect(sel().value).toBe(5);
+    expect(sel().state).toBe('fresh');
+
+    ctx.store.reset();
+    const after = ctx.store.select(NAV_SOG);
+    // Same Signal reference: live consumers do not lose their handle.
+    expect(after).toBe(sel);
+    // State returns to the lazy-untouched shape so consumers can detect
+    // missing data through the same fields they would on first allocation.
+    expect(sel().value).toBeUndefined();
+    expect(sel().state).toBe('missing');
+    expect(sel().age).toBe(Number.POSITIVE_INFINITY);
+    expect(sel().sourceRef).toBeUndefined();
+  });
+
+  it('applies deltas by path only and does not branch on delta.context', () => {
+    // The store is intentionally path-keyed, not context-keyed. Context
+    // routing lives in the layer that feeds applyDeltas (the WS bridge
+    // filters to self before forwarding). A future refactor that adds
+    // context handling here must explicitly break this expectation.
+    const { store } = makeStore();
+    const self = asContext('vessels.self');
+    const other = asContext('vessels.urn:mrn:imo:mmsi:123456789');
+    store.applyDeltas([
+      { context: self, updates: [{ values: [{ path: NAV_SOG, value: 1 }] }] },
+      { context: other, updates: [{ values: [{ path: NAV_SOG, value: 9 }] }] }
+    ]);
+    // Last write wins regardless of context, confirming context is ignored.
+    expect(store.select(NAV_SOG)().value).toBe(9);
   });
 });
 

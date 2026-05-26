@@ -114,5 +114,23 @@ describe('SKChart constructor preserves Signal K chart-resource fields', () => {
     expect(chart.name).toBeUndefined();
     expect(chart.type).toBeUndefined();
     expect(chart.format).toBeUndefined();
+    expect(chart.bounds).toBeUndefined();
+    expect(chart.style).toBeUndefined();
+    expect(chart.source).toBeUndefined();
+  });
+
+  it('pins array, scale, and zoom defaults so consumers can rely on non-null fallbacks', () => {
+    // layers defaults to [] (not undefined) so the layer-vector-chart filter
+    // can call `.includes(...)` without a null guard. scale, minZoom, and
+    // maxZoom carry numeric defaults that drive the OL view extent and the
+    // layer minResolution / maxResolution wiring; pin them so a future
+    // ChartResource shape change cannot silently flip them to undefined.
+    const chart = new SKChart();
+    expect(chart.layers).toEqual([]);
+    expect(chart.scale).toBe(250000);
+    expect(chart.minZoom).toBe(0);
+    expect(chart.maxZoom).toBe(24);
+    expect(chart.defaultOpacity).toBe(1);
+    expect(chart.proxy).toBe(false);
   });
 });

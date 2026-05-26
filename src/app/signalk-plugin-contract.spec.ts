@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 
 interface PluginPkg {
   name: string;
+  version: string;
   main: string;
   keywords: string[];
   scripts: Record<string, string>;
@@ -53,5 +54,13 @@ describe('signalk plugin contract (package.json)', () => {
 
   it('prepack runs build:all so npm pack produces a runnable artefact', () => {
     expect(pkg.scripts.prepack).toContain('build:all');
+  });
+
+  it('declares a semver-shaped version (signalk-server admin UI surfaces it from package.json)', () => {
+    // The plugin loader assigns plugin.version from package.json.version
+    // (signalk-server src/interfaces/plugins.ts). A missing or malformed
+    // version leaves the admin UI showing "undefined" next to the plugin
+    // card, so pin the field shape here.
+    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+(?:[-+].*)?$/);
   });
 });

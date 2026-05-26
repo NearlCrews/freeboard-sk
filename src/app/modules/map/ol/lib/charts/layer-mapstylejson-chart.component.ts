@@ -16,7 +16,6 @@ import { FBChart } from 'src/app/types';
 import { extentFromBounds } from './chart-utils';
 import { applyMapboxStyleToGroup } from './mapbox-style-utils';
 
-// ** Freeboard MapStyleJSON Chart **
 @Component({
   selector: 'ol-map > fb-mapstylejson-chart',
   template: '<ng-content></ng-content>',
@@ -58,17 +57,14 @@ export class MapStyleJsonChartLayerComponent implements OnDestroy {
       this.layer = new LayerGroup({
         zIndex: this.zIndex()
       });
-
-      if (this.layer) {
-        this.layer.set('id', chart[0]);
-        this.layer.set('chartId', chart[0]);
-        this.layer.set('chartType', chart[1].type);
-        this.layer.set('chartFormat', chart[1].format);
-        this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
-        this.layer.setExtent(extentFromBounds(chart[1].bounds));
-        void applyMapboxStyleToGroup(this.layer, `${chart[1].url}`);
-        map.addLayer(this.layer);
-      }
+      this.layer.set('id', chart[0]);
+      this.layer.set('chartId', chart[0]);
+      this.layer.set('chartType', chart[1].type);
+      this.layer.set('chartFormat', chart[1].format);
+      this.layer.setOpacity(chart[1].defaultOpacity ?? 1);
+      this.layer.setExtent(extentFromBounds(chart[1].bounds));
+      void applyMapboxStyleToGroup(this.layer, chart[1].url);
+      map.addLayer(this.layer);
     } else {
       this.layer.setZIndex(this.zIndex());
       this.layer.setOpacity(chart[1].defaultOpacity ?? 1);

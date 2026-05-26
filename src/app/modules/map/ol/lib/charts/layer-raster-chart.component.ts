@@ -21,7 +21,6 @@ import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
 import { FBChart } from 'src/app/types';
 
-// ** Freeboard Raster TileLayer Chart **
 @Component({
   selector: 'ol-map > fb-tilelayer-raster',
   template: '<ng-content></ng-content>',
@@ -98,9 +97,9 @@ export class RasterChartLayerComponent implements OnDestroy {
             : chart[1].minZoom;
 
         if (chart[1].url.includes('.pmtiles')) {
-          // pmtiles is lazy-loaded, so init is async. Guard against
-          // re-entry while the chunk is in flight; the next signal change
-          // will run another parseChart once the layer exists.
+          // pmtiles is lazy-loaded; guard against re-entry while the chunk
+          // is in flight, then re-run parseChart so the else-branch picks
+          // up any signal values that changed during async init.
           if (this.layerInitPending) {
             return;
           }
@@ -112,9 +111,6 @@ export class RasterChartLayerComponent implements OnDestroy {
             }
             this.layer = layer;
             this.finalizeNewLayer(chart, minZ, layerMaxZ);
-            // Re-apply latest signal values in case signals changed during
-            // async init; this takes the else-branch in parseChart and only
-            // updates zoom/opacity/extent on the existing layer.
             this.parseChart();
           });
           return;

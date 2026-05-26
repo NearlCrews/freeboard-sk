@@ -21,11 +21,11 @@ export async function assignImageBlob(
   const tinted = await applyChartNightFilter(blob);
   const objectUrl = URL.createObjectURL(tinted);
   let revoked = false;
-  const cleanup = () => {
+  function cleanup(): void {
     if (revoked) return;
     revoked = true;
     URL.revokeObjectURL(objectUrl);
-  };
+  }
   img.addEventListener('load', cleanup, { once: true });
   img.addEventListener('error', cleanup, { once: true });
   img.src = objectUrl;
@@ -43,7 +43,7 @@ export function resolveLayerMaxZoom(
 }
 
 /**
- * Convert bounds in  chart metadata [minLon, minLat, maxLon, maxLat] to an EPSG:3857 extent
+ * Convert bounds in chart metadata [minLon, minLat, maxLon, maxLat] to an EPSG:3857 extent.
  * @returns undefined if bounds are invalid or missing
  */
 export function extentFromBounds(bounds?: number[]): Extent | undefined {

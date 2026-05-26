@@ -87,12 +87,18 @@ describe('GeoUtils.destCoordinate (round-trip with distanceTo)', () => {
     expect(dest[1]).toBeCloseTo(1, 4);
   });
 
-  it('round-trips: destinationTo(p, theta, d) then distanceTo equals d', () => {
+  it('round-trips: destCoordinate(p, theta, d) preserves both distance and bearing', () => {
     const start: Position = [151.2106, -33.8568];
     const distance = 5_000; // 5 km, typical chart-display range
-    const bearingRad = Convert.degreesToRadians(45);
+    const bearingDeg = 45;
+    const bearingRad = Convert.degreesToRadians(bearingDeg);
     const dest = GeoUtils.destCoordinate(start, bearingRad, distance);
     expect(GeoUtils.distanceTo(start, dest)).toBeCloseTo(distance, 1);
+    // Pin the bearing round-trip too: the COG vector projection in
+    // layer-cog-line.component.ts and the layline destination points
+    // in fb-map.component.ts both rely on destCoordinate(p, theta, d)
+    // landing on a great-circle path with initial bearing theta.
+    expect(GeoUtils.greatCircleBearing(start, dest)).toBeCloseTo(bearingDeg, 2);
   });
 
   it('range-circle helper: south 1 km lands at lat - ~0.009 degrees', () => {
@@ -150,6 +156,14 @@ describe('Angle helpers (used alongside GeoUtils for laylines and COG)', () => {
     // starboard.
     expect(Angle.difference(0, 350)).toBeCloseTo(-10, 6);
     expect(Angle.difference(0, 10)).toBeCloseTo(10, 6);
+  });
+
+  it('difference returns +180 (not -180) for the abeam-opposite case', () => {
+    // Pin the boundary so the closestForwardPoint check `a > -90 && a < 90`
+    // and the layline geometry stay deterministic when bearing is exactly
+    // 180 degrees off heading.
+    expect(Angle.difference(0, 180)).toBeCloseTo(180, 6);
+    expect(Angle.difference(90, 270)).toBeCloseTo(180, 6);
   });
 
   it('add wraps through 360', () => {

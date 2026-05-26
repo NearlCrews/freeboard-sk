@@ -510,7 +510,8 @@ const validateAreaBody = (body: any) => {
  * @returns true if valid
  */
 const isValidPosition = (position: Position): boolean => {
-  return position &&
+  return (
+    !!position &&
     'latitude' in position &&
     'longitude' in position &&
     typeof position.latitude === 'number' &&
@@ -519,8 +520,7 @@ const isValidPosition = (position: Position): boolean => {
     typeof position.longitude === 'number' &&
     position.longitude >= -180 &&
     position.longitude <= 180
-    ? true
-    : false;
+  );
 };
 
 /**
@@ -528,10 +528,8 @@ const isValidPosition = (position: Position): boolean => {
  * @param id Region identifier
  * @returns coordinates array
  */
-const fetchRegion = async (id: string) => {
-  const reg = await server.resourcesApi.getResource('regions', id);
-  return reg;
-};
+const fetchRegion = (id: string) =>
+  server.resourcesApi.getResource('regions', id);
 
 /**
  * Fetch list of region resources and parse them to assign alarm area
@@ -599,25 +597,13 @@ const processVesselPositionUpdate = (position: Position) => {
   }
 
   alarmAreas.forEach((v, k) => {
-    let condition: AlarmCondition;
-
-    if (v.geometry === 'circle') {
-      if (isPointWithinRadius(position, v.center, v.radius)) {
-        condition = 'inside';
-        server.debug(`Vessel inside alarm radius ${k}`);
-      } else {
-        condition = 'outside';
-        server.debug(`Vessel outside alarm radius ${k}`);
-      }
-    } else {
-      if (isPointInPolygon(position, v.coords)) {
-        condition = 'inside';
-        server.debug(`Vessel inside alarm area ${k}`);
-      } else {
-        condition = 'outside';
-        server.debug(`Vessel outside alarm area ${k}`);
-      }
-    }
+    const inside =
+      v.geometry === 'circle'
+        ? isPointWithinRadius(position, v.center, v.radius)
+        : isPointInPolygon(position, v.coords);
+    const condition: AlarmCondition = inside ? 'inside' : 'outside';
+    const label = v.geometry === 'circle' ? 'radius' : 'area';
+    server.debug(`Vessel ${condition} alarm ${label} ${k}`);
     alarmManager.update(k, condition);
   });
 };

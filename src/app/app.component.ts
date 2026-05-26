@@ -264,11 +264,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     effect(() => {
       document.body.setAttribute('data-theme', this.themeAttr());
     });
-    // Phase 4a Batch 3: mirror the effective night-mode flag into the
-    // chart-tile filter signal. MapComponent watches this same signal and
-    // refreshes raster tile sources so the per-tile OffscreenCanvas tint
-    // applies. Chrome (sidebar, toolbar, menus) is already covered by the
-    // Phase 3 night-red OKLCH tokens.
+    // Mirror the effective night-mode flag into the chart-tile filter
+    // signal. MapComponent watches it and refreshes raster sources so the
+    // per-tile OffscreenCanvas tint applies; chrome is already covered by
+    // the night-red OKLCH tokens.
     effect(() => {
       chartNightMode.set(
         this.stream.selfNightMode() || this.app.uiCtrl().forceNightMode
