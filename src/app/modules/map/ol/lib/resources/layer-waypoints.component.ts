@@ -3,7 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Text, Circle, Fill, Stroke } from 'ol/style';
@@ -14,6 +15,7 @@ import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBWaypoints } from 'src/app/types';
 import { SKWaypoint } from 'src/app/modules/skresources';
 import { MapImageRegistry } from '../map-image-registry.service';
+import { MapThemeService } from '../theme';
 
 // ** Freeboard resource collection format **
 @Component({
@@ -26,6 +28,8 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
   @Input() waypointStyles?: Record<string, Style>;
   @Input() activeWaypoint?: string;
   @Input() waypoints: FBWaypoints = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -121,38 +125,23 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
       );
     } else {
       // default styles
-      let s: Style;
-      if (id === this.activeWaypoint) {
-        s = new Style({
-          image: new Circle({
-            radius: 5,
-            fill: new Fill({ color: 'blue' }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 2
-            })
-          }),
-          text: new Text({
-            text: '',
-            offsetY: -12
+      const palette = this.mapTheme.palette();
+      const fillColor =
+        id === this.activeWaypoint ? palette.routeActive : palette.waypoint;
+      const s = new Style({
+        image: new Circle({
+          radius: 5,
+          fill: new Fill({ color: fillColor }),
+          stroke: new Stroke({
+            color: 'black',
+            width: 2
           })
-        });
-      } else {
-        s = new Style({
-          image: new Circle({
-            radius: 5,
-            fill: new Fill({ color: 'gold' }),
-            stroke: new Stroke({
-              color: 'black',
-              width: 2
-            })
-          }),
-          text: new Text({
-            text: '',
-            offsetY: -12
-          })
-        });
-      }
+        }),
+        text: new Text({
+          text: '',
+          offsetY: -12
+        })
+      });
       return this.setTextLabel(s, wpt.name);
     }
   }

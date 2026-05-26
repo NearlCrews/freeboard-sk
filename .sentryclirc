@@ -1,0 +1,15 @@
+# Sentry CLI configuration template.
+#
+# The CI workflow (.github/workflows/main.yaml, sentry-sourcemaps job)
+# passes SENTRY_AUTH_TOKEN, SENTRY_ORG, and SENTRY_PROJECT via env vars,
+# so this file's [defaults] and [auth] sections stay blank in the repo.
+# Local developers running `sentry-cli` manually can fill in their own
+# values in a private copy, or export the same env vars.
+
+[defaults]
+# org=
+# project=
+# url=https://sentry.io/
+
+[auth]
+# token=

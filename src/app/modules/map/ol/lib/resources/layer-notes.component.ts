@@ -3,7 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, RegularShape, Stroke, Fill, Text } from 'ol/style';
@@ -13,6 +14,7 @@ import { MapComponent } from '../map.component';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBNotes, NoteResource } from 'src/app/types';
 import { MapImageRegistry } from '../map-image-registry.service';
+import { MapThemeService } from '../theme';
 import { SKNote } from 'src/app/modules/skresources';
 
 // ** Freeboard resource collection format **
@@ -24,6 +26,8 @@ import { SKNote } from 'src/app/modules/skresources';
 })
 export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
   @Input() notes: FBNotes = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -89,7 +93,7 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
         image: new RegularShape({
           points: 4,
           radius: 10,
-          fill: new Fill({ color: 'gold' }),
+          fill: new Fill({ color: this.mapTheme.palette().note }),
           stroke: new Stroke({
             color: 'black',
             width: 1

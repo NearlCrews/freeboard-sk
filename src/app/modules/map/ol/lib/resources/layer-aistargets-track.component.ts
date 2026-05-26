@@ -3,7 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Stroke } from 'ol/style';
@@ -11,6 +12,7 @@ import { MultiLineString } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { AISBaseLayerComponent } from './ais-base.component';
+import { MapThemeService } from '../theme';
 
 // ** Signal K AIS targets track  **
 @Component({
@@ -25,6 +27,8 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
   @Input() tracksMinZoom = 10;
   @Input() override mapZoom = 10;
   @Input() showTracks = true;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -139,10 +143,10 @@ export class AISTargetsTrackLayerComponent extends AISBaseLayerComponent {
 
   // build track style
   buildStyle(id: string): Style {
-    const rgb = id.includes('aircraft') ? '0, 0, 255' : '255, 0, 255';
-    let color =
-      this.mapZoom < this.tracksMinZoom ? `rgba(${rgb},0)` : `rgba(${rgb},1)`;
-    color = this.showTracks ? `rgba(${rgb},1)` : `rgba(${rgb},0)`;
+    const baseColor = id.includes('aircraft')
+      ? 'rgb(0, 0, 255)'
+      : this.mapTheme.palette().trailAis;
+    const color = this.showTracks ? baseColor : 'transparent';
     if (this.layerProperties?.['style']) {
       const cs = (this.layerProperties['style'] as Style).clone();
       const ls = cs.getStroke();

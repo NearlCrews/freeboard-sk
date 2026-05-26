@@ -3,7 +3,8 @@ import {
   SimpleChanges,
   ChangeDetectionStrategy,
   Component,
-  Input
+  Input,
+  inject
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Stroke, Fill, Circle, RegularShape } from 'ol/style';
@@ -13,6 +14,7 @@ import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
+import { MapThemeService } from '../theme';
 import type { FBRoutes, Position } from 'src/app/types';
 
 // ** Freeboard resource collection format **
@@ -26,6 +28,8 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
   @Input() routeStyles?: Record<string, Style>;
   @Input() activeRoute?: string;
   @Input() routes: FBRoutes = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -109,6 +113,9 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     const isActive = id === this.activeRoute;
     let ptFill: Fill;
 
+    const palette = this.mapTheme.palette();
+    const routeColor = isActive ? palette.routeActive : palette.routeInactive;
+
     if (typeof this.routeStyles === 'undefined') {
       if (this.layerProperties?.['style']) {
         return this.layerProperties['style'] as Style;
@@ -116,7 +123,7 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
         styles.push(
           new Style({
             stroke: new Stroke({
-              color: 'green',
+              color: routeColor,
               width: 2
             })
           })
@@ -131,12 +138,12 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
     if (isActive && typeof activeStyle !== 'undefined') {
       styles.push(activeStyle);
       ptFill = new Fill({
-        color: activeStyle.getStroke()?.getColor() ?? 'green'
+        color: activeStyle.getStroke()?.getColor() ?? routeColor
       });
     } else {
       styles.push(defaultStyle.clone());
       ptFill = new Fill({
-        color: defaultStyle.getStroke()?.getColor() ?? 'green'
+        color: defaultStyle.getStroke()?.getColor() ?? routeColor
       });
     }
 

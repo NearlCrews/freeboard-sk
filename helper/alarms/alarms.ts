@@ -15,7 +15,6 @@ import {
 } from '@signalk/server-api';
 import { FreeboardHelperApp } from '../index';
 import * as uuid from 'uuid';
-import { Point } from 'geojson';
 
 // Helpers replacing geolib (dropped Phase 4a). Server-side, low frequency,
 // so haversine and ray-casting beat pulling OL's sphere helpers into Node.
@@ -39,6 +38,7 @@ function isPointInPolygon(p: Position, poly: Position[]): boolean {
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
     const pi = poly[i];
     const pj = poly[j];
+    if (!pi || !pj) continue;
     const intersect =
       pi.latitude > p.latitude !== pj.latitude > p.latitude &&
       p.longitude <
@@ -122,13 +122,15 @@ class AreaAlarmManager {
     const n = getSelfPathValue<{ method?: ALARM_METHOD[] }>(
       `notifications.area.${id}`
     );
-    if (n?.value && Array.isArray(n.value.method)) {
-      const m = n.value.method.filter((i) => i !== 'sound');
-      n.value.method = m;
+    if (!n?.value) {
+      return;
+    }
+    if (Array.isArray(n.value.method)) {
+      n.value.method = n.value.method.filter((i) => i !== 'sound');
     }
     emitNotification({
       path: `notifications.area.${id}` as Path,
-      value: n?.value
+      value: n.value
     });
   }
 
@@ -138,35 +140,31 @@ class AreaAlarmManager {
    * @param condition current condition
    */
   private assessStatus(id: string, condition: AlarmCondition) {
-    if (!alarmAreas.has(id)) {
-      return;
-    }
     const area = alarmAreas.get(id);
     const alarm = this.alarms.get(id);
+    if (!area || !alarm) {
+      return;
+    }
     let notify = false;
 
     if (area.trigger === 'entry') {
       if (condition === 'inside' && !alarm.active) {
-        // transition to active
         alarm.active = true;
         notify = true;
         server.debug(`*** inactive -> to active (${id})`);
       }
       if (condition === 'outside' && alarm.active) {
-        // transition to inactive
         alarm.active = false;
         notify = true;
         server.debug(`*** active -> to inactive (${id})`);
       }
     } else {
       if (condition === 'outside' && !alarm.active) {
-        // transition to active
         alarm.active = true;
         notify = true;
         server.debug(`*** inactive -> to active (${id})`);
       }
       if (condition === 'inside' && alarm.active) {
-        // transition to inactive
         alarm.active = false;
         notify = true;
         server.debug(`*** active -> to inactive (${id})`);
@@ -204,7 +202,7 @@ class AreaAlarmManager {
 
 let server: FreeboardHelperApp;
 let pluginId: string;
-let unsubscribes = [];
+let unsubscribes: (() => void)[] = [];
 
 const alarmAreas = new Map<string, AreaAlarmDef>();
 const alarmManager: AreaAlarmManager = new AreaAlarmManager();
@@ -263,7 +261,7 @@ const handleDeltaMessage = (delta: Delta) => {
     }
     u.values.forEach((v: PathValue) => {
       const t = v.path.split('.');
-      if (t[0] === 'resources' && t[1] === 'regions') {
+      if (t[0] === 'resources' && t[1] === 'regions' && t[2]) {
         processRegionUpdate(t[2], v.value);
       }
       if (t[0] === 'navigation' && t[1] === 'position') {
@@ -323,6 +321,16 @@ const initAlarmEndpoints = async () => {
     async (req: Request, res: Response, next: NextFunction) => {
       server.debug(`** ${req.method} ${req.path}`);
 
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
+          state: 'FAILED',
+          statusCode: 400,
+          message: 'Area id is required.'
+        });
+        return;
+      }
+
       try {
         validateAreaBody(req.body);
       } catch (err) {
@@ -335,12 +343,11 @@ const initAlarmEndpoints = async () => {
       }
 
       if (req.body.geometry === 'region') {
-        // use region resource as alarm area
         try {
-          const reg: any = await fetchRegion(req.params.id);
+          const reg: any = await fetchRegion(id);
           const coords = parseRegionCoords(reg);
           if (Array.isArray(coords)) {
-            alarmAreas.set(req.params.id, {
+            alarmAreas.set(id, {
               geometry: req.body.geometry,
               trigger: req.body.trigger,
               coords: coords,
@@ -349,7 +356,7 @@ const initAlarmEndpoints = async () => {
             res.status(200).json({
               state: 'COMPLETE',
               statusCode: 200,
-              message: `Alarm set for region: ${req.params.id}`
+              message: `Alarm set for region: ${id}`
             });
           } else {
             res.status(400).json({
@@ -366,12 +373,10 @@ const initAlarmEndpoints = async () => {
           });
         }
       } else {
-        //updateArea(req.params.id)
-        // use supplied coords as alarm area
-        const msg = alarmAreas.has(req.params.id)
-          ? `Alarm Area updated: ${req.params.id}`
-          : `Alarm Area created: ${req.params.id}`;
-        alarmAreas.set(req.params.id, req.body);
+        const msg = alarmAreas.has(id)
+          ? `Alarm Area updated: ${id}`
+          : `Alarm Area created: ${id}`;
+        alarmAreas.set(id, req.body);
         res.status(200).json({
           state: 'COMPLETE',
           statusCode: 200,
@@ -384,13 +389,22 @@ const initAlarmEndpoints = async () => {
     `${ALARM_API_PATH}/area/:id`,
     (req: Request, res: Response, next: NextFunction) => {
       server.debug(`** ${req.method} ${req.path}`);
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
+          state: 'FAILED',
+          statusCode: 400,
+          message: 'Area id is required.'
+        });
+        return;
+      }
       try {
-        if (alarmAreas.has(req.params.id)) {
-          deleteArea(req.params.id);
+        if (alarmAreas.has(id)) {
+          deleteArea(id);
           res.status(200).json({
             state: 'COMPLETE',
             statusCode: 200,
-            message: `Alarm Area Cleared: ${req.params.id}`
+            message: `Alarm Area Cleared: ${id}`
           });
         } else {
           res.status(400).json({
@@ -414,13 +428,23 @@ const initAlarmEndpoints = async () => {
     (req: Request, res: Response) => {
       server.debug(`** ${req.method} ${req.path}`);
 
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
+          state: 'FAILED',
+          statusCode: 400,
+          message: 'Area id is required.'
+        });
+        return;
+      }
+
       try {
-        if (alarmAreas.has(req.params.id)) {
-          alarmManager.silence(req.params.id);
+        if (alarmAreas.has(id)) {
+          alarmManager.silence(id);
           res.status(200).json({
             state: 'COMPLETE',
             statusCode: 200,
-            message: `Alarm silenced: ${req.params.id}`
+            message: `Alarm silenced: ${id}`
           });
         } else {
           res.status(400).json({
@@ -536,7 +560,7 @@ const fetchRegion = (id: string) =>
  * @returns void
  */
 const parseRegionList = async () => {
-  const regList = await server.resourcesApi.listResources('regions', undefined);
+  const regList = await server.resourcesApi.listResources('regions', {});
   Object.entries(regList).forEach((r) => processRegionUpdate(r[0], r[1]));
 };
 
@@ -546,14 +570,14 @@ const parseRegionList = async () => {
  * @returns coordinates array
  */
 const parseRegionCoords = (region: any): Position[] => {
-  let c: Point[];
+  let c: number[][];
   if (region.feature.geometry?.type === 'MultiPolygon') {
     c = region.feature.geometry?.coordinates[0][0];
   } else {
     c = region.feature.geometry?.coordinates[0];
   }
   return c.map((i) => {
-    return { latitude: i[1], longitude: i[0] };
+    return { latitude: i[1]!, longitude: i[0]! };
   });
 };
 
@@ -563,16 +587,16 @@ const parseRegionCoords = (region: any): Position[] => {
  * @param region Region data
  */
 const processRegionUpdate = (id: string, region: any) => {
-  if (alarmAreas.has(id)) {
+  const existing = alarmAreas.get(id);
+  if (existing) {
     if (!region) {
       deleteArea(id);
     } else if (region.feature.properties.skIcon !== 'hazard') {
       deleteArea(id);
     } else {
-      const r = alarmAreas.get(id);
-      r.coords = parseRegionCoords(region);
-      r.name = region.name;
-      alarmAreas.set(id, r);
+      existing.coords = parseRegionCoords(region);
+      existing.name = region.name;
+      alarmAreas.set(id, existing);
     }
   } else {
     if (region.feature.properties.skIcon === 'hazard') {
@@ -597,10 +621,18 @@ const processVesselPositionUpdate = (position: Position) => {
   }
 
   alarmAreas.forEach((v, k) => {
-    const inside =
-      v.geometry === 'circle'
-        ? isPointWithinRadius(position, v.center, v.radius)
-        : isPointInPolygon(position, v.coords);
+    let inside: boolean;
+    if (v.geometry === 'circle') {
+      if (!v.center || typeof v.radius !== 'number') {
+        return;
+      }
+      inside = isPointWithinRadius(position, v.center, v.radius);
+    } else {
+      if (!v.coords) {
+        return;
+      }
+      inside = isPointInPolygon(position, v.coords);
+    }
     const condition: AlarmCondition = inside ? 'inside' : 'outside';
     const label = v.geometry === 'circle' ? 'radius' : 'area';
     server.debug(`Vessel ${condition} alarm ${label} ${k}`);

@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
+  inject,
   input,
   Input,
   OnChanges,
@@ -21,6 +22,7 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords, mapifyRadius } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
 // ** Freeboard Anchor Alarm component **
@@ -58,6 +60,8 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
 
   protected mapifiedRadius = 0;
   protected mapifiedLine: Coordinate[] = [];
+
+  private readonly theme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -165,7 +169,8 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
     if (lpStyle) {
       return lpStyle;
     }
-    // default style
+    // default style: 30% alpha overlay preserves original visibility under chart.
+    const fillColor = `color-mix(in srgb, ${this.theme.palette().anchorOk} 30%, transparent)`;
     return new Style({
       stroke: new Stroke({
         width: 2,
@@ -173,7 +178,7 @@ export class AnchorAlarmComponent implements OnInit, OnDestroy, OnChanges {
         lineDash: [5, 5]
       }),
       fill: new Fill({
-        color: 'rgba(0, 255, 0, .3)'
+        color: fillColor
       })
     });
   }

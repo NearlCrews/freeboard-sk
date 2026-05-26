@@ -7,7 +7,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { Layer } from 'ol/layer';
 import { Feature } from 'ol';
@@ -18,6 +19,7 @@ import { MultiLineString, LineString } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
 // ** Freeboard Vessel trail component **
@@ -52,6 +54,8 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
 
   trailLocal?: Feature;
   trailServer?: Feature;
+
+  private readonly theme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -190,6 +194,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
 
   // build target style
   buildStyle(type = 'local'): Style {
+    const trailColor = this.theme.palette().trailSelf;
     let cs: Style;
     if (type === 'server') {
       const server = this.trailStyles?.['server'];
@@ -199,7 +204,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
         cs = new Style({
           // default server
           stroke: new Stroke({
-            color: 'rgb(252, 3, 132)',
+            color: trailColor,
             width: 1,
             lineDash: [4, 4]
           })
@@ -213,7 +218,7 @@ export class VesselTrailComponent implements OnInit, OnDestroy, OnChanges {
         cs = new Style({
           // default local
           stroke: new Stroke({
-            color: 'rgb(252, 3, 132)',
+            color: trailColor,
             width: 1,
             lineDash: [2, 2]
           })

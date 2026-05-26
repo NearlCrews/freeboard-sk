@@ -1,4 +1,11 @@
-import { Context, Plugin, ServerAPI, SKVersion } from '@signalk/server-api';
+import {
+  Context,
+  Meta,
+  Path,
+  Plugin,
+  ServerAPI,
+  SKVersion
+} from '@signalk/server-api';
 import { IRouter, Application, Request, Response } from 'express';
 import { initAlarms, shutdownAlarms } from './alarms/alarms';
 
@@ -12,9 +19,14 @@ const CONFIG_SCHEMA = {
 
 const CONFIG_UISCHEMA = {};
 
-interface SETTINGS {
+interface AlarmSettings {
+  enable: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  alarms: { [key: string]: any };
+  [key: string]: any;
+}
+
+interface SETTINGS {
+  alarms: AlarmSettings;
 }
 
 export interface FreeboardHelperApp extends Application, ServerAPI {}
@@ -107,264 +119,147 @@ module.exports = (server: FreeboardHelperApp): Plugin => {
    */
   const emitMeteoMetas = () => {
     const pathRoot = 'environment';
-    const metas = [];
+    const metas: Meta[] = [];
+    const pushMeta = (path: string, value: Meta['value']) => {
+      metas.push({ path: path as Path, value });
+    };
     server.debug('**** Building METEO metas *****');
-    metas.push({
-      path: `${pathRoot}.date`,
-      value: {
-        description: 'Time of measurement.'
-      }
+    pushMeta(`${pathRoot}.date`, {
+      description: 'Time of measurement.'
     });
-    metas.push({
-      path: `${pathRoot}.sun.sunrise`,
-      value: {
-        description: 'Time of sunrise at the related position.'
-      }
+    pushMeta(`${pathRoot}.sun.sunrise`, {
+      description: 'Time of sunrise at the related position.'
     });
-    metas.push({
-      path: `${pathRoot}.sun.sunset`,
-      value: {
-        description: 'Time of sunset at the related position.'
-      }
+    pushMeta(`${pathRoot}.sun.sunset`, {
+      description: 'Time of sunset at the related position.'
     });
-    metas.push({
-      path: `${pathRoot}.outside.uvIndex`,
-      value: {
-        description: 'Level of UV radiation. 1 UVI = 25mW/sqm',
-        units: 'UVI'
-      }
+    pushMeta(`${pathRoot}.outside.uvIndex`, {
+      description: 'Level of UV radiation. 1 UVI = 25mW/sqm',
+      units: 'UVI'
     });
-    metas.push({
-      path: `${pathRoot}.outside.cloudCover`,
-      value: {
-        description: 'Cloud clover.',
-        units: 'ratio'
-      }
+    pushMeta(`${pathRoot}.outside.cloudCover`, {
+      description: 'Cloud clover.',
+      units: 'ratio'
     });
-    metas.push({
-      path: `${pathRoot}.outside.temperature`,
-      value: {
-        description: 'Outside air temperature.',
-        units: 'K'
-      }
+    pushMeta(`${pathRoot}.outside.temperature`, {
+      description: 'Outside air temperature.',
+      units: 'K'
     });
-    metas.push({
-      path: `${pathRoot}.outside.dewPointTemperature`,
-      value: {
-        description: 'Dew point.',
-        units: 'K'
-      }
+    pushMeta(`${pathRoot}.outside.dewPointTemperature`, {
+      description: 'Dew point.',
+      units: 'K'
     });
-    metas.push({
-      path: `${pathRoot}.outside.feelsLikeTemperature`,
-      value: {
-        description: 'Feels like temperature.',
-        units: 'K'
-      }
+    pushMeta(`${pathRoot}.outside.feelsLikeTemperature`, {
+      description: 'Feels like temperature.',
+      units: 'K'
     });
-    metas.push({
-      path: `${pathRoot}.outside.horizontalVisibility`,
-      value: {
-        description: 'Horizontal visibility.',
-        units: 'm'
-      }
+    pushMeta(`${pathRoot}.outside.horizontalVisibility`, {
+      description: 'Horizontal visibility.',
+      units: 'm'
     });
-    metas.push({
-      path: `${pathRoot}.outside.horizontalVisibilityOverRange`,
-      value: {
-        description:
-          'Visibilty distance is greater than the range of the measuring equipment.'
-      }
+    pushMeta(`${pathRoot}.outside.horizontalVisibilityOverRange`, {
+      description:
+        'Visibilty distance is greater than the range of the measuring equipment.'
     });
-    metas.push({
-      path: `${pathRoot}.outside.pressure`,
-      value: {
-        description: 'Barometric pressure.',
-        units: 'Pa'
-      }
+    pushMeta(`${pathRoot}.outside.pressure`, {
+      description: 'Barometric pressure.',
+      units: 'Pa'
     });
-    metas.push({
-      path: `${pathRoot}.outside.pressureTendency`,
-      value: {
-        description:
-          'Integer value indicating barometric pressure value tendency e.g. 0 = steady, etc.'
-      }
+    pushMeta(`${pathRoot}.outside.pressureTendency`, {
+      description:
+        'Integer value indicating barometric pressure value tendency e.g. 0 = steady, etc.'
     });
-
-    metas.push({
-      path: `${pathRoot}.outside.pressureTendencyType`,
-      value: {
-        description:
-          'Description for the value of pressureTendency e.g. steady, increasing, decreasing.'
-      }
+    pushMeta(`${pathRoot}.outside.pressureTendencyType`, {
+      description:
+        'Description for the value of pressureTendency e.g. steady, increasing, decreasing.'
     });
-    metas.push({
-      path: `${pathRoot}.outside.relativeHumidity`,
-      value: {
-        description: 'Relative humidity.',
-        units: 'ratio'
-      }
+    pushMeta(`${pathRoot}.outside.relativeHumidity`, {
+      description: 'Relative humidity.',
+      units: 'ratio'
     });
-    metas.push({
-      path: `${pathRoot}.outside.absoluteHumidity`,
-      value: {
-        description: 'Absolute humidity.',
-        units: 'ratio'
-      }
+    pushMeta(`${pathRoot}.outside.absoluteHumidity`, {
+      description: 'Absolute humidity.',
+      units: 'ratio'
     });
-    metas.push({
-      path: `${pathRoot}.outside.precipitationVolume`,
-      value: {
-        description: 'Precipitation Volume.',
-        units: 'm'
-      }
+    pushMeta(`${pathRoot}.outside.precipitationVolume`, {
+      description: 'Precipitation Volume.',
+      units: 'm'
     });
-    metas.push({
-      path: `${pathRoot}.wind.averageSpeed`,
-      value: {
-        description: 'Average wind speed.',
-        units: 'm/s'
-      }
+    pushMeta(`${pathRoot}.wind.averageSpeed`, {
+      description: 'Average wind speed.',
+      units: 'm/s'
     });
-    metas.push({
-      path: `${pathRoot}.wind.speedTrue`,
-      value: {
-        description: 'True wind speed.',
-        units: 'm/s'
-      }
+    pushMeta(`${pathRoot}.wind.speedTrue`, {
+      description: 'True wind speed.',
+      units: 'm/s'
     });
-    metas.push({
-      path: `${pathRoot}.wind.directionTrue`,
-      value: {
-        description: 'The wind direction relative to true north.',
-        units: 'rad'
-      }
+    pushMeta(`${pathRoot}.wind.directionTrue`, {
+      description: 'The wind direction relative to true north.',
+      units: 'rad'
     });
-    metas.push({
-      path: `${pathRoot}.wind.gust`,
-      value: {
-        description: 'Maximum wind gust.',
-        units: 'm/s'
-      }
+    pushMeta(`${pathRoot}.wind.gust`, {
+      description: 'Maximum wind gust.',
+      units: 'm/s'
     });
-    metas.push({
-      path: `${pathRoot}.wind.gustDirectionTrue`,
-      value: {
-        description: 'Maximum wind gust direction.',
-        units: 'rad'
-      }
+    pushMeta(`${pathRoot}.wind.gustDirectionTrue`, {
+      description: 'Maximum wind gust direction.',
+      units: 'rad'
     });
-
-    metas.push({
-      path: `${pathRoot}.wind.gust`,
-      value: {
-        description: 'Maximum wind gust.',
-        units: 'm/s'
-      }
+    pushMeta(`${pathRoot}.wind.gust`, {
+      description: 'Maximum wind gust.',
+      units: 'm/s'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.level`,
-      value: {
-        description: 'Water level.',
-        units: 'm'
-      }
+    pushMeta(`${pathRoot}.water.level`, {
+      description: 'Water level.',
+      units: 'm'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.temperature`,
-      value: {
-        description: 'Water temperature.',
-        units: 'K'
-      }
+    pushMeta(`${pathRoot}.water.temperature`, {
+      description: 'Water temperature.',
+      units: 'K'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.salinity`,
-      value: {
-        description: 'Water salinity.',
-        units: 'ratio'
-      }
+    pushMeta(`${pathRoot}.water.salinity`, {
+      description: 'Water salinity.',
+      units: 'ratio'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.levelTendency`,
-      value: {
-        description:
-          'Integer value indicating water level tendency e.g. 0 = steady, etc.'
-      }
+    pushMeta(`${pathRoot}.water.levelTendency`, {
+      description:
+        'Integer value indicating water level tendency e.g. 0 = steady, etc.'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.levelTendencyType`,
-      value: {
-        description:
-          'Description for the value of levelTendency e.g. steady, increasing, decreasing.'
-      }
+    pushMeta(`${pathRoot}.water.levelTendencyType`, {
+      description:
+        'Description for the value of levelTendency e.g. steady, increasing, decreasing.'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.current.set`,
-      value: {
-        description: 'Water current direction.',
-        units: 'rad'
-      }
+    pushMeta(`${pathRoot}.water.current.set`, {
+      description: 'Water current direction.',
+      units: 'rad'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.current.drift`,
-      value: {
-        description: 'Water current speed.',
-        units: 'm/s'
-      }
+    pushMeta(`${pathRoot}.water.current.drift`, {
+      description: 'Water current speed.',
+      units: 'm/s'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.waves.significantHeight`,
-      value: {
-        description: 'Significant wave height.',
-        units: 'm'
-      }
+    pushMeta(`${pathRoot}.water.waves.significantHeight`, {
+      description: 'Significant wave height.',
+      units: 'm'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.waves.period`,
-      value: {
-        description: 'Wave period.',
-        units: 'ms'
-      }
+    pushMeta(`${pathRoot}.water.waves.period`, {
+      description: 'Wave period.',
+      units: 'ms'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.waves.direction`,
-      value: {
-        description: 'Wave direction.',
-        units: 'rad'
-      }
+    pushMeta(`${pathRoot}.water.waves.direction`, {
+      description: 'Wave direction.',
+      units: 'rad'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.swell.significantHeight`,
-      value: {
-        description: 'Significant swell height.',
-        units: 'm'
-      }
+    pushMeta(`${pathRoot}.water.swell.significantHeight`, {
+      description: 'Significant swell height.',
+      units: 'm'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.swell.period`,
-      value: {
-        description: 'Swell period.',
-        units: 'ms'
-      }
+    pushMeta(`${pathRoot}.water.swell.period`, {
+      description: 'Swell period.',
+      units: 'ms'
     });
-
-    metas.push({
-      path: `${pathRoot}.water.swell.directionTrue`,
-      value: {
-        description: 'Swell direction.',
-        units: 'rad'
-      }
+    pushMeta(`${pathRoot}.water.swell.directionTrue`, {
+      description: 'Swell direction.',
+      units: 'rad'
     });
 
     server.debug('****  Sending METEO metas *****');

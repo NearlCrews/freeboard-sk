@@ -3,7 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, Stroke, Fill, Text } from 'ol/style';
@@ -11,6 +12,7 @@ import { Polygon, MultiPolygon } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
+import { MapThemeService } from '../theme';
 import { FBRegions } from 'src/app/types';
 
 @Component({
@@ -22,6 +24,8 @@ import { FBRegions } from 'src/app/types';
 export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
   @Input() regions: FBRegions = [];
   @Input() regionStyles?: Record<string, Style>;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -73,14 +77,16 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
   // build region feature style
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildStyle(id: string, reg: any): Style {
+    const regionColor = this.mapTheme.palette().region;
+    const fillColor = `color-mix(in srgb, ${regionColor} 10%, transparent)`;
     // default style
     let theStyle = this.setTextLabel(
       new Style({
         fill: new Fill({
-          color: 'rgba(255,0,255,0.1)'
+          color: fillColor
         }),
         stroke: new Stroke({
-          color: 'purple',
+          color: regionColor,
           width: 1
         }),
         text: new Text({

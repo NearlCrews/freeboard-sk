@@ -27,3 +27,53 @@ jobs:
       - name: npm run build
         run: |
           npm run build:all
+      - name: upload build artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: public
+          path: public/
+          if-no-files-found: error
+          retention-days: 7
+
+  # Phase 6 (MODERNIZATION_ROADMAP.md): on tag pushes, upload the production
+  # JS sourcemaps to Sentry so released errors symbolicate against the
+  # original TypeScript, then strip the .map files from the artifact so
+  # they never ship to end users. Sourcemaps are emitted as "hidden" by the
+  # Angular production config: .map files exist on disk but the bundles
+  # carry no //# sourceMappingURL= comment, so browsers will not fetch
+  # them even if the artifact is ever published verbatim.
+  #
+  # Required GitHub repository secrets (configure in repo Settings then
+  # Secrets and variables then Actions):
+  #   - SENTRY_AUTH_TOKEN: Sentry auth token with project:releases scope.
+  #   - SENTRY_ORG: Sentry organization slug.
+  #   - SENTRY_PROJECT: Sentry project slug.
+  sentry-sourcemaps:
+    name: sentry sourcemaps (tag)
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: public
+          path: public/
+      - name: upload sourcemaps to Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_RELEASE: ${{ github.ref_name }}
+        run: |
+          npx --yes @sentry/cli@3 releases new "$SENTRY_RELEASE"
+          npx --yes @sentry/cli@3 sourcemaps inject public
+          npx --yes @sentry/cli@3 sourcemaps upload \
+            --release "$SENTRY_RELEASE" \
+            public
+          npx --yes @sentry/cli@3 releases finalize "$SENTRY_RELEASE"
+      - name: strip .map files from artifact
+        run: |
+          find public -type f -name '*.map' -delete
