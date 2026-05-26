@@ -4,19 +4,21 @@
 
 import { xml2JsonInWorker } from 'src/app/lib/file-xml2json';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Extensions = Record<string, any>;
+
 /************************
  ** GPX File Class **
  ************************/
 export class GPX {
-  private version: string; // ** GPX version
-  public creator: string;
+  private version = '1.1';
+  public creator = '@panaaj';
 
-  public wpt: Array<GPXWaypoint>; // ** array of waypoints
-  public rte: Array<GPXRoute>; // ** array of routes
-  public trk: Array<GPXTrack>; // ** array of tracks
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: any;
-  public metadata: GPXMetadataType;
+  public wpt: GPXWaypoint[] = [];
+  public rte: GPXRoute[] = [];
+  public trk: GPXTrack[] = [];
+  public extensions: Extensions = {};
+  public metadata: GPXMetadataType = new GPXMetadataType();
 
   constructor() {
     this.init();
@@ -25,9 +27,9 @@ export class GPX {
   public init() {
     this.version = '1.1';
     this.creator = '@panaaj';
-    this.wpt = []; // ** array of waypoints
-    this.rte = []; // ** array of routes
-    this.trk = []; // ** array of tracks
+    this.wpt = [];
+    this.rte = [];
+    this.trk = [];
     this.extensions = {};
     this.metadata = new GPXMetadataType();
   }
@@ -180,8 +182,7 @@ export class GPX {
   }
 
   /** Return formatted ptType <tag> XML for supplied GPXWaypoint object **/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private ptToXML(pt: any, tag: any) {
+  private ptToXML(pt: GPXWaypoint, tag: 'wpt' | 'rtept' | 'trkpt') {
     let pad = '';
     let padLevel = 2;
     switch (tag) {
@@ -205,22 +206,21 @@ export class GPX {
     xml += pt.desc ? `${pad}\t\t<desc>${pt.desc || ''}</desc>\r\n` : '';
     xml += pt.src ? `${pad}\t\t<src>${pt.src || ''}</src>\r\n` : '';
     xml += pt.type ? `${pad}\t\t<type>${pt.type || ''}</type>\r\n` : '';
-    xml += pt.time ? `${pad}\t\t<time>${pt.datetime || ''}</time>\r\n` : '';
     xml += pt.fix ? `${pad}\t\t<fix>${pt.fix || ''}</fix>\r\n` : '';
 
-    xml += pt.ele ? `${pad}\t\t<ele>${pt.ele || ''}</ele>\r\n` : '';
-    xml += pt.magvar ? `${pad}\t\t<magvar>${pt.magvar || ''}</magvar>\r\n` : '';
+    xml += pt.ele ? `${pad}\t\t<ele>${pt.ele}</ele>\r\n` : '';
+    xml += pt.magvar ? `${pad}\t\t<magvar>${pt.magvar}</magvar>\r\n` : '';
     xml += pt.geoidHeight
-      ? `${pad}\t\t<geoidheight>${pt.geoidHeight || ''}</geoidheight>\r\n`
+      ? `${pad}\t\t<geoidheight>${pt.geoidHeight}</geoidheight>\r\n`
       : '';
-    xml += pt.sat ? `${pad}\t\t<sat>${pt.sat || ''}</sat>\r\n` : '';
-    xml += pt.vdop ? `${pad}\t\t<vdop>${pt.vdop || ''}</vdop>\r\n` : '';
-    xml += pt.hdop ? `${pad}\t\t<hdop>${pt.hdop || ''}</hdop>\r\n` : '';
-    xml += pt.pdop ? `${pad}\t\t<pdop>${pt.pdop || ''}</pdop>\r\n` : '';
+    xml += pt.sat ? `${pad}\t\t<sat>${pt.sat}</sat>\r\n` : '';
+    xml += pt.vdop ? `${pad}\t\t<vdop>${pt.vdop}</vdop>\r\n` : '';
+    xml += pt.hdop ? `${pad}\t\t<hdop>${pt.hdop}</hdop>\r\n` : '';
+    xml += pt.pdop ? `${pad}\t\t<pdop>${pt.pdop}</pdop>\r\n` : '';
     xml += pt.ageOfGpsData
-      ? `${pad}\t\t<ageofdgpsdata>${pt.ageOfGpsData || ''}</ageofdgpsdata>\r\n`
+      ? `${pad}\t\t<ageofdgpsdata>${pt.ageOfGpsData}</ageofdgpsdata>\r\n`
       : '';
-    xml += pt.dgpsid ? `${pad}\t\t<dgpsid>${pt.dgpsid || ''}</dgpsid>\r\n` : '';
+    xml += pt.dgpsid ? `${pad}\t\t<dgpsid>${pt.dgpsid}</dgpsid>\r\n` : '';
 
     pt.link.forEach((l) => {
       xml +=
@@ -238,15 +238,15 @@ export class GPX {
   }
 
   /** return formatted <extension> XML for supplied .extension object **/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extensionsToXML(ext: any, padLevel = 1) {
+  private extensionsToXML(ext: Extensions, padLevel = 1) {
     let xml = '';
     if (ext && Object.keys(ext).length !== 0) {
       const pad = '\t\t\t\t\t\t\t\t\t'.slice(0 - padLevel);
       let es = ``;
-      if (ext.signalk) {
-        Object.keys(ext.signalk).forEach((k) => {
-          es += `${pad}\t\t<${k}>${ext.signalk[k]}</${k}>\r\n`;
+      if (ext['signalk']) {
+        const sk = ext['signalk'] as Record<string, unknown>;
+        Object.keys(sk).forEach((k) => {
+          es += `${pad}\t\t<${k}>${sk[k]}</${k}>\r\n`;
         });
       }
       xml +=
@@ -258,37 +258,41 @@ export class GPX {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private xValue(attrib: Array<any>) {
+  private xValue(attrib: any): any {
     if (attrib && Array.isArray(attrib)) {
       return attrib.length !== 0 ? attrib[0] : null;
     }
+    return undefined;
   }
 
   /** parse GPX string contents and fill this.data  **/
   public async parse(gpxstr: string): Promise<boolean> {
-    // ** check for valid file contents **
-    if (!gpxstr || gpxstr.indexOf('<gpx') === -1) {
+    if (!gpxstr || !gpxstr.includes('<gpx')) {
       return false;
     }
-    // ** initialise **
     this.init();
     try {
-      const xjs = await xml2JsonInWorker(gpxstr);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const xjs = (await xml2JsonInWorker(gpxstr)) as any;
+      const gpxNode = xjs?.gpx;
+      if (!gpxNode) {
+        return false;
+      }
 
       //** parse header **
-      if (xjs['gpx']['metadata']) {
-        const meta = this.xValue(xjs['gpx']['metadata']);
+      if (gpxNode.metadata) {
+        const meta = this.xValue(gpxNode.metadata);
 
-        this.metadata.name = meta.name ? this.xValue(meta.name) : null;
-        this.metadata.desc = meta.desc ? this.xValue(meta.desc) : null;
-        this.metadata.keywords = meta.keywords ? meta.keywords : null;
+        this.metadata.name = meta.name ? this.xValue(meta.name) : '';
+        this.metadata.desc = meta.desc ? this.xValue(meta.desc) : '';
+        this.metadata.keywords = meta.keywords ? meta.keywords : '';
 
         if (meta.bounds) {
           const bounds = this.xValue(meta.bounds);
-          this.metadata.bounds.minLat = Number(bounds['$'].minlat) ?? null;
-          this.metadata.bounds.minLon = Number(bounds['$'].minlon) ?? null;
-          this.metadata.bounds.maxLat = Number(bounds['$'].maxlat) ?? null;
-          this.metadata.bounds.maxLon = Number(bounds['$'].maxlon) ?? null;
+          this.metadata.bounds.minLat = Number(bounds.$.minlat);
+          this.metadata.bounds.minLon = Number(bounds.$.minlon);
+          this.metadata.bounds.maxLat = Number(bounds.$.maxlat);
+          this.metadata.bounds.maxLon = Number(bounds.$.maxlon);
         }
         this.metadata.extensions = meta.extensions
           ? this.parseExtensions(meta.extensions)
@@ -296,30 +300,30 @@ export class GPX {
       }
 
       //** parse waypoints **
-      if (xjs['gpx']['wpt']) {
-        this.parseWaypoints(xjs['gpx']['wpt']);
+      if (gpxNode.wpt) {
+        this.parseWaypoints(gpxNode.wpt);
       }
       //** parse routes **
-      if (xjs['gpx']['rte']) {
-        this.parseRoutes(xjs['gpx']['rte']);
+      if (gpxNode.rte) {
+        this.parseRoutes(gpxNode.rte);
       }
       //** parse tracks **
-      if (xjs['gpx']['trk']) {
-        this.parseTracks(xjs['gpx']['trk']);
+      if (gpxNode.trk) {
+        this.parseTracks(gpxNode.trk);
       }
       //** parse extensions **
-      this.extensions = xjs['gpx']['extensions']
-        ? this.parseExtensions(xjs['gpx']['extensions'])
+      this.extensions = gpxNode.extensions
+        ? this.parseExtensions(gpxNode.extensions)
         : {};
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
 
   /** parse wpt xml element object array into this.wpt array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseWaypoints(waypoints: any[]) {
+  private parseWaypoints(waypoints: any) {
     if (Array.isArray(waypoints)) {
       waypoints.forEach((w) => {
         const pt = this.toWpt(w);
@@ -335,49 +339,45 @@ export class GPX {
 
   /** parse rte xml element object array into this.rte array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseRoutes(routes: any[]) {
+  private parseRoutes(routes: any) {
     if (Array.isArray(routes)) {
       routes.forEach((r) => {
         const rte = this.toRte(r);
-        this.updateBounds(rte);
         this.rte.push(rte);
       });
     } else {
       const rte = this.toRte(routes);
-      this.updateBounds(rte);
       this.rte.push(rte);
     }
   }
 
   /** parse trk xml element object array into this.trk array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseTracks(tracks: any[]) {
+  private parseTracks(tracks: any) {
     if (Array.isArray(tracks)) {
       tracks.forEach((t) => {
         const trk = this.toTrk(t);
-        this.updateBounds(trk);
         this.trk.push(trk);
       });
     } else {
       const trk = this.toTrk(tracks);
-      this.updateBounds(trk);
       this.trk.push(trk);
     }
   }
 
   /** return extension data **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseExtensions(xext: any[]) {
+  private parseExtensions(xext: any): Extensions {
     if (!xext) {
       return {};
     }
     if (!Array.isArray(xext)) {
       return {};
     }
-    const resExt = {};
+    const resExt: Extensions = {};
     xext.forEach((i) => {
       if (i.signalk) {
-        const res = {};
+        const res: Record<string, unknown> = {};
         const sk = this.xValue(i.signalk);
         Object.keys(sk).forEach((k) => {
           res[k] = this.xValue(sk[k]);
@@ -390,8 +390,8 @@ export class GPX {
 
   /** return array of GPXLinkType objects from x2js **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseLinks(xlink: any): Array<GPXLinkType> {
-    const links = [];
+  private parseLinks(xlink: any): GPXLinkType[] {
+    const links: GPXLinkType[] = [];
     if (!xlink) {
       return links;
     }
@@ -439,8 +439,8 @@ export class GPX {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toWpt(xmlwpt: any): GPXWaypoint {
     const pt = new GPXWaypoint();
-    pt.lat = Number(xmlwpt['$'].lat) || 0;
-    pt.lon = Number(xmlwpt['$'].lon) || 0;
+    pt.lat = Number(xmlwpt.$.lat) || 0;
+    pt.lon = Number(xmlwpt.$.lon) || 0;
     pt.ele = xmlwpt.ele ? Number(this.xValue(xmlwpt.ele)) : null;
 
     pt.sym = xmlwpt.sym ? this.xValue(xmlwpt.sym) : null;
@@ -450,7 +450,6 @@ export class GPX {
     pt.src = xmlwpt.src ? this.xValue(xmlwpt.src) : null;
     pt.type = xmlwpt.type ? this.xValue(xmlwpt.type) : null;
 
-    // ** wpt extensions **
     pt.extensions = xmlwpt.extensions
       ? this.parseExtensions(xmlwpt.extensions)
       : {};
@@ -475,16 +474,19 @@ export class GPX {
 
     if (xmltrk.trkseg) {
       if (Array.isArray(xmltrk.trkseg)) {
-        xmltrk.trkseg.forEach((trkseg) => {
-          const seg = new GPXTrackSegment();
-          seg.extensions = trkseg.extensions
-            ? this.parseExtensions(trkseg.extensions)
-            : {};
-          if (trkseg.trkpt) {
-            seg.trkpt = this.toPtArray(trkseg.trkpt);
+        xmltrk.trkseg.forEach(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (trkseg: any) => {
+            const seg = new GPXTrackSegment();
+            seg.extensions = trkseg.extensions
+              ? this.parseExtensions(trkseg.extensions)
+              : {};
+            if (trkseg.trkpt) {
+              seg.trkpt = this.toPtArray(trkseg.trkpt);
+            }
+            tk.trkseg.push(seg);
           }
-          tk.trkseg.push(seg);
-        });
+        );
       } else {
         const seg = new GPXTrackSegment();
         seg.extensions = xmltrk.trkseg.extensions
@@ -501,8 +503,8 @@ export class GPX {
 
   /** return GPXWaypoint array for supplied pt xml object(s) **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private toPtArray(xpts: any[]): Array<GPXWaypoint> {
-    const pts = [];
+  private toPtArray(xpts: any): GPXWaypoint[] {
+    const pts: GPXWaypoint[] = [];
     if (Array.isArray(xpts)) {
       xpts.forEach((t) => {
         const pt = this.toWpt(t);
@@ -523,25 +525,30 @@ export class GPX {
    * @param name: extension path/name in dotted notation e.g. signalk.uuid
    * @param value: extension value
    **/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private setExtension(ele: any, name: string, value: any) {
-    if (!ele.extensions) {
-      ele.extensions = {};
-    }
+  private setExtension(
+    ele: { extensions?: Extensions },
+    name: string,
+    value: unknown
+  ) {
+    const ext: Extensions = ele.extensions ?? {};
+    ele.extensions = ext;
     const ns = name.split('.');
-    let p = ele.extensions;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let p: any = ext;
     ns.forEach((n) => {
       if (!p[n]) {
         p[n] = {};
       }
       p = p[n];
     });
-    ele.extensions['signalk']['uuid'] = value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const signalk: Record<string, any> = ext['signalk'] ?? {};
+    ext['signalk'] = signalk;
+    signalk['uuid'] = value;
   }
 
   /** update Bounds metadata **/
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public updateBounds(pt: any) {
+  public updateBounds(pt: { lat: number; lon: number }) {
     this.metadata.bounds.minLat =
       pt.lat < this.metadata.bounds.minLat
         ? pt.lat
@@ -563,29 +570,28 @@ export class GPX {
 
 // ** GPX Waypont object **
 export class GPXWaypoint {
-  public lat: number;
-  public lon: number;
-  public ele: number;
-  public datetime: Date;
-  public magvar: number;
-  public geoidHeight: number;
-  public name: string;
-  public cmt: string;
-  public desc: string;
-  public src: string;
-  public link: Array<GPXLinkType> = [];
-  public sym: string;
-  public type: string;
+  public lat = 0;
+  public lon = 0;
+  public ele: number | null = null;
+  public datetime: Date | null = null;
+  public magvar: number | null = null;
+  public geoidHeight: number | null = null;
+  public name: string | null = null;
+  public cmt: string | null = null;
+  public desc: string | null = null;
+  public src: string | null = null;
+  public link: GPXLinkType[] = [];
+  public sym: string | null = null;
+  public type: string | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public fix: any;
-  public sat: number;
-  public hdop: number;
-  public vdop: number;
-  public pdop: number;
-  public ageOfGpsData: number;
-  public dgpsid: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: { [key: string]: any } = {};
+  public fix: any = null;
+  public sat: number | null = null;
+  public hdop: number | null = null;
+  public vdop: number | null = null;
+  public pdop: number | null = null;
+  public ageOfGpsData: number | null = null;
+  public dgpsid: number | null = null;
+  public extensions: Extensions = {};
 
   constructor(lat?: number, lon?: number) {
     this.lat = lat || 0;
@@ -595,16 +601,15 @@ export class GPXWaypoint {
 
 // ** GPX Route object **
 export class GPXRoute {
-  public name: string;
-  public cmt: string;
-  public desc: string;
-  public src: string;
-  public link: Array<GPXLinkType> = [];
-  public number: number;
-  public type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: { [key: string]: any } = {};
-  public rtept: Array<GPXWaypoint> = [];
+  public name: string | null = '';
+  public cmt: string | null = null;
+  public desc: string | null = null;
+  public src: string | null = null;
+  public link: GPXLinkType[] = [];
+  public number: number | null = null;
+  public type: string | null = null;
+  public extensions: Extensions = {};
+  public rtept: GPXWaypoint[] = [];
 
   constructor(name?: string) {
     this.name = name || '';
@@ -613,16 +618,15 @@ export class GPXRoute {
 
 // ** GPX Track Class **
 export class GPXTrack {
-  public name: string;
-  public cmt: string;
-  public desc: string;
-  public src: string;
-  public link: Array<GPXLinkType> = [];
-  public number: number;
-  public type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: { [key: string]: any } = {};
-  public trkseg: Array<GPXTrackSegment> = [];
+  public name: string | null = '';
+  public cmt: string | null = null;
+  public desc: string | null = null;
+  public src: string | null = null;
+  public link: GPXLinkType[] = [];
+  public number: number | null = null;
+  public type: string | null = null;
+  public extensions: Extensions = {};
+  public trkseg: GPXTrackSegment[] = [];
 
   constructor(name?: string) {
     this.name = name || '';
@@ -630,10 +634,8 @@ export class GPXTrack {
 }
 
 export class GPXTrackSegment {
-  public trkpt: Array<GPXWaypoint> = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: { [key: string]: any } = {};
-  //constructor() {	}
+  public trkpt: GPXWaypoint[] = [];
+  public extensions: Extensions = {};
 }
 
 // ***************
@@ -650,42 +652,36 @@ export enum GPXFixType {
 export class GPXMetadataType {
   public name = '';
   public desc = '';
-  public author: GPXPersonType; //= new GPXPersonType();
-  public copyright: GPXCopyrightType; //= new GPXCopyrightType();
-  public link: Array<GPXLinkType> = []; //
+  public author: GPXPersonType | null = null;
+  public copyright: GPXCopyrightType | null = null;
+  public link: GPXLinkType[] = [];
   public time: string = new Date().toISOString();
   public keywords = '';
   public bounds: GPXBoundsType = new GPXBoundsType();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public extensions: { [key: string]: any } = {};
-  //constructor() {	}
+  public extensions: Extensions = {};
 }
 
 export class GPXLinkType {
   public href = '';
   public text = '';
   public type = '';
-  //constructor() {	}
 }
 
 export class GPXPersonType {
   public name = '';
   public email: GPXEmailType = new GPXEmailType();
   public link: GPXLinkType = new GPXLinkType();
-  //constructor() {	}
 }
 
 export class GPXEmailType {
   public id = '';
   public domain = '';
-  //constructor() {	}
 }
 
 export class GPXCopyrightType {
   public author = '';
   public license = '';
   public year = '';
-  //constructor() {	}
 }
 
 export class GPXBoundsType {
@@ -693,5 +689,4 @@ export class GPXBoundsType {
   public minLon = 180;
   public maxLat = -90;
   public maxLon = -180;
-  //constructor() {	}
 }

@@ -15,6 +15,13 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { AppFacade } from 'src/app/app.facade';
 
+interface PreferredPathEntry {
+  name: string;
+  choices: string[];
+  available: string[];
+  current: string;
+}
+
 @Component({
   selector: 'signalk-preferred-paths',
   imports: [MatRadioModule],
@@ -55,7 +62,11 @@ export class SignalKPreferredPathsComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly chosen = output<any>();
 
-  private pathChoices = {
+  private pathChoices: {
+    tws: PreferredPathEntry;
+    twd: PreferredPathEntry;
+    heading: PreferredPathEntry;
+  } = {
     tws: {
       name: 'True Wind Speed',
       choices: [
@@ -123,14 +134,17 @@ export class SignalKPreferredPathsComponent implements OnInit {
       });
       // ** ensure a default
       if (i.available.length === 0) {
-        i.available.push(i.choices[0]);
+        const fallback = i.choices[0];
+        if (typeof fallback === 'string') {
+          i.available.push(fallback);
+        }
       }
     });
   }
 
   // save / cancel
   save(keep: boolean) {
-    const value = {};
+    const value: Record<string, string> = {};
     Object.entries(this.pathChoices).forEach((i) => {
       value[i[0]] = i[1].current;
     });

@@ -1,9 +1,10 @@
 {
-  // Parallel strict tsconfig. Phase 0 seeded the ratchet over src/app/lib/.
-  // Phase 1 widens to src/lib/ (new vendored + store code) and src/types/
-  // (codegen output). Each phase keeps adding surfaces until tsconfig.json
-  // can flip strict:true at Phase 6. See MODERNIZATION_ROADMAP.md sections
-  // 3 (Phase 1) and 5.
+  // Parallel strict tsconfig. Phase 5 cleared every `src/**/*.ts` surface
+  // except the template-bound bits that Angular's template TCB rejects under
+  // strict TS (see MODERNIZATION_ROADMAP.md Phase 5e). The include list
+  // covers everything that survives a strict typecheck today; Phase 5e
+  // template work clears the remaining files so the include can become
+  // `src/**` and the root tsconfig.json can flip `strict: true`.
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "outDir": "./out-tsc/strict",
@@ -16,6 +17,34 @@
     "noFallthroughCasesInSwitch": true
   },
   "files": [],
-  "include": ["src/app/lib/**/*.ts", "src/lib/**/*.ts", "src/types/**/*.ts"],
-  "exclude": ["src/app/lib/**/*.spec.ts", "src/app/lib/**/*.worker.ts"]
+  "include": [
+    "src/lib/**/*.ts",
+    "src/types/**/*.ts",
+    "src/app/lib/**/*.ts",
+    "src/app/stores/**/*.ts",
+    "src/app/modules/skstream/**/*.ts",
+    "src/app/modules/map/**/*.ts",
+    "src/app/modules/skresources/**/*.ts",
+    "src/app/modules/alarms/**/*.ts",
+    "src/app/modules/course/**/*.ts",
+    "src/app/modules/icons/**/*.ts",
+    "src/app/modules/autopilot/**/*.ts",
+    "src/app/modules/radar/**/*.ts",
+    "src/app/modules/settings/**/*.ts",
+    "src/app/modules/info-panel/**/*.ts",
+    "src/app/modules/weather/**/*.ts",
+    "src/app/modules/gpx/**/*.ts",
+    "src/app/shell/**/*.ts",
+    "src/app/app.config.ts",
+    "src/app/app.facade.ts",
+    "src/app/app.bootstrap.ts",
+    "src/app/app.component.ts"
+  ],
+  "exclude": [
+    "src/app/lib/**/*.spec.ts",
+    "src/app/lib/**/*.worker.ts",
+    "src/app/**/*.spec.ts",
+    "src/**/*.worker.ts",
+    "src/app/modules/map/ol/lib/radar/RadarMessage.ts"
+  ]
 }

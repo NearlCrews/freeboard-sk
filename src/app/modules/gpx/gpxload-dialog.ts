@@ -39,6 +39,13 @@ import { GPX } from './gpxlib';
 import type { HttpErrorResponse } from '@angular/common/http';
 import type { ErrorList } from 'src/app/types';
 
+interface GPXDataSummary {
+  name: string;
+  routes: { name: string; description: string; wptcount: number }[];
+  waypoints: { name: string; description: string }[];
+  tracks: { name: string; description: string }[];
+}
+
 //** GPXLoad dialog **
 @Component({
   selector: 'gpxload-dialog',
@@ -62,17 +69,17 @@ import type { ErrorList } from 'src/app/types';
   styleUrls: ['./gpxload-dialog.css']
 })
 export class GPXImportDialog implements OnInit, OnDestroy {
-  public gpxData = {
+  public gpxData: GPXDataSummary = {
     name: '',
     routes: [],
     waypoints: [],
     tracks: []
   };
 
-  public selRoutes = [];
-  public selectedRoute = null;
-  public selWaypoints = [];
-  public selTracks = [];
+  public selRoutes: boolean[] = [];
+  public selectedRoute: number | null = null;
+  public selWaypoints: boolean[] = [];
+  public selTracks: boolean[] = [];
 
   public display = {
     notValid: false,
@@ -92,7 +99,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
 
   private errorCount = 0;
   private subCount = 0;
-  private gpx: GPX;
+  private gpx: GPX | null = null;
 
   protected app = inject(AppFacade);
   // Phase 3 Batch 3: direct store injection for the fetch-progress signal.
@@ -124,7 +131,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     });
   }
 
-  async parseGPXData(data) {
+  async parseGPXData(data: string) {
     this.display.allRoutesChecked = false;
     this.display.loadRoutesOK = false;
     this.selRoutes = [];
@@ -138,8 +145,8 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     this.display.expand = { routes: false, waypoints: false, tracks: false };
     this.display.notValid = false;
 
-    this.gpxData = await this.parseFileData(data);
-    if (!this.gpxData) {
+    const parsed = await this.parseFileData(data);
+    if (!parsed) {
       console.warn(
         'Selected file does not contain GPX data or\ndoes not correctly implement namespaced <extensions> attributes',
         'Invalid GPX Data:'
@@ -147,6 +154,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       this.display.notValid = true;
       return;
     }
+    this.gpxData = parsed;
 
     this.gpxData.routes.forEach(() => {
       this.selRoutes.push(false);
@@ -266,32 +274,33 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   }
 
   // ** parse GPX file
-  public async parseFileData(data: string) {
-    const gpxData = {
+  public async parseFileData(data: string): Promise<GPXDataSummary | null> {
+    const gpxData: GPXDataSummary = {
       name: '',
       routes: [],
       waypoints: [],
       tracks: []
     };
-    this.gpx = new GPX();
+    const gpx = new GPX();
+    this.gpx = gpx;
 
     this.settings.sIsFetching.set(true);
-    if (!(await this.gpx.parse(data))) {
+    if (!(await gpx.parse(data))) {
       this.settings.sIsFetching.set(false);
       return null;
     }
 
     let idx = 1;
-    this.gpx.rte.forEach((r) => {
+    gpx.rte.forEach((r) => {
       gpxData.routes.push({
-        name: r.name !== '' ? r.name : `Rte: ${idx}`,
+        name: r.name && r.name !== '' ? r.name : `Rte: ${idx}`,
         description: r.desc ? r.desc : r.cmt ? r.cmt : '',
         wptcount: r.rtept.length
       });
       idx++;
     });
     idx = 1;
-    this.gpx.wpt.forEach((w) => {
+    gpx.wpt.forEach((w) => {
       gpxData.waypoints.push({
         name: w.name ? w.name : `Wpt: ${idx}`,
         description: w.desc ? w.desc : w.cmt ? w.cmt : ''
@@ -299,7 +308,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       idx++;
     });
     idx = 1;
-    this.gpx.trk.forEach((t) => {
+    gpx.trk.forEach((t) => {
       gpxData.tracks.push({
         name: t.name ? t.name : `Trk: ${idx}`,
         description: t.desc ? t.desc : t.cmt ? t.cmt : ''
@@ -311,33 +320,59 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   }
 
   // ** upload selected resources to Signal K server **
-  public async uploadToServer(res) {
+  public async uploadToServer(res: {
+    rte: { selected: boolean[] };
+    wpt: { selected: boolean[] };
+    trk: { selected: boolean[] };
+  }) {
+    if (!this.gpx) {
+      return;
+    }
+    const gpx = this.gpx;
     this.settings.sIsFetching.set(true);
     this.errorCount = 0;
     this.subCount = 0;
 
     for (let i = 0; i < res.rte.selected.length; i++) {
       if (res.rte.selected[i]) {
-        this.transformRoute(this.gpx.rte[i]);
+        const r = gpx.rte[i];
+        if (r) {
+          this.transformRoute(r);
+        }
       }
     }
 
     for (let i = 0; i < res.wpt.selected.length; i++) {
       if (res.wpt.selected[i]) {
-        this.transformWaypoint(this.gpx.wpt[i]);
+        const w = gpx.wpt[i];
+        if (w) {
+          this.transformWaypoint(w);
+        }
       }
     }
 
-    const trkIds = [];
+    const trkIds: string[] = [];
     for (let i = 0; i < res.trk.selected.length; i++) {
       if (res.trk.selected[i]) {
-        const trk = this.transformTrack(this.gpx.trk[i]);
+        const gpxTrk = gpx.trk[i];
+        if (!gpxTrk) {
+          continue;
+        }
+        const trk = this.transformTrack(gpxTrk);
         this.subCount++;
         try {
-          const res = await this.skres.postToServer('tracks', trk as SKTrack);
+          const postRes = await this.skres.postToServer(
+            'tracks',
+            trk as unknown as SKTrack
+          );
           this.subCount--;
-          if (Math.floor(res.statusCode / 100) === 2) {
-            trkIds.push(res.id);
+          if (
+            postRes.statusCode !== undefined &&
+            Math.floor(postRes.statusCode / 100) === 2
+          ) {
+            if (postRes.id) {
+              trkIds.push(postRes.id);
+            }
             this.app.debug('SUCCESS: Track added.');
           } else {
             this.errorCount++;
@@ -346,7 +381,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
         } catch (err) {
           this.errorCount++;
           this.subCount--;
-          this.logError(err);
+          this.logError(err as HttpErrorResponse);
           this.checkComplete();
         }
       }
@@ -379,32 +414,31 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   // ** transform and upload route
   private transformRoute(r: GPXRoute) {
     const skObj = this.skres.buildRoute(
-      r.rtept.map((pt) => {
-        return [pt.lon, pt.lat];
-      })
+      r.rtept.map((pt): [number, number] => [pt.lon, pt.lat])
     );
     const rte = skObj[1];
 
     rte.name = r.name ?? '';
     rte.description = r.desc ?? '';
-    // ** route properties **
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props: Record<string, any> = rte.feature.properties ?? {};
+    rte.feature.properties = props;
     if (r.cmt) {
-      rte.feature.properties.cmt = r.cmt;
+      props['cmt'] = r.cmt;
     }
     if (r.src) {
-      rte.feature.properties.src = r.src;
+      props['src'] = r.src;
     }
     if (r.number) {
-      rte.feature.properties.number = r.number;
+      props['number'] = r.number;
     }
     if (r.type) {
-      rte.feature.properties.type = r.type;
+      props['type'] = r.type;
     }
-    rte.feature.properties.coordinatesMeta = [];
-    rte.feature.properties.coordinatesMeta = r.rtept.map((pt) => {
+    props['coordinatesMeta'] = r.rtept.map((pt) => {
       const ptMeta: Record<string, string> = { name: pt.name ?? '' };
       if (pt.cmt) {
-        ptMeta.description = pt.cmt;
+        ptMeta['description'] = pt.cmt;
       }
       return ptMeta;
     });
@@ -413,7 +447,8 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     this.signalk.api
       .put(this.app.skApiVersion, `/resources/routes/${skObj[0]}`, skObj[1])
       .subscribe(
-        (r) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (r: any) => {
           this.subCount--;
           if (Math.floor(r.statusCode / 100) === 2) {
             this.app.debug('SUCCESS: Route added.');
@@ -448,14 +483,17 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     if (pt.type) {
       wpt.type = pt.type;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props: Record<string, any> = wpt.feature.properties ?? {};
+    wpt.feature.properties = props;
     if (pt.cmt) {
-      wpt.feature.properties.cmt = pt.cmt;
+      props['cmt'] = pt.cmt;
     }
     if (pt.src) {
-      wpt.feature.properties.src = pt.src;
+      props['src'] = pt.src;
     }
     if (pt.sym) {
-      wpt.feature.properties.sym = pt.sym;
+      props['sym'] = pt.sym;
     }
 
     this.subCount++;
@@ -466,7 +504,8 @@ export class GPXImportDialog implements OnInit, OnDestroy {
         wptObj[1]
       )
       .subscribe(
-        (r) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (r: any) => {
           this.subCount--;
           if (Math.floor(r.statusCode / 100) === 2) {
             this.app.debug('SUCCESS: Waypoint added.');
@@ -497,7 +536,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     };
     if (gpxtrk.trkseg) {
       gpxtrk.trkseg.forEach((tseg: GPXTrackSegment) => {
-        const line = [];
+        const line: number[][] = [];
         tseg.trkpt.forEach((pt: GPXWaypoint) => {
           line.push([pt.lon, pt.lat]);
         });
@@ -505,23 +544,23 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       });
     }
     if (gpxtrk.name && gpxtrk.name.length !== 0) {
-      trk.feature.properties.name = gpxtrk.name;
+      trk.feature.properties['name'] = gpxtrk.name;
     } else {
-      trk.feature.properties.name = `gpxtrk #${Math.random()
+      trk.feature.properties['name'] = `gpxtrk #${Math.random()
         .toString()
         .slice(-5)}`;
     }
     if (gpxtrk.desc && gpxtrk.desc.length !== 0) {
-      trk.feature.properties.description = gpxtrk.desc;
+      trk.feature.properties['description'] = gpxtrk.desc;
     }
     if (gpxtrk.cmt) {
-      trk.feature.properties.cmt = gpxtrk.cmt;
+      trk.feature.properties['cmt'] = gpxtrk.cmt;
     }
     if (gpxtrk.src) {
-      trk.feature.properties.src = gpxtrk.src;
+      trk.feature.properties['src'] = gpxtrk.src;
     }
     if (gpxtrk.type) {
-      trk.feature.properties.type = gpxtrk.type;
+      trk.feature.properties['type'] = gpxtrk.type;
     }
     return trk;
   }

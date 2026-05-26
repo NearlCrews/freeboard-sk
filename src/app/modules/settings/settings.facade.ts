@@ -248,8 +248,8 @@ export class SettingsOptions {
 
 @Injectable({ providedIn: 'root' })
 export class SettingsFacade {
-  applicationList: (AppListEntry | string)[] = []; // installed webapp list
-  favouritesList: (AppListEntry | string)[] = []; // favourite webapp selections
+  applicationList: AppListEntry[] = []; // installed webapp list
+  favouritesList: AppListEntry[] = []; // favourite webapp selections
   resourcePathList: string[] = []; // resource layer list
   fixedPosition: Position = [0, 0];
 
@@ -308,11 +308,6 @@ export class SettingsFacade {
 
   /** Populate applications list */
   private getApps() {
-    // apps list - default an entry to stored config value
-    if (this.app.config.display.plugins.instruments) {
-      this.applicationList.push(this.app.config.display.plugins.instruments);
-    }
-
     this.signalk.apps.list().subscribe(
       (a: SKAppsList[]) => {
         this.applicationList = a

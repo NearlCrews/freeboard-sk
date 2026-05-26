@@ -291,7 +291,7 @@ export class DialogOrchestrator {
               'Authentication Failed:',
               'Try Again'
             )
-            .subscribe(() => this.showLogin(null, false, true));
+            .subscribe(() => this.showLogin(undefined, false, true));
         } else {
           this.app
             .showConfirm(
@@ -316,7 +316,7 @@ export class DialogOrchestrator {
       this.app.isLoggedIn.set(r);
     });
     if (onConnect) {
-      this.showLogin(null, false, true);
+      this.showLogin(undefined, false, true);
     } else if (cancelWarning) {
       this.alarm.showAlert(
         'Login Cancelled:',
@@ -535,7 +535,7 @@ export class DialogOrchestrator {
     if (e.type === 'self') {
       id = e.type;
     } else if (e.id.includes('vessels.')) {
-      id = e.id.split('.')[1];
+      id = e.id.split('.')[1] ?? e.id;
     } else {
       id = e.id;
     }

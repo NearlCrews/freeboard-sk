@@ -49,8 +49,12 @@ import { AppFacade } from 'src/app/app.facade';
 })
 export class ResourceImportDialog implements OnInit {
   public resPaths: string[] = [];
-  public targetPath: string = null;
-  public source = { type: null, name: null, data: null };
+  public targetPath: string | null = null;
+  public source: {
+    type: string | null;
+    name: string | null;
+    data: string | null;
+  } = { type: null, name: null, data: null };
 
   public display = {
     notValid: false
@@ -71,7 +75,7 @@ export class ResourceImportDialog implements OnInit {
       .get(this.app.skApiVersion, '/resources')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
-        (r) => {
+        (r: Record<string, unknown>) => {
           this.resPaths = [];
           this.targetPath = null;
           this.resPaths = Object.keys(r).filter((i) => {

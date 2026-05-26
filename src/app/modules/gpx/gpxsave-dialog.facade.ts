@@ -10,9 +10,8 @@ import { SignalKClient } from 'src/lib/signalk-client';
 export class GPXSaveFacade {
   // **************** ATTRIBUTES ***************************
   private resultSource: Subject<number>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public result$: Observable<any>;
-  private sk2gpx: SK2GPX;
+  public result$: Observable<number>;
+  private sk2gpx: SK2GPX | null = null;
   public hasFSA: boolean;
 
   // *******************************************************
@@ -32,8 +31,9 @@ export class GPXSaveFacade {
 
   // ** prepare resource data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  prepData(data: Record<string, any>) {
-    const resData = {
+  prepData(data: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resData: { routes: any[]; waypoints: any[]; tracks: any[] } = {
       routes: [],
       waypoints: [],
       tracks: []
@@ -62,7 +62,8 @@ export class GPXSaveFacade {
   // ** save selected resources to GPX file **
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveToFile(res: any, selections: any) {
-    this.sk2gpx = new SK2GPX();
+    const sk2gpx = new SK2GPX();
+    this.sk2gpx = sk2gpx;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const skroutes: Record<string, any> = {};
@@ -76,26 +77,29 @@ export class GPXSaveFacade {
         skroutes[res.routes[i].feature.id] = res.routes[i];
       }
     }
-    this.sk2gpx.setRoutes(skroutes);
+    sk2gpx.setRoutes(skroutes);
 
     for (let i = 0; i < selections.wpt.selected.length; i++) {
       if (selections.wpt.selected[i]) {
         skwaypoints[res.waypoints[i].feature.id] = res.waypoints[i];
       }
     }
-    this.sk2gpx.setWaypoints(skwaypoints);
+    sk2gpx.setWaypoints(skwaypoints);
 
     for (let i = 0; i < selections.trk.selected.length; i++) {
       if (selections.trk.selected[i]) {
         const uuid = this.signalk.uuid;
-        sktracks[uuid] = new SKTrack();
-        sktracks[uuid].feature.id = uuid;
-        sktracks[uuid].feature.properties.name =
-          `Vessel trail: ${Date().toString()}`;
-        sktracks[uuid].feature.geometry.coordinates.push(res.tracks[i]);
+        const trk = new SKTrack();
+        trk.feature.id = uuid;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const props: Record<string, any> = trk.feature.properties ?? {};
+        props['name'] = `Vessel trail: ${Date().toString()}`;
+        trk.feature.properties = props;
+        trk.feature.geometry.coordinates.push(res.tracks[i]);
+        sktracks[uuid] = trk;
       }
     }
-    this.sk2gpx.setTracks(sktracks);
+    sk2gpx.setTracks(sktracks);
 
     if (this.hasFSA) {
       this.fsaSaveFile();
@@ -106,6 +110,10 @@ export class GPXSaveFacade {
 
   // Using legacy download
   legacySaveToFile() {
+    if (!this.sk2gpx) {
+      this.resultSource.next(1);
+      return;
+    }
     const file = new Blob([this.sk2gpx.toXML()], { type: 'text/xml' });
 
     const a = document.createElement('a');
@@ -114,11 +122,16 @@ export class GPXSaveFacade {
     a.click();
     URL.revokeObjectURL(a.href);
     a.remove();
-    this.resultSource.next(-1); //mimic cancelled as no result available
+    this.resultSource.next(-1);
   }
 
   // Using fileSystem Access API (https)
   fsaSaveFile() {
+    const sk2gpx = this.sk2gpx;
+    if (!sk2gpx) {
+      this.resultSource.next(1);
+      return;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any)
       .showSaveFilePicker({
@@ -134,20 +147,18 @@ export class GPXSaveFacade {
         h.createWritable()
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .then((writable: any) => {
-            const blob = new Blob([this.sk2gpx.toXML()]);
+            const blob = new Blob([sk2gpx.toXML()]);
             writable.write(blob).then(() => {
               writable.close();
-              this.resultSource.next(0); // ** success
+              this.resultSource.next(0);
             });
           })
           .catch((err: Error) => {
-            // ** save error
             console.warn(err);
             this.resultSource.next(1);
           });
       })
       .catch(() => {
-        // save cancelled by user
         this.resultSource.next(-1);
       });
   }

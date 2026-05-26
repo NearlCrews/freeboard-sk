@@ -119,7 +119,7 @@ export class SettingsDialog implements OnInit {
     this.facade.refresh();
     this.facade.settings.selections.aisState.forEach((i: string) => {
       if (i in this.aisStateFilter) {
-        this.aisStateFilter[i] = true;
+        this.aisStateFilter[i as keyof typeof this.aisStateFilter] = true;
       }
     });
   }
@@ -135,16 +135,16 @@ export class SettingsDialog implements OnInit {
                 this.facade.settings.vessels.rangeCirclesDistance,
                 'm',
                 'naut-mile'
-              )
+              ) ?? 0
             )
     };
   }
 
   raiseChange() {
-    this.settings.alignUnitPrefs(
-      this.app.config,
-      this.settings.serverConfig.unitPreferences()
-    );
+    const prefs = this.settings.serverConfig.unitPreferences();
+    if (prefs) {
+      this.settings.alignUnitPrefs(this.app.config, prefs);
+    }
     this.unitsChangedSignal.update((current) => current + 1);
   }
 
@@ -267,6 +267,7 @@ export class SettingsDialog implements OnInit {
     if (typeof this.facade.settings.course.arrivalCircle !== 'number') {
       return dconfig.course.arrivalCircle;
     }
+    return 0;
   }
 
   /**
@@ -274,7 +275,7 @@ export class SettingsDialog implements OnInit {
    */
   persistModel(value?: string) {
     this.facade.applySettings();
-    this.facade.emitChangeEvent(value);
+    this.facade.emitChangeEvent(value ?? '');
   }
 
   /**
@@ -282,7 +283,7 @@ export class SettingsDialog implements OnInit {
    */
   deferPersist(value?: string) {
     this.saveOnClose = true;
-    this.facade.emitChangeEvent(value);
+    this.facade.emitChangeEvent(value ?? '');
   }
 
   /**
@@ -308,7 +309,10 @@ export class SettingsDialog implements OnInit {
    * Handle favourites component event
    * @param e
    */
-  onFavSelected(e: unknown, f) {
+  onFavSelected(
+    e: unknown,
+    f: { selectedOptions: { selected: { value: string }[] } }
+  ) {
     this.facade.settings.display.plugins.favourites =
       f.selectedOptions.selected.map((i) => i.value);
     this.persistModel();
@@ -318,13 +322,13 @@ export class SettingsDialog implements OnInit {
    * Handle AIS state filter change
    */
   onAisStateFilter() {
-    const s = [];
+    const s: string[] = [];
     for (const i in this.aisStateFilter) {
-      if (this.aisStateFilter[i]) {
+      if (this.aisStateFilter[i as keyof typeof this.aisStateFilter]) {
         s.push(i);
       }
     }
-    this.facade.settings.selections.aisState = [].concat(s);
+    this.facade.settings.selections.aisState = s.slice();
     this.persistModel();
   }
 
@@ -332,12 +336,12 @@ export class SettingsDialog implements OnInit {
    * Handle custom resource path selection changes
    * @param f
    */
-  onResPathSelected(f) {
+  onResPathSelected(f: { selectedOptions: { selected: { value: string }[] } }) {
     this.facade.settings.resources.paths = f.selectedOptions.selected.map(
       (i) => i.value
     );
     //ensure all selected paths have relevant 'selections' entry
-    this.facade.settings.resources.paths.forEach((i) => {
+    this.facade.settings.resources.paths.forEach((i: string) => {
       if (i in this.facade.settings.selections.resourceSets) {
         /* already has selection array */
       } else {

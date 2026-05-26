@@ -54,16 +54,17 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   styleUrls: ['./gpxsave-dialog.css']
 })
 export class GPXExportDialog implements OnInit, OnDestroy {
-  protected resData = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected resData: { routes: any[]; waypoints: any[]; tracks: any[] } = {
     routes: [],
     waypoints: [],
     tracks: []
   };
 
-  protected selRoutes = [];
-  protected selectedRoute = null;
-  protected selWaypoints = [];
-  protected selTracks = [];
+  protected selRoutes: boolean[] = [];
+  protected selectedRoute: number | null = null;
+  protected selWaypoints: boolean[] = [];
+  protected selTracks: boolean[] = [];
 
   protected display = {
     notValid: false,
@@ -118,7 +119,7 @@ export class GPXExportDialog implements OnInit, OnDestroy {
       );
       this.data.waypoints = w;
       this.app.sIsFetching.set(false);
-    } catch (err) {
+    } catch {
       this.app.sIsFetching.set(false);
       this.resData.waypoints = [];
     }

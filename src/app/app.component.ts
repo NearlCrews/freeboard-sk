@@ -22,7 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
@@ -153,7 +153,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-  @ViewChild('sideright', { static: false }) sideright;
+  @ViewChild('sideright', { static: false }) sideright?: MatSidenav;
 
   // Phase 3 shell services (state and orchestration extracted from this file)
   private readonly shell = inject(AppShellService);
@@ -536,8 +536,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   // ********* SIGNAL K CONNECTION ****************
 
   private connectSignalKServer() {
-    this.app.data.selfId = null;
-    this.app.data.server = null;
+    // FBAppData declares selfId/server as non-null but the connect-reset
+    // path sets them to null until the SK handshake populates them.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.app.data as any).selfId = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.app.data as any).server = null;
     this.signalk.proxied = this.app.config.signalk.proxied;
     this.signalk
       .connect(
@@ -547,7 +551,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.signalk.authToken = this.app.getFBToken();
+          this.signalk.authToken = this.app.getFBToken() ?? '';
           this.app.watchSKLogin();
           this.fetchAllResources();
           this.app
@@ -650,24 +654,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       return;
     }
     const t = this.app.selfTrail().slice(-1);
-    if (this.app.data.vessels.showSelf) {
+    const selfPos = this.app.data.vessels.self.position;
+    if (this.app.data.vessels.showSelf && selfPos) {
       if (t.length === 0) {
-        this.app.selfTrail.update((current) => {
-          const st = [].concat(current);
-          st.push(this.app.data.vessels.self.position);
-          return st;
-        });
+        this.app.selfTrail.update((current) => [...current, selfPos]);
         return;
       }
-      if (
-        this.app.data.vessels.self.position[0] !== t[0][0] ||
-        this.app.data.vessels.self.position[1] !== t[0][1]
-      ) {
-        this.app.selfTrail.update((current) => {
-          const st = [].concat(current);
-          st.push(this.app.data.vessels.self.position);
-          return st;
-        });
+      const last = t[0];
+      if (last && (selfPos[0] !== last[0] || selfPos[1] !== last[1])) {
+        this.app.selfTrail.update((current) => [...current, selfPos]);
       }
     }
 
@@ -680,12 +675,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.app.selfTrail.update((current) => current.slice(-5000));
     } else {
       const lastseg = trailData.slice(-1);
-      const lastpt: any =
-        lastseg.length !== 0
-          ? lastseg[0].slice(-1)
-          : trailData.length > 1
-            ? trailData[trailData.length - 2].slice(-1)
-            : [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let lastpt: any = [];
+      const first = lastseg[0];
+      if (lastseg.length !== 0 && first) {
+        lastpt = first.slice(-1);
+      } else if (trailData.length > 1) {
+        const prev = trailData[trailData.length - 2];
+        if (prev) lastpt = prev.slice(-1);
+      }
       this.app.selfTrail.update(() => lastpt);
     }
     const trailId = this.mode === SKSTREAM_MODE.PLAYBACK ? 'history' : 'self';
@@ -873,10 +871,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     if (!r) {
       return;
     }
+    const selfPos = this.app.data.vessels.self.position;
+    if (!selfPos) {
+      return;
+    }
+    const heading = this.app.data.vessels.self.heading;
     const cpi = GeoUtils.closestForwardPoint(
       r[1].feature.geometry.coordinates,
-      this.app.data.vessels.self.position,
-      Convert.radiansToDegrees(this.app.data.vessels.self.heading)
+      selfPos,
+      heading === null ? 0 : Convert.radiansToDegrees(heading)
     );
     if (cpi === -1) {
       this.app
@@ -905,20 +908,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected mapDrop(e: DragEvent) {
     e.preventDefault();
-    if (!e.dataTransfer.files) {
+    const files = e.dataTransfer?.files;
+    if (!files) {
       return;
     }
-    if (e.dataTransfer.files.length > 1) {
+    if (files.length > 1) {
       this.app.showAlert(
         'Load Resources',
         'Multiple files provided!\nPlease select only one file for processing.'
       );
       return;
     }
-    if (!e.dataTransfer.files[0].name) {
+    const file = files[0];
+    if (!file?.name) {
       return;
     }
-    const fname = e.dataTransfer.files[0].name;
+    const fname = file.name;
     const reader = new FileReader();
     reader.onerror = () => {
       this.app.showAlert(
@@ -927,28 +932,34 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       );
     };
     reader.onload = () => {
+      if (reader.result === null) return;
       this.processGPX({ name: fname, data: reader.result });
     };
-    reader.readAsText(e.dataTransfer.files[0]);
+    reader.readAsText(file);
   }
 
   // ********* MODE ACTIONS ****************
 
-  protected switchActiveVessel(uuid: string = null) {
-    this.app.data.vessels.activeId = uuid;
+  protected switchActiveVessel(uuid: string | null = null) {
+    // FBAppData declares activeId/activeRoute as non-null but the deactivate
+    // path resets them to null until the next selection lands.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.app.data.vessels as any).activeId = uuid;
     if (!uuid) {
       this.app.data.vessels.active = this.app.data.vessels.self;
     } else {
       const av = this.app.data.vessels.aisTargets.get(uuid);
       if (!av) {
         this.app.data.vessels.active = this.app.data.vessels.self;
-        this.app.data.vessels.activeId = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.app.data.vessels as any).activeId = null;
       } else {
         this.app.data.vessels.active = av;
-        this.sideright.close();
+        this.sideright?.close();
       }
     }
-    this.app.data.activeRoute = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.app.data as any).activeRoute = null;
     this.clearCourseData();
     this.app.debug(`** Active vessel: ${this.app.data.vessels.activeId} `);
     this.app.debug(this.app.data.vessels.active);
@@ -993,7 +1004,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   // ********* DRAW / EDIT ****************
 
   protected handleSelectionEnded(selection: SelectionResultDef) {
-    if (selection.mode === 'seedChart') {
+    if (selection.mode === 'seedChart' && selection.bbox) {
       this.skres.seedChartCache(selection.data, selection.bbox);
     }
   }
@@ -1009,7 +1020,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         const params: { position: Position; group?: string } = {
           position: e.coordinates as Position
         };
-        const group = this.mapInteract.draw.properties.group;
+        const group = this.mapInteract.draw.properties['group'];
         if (typeof group === 'string') {
           params.group = group;
         }
@@ -1081,27 +1092,29 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   ) {
     const r = forSave.id.split('.');
-    if (save) {
-      if (r[0] === 'route') {
+    const kind = r[0];
+    const subId = r[1];
+    if (save && subId) {
+      if (kind === 'route') {
         this.skres.updateRouteCoords(
-          r[1],
+          subId,
           forSave.coords as Position[],
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           forSave.coordsMetadata as any[] | undefined
         );
-      } else if (r[0] === 'waypoint') {
+      } else if (kind === 'waypoint') {
         const wptCoords = forSave.coords as Position;
-        this.skres.updateWaypointPosition(r[1], wptCoords);
-        if (r[1] === this.app.data.activeWaypoint) {
+        this.skres.updateWaypointPosition(subId, wptCoords);
+        if (subId === this.app.data.activeWaypoint) {
           this.course.setDestination({
             latitude: wptCoords[1],
             longitude: wptCoords[0]
           });
         }
-      } else if (r[0] === 'note') {
-        this.skres.updateNotePosition(r[1], forSave.coords as Position);
-      } else if (r[0] === 'region') {
-        this.skres.updateRegionCoords(r[1], forSave.coords as Position[][]);
+      } else if (kind === 'note') {
+        this.skres.updateNotePosition(subId, forSave.coords as Position);
+      } else if (kind === 'region') {
+        this.skres.updateRegionCoords(subId, forSave.coords as Position[][]);
       }
       return;
     }
@@ -1134,7 +1147,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   private openSKStream(
-    options: StreamOptions = null,
+    options: StreamOptions | null = null,
     toMode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME,
     restart = false
   ) {
@@ -1144,11 +1157,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       return;
     }
     this.stream.sendConfig(this.app.config);
-    this.stream.open(options);
+    this.stream.open(options ?? undefined);
   }
 
   private queryAfterConnect() {
-    if (parseSemver(String(this.signalk.server.info.version))?.[0] === 1) {
+    if (parseSemver(String(this.signalk.server.info['version']))?.[0] === 1) {
       this.app.showAlert(
         'Unsupported Server Version:',
         'The connected Signal K server is not supported by this version of Freeboard-SK.\n Signal K server version 2 or later is required!'
@@ -1156,25 +1169,23 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
     this.app.alignCustomResourcesPaths();
     this.signalk.api.getSelf().subscribe(
-      (r) => {
+      (r: { name?: string }) => {
         this.stream.post({
           cmd: 'vessel',
-          options: { context: 'self', name: r.name }
+          options: { context: 'self', name: r.name ?? '' }
         });
         if (this.app.config.vessels.trailFromServer) {
           this.stream.requestTrailFromServer();
         }
-        this.anchor.queryAnchorStatus(
-          undefined,
-          this.app.data.vessels.self.position
-        );
+        const selfPos = this.app.data.vessels.self.position;
+        this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
         this.radarApi.listRadars().catch((err: Error) => {
           this.app.debug(err.message);
         });
       },
       (err: HttpErrorResponse) => {
         if (err.status && err.status === 401) {
-          this.showLogin(null, false, true);
+          this.showLogin(undefined, false, true);
         }
         this.app.debug('No vessel data available!');
       }
@@ -1196,11 +1207,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.app.debug('onClose: STREAM connection closed...');
     this.app.debug(e);
     this.stopTimers();
-    if (e.result) {
-      this.openSKStream(this.streamOptions.options, this.streamOptions.toMode);
+    if (e?.result) {
+      this.openSKStream(
+        this.streamOptions.options ?? undefined,
+        this.streamOptions.toMode ?? undefined
+      );
       return;
     }
-    if (e.playback) {
+    if (e?.playback) {
       this.handlePlaybackClose();
       return;
     }
@@ -1208,7 +1222,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.reconnecting = true;
       setTimeout(() => {
         this.reconnecting = false;
-        this.openSKStream(this.streamOptions.options, this.mode);
+        this.openSKStream(this.streamOptions.options ?? undefined, this.mode);
       }, 5000);
     }
   }
@@ -1244,7 +1258,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.mode = SKSTREAM_MODE.REALTIME;
         this.stream.subscribe();
       }
-      this.app.data.selfId = e.self;
+      this.app.data.selfId = e.self ?? '';
       return;
     }
     if (e.action === 'update') {

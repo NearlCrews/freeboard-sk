@@ -74,7 +74,7 @@ export class AnchorService {
   /**
    * @description Query anchor status from server
    */
-  public queryAnchorStatus(context: string, position?: Position) {
+  public queryAnchorStatus(context?: string, position?: Position) {
     this.app.debug('Retrieving anchor status...');
     context = !context || context === 'self' ? 'vessels/self' : context;
     this.signalk.api.get(`/${context}/navigation/anchor`).subscribe(

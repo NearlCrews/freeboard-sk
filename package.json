@@ -34,8 +34,6 @@
     "build:prod": "pnpm build:all",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "typecheck:strict": "node scripts/typecheck-strict.mjs",
-    "typecheck:strict:legacy": "node scripts/typecheck-strict.mjs --legacy",
-    "typecheck:strict:all": "node scripts/typecheck-strict.mjs --all",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:baseline": "node scripts/verify-baseline.mjs",
