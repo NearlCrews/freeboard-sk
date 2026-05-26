@@ -113,10 +113,8 @@ export class VesselTrailFetcher {
             trail.push(ls);
             coords = coords.slice(SEGMENT_LEN - 1);
             // offset first point so OL renders the segment join
-            coords[0] = [
-              coords[0][0] + POINT_OFFSET,
-              coords[0][1] + POINT_OFFSET
-            ];
+            const first = coords[0]!;
+            coords[0] = [first[0] + POINT_OFFSET, first[1] + POINT_OFFSET];
           }
           if (coords.length !== 0) {
             trail.push(coords);

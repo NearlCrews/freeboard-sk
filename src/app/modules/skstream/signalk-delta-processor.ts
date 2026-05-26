@@ -213,23 +213,23 @@ export class SignalKDeltaProcessor {
     if (!opt.config) {
       return;
     }
-    if (typeof opt.config.units?.preferredPaths !== 'undefined') {
-      this.preferredPaths = opt.config.units.preferredPaths;
+    if (typeof opt.config['units']?.preferredPaths !== 'undefined') {
+      this.preferredPaths = opt.config['units'].preferredPaths;
     }
-    if (typeof opt.config.vessels?.aisMaxAge === 'number') {
-      this.aisMgr.maxAge = opt.config.vessels.aisMaxAge;
+    if (typeof opt.config['vessels']?.aisMaxAge === 'number') {
+      this.aisMgr.maxAge = opt.config['vessels'].aisMaxAge;
     }
-    if (typeof opt.config.vessels?.aisStaleAge === 'number') {
-      this.aisMgr.staleAge = opt.config.vessels.aisStaleAge;
+    if (typeof opt.config['vessels']?.aisStaleAge === 'number') {
+      this.aisMgr.staleAge = opt.config['vessels'].aisStaleAge;
     }
-    if (typeof opt.config.signalk?.maxRadius === 'number') {
-      this.targetFilter.signalk = opt.config.signalk;
+    if (typeof opt.config['signalk']?.maxRadius === 'number') {
+      this.targetFilter.signalk = opt.config['signalk'];
     }
-    if (Array.isArray(opt.config.selections?.aisState)) {
-      this.targetFilter.aisState = opt.config.selections.aisState;
+    if (Array.isArray(opt.config['selections']?.aisState)) {
+      this.targetFilter.aisState = opt.config['selections'].aisState;
     }
-    if (opt.config.vessels) {
-      this.vesselPrefs = opt.config.vessels;
+    if (opt.config['vessels']) {
+      this.vesselPrefs = opt.config['vessels'];
     }
     this.worker.postAisConfig({
       maxAge: this.aisMgr.maxAge,
@@ -494,17 +494,17 @@ export class SignalKDeltaProcessor {
     switch (data.context.split('.')[0]) {
       case 'shore':
       case 'atons':
-        if (this.targetFilter?.signalk.atons) {
+        if (this.targetFilter?.signalk['atons']) {
           this.processAtoN(data.context, v);
         }
         this.filterContext(
           data.context,
           this.vessels.atons,
-          this.targetFilter?.signalk.atons
+          this.targetFilter?.signalk['atons']
         );
         return;
       case 'sar':
-        if (this.targetFilter?.signalk.sar) {
+        if (this.targetFilter?.signalk['sar']) {
           this.processSaR(data.context, v);
           if (isLivenessPath) {
             touchedAisIds.add(data.context);
@@ -513,11 +513,11 @@ export class SignalKDeltaProcessor {
         this.filterContext(
           data.context,
           this.vessels.sar,
-          this.targetFilter?.signalk.sar
+          this.targetFilter?.signalk['sar']
         );
         return;
       case 'aircraft':
-        if (this.targetFilter?.signalk.aircraft) {
+        if (this.targetFilter?.signalk['aircraft']) {
           this.processAircraft(data.context, v);
           if (isLivenessPath) {
             touchedAisIds.add(data.context);
@@ -526,18 +526,18 @@ export class SignalKDeltaProcessor {
         this.filterContext(
           data.context,
           this.vessels.aircraft,
-          this.targetFilter?.signalk.aircraft
+          this.targetFilter?.signalk['aircraft']
         );
         return;
       case 'meteo':
-        if (this.targetFilter?.signalk.meteo) {
+        if (this.targetFilter?.signalk['meteo']) {
           this.processMeteo(data.context, v);
           this.processNotifications(v);
         }
         this.filterContext(
           data.context,
           this.vessels.meteo,
-          this.targetFilter?.signalk.meteo
+          this.targetFilter?.signalk['meteo']
         );
         return;
       case 'vessels':
@@ -548,7 +548,7 @@ export class SignalKDeltaProcessor {
           this.processVessel(this.vessels.self, v, true);
           this.processNotifications(v);
         } else {
-          if (this.targetFilter?.signalk.vessels) {
+          if (this.targetFilter?.signalk['vessels']) {
             const oVessel = this.selectVessel(data.context);
             this.processVessel(oVessel, v);
             if (isLivenessPath) {
@@ -558,7 +558,7 @@ export class SignalKDeltaProcessor {
           this.filterContext(
             data.context,
             this.vessels.aisTargets,
-            this.targetFilter?.signalk.vessels,
+            this.targetFilter?.signalk['vessels'],
             this.targetFilter?.aisState
           );
         }
@@ -591,7 +591,7 @@ export class SignalKDeltaProcessor {
       this.worker.postAisRemove(context);
       return;
     }
-    if (!this.targetFilter.signalk.maxRadius) {
+    if (!this.targetFilter.signalk['maxRadius']) {
       this.targetStatus.updated[context] = true;
       return;
     }
@@ -630,11 +630,11 @@ export class SignalKDeltaProcessor {
     if (this.extRecalcCounter === 0) {
       if (
         this.vessels.self.positionReceived &&
-        this.targetFilter?.signalk.maxRadius
+        this.targetFilter?.signalk['maxRadius']
       ) {
         this.targetExtent = GeoUtils.calcMapifiedExtent(
           this.vessels.self.position,
-          this.targetFilter.signalk.maxRadius
+          this.targetFilter.signalk['maxRadius']
         );
         this.extRecalcCounter++;
       }
@@ -850,20 +850,20 @@ export class SignalKDeltaProcessor {
     }
 
     if (
-      typeof this.preferredPaths.heading !== 'undefined' &&
-      v.path === this.preferredPaths.heading
+      typeof this.preferredPaths['heading'] !== 'undefined' &&
+      v.path === this.preferredPaths['heading']
     ) {
       d.orientation = v.value;
     }
     if (
-      typeof this.preferredPaths.tws !== 'undefined' &&
-      v.path === this.preferredPaths.tws
+      typeof this.preferredPaths['tws'] !== 'undefined' &&
+      v.path === this.preferredPaths['tws']
     ) {
       d.wind.tws = v.value;
     }
     if (
-      typeof this.preferredPaths.twd !== 'undefined' &&
-      v.path === this.preferredPaths.twd
+      typeof this.preferredPaths['twd'] !== 'undefined' &&
+      v.path === this.preferredPaths['twd']
     ) {
       d.wind.direction =
         v.path === 'environment.wind.angleTrueGround' ||
@@ -881,8 +881,8 @@ export class SignalKDeltaProcessor {
       return;
     }
     const cogLen = isSelf
-      ? this.vesselPrefs.selfLines.cog.length
-      : this.vesselPrefs.aisCogLine;
+      ? this.vesselPrefs['selfLines'].cog.length
+      : this.vesselPrefs['aisCogLine'];
     const cvlen = (d.sog ?? 0) * (cogLen * 60);
     const lon = d.position[0];
     const lat = d.position[1];
@@ -1125,7 +1125,8 @@ export class SignalKDeltaProcessor {
   }
 
   private getAISTracks(): void {
-    const radius = this.targetFilter?.signalk?.maxRadius ?? DEFAULT_AIS_RADIUS;
+    const radius =
+      this.targetFilter?.signalk?.['maxRadius'] ?? DEFAULT_AIS_RADIUS;
     const promise = this.apiGet(`${this.apiUrl}/tracks?radius=${radius}`);
     if (!promise) {
       return;
