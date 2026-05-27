@@ -148,6 +148,16 @@ export class VesselTrailFetcher {
   }
 
   private apiGet(url: string): Promise<unknown> {
-    return fetch(url).then((r) => r.json());
+    return fetch(url).then((r) => {
+      // fetch() resolves on HTTP errors; only network failures reject.
+      // The trail endpoint is optional (only present when a track plugin
+      // is installed). A 404 must surface as a rejection so the caller's
+      // try/catch treats it as "no trail available", not "parse this
+      // error page as MultiLineString JSON".
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status} from ${url}`);
+      }
+      return r.json();
+    });
   }
 }

@@ -1136,7 +1136,17 @@ export class SignalKDeltaProcessor {
     }
     this.isFetching = true;
     return fetch(url)
-      .then((r) => r.json())
+      .then((r) => {
+        // fetch() resolves on HTTP errors; only network failures reject.
+        // Reject explicitly so callers' .catch() runs (apiGet is used to
+        // probe optional server endpoints like /tracks; a 404 means the
+        // plugin is not installed, not "we got data shaped like
+        // anything").
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status} from ${url}`);
+        }
+        return r.json();
+      })
       .finally(() => {
         this.isFetching = false;
       });

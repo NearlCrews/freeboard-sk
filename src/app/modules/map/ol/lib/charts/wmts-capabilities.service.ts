@@ -31,6 +31,12 @@ export class WmtsCapabilitiesService {
         signal: abortCtrl.signal
       });
       clearTimeout(abortTimer);
+      // fetch() resolves on HTTP errors; only network failures reject.
+      // Bail at the HTTP gate so we do not try to parse an HTML error
+      // page as a WMTS capabilities document.
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status} fetching WMTS capabilities`);
+      }
       const res = await r.text();
       const wmts = new WMTSCapabilities();
       return wmts.read(res);
