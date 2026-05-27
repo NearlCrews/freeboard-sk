@@ -146,12 +146,8 @@ export class FbInfoPanelRelatedDirective {}
       display: none;
     }
 
-    /* All pills share the same physical height regardless of which font-
-       size variant they use. min-height (28px) pins the box height so a
-       smaller-font badge (draft, warn, alarm at --font-size-xs) renders
-       the same height as a default pill (--font-size-sm). The padding-y
-       is unset because min-height plus align-items: center inside the
-       parent flex row centers the label correctly. */
+    /* min-height pins the box so xs-font badges (draft, warn, alarm)
+       match sm-font default pills in a mixed row. */
     :host ::ng-deep .ip-meta > .pill {
       display: inline-flex;
       align-items: center;
@@ -169,9 +165,9 @@ export class FbInfoPanelRelatedDirective {}
 
     :host ::ng-deep .ip-meta > .pill fb-icon,
     :host ::ng-deep .ip-meta > .pill mat-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
+      font-size: var(--font-size-sm);
+      width: var(--font-size-sm);
+      height: var(--font-size-sm);
     }
 
     :host ::ng-deep .ip-meta > .pill.pos {
@@ -241,14 +237,8 @@ export class FbInfoPanelRelatedDirective {}
       gap: var(--space-sm);
     }
 
-    /* Buttons inside an action grid stretch to fill their cell so every
-       row reads as a uniform strip. The icon-then-label pair inside each
-       button is left-aligned with a consistent indent so the icons line
-       up vertically across rows. The min-height floor lives on the inner
-       button (not the host wrapper) so the clickable region matches the
-       visible button. Wrapping the host at 44px while leaving the inner
-       button at 36px (size="sm") creates a dead 8px strip the user can
-       click without triggering anything. */
+    /* The touch floor lives on the inner button, not the host wrapper:
+       a 44px host around a 36px sm button leaves a dead 8px click strip. */
     .ip-actions ::ng-deep .action-grid > fb-button,
     .ip-actions ::ng-deep .action-grid-3 > fb-button {
       width: 100%;

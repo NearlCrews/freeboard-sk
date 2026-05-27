@@ -88,7 +88,7 @@ export type InfoPanelItem =
         id: string;
         label: string;
         icon?: string;
-        type?: string;
+        type?: SKResourceType;
       }[];
     }
   | {
@@ -176,8 +176,11 @@ export class InfoPanelFacade {
         this._opened.set(true);
         return;
       }
-    } catch {
-      return;
+    } catch (err) {
+      // Surface fetch failures so the next 'silent no-op' bug is visible
+      // in DevTools instead of vanishing into a catch{}. Callers have no
+      // error UI today; a warn beats swallowing.
+      console.warn(`InfoPanel.open(${resourceType}, ${id}) failed:`, err);
     }
   }
 
@@ -245,7 +248,7 @@ export class InfoPanelFacade {
       id: string;
       label: string;
       icon?: string;
-      type?: string;
+      type?: SKResourceType;
     }[]
   ): void {
     this._item.set({ kind: 'featurelist', title, features });

@@ -116,7 +116,8 @@ import { RadarAPIService } from './modules/radar/radar-api.service';
 import {
   RoutePanel,
   SKResourceType,
-  WaypointPanel
+  WaypointPanel,
+  isSKResourceType
 } from './modules/skresources';
 import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
 
@@ -927,11 +928,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected featureListSelectionFromPanel(event: {
     id: string;
-    type?: string;
+    type?: SKResourceType;
   }): void {
-    const type = event.type as SKResourceType | undefined;
-    if (type) {
-      this.infoPanel.open(type, event.id);
+    if (isSKResourceType(event.type)) {
+      this.infoPanel.open(event.type, event.id);
     }
   }
 

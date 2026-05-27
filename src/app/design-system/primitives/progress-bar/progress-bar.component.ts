@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  booleanAttribute,
   computed,
   input
 } from '@angular/core';
@@ -94,7 +95,13 @@ import {
 export class FbProgressBarComponent {
   readonly value = input<number>(0);
   readonly max = input<number>(100);
-  readonly indeterminate = input<boolean>(false);
+  // booleanAttribute coerces the bare-attribute form `<fb-progress-bar
+  // indeterminate>` to true; without it the empty string reads as falsy
+  // and the indeterminate <progress> never renders. Same bug pattern as
+  // fb-list-item; every consumer of this primitive uses bare-attribute.
+  readonly indeterminate = input<boolean, unknown>(false, {
+    transform: booleanAttribute
+  });
 
   readonly clampedValue = computed(() => {
     const v = this.value();

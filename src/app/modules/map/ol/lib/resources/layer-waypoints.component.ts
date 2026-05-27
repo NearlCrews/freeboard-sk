@@ -16,6 +16,7 @@ import { FBWaypoints } from 'src/app/types';
 import { SKWaypoint } from 'src/app/modules/skresources';
 import { MapImageRegistry } from '../map-image-registry.service';
 import { MapThemeService } from '../theme';
+import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 
 // ** Freeboard resource collection format **
 @Component({
@@ -41,7 +42,7 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.labelPrefixes = ['waypoint'];
+    this.labelPrefixes = [FEATURE_ID_PREFIX.waypoints];
     this.parseFBWaypoints(this.waypoints);
   }
 
@@ -80,7 +81,7 @@ export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
         ),
         name: w[1].name
       });
-      f.setId('waypoint.' + w[0]);
+      f.setId(`${FEATURE_ID_PREFIX.waypoints}.${w[0]}`);
       f.setStyle(this.buildStyle(w[0], w[1], palette).clone());
       fa.push(f);
     }

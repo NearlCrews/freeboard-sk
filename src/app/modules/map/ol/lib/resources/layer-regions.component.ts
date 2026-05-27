@@ -13,6 +13,7 @@ import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { MapThemeService } from '../theme';
+import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { FBRegions } from 'src/app/types';
 
 @Component({
@@ -36,7 +37,7 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.labelPrefixes = ['region'];
+    this.labelPrefixes = [FEATURE_ID_PREFIX.regions];
     this.parseRegions(this.regions);
   }
 
@@ -68,7 +69,7 @@ export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
               new Polygon(c as any),
         name: r[1].name
       });
-      f.setId('region.' + r[0]);
+      f.setId(`${FEATURE_ID_PREFIX.regions}.${r[0]}`);
       f.set('name', r[1].name);
       f.set('icon', 'region');
       f.setStyle(this.buildStyle(r[0], r[1], regionColor));

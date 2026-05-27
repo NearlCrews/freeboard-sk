@@ -10,6 +10,13 @@ import { assignImageBlob } from './chart-utils';
 
 type PendingByZoom = Map<number, Set<AbortController>>;
 
+class TileHttpError extends Error {
+  constructor(public readonly status: number) {
+    super(`tile fetch returned HTTP ${status}`);
+    this.name = 'TileHttpError';
+  }
+}
+
 /**
  * Abort and drop controllers held under zoom levels other than `z`, then
  * return (or create) the controller bucket for `z`. Shared between the
@@ -69,11 +76,8 @@ export function createAbortableRasterTileLoader(): (
 
     fetch(src, { signal: controller.signal })
       .then((r) => {
-        // fetch() only rejects on network errors, not HTTP errors, so
-        // 404 / 500 / etc. arrive here with a non-image body. Marking
-        // the tile LOADED on that path lets OL try to drawImage the
-        // broken HTMLImageElement and throw InvalidStateError; flag
-        // the tile as ERROR up front and stop the load chain.
+        // fetch() only rejects on network errors; treat HTTP 4xx/5xx as
+        // failure so OL does not drawImage a broken HTMLImageElement.
         if (!r.ok) {
           throw new TileHttpError(r.status);
         }
@@ -84,8 +88,8 @@ export function createAbortableRasterTileLoader(): (
         tile.setState(TileState.LOADED);
       })
       .catch((err: unknown) => {
-        // On AbortError the tile will be re-requested when its zoom
-        // returns to view; setting ERROR would block that re-request.
+        // Setting ERROR on AbortError would block re-request when the
+        // zoom returns to view.
         if (!(err instanceof Error) || err.name !== 'AbortError') {
           tile.setState(TileState.ERROR);
         }
@@ -94,13 +98,6 @@ export function createAbortableRasterTileLoader(): (
         releaseController(pending, z, controller);
       });
   };
-}
-
-class TileHttpError extends Error {
-  constructor(public readonly status: number) {
-    super(`tile fetch returned HTTP ${status}`);
-    this.name = 'TileHttpError';
-  }
 }
 
 /**

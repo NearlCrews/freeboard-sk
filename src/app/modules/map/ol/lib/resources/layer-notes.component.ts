@@ -15,6 +15,7 @@ import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBNotes, NoteResource } from 'src/app/types';
 import { MapImageRegistry } from '../map-image-registry.service';
 import { MapThemeService } from '../theme';
+import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { SKNote } from 'src/app/modules/skresources';
 
 // ** Freeboard resource collection format **
@@ -39,7 +40,7 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.labelPrefixes = ['note'];
+    this.labelPrefixes = [FEATURE_ID_PREFIX.notes];
     this.parseFBNotes(this.notes);
   }
 
@@ -68,7 +69,7 @@ export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
         ),
         name: note.name
       });
-      f.setId('note.' + n[0]);
+      f.setId(`${FEATURE_ID_PREFIX.notes}.${n[0]}`);
       const skIcon = note.properties?.['skIcon'];
       f.set('icon', skIcon ? `sk-${skIcon}` : 'local_offer');
       f.setStyle(this.buildStyle(note, noteColor).clone());

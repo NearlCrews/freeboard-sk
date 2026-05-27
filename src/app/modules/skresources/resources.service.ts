@@ -62,13 +62,24 @@ import type {
 import { SKWorkerService } from '../skstream/skstream.service';
 import { ChartSeedJobDialog } from './components/charts/chart-seedjob-dialog';
 
-export type SKResourceType =
-  | 'routes'
-  | 'waypoints'
-  | 'regions'
-  | 'notes'
-  | 'charts'
-  | 'tracks';
+// Single source of truth for SKResourceType. The tuple drives the
+// compile-time union AND the runtime guard so a string can't be
+// silently mis-cast: the featurelist click path previously passed
+// 'note' to open('note', id) because TS could not tell the singular
+// form apart from the plural SKResourceType literal.
+export const SK_RESOURCE_TYPES = [
+  'routes',
+  'waypoints',
+  'regions',
+  'notes',
+  'charts',
+  'tracks'
+] as const;
+
+export type SKResourceType = (typeof SK_RESOURCE_TYPES)[number];
+
+export const isSKResourceType = (v: unknown): v is SKResourceType =>
+  typeof v === 'string' && (SK_RESOURCE_TYPES as readonly string[]).includes(v);
 
 export type SKSelection = SKResourceType | 'aisTargets' | 'infolayers';
 
@@ -121,14 +132,9 @@ type RawVessels = Record<string, RawVessel>;
 
 // Hoisted so `fromCache()` does not re-allocate a 6-element array
 // per call (called on every per-feature interaction lookup).
-const CACHED_COLLECTIONS: ReadonlySet<SKResourceType> = new Set([
-  'routes',
-  'waypoints',
-  'notes',
-  'regions',
-  'charts',
-  'tracks'
-]);
+const CACHED_COLLECTIONS: ReadonlySet<SKResourceType> = new Set(
+  SK_RESOURCE_TYPES
+);
 
 // ** Signal K resource operations
 @Injectable({ providedIn: 'root' })

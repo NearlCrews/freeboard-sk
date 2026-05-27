@@ -72,13 +72,19 @@ b {
   }
 }
 
-/* Vestibular safety: stop the looping animation when the user has asked
-   their OS for reduced motion. The loading splash is decorative; the
-   static border colour from frame 0% reads as "loading" without the
-   pulse and meets WCAG 2.3.3 / Pause, Stop, Hide. */
+/* WCAG 2.3.3: honour prefers-reduced-motion for the decorative loading
+   pulse and for the CDK drag-and-drop transitions. CDK applies
+   .cdk-drag-animating and .cdk-drag-preview globally, so a single global
+   rule keeps any future drag site reduced-motion safe by default;
+   component-scoped placeholder transitions still need their own guard
+   inside the component's encapsulated styles. */
 @media (prefers-reduced-motion: reduce) {
   .loading img {
     animation: none;
+  }
+  .cdk-drag-animating,
+  .cdk-drag-preview {
+    transition: none !important;
   }
 }
 

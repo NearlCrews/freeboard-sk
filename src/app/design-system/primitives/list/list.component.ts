@@ -221,11 +221,8 @@ export class FbNavListComponent {
   ]
 })
 export class FbListItemComponent {
-  // booleanAttribute lets consumers use the natural HTML form
-  // `<fb-list-item interactive>` (bare attribute) which signal inputs
-  // would otherwise read as the empty string "" (falsy). Without the
-  // transform, the featurelist panel rows never emitted activated
-  // because onClick's interactive() guard saw "" and returned early.
+  // booleanAttribute coerces the bare-attribute form `<fb-list-item
+  // interactive>` to true; without it, signal inputs see "" (falsy).
   readonly selected = input<boolean, unknown>(false, {
     transform: booleanAttribute
   });

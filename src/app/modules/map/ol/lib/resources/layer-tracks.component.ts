@@ -12,6 +12,7 @@ import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { SKTrack } from 'src/app/modules';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
+import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { FBTracks } from 'src/app/types';
 
 // Shared stroke for the default track style; setTextLabel below clones the
@@ -42,7 +43,7 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.labelPrefixes = ['track'];
+    this.labelPrefixes = [FEATURE_ID_PREFIX.tracks];
     this.parseTracks(this.tracks);
   }
 
@@ -64,7 +65,7 @@ export class TrackLayerComponent extends FBFeatureLayerComponent {
         ),
         name: t[1].name
       });
-      f.setId('track.' + t[0]);
+      f.setId(`${FEATURE_ID_PREFIX.tracks}.${t[0]}`);
       f.setStyle(this.buildStyle(t[1]));
       fa.push(f);
     }

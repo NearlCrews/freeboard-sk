@@ -15,6 +15,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { MapThemeService } from '../theme';
+import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import type { FBRoutes, Position } from 'src/app/types';
 
 // Reused white strokes for waypoint markers; hoisted out of per-segment hot
@@ -44,7 +45,7 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.labelPrefixes = ['route'];
+    this.labelPrefixes = [FEATURE_ID_PREFIX.routes];
     this.parseFBRoutes(this.routes);
   }
 
@@ -74,7 +75,9 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
 
   private restyleRouteById(id: string | undefined) {
     if (!id) return;
-    const feature = this.source.getFeatureById('route.' + id) as Feature | null;
+    const feature = this.source.getFeatureById(
+      `${FEATURE_ID_PREFIX.routes}.${id}`
+    ) as Feature | null;
     if (feature) {
       feature.setStyle(this.buildStyle(feature));
     }
@@ -95,7 +98,7 @@ export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
         geometry: new LineString(c as any),
         name: r[1].name
       });
-      f.setId('route.' + r[0]);
+      f.setId(`${FEATURE_ID_PREFIX.routes}.${r[0]}`);
       const props = r[1].feature.properties as
         | Record<string, unknown>
         | undefined;

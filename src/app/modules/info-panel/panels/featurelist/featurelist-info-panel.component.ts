@@ -18,12 +18,13 @@ import {
   FbNavListComponent,
   FbListItemComponent
 } from 'src/app/design-system/primitives/list/list.component';
+import type { SKResourceType } from 'src/app/modules/skresources';
 
 export interface FeatureListEntry {
   readonly id: string;
   readonly label: string;
   readonly icon?: string;
-  readonly type?: string;
+  readonly type?: SKResourceType;
 }
 
 @Component({
@@ -110,7 +111,7 @@ export class FeaturelistInfoPanelComponent {
   readonly features = input.required<readonly FeatureListEntry[]>();
   readonly titleOverride = input<string>('');
 
-  readonly selected = output<{ id: string; type?: string }>();
+  readonly selected = output<{ id: string; type?: SKResourceType }>();
 
   protected readonly title = computed<string>(
     () => this.titleOverride() || 'Multiple features at this point'
@@ -119,7 +120,7 @@ export class FeaturelistInfoPanelComponent {
   protected readonly ariaLabel = computed<string>(() => this.title());
 
   handleSelect(entry: FeatureListEntry): void {
-    const payload: { id: string; type?: string } = { id: entry.id };
+    const payload: { id: string; type?: SKResourceType } = { id: entry.id };
     if (entry.type) {
       payload.type = entry.type;
     }

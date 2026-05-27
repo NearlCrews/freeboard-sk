@@ -130,27 +130,22 @@ export class NotePanel {
     return timeAgoOf(timestamp);
   }
 
-  // signalk-crows-nest v0.4.6 and later publishes attribution as
-  // structured properties (properties.{source, attribution, plugin,
-  // pluginRepo}) and stopped appending an inline "Data sourced from..."
-  // trailer to the description. Older notes still in the SignalK store
-  // may carry the legacy trailer; strip it so it is not displayed
-  // twice (once inline, once via the attribution footer).
-  private static readonly LEGACY_TRAILER_MARKER = '\nData sourced from ';
-  private static readonly LEGACY_PLUGIN_NAME =
+  // signalk-crows-nest v0.4.6+ publishes attribution as structured
+  // properties ({source, attribution, plugin, pluginRepo}) and dropped
+  // the inline "Data sourced from..." trailer. Older notes may still
+  // carry the trailer; strip it so it does not render twice.
+  private static readonly OLD_NOTE_TRAILER = '\nData sourced from ';
+  private static readonly OLD_NOTE_PLUGIN_REGEX =
     /via the (signalk-[\w.-]+) plugin/i;
 
   protected readonly cleanDescription = computed<string>(() => {
     const raw = this._note().description ?? '';
-    const idx = raw.indexOf(NotePanel.LEGACY_TRAILER_MARKER);
+    const idx = raw.indexOf(NotePanel.OLD_NOTE_TRAILER);
     return (idx > -1 ? raw.slice(0, idx) : raw).trim();
   });
 
-  // The SignalK server's built-in storage plugin assigns this as
-  // $source for every user-created resource. Surfacing it in an
-  // attribution footer is noise (it just means "stored locally").
-  // Skip the footer entirely when the resource is local-storage with
-  // no producer-side attribution metadata.
+  // $source value assigned by the SignalK server's built-in storage
+  // plugin. A footer reading "stored locally" is noise; suppress it.
   private static readonly LOCAL_STORAGE_SOURCE = 'resources-provider';
 
   protected readonly pluginInfo = computed<{
@@ -162,10 +157,6 @@ export class NotePanel {
     const props = note.properties ?? {};
     const attribution =
       (typeof props['attribution'] === 'string' && props['attribution']) || '';
-    // crows-nest v0.4.6+ publishes properties.plugin and
-    // properties.pluginRepo on every note. Prefer those over $source
-    // (which is the producing plugin id and may be the same) and over
-    // the npm-package URL guess.
     const propsPlugin =
       (typeof props['plugin'] === 'string' && props['plugin']) ||
       (typeof props['pluginId'] === 'string' && props['pluginId']) ||
@@ -175,17 +166,11 @@ export class NotePanel {
     const skSource = note.source;
     const isLocalStorage =
       !skSource || skSource === NotePanel.LOCAL_STORAGE_SOURCE;
-    // Skip the footer entirely when nothing interesting is available:
-    // a local-storage resource with no attribution and no explicit
-    // plugin metadata reads as anonymous, not from "resources-provider".
     if (isLocalStorage && !attribution && !propsPlugin) {
       return null;
     }
-    // Prefer the structured properties.plugin over $source (they will
-    // typically agree, but the property is the producer-declared value
-    // and survives a SignalK server proxying the delta through another
-    // source). Fall back to regex-parsing the legacy description
-    // trailer only for notes that predate v0.4.6.
+    // Prefer the producer-declared properties.plugin: it survives a
+    // SignalK server proxying the delta through another $source.
     const name =
       propsPlugin ||
       (!isLocalStorage ? skSource : '') ||
@@ -193,16 +178,13 @@ export class NotePanel {
     if (!name) {
       return { name: '', url: '', attribution };
     }
-    // Producer's pluginRepo (e.g. the GitHub repo URL) is the canonical
-    // home and ships on every v0.4.6+ note. Fall back to npmjs.com only
-    // when the producer did not declare a repo URL.
     const url = propsPluginRepo || `https://www.npmjs.com/package/${name}`;
     return { name, url, attribution };
   });
 
   private pluginNameFromDescription(): string {
     const raw = this._note().description ?? '';
-    const match = raw.match(NotePanel.LEGACY_PLUGIN_NAME);
+    const match = raw.match(NotePanel.OLD_NOTE_PLUGIN_REGEX);
     return match?.[1] ?? '';
   }
 }

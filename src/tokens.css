@@ -135,11 +135,7 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.7;
 
-  /* Border-radius scale. Pill is for fully-rounded chips and metadata
-     badges; sm/md/lg are for inputs, buttons, and surfaces. The codebase
-     previously sprinkled raw 2/4/6/8/10/999px across stylesheets; new
-     code should reference these tokens so a theme-level radius update
-     is a single edit. */
+  /* Border-radius scale: sm/md/lg/xl for inputs, buttons, and surfaces; pill for chips and badges. */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
