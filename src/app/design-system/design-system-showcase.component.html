@@ -772,7 +772,7 @@
       style="
         max-width: 320px;
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
       "
     >
       <fb-list-item
@@ -806,7 +806,7 @@
       style="
         max-width: 320px;
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
       "
     >
       <fb-list-item>Row 1</fb-list-item>
@@ -820,7 +820,7 @@
       style="
         max-width: 320px;
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
       "
     >
       <fb-list-item [interactive]="true">Charts</fb-list-item>
@@ -836,7 +836,7 @@
       style="
         max-width: 320px;
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
       "
     ></fb-selection-list>
     <span class="ds-result" aria-live="polite">
@@ -862,7 +862,10 @@
       [tabs]="tabDefs"
       [(activeId)]="tabsActiveId"
       ariaLabel="Demo group details"
-      style="border: 1px solid var(--color-border); border-radius: 8px"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+      "
     >
       <div fbTabPanel fbTabPanelId="info" style="padding: var(--space-md)">
         <p>Info panel. Name, color, member count.</p>
@@ -956,7 +959,10 @@
       [(activeIndex)]="stepperActive"
       ariaLabel="Demo wizard"
       (completed)="onStepperFinish()"
-      style="border: 1px solid var(--color-border); border-radius: 8px"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+      "
     >
       <fb-step label="Start" [complete]="stepperStep1Complete()">
         <p>
@@ -1021,7 +1027,10 @@
       orientation="vertical"
       [(activeIndex)]="verticalStepperActive"
       ariaLabel="Demo route waypoints"
-      style="border: 1px solid var(--color-border); border-radius: 8px"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+      "
     >
       <fb-step label="Alpha point" icon="location_on" [complete]="true">
         <ng-template fbStepHeaderActions>
@@ -1115,7 +1124,7 @@
       (activated)="treeActivatedId.set($event.id)"
       style="
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         max-width: 360px;
       "
     ></fb-tree>
@@ -1132,7 +1141,7 @@
       ariaLabel="Layer selection, independent"
       style="
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         max-width: 360px;
       "
     ></fb-tree-select>
@@ -1149,7 +1158,7 @@
       ariaLabel="Layer selection, cascade"
       style="
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         max-width: 360px;
       "
     ></fb-tree-select>

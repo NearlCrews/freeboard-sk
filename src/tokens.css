@@ -135,12 +135,24 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.7;
 
-  /* Border-radius scale: sm/md/lg/xl for inputs, buttons, and surfaces; pill for chips and badges. */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 10px;
+  /* Border-radius scale (rem-based so OS zoom and screen-reader text
+     scaling carry radii along with the rest of the type and spacing
+     systems). xs/sm/md/lg/xl for inputs, buttons, and surfaces; pill
+     stays in px because it is a semantically infinite radius. */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.625rem;
   --radius-pill: 999px;
+
+  /* Layout invariants used by more than one consumer. The 48-px icon
+     surface is the standard chip-style affordance (info-panel head,
+     vessel/aton/aircraft list rows when added). Pill-min-height
+     keeps draft/warn/alarm badges the same physical height as the
+     default pill even when their font-size drops to xs. */
+  --surface-icon-size: 3rem;
+  --pill-min-height: 1.75rem;
 
   /* Touch-target floors. Primary 56 px is the WCAG 2.2 Enhanced ceiling,
      used for safety-critical actions: anchor drop, abandon route, OK an

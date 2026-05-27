@@ -95,8 +95,8 @@ export class FbInfoPanelRelatedDirective {}
 
     .ip-icon {
       flex-shrink: 0;
-      width: 48px;
-      height: 48px;
+      width: var(--surface-icon-size);
+      height: var(--surface-icon-size);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -152,7 +152,7 @@ export class FbInfoPanelRelatedDirective {}
       display: inline-flex;
       align-items: center;
       gap: var(--space-xs);
-      min-height: 28px;
+      min-height: var(--pill-min-height);
       padding: 0 var(--space-md);
       border-radius: var(--radius-pill);
       font-size: var(--font-size-sm);
@@ -171,6 +171,10 @@ export class FbInfoPanelRelatedDirective {}
     }
 
     :host ::ng-deep .ip-meta > .pill.pos {
+      /* Lat/long always wants its own line: even at the shortest valid
+         format the pair plus the middle separator runs ~22 chars, and
+         splitting the longitude onto a new line reads as a layout bug. */
+      flex-basis: 100%;
       font-family: var(--font-family-mono);
       letter-spacing: 0.02em;
       background: var(--color-surface);

@@ -19,7 +19,7 @@ export type FbCardActionsAlign = 'start' | 'end' | 'space-between';
         display: block;
         background: var(--color-surface);
         color: var(--color-text);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         font-family: var(--font-family-sans);
         overflow: hidden;
       }

@@ -19,6 +19,7 @@
   height: 400px;
   background-image: url('src/assets/img/ap/autopilot.png');
   background-color: transparent;
+  /* Bespoke radius tied to the autopilot.png bezel artwork at 238x400. */
   border-radius: 115px;
 }
 .autopilot-console .title {

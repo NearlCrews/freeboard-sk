@@ -291,7 +291,7 @@ interface PanCenter {
       gap: var(--space-sm);
       padding: var(--space-xs) var(--space-sm);
       border-right: 10px solid var(--color-border);
-      border-radius: 2px;
+      border-radius: var(--radius-xs);
       background: var(--color-surface-raised);
     }
 

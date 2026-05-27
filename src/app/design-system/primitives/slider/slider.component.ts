@@ -62,7 +62,7 @@ import {
           var(--color-border) var(--fb-slider-fill),
           var(--color-border) 100%
         );
-        border-radius: 999px;
+        border-radius: var(--radius-pill);
         appearance: none;
         cursor: pointer;
         height: 4px;

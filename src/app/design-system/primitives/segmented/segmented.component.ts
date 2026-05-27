@@ -71,7 +71,7 @@ export interface FbSegmentedOption {
         display: inline-flex;
         align-items: stretch;
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         background: var(--color-surface);
         overflow: hidden;
         font-family: var(--font-family-sans);

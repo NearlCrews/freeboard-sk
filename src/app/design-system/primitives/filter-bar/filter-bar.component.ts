@@ -81,7 +81,7 @@ export interface FbFilterChip {
         min-height: var(--touch-secondary);
         padding: var(--space-xs) var(--space-md);
         border: 1px solid var(--color-border);
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         background: var(--ds-surface-2, var(--color-surface-raised));
         color: var(--color-text);
         font-family: inherit;
@@ -107,7 +107,7 @@ export interface FbFilterChip {
         min-height: 32px;
         padding: var(--space-xs) var(--space-md);
         border: 1px solid var(--color-border);
-        border-radius: 999px;
+        border-radius: var(--radius-pill);
         background: transparent;
         color: var(--color-text);
         font-family: inherit;

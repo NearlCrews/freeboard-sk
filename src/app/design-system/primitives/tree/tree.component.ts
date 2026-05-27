@@ -193,7 +193,7 @@ function flattenVisible<T>(
         background: transparent;
         color: inherit;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
       }
       .fb-tree__chevron-btn:hover {
         background: var(--color-surface-raised);
@@ -525,7 +525,7 @@ export class FbTreeComponent<T = unknown> {
         background: transparent;
         color: inherit;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
       }
       .fb-tree__chevron-btn:hover {
         background: var(--color-surface-raised);

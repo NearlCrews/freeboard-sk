@@ -241,7 +241,7 @@ export class FbStepHeaderActionsDirective {
       .fb-step__header:focus-visible {
         outline: 2px solid var(--color-focus-ring);
         outline-offset: 2px;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
       }
       .fb-step__header[aria-selected='true'] {
         color: var(--color-text);
@@ -497,7 +497,7 @@ export class FbStepComponent {
       .fb-stepper__header:focus-visible {
         outline: 2px solid var(--color-focus-ring);
         outline-offset: 2px;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
       }
       .fb-stepper__header[aria-selected='true'] {
         color: var(--color-text);

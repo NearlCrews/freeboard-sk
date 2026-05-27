@@ -98,7 +98,7 @@ export class FbExpansionPanelIconDirective {}
         display: block;
         background: var(--color-surface-raised);
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         font-family: var(--font-family-sans);
         color: var(--color-text);
         overflow: hidden;

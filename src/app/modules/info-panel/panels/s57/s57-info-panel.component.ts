@@ -67,7 +67,7 @@ type S57Properties = Record<string, unknown>;
       margin: 0;
       padding: 0;
       border: 1px solid var(--color-border);
-      border-radius: 8px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
     }
 

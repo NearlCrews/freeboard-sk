@@ -61,7 +61,7 @@ mat-nav-list {
 .statusBarItem .mat-icon {
   background-color: rgba(255, 255, 255, 0.5);
   color: black;
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
 }
 
 .buttonPanel {
@@ -134,7 +134,7 @@ mat-nav-list {
   top: auto;
   width: 100px;
   border: gray 1px solid;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-family: roboto;
   text-align: center;
 }

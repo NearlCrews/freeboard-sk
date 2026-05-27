@@ -46,22 +46,22 @@ import {
         width: 100%;
         height: 4px;
         border: 0;
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
         background: var(--color-surface-raised);
         color: var(--color-primary);
         overflow: hidden;
       }
       .fb-progress::-webkit-progress-bar {
         background: var(--color-surface-raised);
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
       }
       .fb-progress::-webkit-progress-value {
         background: var(--color-primary);
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
       }
       .fb-progress::-moz-progress-bar {
         background: var(--color-primary);
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
       }
       .fb-progress--indeterminate {
         background: linear-gradient(

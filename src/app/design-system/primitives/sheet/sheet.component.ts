@@ -64,7 +64,7 @@ import { DialogRef } from '@angular/cdk/dialog';
         height: 4px;
         margin: var(--space-sm) auto var(--space-xs);
         background: var(--color-border);
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
         flex: 0 0 auto;
       }
       .fb-sheet__header {

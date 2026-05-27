@@ -87,7 +87,7 @@ import {
         width: 20px;
         height: 20px;
         border: 1px solid var(--color-border);
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
         background: var(--color-surface);
         transition:
           background 120ms ease,
@@ -115,7 +115,7 @@ import {
         width: 10px;
         height: 2px;
         background: var(--color-on-primary);
-        border-radius: 1px;
+        border-radius: var(--radius-xs);
       }
       .fb-checkbox__label:empty {
         display: none;

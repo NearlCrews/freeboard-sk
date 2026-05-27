@@ -22,7 +22,9 @@ interface PiPVideoElement extends HTMLVideoElement {
   selector: 'pip-video',
   imports: [MatButtonModule, MatTooltipModule, MatIconModule],
   template: `
-    <div style="border: gray 1px solid;border-radius:5px;display:none;">
+    <div
+      style="border: gray 1px solid;border-radius: var(--radius-md);display:none;"
+    >
       <video #vid [src]="vidUrl" [muted]="muted" autoplay></video>
     </div>
     <div style="padding-left: 5px;">

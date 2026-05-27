@@ -71,7 +71,7 @@ import {
         width: 36px;
         height: 20px;
         background: var(--color-border);
-        border-radius: 999px;
+        border-radius: var(--radius-pill);
         transition:
           background 160ms ease,
           box-shadow 120ms ease;

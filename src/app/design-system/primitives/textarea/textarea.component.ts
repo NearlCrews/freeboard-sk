@@ -44,7 +44,7 @@ import {
         min-height: var(--touch-secondary);
         padding: var(--space-sm) var(--space-md);
         border: 1px solid var(--color-border);
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         background: var(--color-surface);
         color: var(--color-text);
         font-family: var(--font-family-sans);

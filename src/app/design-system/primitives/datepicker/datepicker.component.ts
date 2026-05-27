@@ -237,7 +237,7 @@ function addYears(d: Date, n: number): Date {
         min-height: var(--touch-secondary);
         padding: var(--space-sm) var(--space-md);
         border: 1px solid var(--color-border);
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         background: var(--color-surface);
         color: var(--color-text);
         font-family: var(--font-family-sans);
@@ -285,7 +285,7 @@ function addYears(d: Date, n: number): Date {
         background: var(--color-surface-raised);
         color: var(--color-text);
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         font-family: var(--font-family-sans);
         font-size: var(--font-size-base);
@@ -307,7 +307,7 @@ function addYears(d: Date, n: number): Date {
         background: transparent;
         color: inherit;
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         transition: background 120ms ease;
       }
       .fb-datepicker__nav:hover:not(:disabled) {
@@ -355,7 +355,7 @@ function addYears(d: Date, n: number): Date {
         color: var(--color-text);
         font: inherit;
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         transition:
           background 120ms ease,
           color 120ms ease,

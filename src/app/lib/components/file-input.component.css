@@ -39,7 +39,7 @@
 
 #avatar {
   background-color: inherit;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   height: 42px;
 }
 #avatar > img {
