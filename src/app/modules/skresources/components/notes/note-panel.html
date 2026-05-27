@@ -124,6 +124,7 @@
       <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
         >{{ plugin.name }}</a
       >
+      @if (plugin.attribution) { · {{ plugin.attribution }} }
     </p>
     }
   </div>

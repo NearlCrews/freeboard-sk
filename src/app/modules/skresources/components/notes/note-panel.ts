@@ -153,19 +153,30 @@ export class NotePanel {
   protected readonly pluginInfo = computed<{
     name: string;
     url: string;
+    attribution: string;
   } | null>(() => {
-    const props = this._note().properties ?? {};
-    const fromProps =
-      typeof props['plugin'] === 'string'
-        ? props['plugin']
-        : typeof props['pluginId'] === 'string'
-          ? props['pluginId']
-          : '';
-    const name = fromProps || this.pluginNameFromDescription();
+    const note = this._note();
+    const props = note.properties ?? {};
+    // Prefer the SignalK delta $source field (captured on SKNote as
+    // 'source') since that is the authoritative producer identifier
+    // every server emits. Fall back to a structured properties.plugin
+    // field, then to a regex against the description text for older
+    // notes that predate either.
+    const name =
+      note.source ||
+      (typeof props['plugin'] === 'string' ? props['plugin'] : '') ||
+      (typeof props['pluginId'] === 'string' ? props['pluginId'] : '') ||
+      this.pluginNameFromDescription();
     if (!name) {
       return null;
     }
-    return { name, url: `https://www.npmjs.com/package/${name}` };
+    const attribution =
+      (typeof props['attribution'] === 'string' && props['attribution']) || '';
+    return {
+      name,
+      url: `https://www.npmjs.com/package/${name}`,
+      attribution
+    };
   });
 
   private pluginNameFromDescription(): string {

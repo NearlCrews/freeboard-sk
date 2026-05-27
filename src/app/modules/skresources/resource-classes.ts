@@ -75,6 +75,10 @@ export class SKNote {
   mimeType = '';
   url = '';
   group = '';
+  // Producer plugin id (the SignalK delta '$source' field). Captured so
+  // the info-panel can render a clean attribution footer without parsing
+  // the description text.
+  source = '';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authors: any[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,6 +93,15 @@ export class SKNote {
       this.mimeType = note.mimeType ?? '';
       this.url = note.url ?? '';
       this.group = note.group ?? '';
+      // SignalK servers wire the producer as either '$source' (the
+      // delta JSON key) or 'source' (some legacy paths); accept either.
+      const raw = note as unknown as Record<string, unknown>;
+      const dollarSource = raw['$source'];
+      const plainSource = raw['source'];
+      this.source =
+        (typeof dollarSource === 'string' && dollarSource) ||
+        (typeof plainSource === 'string' && plainSource) ||
+        '';
       this.authors = Array.isArray(note.authors) ? note.authors : [];
       this.properties =
         note.properties && typeof note.properties === 'object'
