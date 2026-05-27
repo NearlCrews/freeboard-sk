@@ -1483,6 +1483,25 @@ export class FBMapComponent
           'notification_important',
           'tour'
         ]);
+        // OL feature ids are <singular>.<resourceId> ('note.<uuid>',
+        // 'route.<id>', etc.) because the per-resource layers set them that
+        // way for hit-testing. Two translations are needed before a list-row
+        // click can resolve to a real fetch:
+        //   1. Map the singular prefix to the plural SKResourceType the
+        //      info-panel.open() facade expects ('note' -> 'notes', ...).
+        //   2. Strip the prefix from the id so the resource service GETs
+        //      /resources/notes/<uuid>, not /resources/notes/note.<uuid>.
+        // Before this map every multi-feature click was a silent no-op: the
+        // cast to SKResourceType in featureListSelectionFromPanel passed at
+        // compile time but the open() call 404'd at runtime and the catch
+        // block swallowed the error.
+        const ID_PREFIX_TO_RESOURCE_TYPE: Record<string, string> = {
+          note: 'notes',
+          route: 'routes',
+          waypoint: 'waypoints',
+          region: 'regions',
+          track: 'tracks'
+        };
         this.infoPanel.openFeatureList(
           po.title || 'Features',
           (
@@ -1492,9 +1511,15 @@ export class FBMapComponent
               icon?: string;
             }[]
           ).map((entry) => {
-            const id = String(entry?.id ?? '');
-            const dot = id.indexOf('.');
-            const type = dot > -1 ? id.slice(0, dot) : '';
+            const rawId = String(entry?.id ?? '');
+            const dot = rawId.indexOf('.');
+            const prefix = dot > -1 ? rawId.slice(0, dot) : '';
+            const type = ID_PREFIX_TO_RESOURCE_TYPE[prefix] ?? '';
+            // For known resource prefixes the suffix is the real SK id used
+            // by the REST API. For unknown prefixes (s57, alarm, ais-...)
+            // leave the id untouched: the list shows them as informational
+            // rows that other code paths handle, not via the open() facade.
+            const id = type ? rawId.slice(prefix.length + 1) : rawId;
             const label = entry?.text || id;
             const payload: {
               id: string;
