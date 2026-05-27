@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  booleanAttribute,
   computed,
   input,
   model,
@@ -220,9 +221,20 @@ export class FbNavListComponent {
   ]
 })
 export class FbListItemComponent {
-  readonly selected = input<boolean>(false);
-  readonly disabled = input<boolean>(false);
-  readonly interactive = input<boolean>(false);
+  // booleanAttribute lets consumers use the natural HTML form
+  // `<fb-list-item interactive>` (bare attribute) which signal inputs
+  // would otherwise read as the empty string "" (falsy). Without the
+  // transform, the featurelist panel rows never emitted activated
+  // because onClick's interactive() guard saw "" and returned early.
+  readonly selected = input<boolean, unknown>(false, {
+    transform: booleanAttribute
+  });
+  readonly disabled = input<boolean, unknown>(false, {
+    transform: booleanAttribute
+  });
+  readonly interactive = input<boolean, unknown>(false, {
+    transform: booleanAttribute
+  });
 
   readonly activated = output<KeyboardEvent | MouseEvent>();
 
