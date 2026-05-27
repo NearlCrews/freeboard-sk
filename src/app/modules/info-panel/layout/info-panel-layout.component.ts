@@ -276,6 +276,54 @@ export class FbInfoPanelRelatedDirective {}
       margin-top: 0;
     }
 
+    /* Property list rendered by each resource panel below the description
+       (or as the only body content when there is no description). Two
+       columns: term on the left, value on the right. Quiet typography so
+       the description, when present, stays the visual hero. */
+    :host ::ng-deep .ip-body .ip-props {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      column-gap: var(--space-md);
+      row-gap: var(--space-xs);
+      margin: var(--space-lg) 0 0;
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--color-border);
+      font-size: var(--font-size-sm);
+    }
+    :host ::ng-deep .ip-body .ip-props dt {
+      color: var(--color-text-muted);
+      font-weight: var(--font-weight-medium);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: var(--font-size-xs);
+      align-self: baseline;
+    }
+    :host ::ng-deep .ip-body .ip-props dd {
+      margin: 0;
+      color: var(--color-text);
+      word-break: break-word;
+      font-family: var(--font-family-sans);
+    }
+    :host ::ng-deep .ip-body .ip-props dd a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    :host ::ng-deep .ip-body .ip-props dd a:hover {
+      text-decoration: underline;
+    }
+
+    /* Placeholder when the resource has no description. Reads as muted
+       guidance, not error or warning. */
+    :host ::ng-deep .ip-body .ip-empty {
+      margin: 0;
+      padding: var(--space-md);
+      border-radius: 6px;
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      font-style: italic;
+      font-size: var(--font-size-sm);
+    }
+
     .ip-related {
       flex-shrink: 0;
       border-top: 1px solid var(--color-border);

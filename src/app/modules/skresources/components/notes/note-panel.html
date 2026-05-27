@@ -100,7 +100,7 @@
   </div>
 
   <div fbInfoPanelBody>
-    @if (note().mimeType?.includes('markdown')) {
+    @if (_note().description) { @if (note().mimeType?.includes('markdown')) {
     <remark [markdown]="note().description">
       <ng-template remarkTemplate="heading" let-node>
         @if (node.depth === 1) {
@@ -116,6 +116,36 @@
     </remark>
     } @else {
     <div [innerHTML]="_note().description | addTarget: '_notes'"></div>
+    } } @else {
+    <p class="ip-empty">No description. Click Edit to add one.</p>
     }
+
+    <dl class="ip-props">
+      <dt>Name</dt>
+      <dd>{{ _note().name || '—' }}</dd>
+      @if (_note().position; as pos) {
+      <dt>Position</dt>
+      <dd>
+        {{ pos.latitude | coords: app.config.units.positionFormat : true }}<br />
+        {{ pos.longitude | coords: app.config.units.positionFormat : false }}
+      </dd>
+      } @if (_note().group) {
+      <dt>Group</dt>
+      <dd>{{ _note().group }}</dd>
+      } @if (_note().url) {
+      <dt>Link</dt>
+      <dd>
+        <a [href]="_note().url" target="_notes" rel="noopener noreferrer">
+          {{ _note().url }}
+        </a>
+      </dd>
+      } @if (_note().mimeType) {
+      <dt>Format</dt>
+      <dd>{{ _note().mimeType }}</dd>
+      } @if ($any(_note()).timestamp; as ts) {
+      <dt>Updated</dt>
+      <dd>{{ timeAgo(ts) }}</dd>
+      }
+    </dl>
   </div>
 </fb-info-panel-layout>
