@@ -66,6 +66,16 @@ export type FbButtonSize = 'sm' | 'md' | 'lg';
         border: 1px solid transparent;
         border-radius: 6px;
         padding: var(--space-sm) var(--space-lg);
+      }
+      /* The projected label often contains both an icon and text. Make the
+         label itself an inline-flex row so the icon and text stay vertically
+         centered with a deterministic gap, regardless of how the consumer
+         interleaves them. */
+      .fb-btn__label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-sm);
+        min-width: 0;
         font-family: var(--font-family-sans);
         font-weight: var(--font-weight-medium);
         font-size: var(--font-size-base);
