@@ -18,6 +18,7 @@ import {
   FbButtonComponent,
   FbIconComponent
 } from 'src/app/design-system/primitives';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { AppIconDef } from 'src/app/modules/icons';
@@ -39,12 +40,12 @@ import {
     MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,
+    FbInfoPanelLayoutComponent,
     CoordsPipe,
     AddTargetPipe,
     RemarkModule
   ],
-  templateUrl: `note-panel.html`,
-  styleUrls: ['note-panel.scss']
+  templateUrl: `note-panel.html`
 })
 export class NotePanel {
   note = input<SKNote>(new SKNote());

@@ -284,9 +284,9 @@
         >
           <info-panel>
             @if (infoPanel.item(); as ipItem) {
-              @if (ipItem.type === 'notes') {
+              @if (ipItem.kind === 'resource' && ipItem.type === 'notes') {
                 <note-panel
-                  [note]="infoPanelNote()"
+                  [note]="infoPanelNote()!"
                   [id]="ipItem.id"
                   (edit)="
                     skres.showNoteEditor({
@@ -296,32 +296,97 @@
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
-              @if (ipItem.type === 'regions') {
+              @if (ipItem.kind === 'resource' && ipItem.type === 'regions') {
                 <region-panel
-                  [region]="infoPanelRegion()"
+                  [region]="infoPanelRegion()!"
                   [id]="ipItem.id"
                   [related]="infoPanel.related()"
                   (edit)="skres.editRegionInfo($event)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
-              @if (ipItem.type === 'waypoints') {
+              @if (ipItem.kind === 'resource' && ipItem.type === 'waypoints') {
                 <waypoint-panel
-                  [waypoint]="infoPanelWaypoint()"
+                  [waypoint]="infoPanelWaypoint()!"
                   [id]="ipItem.id"
                   [related]="infoPanel.related()"
                   (edit)="skres.editWaypointInfo($event)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
-              @if (ipItem.type === 'routes') {
+              @if (ipItem.kind === 'resource' && ipItem.type === 'routes') {
                 <route-panel
-                  [route]="infoPanelRoute()"
+                  [route]="infoPanelRoute()!"
                   [id]="ipItem.id"
                   [related]="infoPanel.related()"
                   (edit)="skres.editRouteInfo($event)"
                   (activate)="activateRoute($event)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 'vessel') {
+                <fb-vessel-info-panel
+                  [vessel]="ipItem.vessel"
+                  [useMagnetic]="app.useMagnetic"
+                  [isActive]="app.data.vessels.activeId === ipItem.id"
+                  [isSelf]="ipItem.isSelf"
+                  (info)="vesselInfoFromPanel(ipItem)"
+                  (focused)="setActiveVessel($event ? ipItem.id : null)"
+                  (markPosition)="skres.newWaypointAt($event)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 'aircraft') {
+                <fb-aircraft-info-panel
+                  [target]="ipItem.target"
+                  (info)="aircraftInfoFromPanel(ipItem)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 'aton') {
+                <fb-aton-info-panel
+                  [target]="ipItem.target"
+                  (info)="atonInfoFromPanel(ipItem)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 'alarm') {
+                <fb-alarm-info-panel
+                  [alarm]="ipItem.alarm"
+                  (silence)="silenceAlarm(ipItem.id)"
+                  (acknowledge)="acknowledgeAlarm(ipItem.id)"
+                  (resolve)="resolveAlarm(ipItem.id)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 's57') {
+                <fb-s57-info-panel
+                  [properties]="ipItem.properties"
+                  [titleOverride]="ipItem.title"
+                />
+              }
+              @if (ipItem.kind === 'resourceset') {
+                <fb-resourceset-info-panel
+                  [resource]="ipItem.resource"
+                  [titleOverride]="ipItem.title"
+                  [readOnly]="ipItem.readOnly"
+                  (modify)="modifyResourceSetFromPanel(ipItem)"
+                  (delete)="deleteResourceSetFromPanel(ipItem)"
+                  (info)="resourceSetInfoFromPanel(ipItem)"
+                  (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
+                />
+              }
+              @if (ipItem.kind === 'featurelist') {
+                <fb-featurelist-info-panel
+                  [features]="ipItem.features"
+                  [titleOverride]="ipItem.title"
+                  (selected)="featureListSelectionFromPanel($event)"
+                />
+              }
+              @if (ipItem.kind === 'chartlist') {
+                <fb-chartlist-info-panel
+                  [features]="ipItem.features"
+                  (selected)="chartListSelectionFromPanel($event)"
                 />
               }
             }

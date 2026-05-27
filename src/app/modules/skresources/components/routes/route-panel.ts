@@ -12,7 +12,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDivider } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
@@ -27,6 +26,7 @@ import {
   FbListItemComponent,
   FbNavListComponent
 } from 'src/app/design-system/primitives';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';
@@ -42,10 +42,8 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
 import { CourseService } from 'src/app/modules/course';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { MatStepperModule } from '@angular/material/stepper';
-import { Convert } from 'src/app/lib/convert';
 import { ActiveResourcePropertiesModal } from '../active-resource-dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'route-panel',
@@ -53,7 +51,6 @@ import { HttpErrorResponse } from '@angular/common/http';
   imports: [
     MatIconModule,
     MatTooltipModule,
-    MatDivider,
     MatStepperModule,
     FbAccordionComponent,
     FbButtonComponent,
@@ -61,6 +58,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     FbExpansionPanelDescriptionDirective,
     FbExpansionPanelTitleDirective,
     FbIconComponent,
+    FbInfoPanelLayoutComponent,
     FbListItemComponent,
     FbNavListComponent,
     RemarkModule

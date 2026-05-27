@@ -15,14 +15,18 @@ import type {
   FBRoute,
   FBWaypoint,
   NoteResource,
+  Position,
   RegionResource,
+  ResourceSet,
   RouteResource,
   TrackResource,
   WaypointResource
 } from 'src/app/types';
+import type { SKAircraft, SKAtoN, SKMeteo, SKVessel } from '../skresources';
+import type { AlertData } from '../alarms';
 import { SKWorkerService } from '../skstream/skstream.service';
 
-type InfoPanelResource =
+type SKResourceItem =
   | SKRoute
   | SKWaypoint
   | SKRegion
@@ -30,11 +34,67 @@ type InfoPanelResource =
   | SKChart
   | SKTrack;
 
-export interface InfoPanelItem {
-  type: SKResourceType;
-  id: string;
-  resource: InfoPanelResource;
-}
+/**
+ * Discriminated union of every type the left info-panel can display.
+ * Replaces the on-map popover overlay; the map click handler now opens
+ * the side panel with one of these payloads instead of mounting an
+ * `<ol-overlay>` popover.
+ */
+export type InfoPanelItem =
+  | {
+      kind: 'resource';
+      type: SKResourceType;
+      id: string;
+      resource: SKResourceItem;
+    }
+  | {
+      kind: 'vessel';
+      id: string;
+      vessel: SKVessel;
+      isSelf: boolean;
+    }
+  | {
+      kind: 'aircraft';
+      id: string;
+      target: SKAircraft;
+    }
+  | {
+      kind: 'aton';
+      id: string;
+      target: SKAtoN | SKMeteo;
+    }
+  | {
+      kind: 'alarm';
+      id: string;
+      alarm: AlertData;
+    }
+  | {
+      kind: 's57';
+      id: string;
+      title: string;
+      properties: Record<string, unknown>;
+    }
+  | {
+      kind: 'resourceset';
+      id: string;
+      title: string;
+      resource: ResourceSet;
+      readOnly: boolean;
+    }
+  | {
+      kind: 'featurelist';
+      title: string;
+      features: readonly {
+        id: string;
+        label: string;
+        icon?: string;
+        type?: string;
+      }[];
+    }
+  | {
+      kind: 'chartlist';
+      features: readonly { id: string; label: string }[];
+    };
 
 @Injectable({ providedIn: 'root' })
 export class InfoPanelFacade {
@@ -60,11 +120,16 @@ export class InfoPanelFacade {
       const collection = np[1];
       const itemId = np[2];
       const current = this._item();
-      if (current && collection === current.type && itemId === current.id) {
+      if (
+        current?.kind === 'resource' &&
+        collection === current.type &&
+        itemId === current.id
+      ) {
         if (!update.value) {
           this.close();
         } else {
           this._item.set({
+            kind: 'resource',
             type: current.type,
             id: current.id,
             resource: this.skres.transform(
@@ -83,7 +148,9 @@ export class InfoPanelFacade {
       }
       if (
         collection === 'groups' ||
-        (collection === 'notes' && current?.type !== 'notes')
+        (collection === 'notes' &&
+          current?.kind === 'resource' &&
+          current.type !== 'notes')
       ) {
         this._related.set(`${collection}.${Date.now()}`);
       }
@@ -91,8 +158,7 @@ export class InfoPanelFacade {
   }
 
   /**
-   * @description Fetch resource with supplied id and open InfoPanel
-   * @param id note identifier
+   * Fetch SignalK resource by id and open the panel.
    */
   public async open(resourceType: SKResourceType, id: string) {
     if (!id) {
@@ -101,7 +167,12 @@ export class InfoPanelFacade {
     try {
       const r = await this.skres.fromServer(resourceType, id);
       if (r) {
-        this._item.set({ type: resourceType, id, resource: r });
+        this._item.set({
+          kind: 'resource',
+          type: resourceType,
+          id,
+          resource: r
+        });
         this._opened.set(true);
         return;
       }
@@ -111,8 +182,7 @@ export class InfoPanelFacade {
   }
 
   /**
-   * @description Open InfoPanel with the supplied resource
-   * @param resource
+   * Open with an already-loaded resource record.
    */
   public openWith(
     resourceType: SKResourceType,
@@ -122,10 +192,70 @@ export class InfoPanelFacade {
       return;
     }
     this._item.set({
+      kind: 'resource',
       type: resourceType,
       id: resource[0],
       resource: resource[1]
     });
+    this._opened.set(true);
+  }
+
+  public openVessel(id: string, vessel: SKVessel, isSelf: boolean): void {
+    this._item.set({ kind: 'vessel', id, vessel, isSelf });
+    this._opened.set(true);
+  }
+
+  public openAircraft(id: string, target: SKAircraft): void {
+    this._item.set({ kind: 'aircraft', id, target });
+    this._opened.set(true);
+  }
+
+  public openAton(id: string, target: SKAtoN | SKMeteo): void {
+    this._item.set({ kind: 'aton', id, target });
+    this._opened.set(true);
+  }
+
+  public openAlarm(id: string, alarm: AlertData): void {
+    this._item.set({ kind: 'alarm', id, alarm });
+    this._opened.set(true);
+  }
+
+  public openS57(
+    id: string,
+    title: string,
+    properties: Record<string, unknown>
+  ): void {
+    this._item.set({ kind: 's57', id, title, properties });
+    this._opened.set(true);
+  }
+
+  public openResourceSet(
+    id: string,
+    title: string,
+    resource: ResourceSet,
+    readOnly: boolean
+  ): void {
+    this._item.set({ kind: 'resourceset', id, title, resource, readOnly });
+    this._opened.set(true);
+  }
+
+  public openFeatureList(
+    title: string,
+    features: readonly {
+      id: string;
+      label: string;
+      icon?: string;
+      type?: string;
+    }[]
+  ): void {
+    this._item.set({ kind: 'featurelist', title, features });
+    this._opened.set(true);
+  }
+
+  public openChartList(
+    features: readonly { id: string; label: string }[]
+  ): void {
+    this._item.set({ kind: 'chartlist', features });
     this._opened.set(true);
   }
 

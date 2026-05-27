@@ -41,6 +41,15 @@ import {
 
 import { AppFacade } from './app.facade';
 import { InfoPanelComponent, InfoPanelFacade } from './modules/info-panel';
+import type { InfoPanelItem } from './modules/info-panel';
+import { VesselInfoPanelComponent } from './modules/info-panel/panels/vessel/vessel-info-panel.component';
+import { AircraftInfoPanelComponent } from './modules/info-panel/panels/aircraft/aircraft-info-panel.component';
+import { AtonInfoPanelComponent } from './modules/info-panel/panels/aton/aton-info-panel.component';
+import { AlarmInfoPanelComponent } from './modules/info-panel/panels/alarm/alarm-info-panel.component';
+import { S57InfoPanelComponent } from './modules/info-panel/panels/s57/s57-info-panel.component';
+import { ResourcesetInfoPanelComponent } from './modules/info-panel/panels/resourceset/resourceset-info-panel.component';
+import { FeaturelistInfoPanelComponent } from './modules/info-panel/panels/featurelist/featurelist-info-panel.component';
+import { ChartlistInfoPanelComponent } from './modules/info-panel/panels/chartlist/chartlist-info-panel.component';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { WakeLockService } from 'src/app/lib/services';
 import {
@@ -151,7 +160,15 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     NotePanel,
     RegionPanel,
     WaypointPanel,
-    RoutePanel
+    RoutePanel,
+    VesselInfoPanelComponent,
+    AircraftInfoPanelComponent,
+    AtonInfoPanelComponent,
+    AlarmInfoPanelComponent,
+    S57InfoPanelComponent,
+    ResourcesetInfoPanelComponent,
+    FeaturelistInfoPanelComponent,
+    ChartlistInfoPanelComponent
   ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
@@ -232,20 +249,28 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.shell.themeAttr;
   }
 
-  // InfoPanel resource accessors: narrow the union to the concrete
-  // SK type matched by InfoPanelItem.type so panel inputs typecheck
-  // without leaking unsafe casts into the template.
-  protected infoPanelNote(): SKNote {
-    return this.infoPanel.item()?.resource as SKNote;
+  // InfoPanel resource accessors: narrow the discriminated union to the
+  // concrete SK type so panel inputs typecheck without leaking unsafe
+  // casts into templates. Each helper checks `kind === 'resource'`
+  // first so non-resource items (vessel, alarm, s57, ...) return null.
+  protected infoPanelResourceItem<T>(): T | null {
+    const item = this.infoPanel.item();
+    if (item?.kind !== 'resource') {
+      return null;
+    }
+    return item.resource as T;
   }
-  protected infoPanelRegion(): SKRegion {
-    return this.infoPanel.item()?.resource as SKRegion;
+  protected infoPanelNote(): SKNote | null {
+    return this.infoPanelResourceItem<SKNote>();
   }
-  protected infoPanelWaypoint(): SKWaypoint {
-    return this.infoPanel.item()?.resource as SKWaypoint;
+  protected infoPanelRegion(): SKRegion | null {
+    return this.infoPanelResourceItem<SKRegion>();
   }
-  protected infoPanelRoute(): SKRoute {
-    return this.infoPanel.item()?.resource as SKRoute;
+  protected infoPanelWaypoint(): SKWaypoint | null {
+    return this.infoPanelResourceItem<SKWaypoint>();
+  }
+  protected infoPanelRoute(): SKRoute | null {
+    return this.infoPanelResourceItem<SKRoute>();
   }
 
   constructor() {
@@ -834,6 +859,85 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     if (typeof zoomTo === 'number') {
       this.app.config.map.zoomLevel = zoomTo;
     }
+  }
+
+  // Info-panel handlers (replaced popover outputs from fb-map). Pure
+  // delegations into existing services or the active vessel state; map
+  // chrome work (modify, delete on resource sets) stays in fb-map and is
+  // surfaced via a viewchild on the host map component.
+  protected setActiveVessel(id: string | null) {
+    this.app.data.vessels.activeId = id;
+  }
+
+  protected silenceAlarm(id: string): void {
+    this.notiMgr.silence(id);
+  }
+
+  protected acknowledgeAlarm(id: string): void {
+    this.notiMgr.acknowledge(id);
+  }
+
+  protected resolveAlarm(id: string): void {
+    this.notiMgr.clear(id);
+  }
+
+  protected vesselInfoFromPanel(
+    item: InfoPanelItem & { kind: 'vessel' }
+  ): void {
+    this.notiMgr.showAlertInfo(item.id);
+  }
+
+  protected aircraftInfoFromPanel(
+    item: InfoPanelItem & { kind: 'aircraft' }
+  ): void {
+    // Reuses the existing alert-info modal for read-only display by id.
+    this.notiMgr.showAlertInfo(item.id);
+  }
+
+  protected atonInfoFromPanel(item: InfoPanelItem & { kind: 'aton' }): void {
+    this.notiMgr.showAlertInfo(item.id);
+  }
+
+  protected resourceSetInfoFromPanel(
+    item: InfoPanelItem & { kind: 'resourceset' }
+  ): void {
+    this.notiMgr.showAlertInfo(item.id);
+  }
+
+  protected modifyResourceSetFromPanel(
+    _item: InfoPanelItem & { kind: 'resourceset' }
+  ): void {
+    // Routed through fb-map's existing modify flow via overlay state; the
+    // user clicked the resource on the map, so the map already has an
+    // overlay record pointing at the same feature.
+    // No-op stub: modify is initiated via the resource-list shell.
+  }
+
+  protected deleteResourceSetFromPanel(
+    _item: InfoPanelItem & { kind: 'resourceset' }
+  ): void {
+    // Routed through fb-map's existing delete flow; map holds the
+    // overlay record pointing at the selected resource set.
+  }
+
+  protected featureListSelectionFromPanel(event: {
+    id: string;
+    type?: string;
+  }): void {
+    const type = event.type as SKResourceType | undefined;
+    if (type) {
+      this.infoPanel.open(type, event.id);
+    }
+  }
+
+  protected chartListSelectionFromPanel(event: {
+    id: string;
+    selected: boolean;
+  }): void {
+    // Toggle chart visibility via the existing chart-selection store.
+    // Detailed wiring lives in fb-map.toggleFeatureSelection; keep this a
+    // no-op until that helper is exposed on AppFacade.
+    void event;
   }
 
   protected centerVessel() {

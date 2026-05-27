@@ -4,13 +4,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InfoPanelFacade } from './info-panel.facade';
 
-const TYPE_LABEL: Record<string, string> = {
+const RESOURCE_LABEL: Record<string, string> = {
   notes: 'Note',
   routes: 'Route',
   waypoints: 'Waypoint',
   regions: 'Region',
   charts: 'Chart',
   tracks: 'Track'
+};
+
+const KIND_LABEL: Record<string, string> = {
+  vessel: 'Vessel',
+  aircraft: 'Aircraft',
+  aton: 'Aton',
+  alarm: 'Alarm',
+  s57: 'Chart feature',
+  resourceset: 'Resource set',
+  featurelist: 'Features',
+  chartlist: 'Charts'
 };
 
 @Component({
@@ -93,8 +104,14 @@ export class InfoPanelComponent {
   protected infoPanel = inject(InfoPanelFacade);
 
   protected label = () => {
-    const type = this.infoPanel.item()?.type;
-    return type ? (TYPE_LABEL[type] ?? type) : '';
+    const item = this.infoPanel.item();
+    if (!item) {
+      return '';
+    }
+    if (item.kind === 'resource') {
+      return RESOURCE_LABEL[item.type] ?? item.type;
+    }
+    return KIND_LABEL[item.kind] ?? item.kind;
   };
 
   close() {

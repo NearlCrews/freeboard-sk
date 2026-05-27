@@ -1,51 +1,40 @@
-<section class="note-detail" role="region" aria-label="Note details">
-  <header class="detail-head">
-    <div class="head-row">
-      <div class="detail-icon-wrap" aria-hidden="true">
-        @if (!icon?.svgIcon) {
-        <mat-icon [class]="icon?.class ?? ''">{{ icon?.name }}</mat-icon>
-        } @else {
-        <mat-icon [svgIcon]="icon?.svgIcon ?? ''"></mat-icon>
-        }
-      </div>
-      <div class="detail-title-block">
-        <h1 class="detail-title">{{ _note().name || 'Untitled note' }}</h1>
-        @if (_note().position || _note().group || _note().properties['draft'] ||
-        $any(_note()).timestamp) {
-        <div class="detail-meta-row">
-          @if (_note().properties['draft']) {
-          <span class="pill draft" aria-label="Draft note">Draft</span>
-          } @if (_note().group) {
-          <span
-            class="pill group"
-            [style.--pill-color]="groupColor(_note().group)"
-          >
-            <span class="dot" aria-hidden="true"></span>{{ _note().group }}
-          </span>
-          } @if (_note().position; as pos) {
-          <span class="pill pos">
-            <fb-icon name="place" ariaLabel=""></fb-icon>
-            {{ pos.latitude | coords : app.config.units.positionFormat : true }}
-            · {{ pos.longitude | coords : app.config.units.positionFormat :
-            false }}
-          </span>
-          } @if ($any(_note()).timestamp; as ts) {
-          <span class="pill">
-            <fb-icon name="schedule" ariaLabel=""></fb-icon>
-            {{ timeAgo(ts) }}
-          </span>
-          }
-        </div>
-        }
-      </div>
-    </div>
-  </header>
+<fb-info-panel-layout ariaLabel="Note details">
+  <span fbInfoPanelIcon>
+    @if (!icon?.svgIcon) {
+    <mat-icon [class]="icon?.class ?? ''">{{ icon?.name }}</mat-icon>
+    } @else {
+    <mat-icon [svgIcon]="icon?.svgIcon ?? ''"></mat-icon>
+    }
+  </span>
 
-  <nav class="detail-actions" aria-label="Note actions">
+  <span fbInfoPanelTitle>{{ _note().name || 'Untitled note' }}</span>
+
+  <div fbInfoPanelMeta>
+    @if (_note().properties['draft']) {
+    <span class="pill draft" aria-label="Draft note">Draft</span>
+    } @if (_note().group) {
+    <span class="pill group" [style.--pill-color]="groupColor(_note().group)">
+      <span class="dot" aria-hidden="true"></span>{{ _note().group }}
+    </span>
+    } @if (_note().position; as pos) {
+    <span class="pill pos">
+      <fb-icon name="place" ariaLabel=""></fb-icon>
+      {{ pos.latitude | coords: app.config.units.positionFormat : true }} · {{
+      pos.longitude | coords: app.config.units.positionFormat : false }}
+    </span>
+    } @if ($any(_note()).timestamp; as ts) {
+    <span class="pill">
+      <fb-icon name="schedule" ariaLabel=""></fb-icon>
+      {{ timeAgo(ts) }}
+    </span>
+    }
+  </div>
+
+  <div fbInfoPanelActions>
     <div class="action-grid">
       <fb-button
         variant="secondary"
-        class="action-btn"
+        size="sm"
         [disabled]="!!_note().properties['readOnly']"
         (pressed)="onEdit()"
         matTooltip="Edit note"
@@ -56,7 +45,7 @@
       @if (_note().url) {
       <fb-button
         variant="secondary"
-        class="action-btn"
+        size="sm"
         (pressed)="openNoteUrl()"
         matTooltip="Open linked URL in a new tab"
       >
@@ -66,7 +55,7 @@
       } @if (_note().position) {
       <fb-button
         variant="secondary"
-        class="action-btn"
+        size="sm"
         (pressed)="onGoto()"
         matTooltip="Navigate to this position"
       >
@@ -75,7 +64,7 @@
       </fb-button>
       <fb-button
         variant="secondary"
-        class="action-btn"
+        size="sm"
         (pressed)="onPanTo()"
         matTooltip="Centre the map on this note"
       >
@@ -86,7 +75,7 @@
     </div>
     <fb-button
       variant="danger"
-      class="action-btn"
+      size="sm"
       [disabled]="!!_note().properties['readOnly']"
       (pressed)="onDelete()"
       matTooltip="Delete note"
@@ -94,9 +83,9 @@
       <fb-icon name="delete" ariaLabel=""></fb-icon>
       Delete
     </fb-button>
-  </nav>
+  </div>
 
-  <div class="detail-body">
+  <div fbInfoPanelBody>
     @if (note().mimeType?.includes('markdown')) {
     <remark [markdown]="note().description">
       <ng-template remarkTemplate="heading" let-node>
@@ -115,4 +104,4 @@
     <div [innerHTML]="_note().description | addTarget: '_notes'"></div>
     }
   </div>
-</section>
+</fb-info-panel-layout>

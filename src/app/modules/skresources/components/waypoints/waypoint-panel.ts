@@ -13,7 +13,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDivider } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
@@ -28,6 +27,7 @@ import {
   FbListItemComponent,
   FbNavListComponent
 } from 'src/app/design-system/primitives';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';
@@ -41,7 +41,6 @@ import {
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
 import { CourseService } from 'src/app/modules/course';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'waypoint-panel',
@@ -49,13 +48,13 @@ import { HttpErrorResponse } from '@angular/common/http';
   imports: [
     MatIconModule,
     MatTooltipModule,
-    MatDivider,
     FbAccordionComponent,
     FbButtonComponent,
     FbExpansionPanelComponent,
     FbExpansionPanelDescriptionDirective,
     FbExpansionPanelTitleDirective,
     FbIconComponent,
+    FbInfoPanelLayoutComponent,
     FbListItemComponent,
     FbNavListComponent,
     CoordsPipe,

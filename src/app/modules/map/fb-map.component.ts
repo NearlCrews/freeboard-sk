@@ -24,20 +24,7 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 // ** OL & popvers **
-import {
-  PopoverComponent,
-  FeatureListPopoverComponent,
-  ChartListPopoverComponent,
-  AtoNPopoverComponent,
-  AircraftPopoverComponent,
-  AlarmPopoverComponent,
-  ResourcePopoverComponent,
-  ResourceSetPopoverComponent,
-  VesselPopoverComponent,
-  S57PopoverComponent,
-  S57_CLICKABLE_LAYERS,
-  S57_NAMES
-} from './popovers';
+import { PopoverComponent, S57_CLICKABLE_LAYERS, S57_NAMES } from './popovers';
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
@@ -48,7 +35,12 @@ import { Feature as GeoJsonFeature } from 'geojson';
 
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils, Angle } from 'src/app/lib/geoutils';
-import { LineString, MultiLineString, Position } from 'src/app/types';
+import {
+  LineString,
+  MultiLineString,
+  Position,
+  ResourceSet
+} from 'src/app/types';
 
 import { AppFacade } from 'src/app/app.facade';
 
@@ -145,16 +137,7 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
     CoordsPipe,
     MatMenuModule,
     FreeboardOpenlayersModule,
-    PopoverComponent,
-    FeatureListPopoverComponent,
-    ChartListPopoverComponent,
-    AtoNPopoverComponent,
-    AircraftPopoverComponent,
-    AlarmPopoverComponent,
-    ResourcePopoverComponent,
-    ResourceSetPopoverComponent,
-    VesselPopoverComponent,
-    S57PopoverComponent
+    PopoverComponent
   ],
   templateUrl: './fb-map.component.html',
   styleUrls: ['./fb-map.component.css']
@@ -1443,6 +1426,111 @@ export class FBMapComponent
         return;
     }
     this.overlay.set(poData);
+    this.dispatchToInfoPanel(poData);
+  }
+
+  /**
+   * Mirror the map-click selection into the left info-panel. Replaces
+   * the on-map popover render path: the overlay() signal stays as the
+   * selection state used by modify and delete flows, but the info-panel
+   * now owns presentation. Measurement clicks (bearing_dist) stay
+   * on-map because they show ad-hoc distance and bearing, not a
+   * persistent feature.
+   */
+  private dispatchToInfoPanel(po: IPopover): void {
+    if (!po.show || !po.type) {
+      return;
+    }
+    switch (po.type) {
+      case 's57':
+        if (po.id && po.s57Feature) {
+          this.infoPanel.openS57(
+            po.id,
+            po.title || 'S57 Feature',
+            po.s57Feature
+          );
+        }
+        return;
+      case 'list':
+        // featurelist popover content is opaque; the panel renders a
+        // generic id-and-label list. The original popover emitted a
+        // selection that featureListSelection() handles.
+        this.infoPanel.openFeatureList(
+          po.title || 'Features',
+          (
+            po.content as {
+              id?: string;
+              label?: string;
+              type?: string;
+              icon?: string;
+            }[]
+          ).map((entry) => ({
+            id: String(entry?.id ?? ''),
+            label: String(entry?.label ?? entry?.id ?? ''),
+            ...(entry?.icon ? { icon: entry.icon } : {}),
+            ...(entry?.type ? { type: entry.type } : {})
+          }))
+        );
+        return;
+      case 'chartlist':
+        this.infoPanel.openChartList(
+          (po.content as { id?: string; label?: string }[]).map((entry) => ({
+            id: String(entry?.id ?? ''),
+            label: String(entry?.label ?? entry?.id ?? '')
+          }))
+        );
+        return;
+      case 'alarm':
+        if (po.id && po.alarm) {
+          this.infoPanel.openAlarm(po.id, po.alarm);
+        }
+        return;
+      case 'ais':
+        if (po.vessel) {
+          this.infoPanel.openVessel(po.id ?? '', po.vessel, po.isSelf === true);
+        }
+        return;
+      case 'aton':
+      case 'meteo':
+        if (po.aton) {
+          this.infoPanel.openAton(po.id ?? '', po.aton);
+        } else if (po.meteo) {
+          this.infoPanel.openAton(po.id ?? '', po.meteo);
+        }
+        return;
+      case 'aircraft':
+        if (po.aircraft) {
+          this.infoPanel.openAircraft(po.id ?? '', po.aircraft);
+        }
+        return;
+      case 'region':
+      case 'note':
+      case 'route':
+      case 'waypoint':
+      case 'destination':
+        if (Array.isArray(po.resource)) {
+          const collection = (
+            po.type === 'destination' ? 'waypoints' : `${po.type}s`
+          ) as SKResourceType;
+          this.infoPanel.openWith(
+            collection,
+            po.resource as Parameters<typeof this.infoPanel.openWith>[1]
+          );
+        }
+        return;
+      case 'rset':
+        if (po.id && po.resource) {
+          this.infoPanel.openResourceSet(
+            po.id,
+            po.title || 'Resource set',
+            po.resource as ResourceSet,
+            po.readOnly === true
+          );
+        }
+        return;
+      default:
+        return;
+    }
   }
 
   /** handle selection from the FeatureList popover */
