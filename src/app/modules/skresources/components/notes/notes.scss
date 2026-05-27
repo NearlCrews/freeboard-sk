@@ -462,3 +462,22 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     padding-inline: 10px;
   }
 }
+
+/* Vestibular safety: drop hover/focus transitions, card-in keyframe, and
+   the hover lift transform when the OS asks for reduced motion. The
+   cards still render correctly without the animation; we just lose the
+   nicety. WCAG 2.3.3 / Pause, Stop, Hide. */
+@media (prefers-reduced-motion: reduce) {
+  .notes-search input,
+  .group-chips .chip,
+  .note-card,
+  .note-card::before {
+    transition: none;
+  }
+  .note-card {
+    animation: none;
+  }
+  .note-card:hover {
+    transform: none;
+  }
+}

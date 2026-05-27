@@ -135,6 +135,17 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.7;
 
+  /* Border-radius scale. Pill is for fully-rounded chips and metadata
+     badges; sm/md/lg are for inputs, buttons, and surfaces. The codebase
+     previously sprinkled raw 2/4/6/8/10/999px across stylesheets; new
+     code should reference these tokens so a theme-level radius update
+     is a single edit. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-pill: 999px;
+
   /* Touch-target floors. Primary 56 px is the WCAG 2.2 Enhanced ceiling,
      used for safety-critical actions: anchor drop, abandon route, OK an
      alarm. Secondary 44 px is the Apple HIG floor and WCAG 2.5.5

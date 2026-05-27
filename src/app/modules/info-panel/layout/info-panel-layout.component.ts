@@ -100,7 +100,7 @@ export class FbInfoPanelRelatedDirective {}
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
+      border-radius: var(--radius-xl);
       background: var(--color-surface-raised);
       color: var(--color-primary);
     }
@@ -152,13 +152,13 @@ export class FbInfoPanelRelatedDirective {}
        the same height as a default pill (--font-size-sm). The padding-y
        is unset because min-height plus align-items: center inside the
        parent flex row centers the label correctly. */
-    .ip-meta ::ng-deep .pill {
+    :host ::ng-deep .ip-meta > .pill {
       display: inline-flex;
       align-items: center;
       gap: var(--space-xs);
       min-height: 28px;
       padding: 0 var(--space-md);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-bold);
       line-height: 1.4;
@@ -167,14 +167,14 @@ export class FbInfoPanelRelatedDirective {}
       color: var(--color-text-muted);
     }
 
-    .ip-meta ::ng-deep .pill fb-icon,
-    .ip-meta ::ng-deep .pill mat-icon {
+    :host ::ng-deep .ip-meta > .pill fb-icon,
+    :host ::ng-deep .ip-meta > .pill mat-icon {
       font-size: 14px;
       width: 14px;
       height: 14px;
     }
 
-    .ip-meta ::ng-deep .pill.pos {
+    :host ::ng-deep .ip-meta > .pill.pos {
       font-family: var(--font-family-mono);
       letter-spacing: 0.02em;
       background: var(--color-surface);
@@ -182,8 +182,8 @@ export class FbInfoPanelRelatedDirective {}
       border-color: var(--color-primary);
     }
 
-    .ip-meta ::ng-deep .pill.draft,
-    .ip-meta ::ng-deep .pill.warn {
+    :host ::ng-deep .ip-meta > .pill.draft,
+    :host ::ng-deep .ip-meta > .pill.warn {
       border-color: var(--color-warning);
       background: var(--color-warning);
       color: var(--color-text-inverse);
@@ -193,7 +193,7 @@ export class FbInfoPanelRelatedDirective {}
       font-size: var(--font-size-xs);
     }
 
-    .ip-meta ::ng-deep .pill.alarm {
+    :host ::ng-deep .ip-meta > .pill.alarm {
       border-color: var(--color-error);
       background: var(--color-error);
       color: var(--color-text-inverse);
@@ -203,13 +203,13 @@ export class FbInfoPanelRelatedDirective {}
       font-size: var(--font-size-xs);
     }
 
-    .ip-meta ::ng-deep .pill.group {
+    :host ::ng-deep .ip-meta > .pill.group {
       --pill-color: var(--color-text-muted);
       color: var(--pill-color);
       border-color: var(--pill-color);
     }
 
-    .ip-meta ::ng-deep .pill.group .dot {
+    :host ::ng-deep .ip-meta > .pill.group .dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
@@ -244,7 +244,11 @@ export class FbInfoPanelRelatedDirective {}
     /* Buttons inside an action grid stretch to fill their cell so every
        row reads as a uniform strip. The icon-then-label pair inside each
        button is left-aligned with a consistent indent so the icons line
-       up vertically across rows. */
+       up vertically across rows. The min-height floor lives on the inner
+       button (not the host wrapper) so the clickable region matches the
+       visible button. Wrapping the host at 44px while leaving the inner
+       button at 36px (size="sm") creates a dead 8px strip the user can
+       click without triggering anything. */
     .ip-actions ::ng-deep .action-grid > fb-button,
     .ip-actions ::ng-deep .action-grid-3 > fb-button {
       width: 100%;
@@ -252,6 +256,7 @@ export class FbInfoPanelRelatedDirective {}
     .ip-actions ::ng-deep .action-grid > fb-button button.fb-btn,
     .ip-actions ::ng-deep .action-grid-3 > fb-button button.fb-btn {
       width: 100%;
+      min-height: var(--touch-secondary);
       justify-content: flex-start;
       padding-left: var(--space-md);
       padding-right: var(--space-md);
@@ -262,10 +267,6 @@ export class FbInfoPanelRelatedDirective {}
        disabled by the panel. The disabled appearance comes from
        fb-button itself (opacity 0.55) so no extra styling needed here.
        The pill in the meta row is the textual indicator. */
-
-    .ip-actions ::ng-deep fb-button {
-      min-height: var(--touch-secondary);
-    }
 
     .ip-body {
       flex: 1 1 auto;
@@ -329,7 +330,7 @@ export class FbInfoPanelRelatedDirective {}
     :host ::ng-deep .ip-body .ip-empty {
       margin: 0;
       padding: var(--space-md);
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       background: var(--color-surface);
       color: var(--color-text-muted);
       font-style: italic;
@@ -417,14 +418,14 @@ export class FbInfoPanelRelatedDirective {}
         font-size: var(--font-size-sm);
         background: var(--color-surface-raised);
         padding: 2px 6px;
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
         color: var(--color-primary);
         font-weight: var(--font-weight-bold);
       }
       pre {
         background: var(--color-surface-raised);
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-lg);
         padding: 12px 14px;
         overflow-x: auto;
         font: var(--font-size-sm) / var(--line-height-normal)
@@ -449,14 +450,7 @@ export class FbInfoPanelRelatedDirective {}
       }
       img {
         max-width: 100%;
-        border-radius: 8px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .ip-layout,
-      .ip-actions ::ng-deep fb-button {
-        transition: none;
+        border-radius: var(--radius-lg);
       }
     }
   `

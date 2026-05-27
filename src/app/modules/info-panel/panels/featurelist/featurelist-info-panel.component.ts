@@ -85,11 +85,17 @@ export interface FeatureListEntry {
       margin: 0;
     }
 
+    /* Compact trailing-tag inside list rows. Shares the pill geometry
+       used by metadata pills in the panel meta row but renders smaller
+       (xs font, uppercase) so it reads as a typed-tag label, not a
+       headline pill. Kept local to this component because it's the only
+       list-item trailing tag in the app right now; promote to a shared
+       primitive when a second consumer shows up. */
     .type-badge {
       display: inline-flex;
       align-items: center;
       padding: 2px var(--space-sm);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-bold);
       text-transform: uppercase;

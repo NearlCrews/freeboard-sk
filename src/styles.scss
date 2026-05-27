@@ -12,32 +12,30 @@
 * {
   -webkit-tap-highlight-color: transparent;
 }
-* {
-  tap-highlight-color: transparent;
-}
 
 body {
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background-color: white;
-  margin: 0 0 0 0;
+  font-family: var(--font-family-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
 }
 b {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .loading {
   /*loading screen */
-  font-size: 12pt;
-  font-family: Arial, Helvetica, sans-serif;
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-sans);
   position: absolute;
   top: 25%;
   left: 0;
   right: 0;
   margin-right: auto;
-  color: black;
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -53,7 +51,7 @@ b {
   top: 10px;
   left: 180px;
   background-color: transparent;
-  font-family: 'Roboto';
+  font-family: var(--font-family-sans);
 }
 
 @keyframes colorchange {
@@ -74,24 +72,21 @@ b {
   }
 }
 
+/* Vestibular safety: stop the looping animation when the user has asked
+   their OS for reduced motion. The loading splash is decorative; the
+   static border colour from frame 0% reads as "loading" without the
+   pulse and meets WCAG 2.3.3 / Pause, Stop, Hide. */
+@media (prefers-reduced-motion: reduce) {
+  .loading img {
+    animation: none;
+  }
+}
+
 .theme-page {
-  font-family: roboto;
+  font-family: var(--font-family-sans);
 }
 
 .theme-panel {
   margin: 0;
   color: inherit;
-}
-
-/*xs*/
-@media only screen and (max-width: 599px) {
-  .weather-data .mat-horizontal-content-container {
-    padding: 0 !important;
-  }
-}
-
-@media only screen and (min-width: 600px) and (max-width: 959px),
-  /*md*/ screen and (min-width: 960px) and (max-width: 1279px),
-  /*lg*/ screen and (min-width: 1280px) and (max-width: 1919px),
-  /*xl*/ screen and (min-width: 1920px) and (max-width: 5000px) {
 }

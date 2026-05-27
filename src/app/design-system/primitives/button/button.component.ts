@@ -64,18 +64,8 @@ export type FbButtonSize = 'sm' | 'md' | 'lg';
         justify-content: center;
         gap: var(--space-sm);
         border: 1px solid transparent;
-        border-radius: 6px;
+        border-radius: var(--radius-md);
         padding: var(--space-sm) var(--space-lg);
-      }
-      /* The projected label often contains both an icon and text. Make the
-         label itself an inline-flex row so the icon and text stay vertically
-         centered with a deterministic gap, regardless of how the consumer
-         interleaves them. */
-      .fb-btn__label {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-sm);
-        min-width: 0;
         font-family: var(--font-family-sans);
         font-weight: var(--font-weight-medium);
         font-size: var(--font-size-base);
@@ -87,6 +77,19 @@ export type FbButtonSize = 'sm' | 'md' | 'lg';
           border-color 120ms ease,
           color 120ms ease,
           transform 120ms ease;
+      }
+      /* The projected label often contains both an icon and text. Make the
+         label itself an inline-flex row so the icon and text stay vertically
+         centered with a deterministic gap, regardless of how the consumer
+         interleaves them. Typography and transitions stay on .fb-btn so the
+         .fb-btn--sm / --lg size modifiers actually reach the visible text
+         and the reduced-motion override at the bottom of this stylesheet
+         actually stops the hover animation. */
+      .fb-btn__label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-sm);
+        min-width: 0;
       }
       .fb-btn:focus-visible {
         outline: 2px solid var(--color-focus-ring);

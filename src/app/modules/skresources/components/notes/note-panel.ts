@@ -130,23 +130,19 @@ export class NotePanel {
     return timeAgoOf(timestamp);
   }
 
-  // Plugin-source contributions (e.g. signalk-crows-nest from
-  // ActiveCaptain) currently append a boilerplate trailer to every
-  // note's description text, e.g.
-  //   "Data sourced from <X> via the <plugin-name> plugin."
-  //   "Something missing or room for improvement? You are encouraged to
-  //   contribute."
-  // The right home for the attribution is the structured `properties`
-  // dict on the note (properties.source plus optional properties.plugin
-  // or properties.attribution). This panel prefers the structured
-  // fields and falls back to parsing the description text only for
-  // older notes that predate the structured fields.
-  private static readonly TRAILER_MARKER = '\nData sourced from ';
-  private static readonly PLUGIN_NAME = /via the (signalk-[\w.-]+) plugin/i;
+  // signalk-crows-nest v0.4.6 and later publishes attribution as
+  // structured properties (properties.{source, attribution, plugin,
+  // pluginRepo}) and stopped appending an inline "Data sourced from..."
+  // trailer to the description. Older notes still in the SignalK store
+  // may carry the legacy trailer; strip it so it is not displayed
+  // twice (once inline, once via the attribution footer).
+  private static readonly LEGACY_TRAILER_MARKER = '\nData sourced from ';
+  private static readonly LEGACY_PLUGIN_NAME =
+    /via the (signalk-[\w.-]+) plugin/i;
 
   protected readonly cleanDescription = computed<string>(() => {
     const raw = this._note().description ?? '';
-    const idx = raw.indexOf(NotePanel.TRAILER_MARKER);
+    const idx = raw.indexOf(NotePanel.LEGACY_TRAILER_MARKER);
     return (idx > -1 ? raw.slice(0, idx) : raw).trim();
   });
 
@@ -166,10 +162,16 @@ export class NotePanel {
     const props = note.properties ?? {};
     const attribution =
       (typeof props['attribution'] === 'string' && props['attribution']) || '';
+    // crows-nest v0.4.6+ publishes properties.plugin and
+    // properties.pluginRepo on every note. Prefer those over $source
+    // (which is the producing plugin id and may be the same) and over
+    // the npm-package URL guess.
     const propsPlugin =
       (typeof props['plugin'] === 'string' && props['plugin']) ||
       (typeof props['pluginId'] === 'string' && props['pluginId']) ||
       '';
+    const propsPluginRepo =
+      typeof props['pluginRepo'] === 'string' ? props['pluginRepo'] : '';
     const skSource = note.source;
     const isLocalStorage =
       !skSource || skSource === NotePanel.LOCAL_STORAGE_SOURCE;
@@ -179,28 +181,28 @@ export class NotePanel {
     if (isLocalStorage && !attribution && !propsPlugin) {
       return null;
     }
-    // Prefer a real 3rd-party producer name (the SK delta $source, or
-    // a structured properties.plugin). Fall back to regex-parsing the
-    // description for legacy notes. If we still cannot find a plugin
-    // name but the resource carries an attribution string, render the
-    // attribution alone (no link) so credit is still shown.
+    // Prefer the structured properties.plugin over $source (they will
+    // typically agree, but the property is the producer-declared value
+    // and survives a SignalK server proxying the delta through another
+    // source). Fall back to regex-parsing the legacy description
+    // trailer only for notes that predate v0.4.6.
     const name =
-      (!isLocalStorage ? skSource : '') ||
       propsPlugin ||
+      (!isLocalStorage ? skSource : '') ||
       this.pluginNameFromDescription();
     if (!name) {
       return { name: '', url: '', attribution };
     }
-    return {
-      name,
-      url: `https://www.npmjs.com/package/${name}`,
-      attribution
-    };
+    // Producer's pluginRepo (e.g. the GitHub repo URL) is the canonical
+    // home and ships on every v0.4.6+ note. Fall back to npmjs.com only
+    // when the producer did not declare a repo URL.
+    const url = propsPluginRepo || `https://www.npmjs.com/package/${name}`;
+    return { name, url, attribution };
   });
 
   private pluginNameFromDescription(): string {
     const raw = this._note().description ?? '';
-    const match = raw.match(NotePanel.PLUGIN_NAME);
+    const match = raw.match(NotePanel.LEGACY_PLUGIN_NAME);
     return match?.[1] ?? '';
   }
 }

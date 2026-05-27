@@ -38,7 +38,6 @@ export type FbIconFill = 0 | 1;
     name()
   }}</span>`,
   host: {
-    '[class]': 'classes()',
     '[attr.role]': 'roleAttr()',
     '[attr.aria-label]': 'ariaLabelAttr()',
     '[attr.aria-hidden]': 'ariaHiddenAttr()',
