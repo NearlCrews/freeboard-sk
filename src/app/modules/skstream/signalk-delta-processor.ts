@@ -1153,8 +1153,16 @@ export class SignalKDeltaProcessor {
   }
 
   private getAISTracks(): void {
-    const radius =
-      this.targetFilter?.signalk?.['maxRadius'] ?? DEFAULT_AIS_RADIUS;
+    const raw = this.targetFilter?.signalk?.['maxRadius'];
+    const radius = typeof raw === 'number' ? raw : DEFAULT_AIS_RADIUS;
+    // radius=0 means "filter out everything", so the probe would return
+    // an empty object even when the tracks plugin IS installed. Skip
+    // the network round-trip and the visible-in-DevTools 404 noise that
+    // results when no plugin is installed at all.
+    if (!Number.isFinite(radius) || radius <= 0) {
+      this.hasTrackPlugin = false;
+      return;
+    }
     const promise = this.apiGet(`${this.apiUrl}/tracks?radius=${radius}`);
     if (!promise) {
       return;

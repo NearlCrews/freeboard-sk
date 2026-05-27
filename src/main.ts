@@ -7,6 +7,38 @@ import {
 import { provideServiceWorker } from '@angular/service-worker';
 import { AppComponent } from './app/app.component';
 
+// Default 2D canvas contexts to willReadFrequently: true when the
+// caller did not say otherwise. OpenLayers' hit-detection path
+// (forEachFeatureAtCoordinate) creates a shared scratch canvas via
+// `getSharedCanvasContext2D` without passing the flag, then calls
+// getImageData on every map click. Chromium emits a "Multiple readback
+// operations" perf warning to the console on every click in
+// chunk-OFNP4N2P.js. Setting the flag at the prototype level switches
+// the affected contexts to the software-rendered, readback-friendly
+// path. App canvases that explicitly want GPU compositing (none today)
+// can still opt out by passing `willReadFrequently: false`.
+(() => {
+  const proto = HTMLCanvasElement.prototype;
+  const original = proto.getContext;
+  proto.getContext = function (
+    this: HTMLCanvasElement,
+    type: string,
+    options?: CanvasRenderingContext2DSettings | unknown
+  ) {
+    if (type === '2d') {
+      const settings = (options ?? {}) as CanvasRenderingContext2DSettings;
+      if (settings.willReadFrequently === undefined) {
+        return original.call(this, type, {
+          ...settings,
+          willReadFrequently: true
+        });
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (original as any).call(this, type, options);
+  } as typeof proto.getContext;
+})();
+
 // Sentry runs only in production AND only when the host injected a DSN
 // (the SignalK server plugin can inject __FB_SENTRY_DSN__ at serve time;
 // kiosk-mode and dev-mode skip the load). Lazy-import keeps the ~32 KB
