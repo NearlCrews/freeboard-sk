@@ -9,16 +9,22 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatCheckbox } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
+
+import {
+  FbButtonComponent,
+  FbCheckboxComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbTextareaComponent
+} from 'src/app/design-system/primitives';
+
 import type { SKRegion } from '../../resource-classes';
 
 interface DialogData {
@@ -31,12 +37,14 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatInputModule,
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
     MatToolbarModule,
-    MatCheckbox
+    FbButtonComponent,
+    FbCheckboxComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbTextareaComponent
   ],
   template: `
     <div class="_ap-region">
@@ -46,9 +54,14 @@ interface DialogData {
         </div>
         <span style="flex: 1 1 auto; text-align: center;">Region Details</span>
         <div style="width: 50px;text-align:right;">
-          <button mat-icon-button (click)="handleClose(false)">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="handleClose(false)"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
       </mat-toolbar>
 
@@ -56,48 +69,60 @@ interface DialogData {
         <div style="display: flex">
           <div style="flex: 1 1 auto">
             <div>
-              <mat-form-field floatLabel="always" style="width:100%">
-                <mat-label>Name</mat-label>
-                <input matInput type="text" [formField]="rForm.name" />
-                @if (
+              <label for="region-name" style="display:block; font-weight:600">
+                Name
+              </label>
+              <fb-input
+                name="region-name"
+                type="text"
+                [formField]="rForm.name"
+                [invalid]="
                   rForm.name().invalid() &&
                   (rForm.name().dirty() || rForm.name().touched())
-                ) {
-                  <mat-error> Please enter a name.</mat-error>
-                }
-              </mat-form-field>
+                "
+              ></fb-input>
+              @if (
+                rForm.name().invalid() &&
+                (rForm.name().dirty() || rForm.name().touched())
+              ) {
+                <div style="color: var(--color-error); font-size:12px">
+                  Please enter a name.
+                </div>
+              }
             </div>
             <div>
-              <mat-form-field floatLabel="always" style="width:100%">
-                <mat-label>Description</mat-label>
-                <textarea
-                  matInput
-                  rows="3"
-                  [readonly]="readOnly"
-                  [(ngModel)]="description"
-                >
-                </textarea>
-              </mat-form-field>
+              <label
+                for="region-description"
+                style="display:block; font-weight:600"
+              >
+                Description
+              </label>
+              <fb-textarea
+                name="region-description"
+                [disabled]="readOnly"
+                [(value)]="description"
+              ></fb-textarea>
             </div>
             <div>
-              <mat-checkbox
+              <fb-checkbox
                 [checked]="isHazard"
-                (change)="doHazard($event.checked)"
-                >Hazardous Area (Alarm)
-              </mat-checkbox>
+                (checkedChange)="doHazard($event)"
+              >
+                Hazardous Area (Alarm)
+              </fb-checkbox>
             </div>
           </div>
         </div>
       </mat-dialog-content>
       @if (!readOnly) {
         <mat-dialog-actions align="end">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="saveDisabled()"
-            (click)="handleClose(true)"
+            (pressed)="handleClose(true)"
           >
             SAVE
-          </button>
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

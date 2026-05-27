@@ -15,10 +15,14 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatInputModule } from '@angular/material/input';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKChart } from 'src/app/modules/skresources/resource-classes';
 import { CoordsPipe } from 'src/app/lib/pipes';
@@ -40,11 +44,12 @@ import { NodeListSelect } from './node-list-select';
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
     MatDialogModule,
     MatProgressBarModule,
-    MatInputModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
     CoordsPipe,
     NodeTreeSelect,
     NodeListSelect
@@ -57,9 +62,14 @@ import { NodeListSelect } from './node-list-select';
         >
         <span style="flex: 1 1 auto; text-align: center">Chart Properties</span>
         <span style="text-align: right">
-          <button mat-icon-button (click)="handleClose(false)">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="handleClose(false)"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
       <mat-dialog-content>
@@ -67,35 +77,31 @@ import { NodeListSelect } from './node-list-select';
           <div style="display:flex;">
             <div class="key-label">Name:</div>
             <div style="flex: 1 1 auto;">
-              <mat-form-field floatLabel="always" style="width:100%">
-                <mat-label>Name</mat-label>
-                <input
-                  matInput
-                  #inpname="ngModel"
-                  type="text"
-                  required
-                  [readonly]="!isEditable()"
-                  [(ngModel)]="data.name"
-                />
-                @if (inpname.invalid && (inpname.dirty || inpname.touched)) {
-                  <mat-error> Please enter a name.</mat-error>
-                }
-              </mat-form-field>
+              <fb-input
+                name="chart-name"
+                type="text"
+                [disabled]="!isEditable()"
+                [(value)]="data.name"
+                [invalid]="!data.name"
+                ariaLabel="Chart name"
+              ></fb-input>
+              @if (!data.name) {
+                <div style="color: var(--color-error); font-size:12px">
+                  Please enter a name.
+                </div>
+              }
             </div>
           </div>
           <div style="display:flex;">
             <div class="key-label">Description:</div>
             <div style="flex: 1 1 auto;">
-              <mat-form-field floatLabel="always" style="width:100%">
-                <mat-label>Description</mat-label>
-                <input
-                  matInput
-                  #inpdesc="ngModel"
-                  type="text"
-                  [readonly]="!isEditable()"
-                  [(ngModel)]="data.description"
-                />
-              </mat-form-field>
+              <fb-input
+                name="chart-description"
+                type="text"
+                [disabled]="!isEditable()"
+                [(value)]="data.description"
+                ariaLabel="Chart description"
+              ></fb-input>
             </div>
           </div>
           <div style="display:flex;">
@@ -234,17 +240,17 @@ import { NodeListSelect } from './node-list-select';
       </mat-dialog-content>
       @if (isEditable()) {
         <mat-dialog-actions align="right">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="
-              inpname.invalid ||
+              !data.name ||
               (['wms', 'wmts'].includes(data.type.toLowerCase()) &&
                 data.layers.length === 0)
             "
-            (click)="handleClose(true)"
+            (pressed)="handleClose(true)"
           >
             SAVE
-          </button>
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

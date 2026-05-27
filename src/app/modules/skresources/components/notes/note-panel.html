@@ -24,14 +24,14 @@
           </span>
           } @if (_note().position; as pos) {
           <span class="pill pos">
-            <mat-icon aria-hidden="true">place</mat-icon>
+            <fb-icon name="place" ariaLabel=""></fb-icon>
             {{ pos.latitude | coords : app.config.units.positionFormat : true }}
             · {{ pos.longitude | coords : app.config.units.positionFormat :
             false }}
           </span>
           } @if ($any(_note()).timestamp; as ts) {
           <span class="pill">
-            <mat-icon aria-hidden="true">schedule</mat-icon>
+            <fb-icon name="schedule" ariaLabel=""></fb-icon>
             {{ timeAgo(ts) }}
           </span>
           }
@@ -43,57 +43,57 @@
 
   <nav class="detail-actions" aria-label="Note actions">
     <div class="action-grid">
-      <button
-        mat-stroked-button
+      <fb-button
+        variant="secondary"
         class="action-btn"
         [disabled]="!!_note().properties['readOnly']"
-        (click)="onEdit()"
+        (pressed)="onEdit()"
         matTooltip="Edit note"
       >
-        <mat-icon>edit</mat-icon>
+        <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
-      </button>
+      </fb-button>
       @if (_note().url) {
-      <button
-        mat-stroked-button
+      <fb-button
+        variant="secondary"
         class="action-btn"
-        (click)="openNoteUrl()"
+        (pressed)="openNoteUrl()"
         matTooltip="Open linked URL in a new tab"
       >
-        <mat-icon>open_in_new</mat-icon>
+        <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
         Link
-      </button>
+      </fb-button>
       } @if (_note().position) {
-      <button
-        mat-stroked-button
+      <fb-button
+        variant="secondary"
         class="action-btn"
-        (click)="onGoto()"
+        (pressed)="onGoto()"
         matTooltip="Navigate to this position"
       >
-        <mat-icon>near_me</mat-icon>
+        <fb-icon name="near_me" ariaLabel=""></fb-icon>
         Go to
-      </button>
-      <button
-        mat-stroked-button
+      </fb-button>
+      <fb-button
+        variant="secondary"
         class="action-btn"
-        (click)="onPanTo()"
+        (pressed)="onPanTo()"
         matTooltip="Centre the map on this note"
       >
-        <mat-icon>center_focus_strong</mat-icon>
+        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
         Centre
-      </button>
+      </fb-button>
       }
     </div>
-    <button
-      mat-stroked-button
-      class="action-btn danger"
+    <fb-button
+      variant="danger"
+      class="action-btn"
       [disabled]="!!_note().properties['readOnly']"
-      (click)="onDelete()"
+      (pressed)="onDelete()"
       matTooltip="Delete note"
     >
-      <mat-icon>delete</mat-icon>
+      <fb-icon name="delete" ariaLabel=""></fb-icon>
       Delete
-    </button>
+    </fb-button>
   </nav>
 
   <div class="detail-body">

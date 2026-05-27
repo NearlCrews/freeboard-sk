@@ -10,21 +10,16 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatStepperModule } from '@angular/material/stepper';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import {
   MatBottomSheetRef,
   MatBottomSheetModule,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
+import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
+import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
 import type { SI_BASE_UNIT } from 'src/app/lib/convert';
@@ -61,38 +56,34 @@ interface WeatherData {
   selector: 'weather-forecast-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatCardModule,
-    MatListModule,
-    MatButtonModule,
-    MatIconModule,
     MatTooltipModule,
     MatBottomSheetModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatToolbarModule,
-    MatStepperModule,
     MatProgressBar,
+    FbButtonComponent,
+    FbIconComponent,
     CoordsPipe
   ],
   template: `
     <div class="_weather-forecast">
       <mat-toolbar class="weather-toolbar">
         <span>
-          <mat-icon>air</mat-icon>
+          <fb-icon name="air"></fb-icon>
         </span>
         <h2 class="weather-toolbar-title">
           {{ data.title }}
         </h2>
         <span>
-          <button
-            mat-icon-button
-            (click)="modalRef.dismiss()"
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close weather forecast"
             matTooltip="Close"
             matTooltipPosition="below"
-            aria-label="Close weather forecast"
+            (pressed)="modalRef.dismiss()"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </button>
+            <fb-icon name="keyboard_arrow_down"></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
       @if (isFetching) {
@@ -135,7 +126,7 @@ interface WeatherData {
           <div class="meteo">
             <div class="meteo-row">
               <div class="meteo-row-label">
-                <mat-icon>schedule</mat-icon>Time
+                <fb-icon name="schedule"></fb-icon>Time
               </div>
               <div class="meteo-row-units">&nbsp;</div>
               @for (f of forecasts; track f) {
@@ -145,7 +136,7 @@ interface WeatherData {
 
             <div class="meteo-row">
               <div class="meteo-row-label">
-                <mat-icon>device_thermostat</mat-icon>Temp
+                <fb-icon name="device_thermostat"></fb-icon>Temp
               </div>
               <div class="meteo-row-units">{{ units.temp }}</div>
               @for (f of forecasts; track f) {
@@ -154,7 +145,9 @@ interface WeatherData {
             </div>
 
             <div class="meteo-row">
-              <div class="meteo-row-label"><mat-icon>eco</mat-icon>DewP</div>
+              <div class="meteo-row-label">
+                <fb-icon name="eco"></fb-icon>DewP
+              </div>
               <div class="meteo-row-units">{{ units.temp }}</div>
               @for (f of forecasts; track f) {
                 <div class="meteo-row-value">{{ f.dewPoint }}</div>
@@ -162,7 +155,9 @@ interface WeatherData {
             </div>
 
             <div class="meteo-row">
-              <div class="meteo-row-label"><mat-icon>air</mat-icon>Speed</div>
+              <div class="meteo-row-label">
+                <fb-icon name="air"></fb-icon>Speed
+              </div>
               <div class="meteo-row-units">{{ units.speed }}</div>
               @for (f of forecasts; track f) {
                 <div class="meteo-row-value">{{ f.wind?.speed }}</div>
@@ -170,7 +165,9 @@ interface WeatherData {
             </div>
 
             <div class="meteo-row">
-              <div class="meteo-row-label"><mat-icon>explore</mat-icon>Dir</div>
+              <div class="meteo-row-label">
+                <fb-icon name="explore"></fb-icon>Dir
+              </div>
               <div class="meteo-row-units">&nbsp;</div>
               @for (f of forecasts; track f) {
                 <div class="meteo-row-value">{{ f.wind?.direction }}</div>
@@ -178,7 +175,9 @@ interface WeatherData {
             </div>
 
             <div class="meteo-row">
-              <div class="meteo-row-label"><mat-icon>air</mat-icon>Gust</div>
+              <div class="meteo-row-label">
+                <fb-icon name="air"></fb-icon>Gust
+              </div>
               <div class="meteo-row-units">{{ units.speed }}</div>
               @for (f of forecasts; track f) {
                 <div class="meteo-row-value">{{ f.wind?.gust }}</div>
@@ -187,7 +186,7 @@ interface WeatherData {
 
             <div class="meteo-row">
               <div class="meteo-row-label">
-                <mat-icon>opacity</mat-icon>Hum.
+                <fb-icon name="opacity"></fb-icon>Hum.
               </div>
               <div class="meteo-row-units">{{ units.humidity }}</div>
               @for (f of forecasts; track f) {
@@ -197,7 +196,7 @@ interface WeatherData {
 
             <div class="meteo-row">
               <div class="meteo-row-label">
-                <mat-icon>compress</mat-icon>Bar.
+                <fb-icon name="compress"></fb-icon>Bar.
               </div>
               <div class="meteo-row-units">{{ units.pressure }}</div>
               @for (f of forecasts; track f) {
@@ -207,7 +206,7 @@ interface WeatherData {
 
             <div class="meteo-row">
               <div class="meteo-row-label">
-                <mat-icon>water_drop</mat-icon>Rain
+                <fb-icon name="water_drop"></fb-icon>Rain
               </div>
               <div class="meteo-row-units">{{ units.precipitation }}</div>
               @for (f of forecasts; track f) {
@@ -239,9 +238,10 @@ interface WeatherData {
         font-weight: var(--font-weight-medium);
       }
 
-      /* WCAG 2.5.5 secondary touch-target floor (44px). Material's
-         mat-icon-button defaults to 40px. */
-      ._weather-forecast mat-toolbar button[mat-icon-button] {
+      /* WCAG 2.5.5 secondary touch-target floor (44px). The toolbar close
+         button uses fb-button (variant=ghost, size=sm); pin the host to the
+         44 px floor so a touch user still has a legal target. */
+      ._weather-forecast mat-toolbar fb-button {
         min-width: var(--touch-secondary);
         min-height: var(--touch-secondary);
       }

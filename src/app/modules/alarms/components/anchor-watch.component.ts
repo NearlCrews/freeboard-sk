@@ -5,8 +5,6 @@ import {
   output,
   ChangeDetectionStrategy,
   SimpleChanges,
-  ViewChild,
-  ElementRef,
   inject,
   signal,
   computed,
@@ -15,25 +13,22 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import {
-  MatCheckboxChange,
-  MatCheckboxModule
-} from '@angular/material/checkbox';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import {
-  MatSlideToggle,
-  MatSlideToggleChange,
-  MatSlideToggleModule
-} from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSliderModule } from '@angular/material/slider';
 import { MatStepperModule } from '@angular/material/stepper';
 
 import { NSEWButtonsComponent } from './nsew-buttons.component';
+
+import {
+  FbButtonComponent,
+  FbCheckboxComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbSliderComponent,
+  FbSwitchComponent
+} from 'src/app/design-system/primitives';
 
 import { AnchorService } from '../anchor.service';
 import { AppFacade } from 'src/app/app.facade';
@@ -45,15 +40,16 @@ import { GeoUtils } from 'src/app/lib/geoutils';
   selector: 'anchor-watch',
   imports: [
     MatIconModule,
-    MatButtonModule,
     MatCardModule,
-    MatCheckboxModule,
     FormsModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatSliderModule,
     MatTooltipModule,
     MatStepperModule,
+    FbButtonComponent,
+    FbCheckboxComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbSliderComponent,
+    FbSwitchComponent,
     NSEWButtonsComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,9 +63,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   @Input() raised = true;
   @Input() showSelf = false;
   readonly closed = output<void>();
-
-  @ViewChild('slideCtl', { static: true })
-  slideCtl!: ElementRef<MatSlideToggle>;
 
   protected bgImage = '';
   protected sliderValue = 0;
@@ -88,6 +81,19 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   protected app = inject(AppFacade);
   private signalk = inject(SignalKClient);
   private destroyRef = inject(DestroyRef);
+
+  protected defaultRodeLengthStr = computed(() =>
+    String(this.defaultRodeLength())
+  );
+  protected defaultAlarmRadiusStr = computed(() =>
+    String(this.defaultAlarmRadius())
+  );
+  protected onDefaultRodeLengthChange(v: string) {
+    const n = Number(v);
+    if (Number.isFinite(n)) {
+      this.defaultRodeLength.set(n);
+    }
+  }
 
   protected radiusValue = signal<number>(0); // incoming alarm radius
   protected formattedRadiusValue = computed(() => {
@@ -171,10 +177,10 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     };
   }
 
-  onDefaultRadiusChecked(e: MatCheckboxChange) {
-    this.useDefaultRadius = e.checked;
-    this.app.config.anchor.setRadius = e.checked;
-    if (!e.checked) {
+  onDefaultRadiusChecked(checked: boolean) {
+    this.useDefaultRadius = checked;
+    this.app.config.anchor.setRadius = checked;
+    if (!checked) {
       this.defaultAlarmRadius.update(() => {
         return Math.round(this.transformValue(this.app.config.anchor.radius));
       });
@@ -193,10 +199,10 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     }
   }
 
-  onSetManualCheck(e: MatCheckboxChange) {
-    this.useSetManual = e.checked;
-    this.app.config.anchor.manualSet = e.checked;
-    if (!e.checked) {
+  onSetManualCheck(checked: boolean) {
+    this.useSetManual = checked;
+    this.app.config.anchor.manualSet = checked;
+    if (!checked) {
       this.defaultRodeLength.update(() => {
         return Math.round(
           this.transformValue(this.app.config.anchor.rodeLength)
@@ -275,11 +281,11 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   }
 
   /**
-   * @description Handle raise / drop slide toggle change
-   * @param e Slide change event
+   * @description Handle raise / drop slide toggle change.
+   * Switch is checked when anchor is DROPPED (logical inverse of raised).
    */
-  dropRaiseAnchor(e: MatSlideToggleChange) {
-    if (e.checked) {
+  dropRaiseAnchor(checked: boolean) {
+    if (checked) {
       this.dropAnchor(
         this.useDefaultRadius ? this.app.config.anchor.radius : undefined
       );

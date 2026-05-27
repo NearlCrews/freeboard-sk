@@ -189,16 +189,16 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     }
 
     &.danger {
-      --mdc-outlined-button-label-text-color: #b00020;
-      --mdc-outlined-button-outline-color: #b00020;
+      --mdc-outlined-button-label-text-color: var(--color-error);
+      --mdc-outlined-button-outline-color: var(--color-error);
     }
   }
 }
 
 :host-context(body.dark-theme) .detail-actions .action-btn.danger,
 :host-context(.dark-theme) .detail-actions .action-btn.danger {
-  --mdc-outlined-button-label-text-color: #ff7373;
-  --mdc-outlined-button-outline-color: #ff7373;
+  --mdc-outlined-button-label-text-color: var(--color-error);
+  --mdc-outlined-button-outline-color: var(--color-error);
 }
 
 .detail-body {

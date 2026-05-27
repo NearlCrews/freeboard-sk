@@ -10,7 +10,6 @@ import {
   Inject
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,7 +33,6 @@ import type { AppIconDef } from 'src/app/modules/icons';
   selector: 'ap-singleselectlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,

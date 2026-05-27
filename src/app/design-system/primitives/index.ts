@@ -11,10 +11,20 @@
  *   - FbSnackbarComponent + FbSnackbarService
  *   - FbSidenavComponent + FbSidenavService
  *
- * Tier-2 (shipped):
+ * Tier-2 layout (shipped):
  *   - FbListPaneComponent
  *   - FbDetailPaneComponent
  *   - FbFilterBarComponent
+ *
+ * Tier-2 forms (shipped):
+ *   - FbInputComponent
+ *   - FbTextareaComponent
+ *   - FbSelectComponent
+ *   - FbCheckboxComponent
+ *   - FbRadioComponent + FbRadioGroupComponent
+ *   - FbSwitchComponent
+ *   - FbSliderComponent
+ *   - FbSegmentedComponent
  */
 
 export {
@@ -72,3 +82,26 @@ export {
   type FbSidenavSide
 } from './sidenav/sidenav.component';
 export { FbSidenavService } from './sidenav/sidenav.service';
+
+export { FbInputComponent, type FbInputType } from './input/input.component';
+
+export { FbTextareaComponent } from './textarea/textarea.component';
+
+export {
+  FbSelectComponent,
+  type FbSelectOption
+} from './select/select.component';
+
+export { FbCheckboxComponent } from './checkbox/checkbox.component';
+
+export { FbRadioComponent } from './radio/radio.component';
+export { FbRadioGroupComponent } from './radio/radio-group.component';
+
+export { FbSwitchComponent } from './switch/switch.component';
+
+export { FbSliderComponent } from './slider/slider.component';
+
+export {
+  FbSegmentedComponent,
+  type FbSegmentedOption
+} from './segmented/segmented.component';

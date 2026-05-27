@@ -10,9 +10,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -21,11 +20,18 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbSelectComponent,
+  FbSwitchComponent,
+  type FbSelectOption
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { Convert, TARGET_UNIT } from 'src/app/lib/convert';
@@ -59,17 +65,19 @@ interface CoursePutResponse {
   selector: 'ap-course-modal',
   imports: [
     FormsModule,
+    MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatBottomSheetModule,
     MatCardModule,
     MatIconModule,
-    MatButtonModule,
     MatToolbarModule,
-    MatCheckboxModule,
     MatTooltipModule,
-    MatSlideToggleModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbSelectComponent,
+    FbSwitchComponent
   ],
   providers: [provideNativeDateAdapter()],
   template: `
@@ -82,45 +90,49 @@ interface CoursePutResponse {
           {{ data.title }}
         </span>
         <span>
-          <button
-            mat-icon-button
-            (click)="closeModal()"
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="closeModal()"
             matTooltip="Close"
             matTooltipPosition="below"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </button>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
 
       <fieldset>
         <legend>Arrival</legend>
 
-        <mat-form-field floatLabel="always">
-          <mat-label>Arrival Circle Radius </mat-label>
-          <input
-            id="arrivalCircle"
-            matInput
-            type="number"
-            min="0"
-            [value]="frmArrivalCircle"
-            (change)="onFormChange($event)"
-            placeholder="100"
-            matTooltip="Enter Arrival circle radius"
-          />
-          <span matSuffix>{{ renderSymbol(app.config.units.distance) }}</span>
-        </mat-form-field>
+        <div>
+          <label for="arrivalCircle" style="display:block; font-weight:600">
+            Arrival Circle Radius
+          </label>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <fb-input
+              name="arrivalCircle"
+              type="number"
+              [value]="String(frmArrivalCircle)"
+              (valueChange)="onArrivalCircleChange($event)"
+              placeholder="100"
+              ariaLabel="Arrival circle radius"
+              matTooltip="Enter Arrival circle radius"
+            ></fb-input>
+            <span>{{ renderSymbol(app.config.units.distance) }}</span>
+          </div>
+        </div>
 
-        <div style="padding-right: 10px;">
-          <mat-slide-toggle
-            id="targetarrivalenable"
-            labelPosition="before"
-            [hideIcon]="true"
+        <div
+          style="display:flex; align-items:center; gap:8px; padding-right: 10px; padding-top: 8px"
+        >
+          <span>Target Arrival time</span>
+          <fb-switch
+            ariaLabel="Enable target arrival time"
             [(checked)]="targetArrivalEnabled"
-            (change)="toggleTargetArrival($event)"
-          >
-            Target Arrival time
-          </mat-slide-toggle>
+            (checkedChange)="toggleTargetArrival({ checked: $event })"
+          ></fb-switch>
         </div>
 
         <div style="display:flex; flex-wrap:wrap;">
@@ -147,48 +159,54 @@ interface CoursePutResponse {
             </mat-form-field>
           </div>
 
-          <div style="display:flex;flex-wrap:nowrap;">
-            <mat-form-field style="width:100px;">
-              <mat-label>Hour</mat-label>
-              <mat-select
-                id="arrivalHour"
-                [(ngModel)]="arrivalData.hour"
-                [disabled]="!targetArrivalEnabled"
-                (selectionChange)="onFormChange($event)"
+          <div style="display:flex;flex-wrap:nowrap; gap: 8px;">
+            <div style="width: 100px">
+              <label
+                for="arrivalHour"
+                style="display:block; font-weight:600; font-size:12px"
               >
-                @for (i of hrValues(); track i) {
-                  <mat-option [value]="i">{{ i }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+                Hour
+              </label>
+              <fb-select
+                name="arrivalHour"
+                [options]="hrOptions()"
+                [value]="arrivalData.hour"
+                [disabled]="!targetArrivalEnabled"
+                (valueChange)="onArrivalHourChange($event)"
+              ></fb-select>
+            </div>
 
-            <mat-form-field style="width:100px;">
-              <mat-label>Minutes</mat-label>
-              <mat-select
-                id="arrivalMinutes"
-                [(ngModel)]="arrivalData.minutes"
-                [disabled]="!targetArrivalEnabled"
-                (selectionChange)="onFormChange($event)"
+            <div style="width: 100px">
+              <label
+                for="arrivalMinutes"
+                style="display:block; font-weight:600; font-size:12px"
               >
-                @for (i of minValues(); track i) {
-                  <mat-option [value]="i">{{ i }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+                Minutes
+              </label>
+              <fb-select
+                name="arrivalMinutes"
+                [options]="minOptions()"
+                [value]="arrivalData.minutes"
+                [disabled]="!targetArrivalEnabled"
+                (valueChange)="onArrivalMinutesChange($event)"
+              ></fb-select>
+            </div>
 
-            <mat-form-field style="width:100px;">
-              <mat-label>seconds</mat-label>
-              <mat-select
-                id="arrivalSeconds"
-                [(ngModel)]="arrivalData.seconds"
-                [disabled]="!targetArrivalEnabled"
-                (selectionChange)="onFormChange($event)"
+            <div style="width: 100px">
+              <label
+                for="arrivalSeconds"
+                style="display:block; font-weight:600; font-size:12px"
               >
-                @for (i of minValues(); track i) {
-                  <mat-option [value]="i">{{ i }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+                seconds
+              </label>
+              <fb-select
+                name="arrivalSeconds"
+                [options]="minOptions()"
+                [value]="arrivalData.seconds"
+                [disabled]="!targetArrivalEnabled"
+                (valueChange)="onArrivalSecondsChange($event)"
+              ></fb-select>
+            </div>
           </div>
         </div>
       </fieldset>
@@ -211,6 +229,7 @@ interface CoursePutResponse {
   ]
 })
 export class CourseSettingsModal implements OnInit {
+  protected readonly String = String;
   frmArrivalCircle = 0;
   private destroyRef = inject(DestroyRef);
   protected targetArrivalEnabled = false;
@@ -412,6 +431,38 @@ export class CourseSettingsModal implements OnInit {
       v.push(('00' + i).slice(-2));
     }
     return v;
+  }
+
+  protected hrOptions(): readonly FbSelectOption[] {
+    return this.hrValues().map((v) => ({ id: v, label: v }));
+  }
+
+  protected minOptions(): readonly FbSelectOption[] {
+    return this.minValues().map((v) => ({ id: v, label: v }));
+  }
+
+  protected onArrivalCircleChange(value: string) {
+    this.onFormChange({
+      target: { id: 'arrivalCircle', value }
+    });
+  }
+
+  protected onArrivalHourChange(value: string | null) {
+    if (value === null) return;
+    this.arrivalData.hour = value;
+    this.onFormChange({ source: { id: 'arrivalHour' } });
+  }
+
+  protected onArrivalMinutesChange(value: string | null) {
+    if (value === null) return;
+    this.arrivalData.minutes = value;
+    this.onFormChange({ source: { id: 'arrivalMinutes' } });
+  }
+
+  protected onArrivalSecondsChange(value: string | null) {
+    if (value === null) return;
+    this.arrivalData.seconds = value;
+    this.onFormChange({ source: { id: 'arrivalSeconds' } });
   }
 
   renderSymbol(unit: TARGET_UNIT) {

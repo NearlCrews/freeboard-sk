@@ -13,10 +13,14 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatInputModule } from '@angular/material/input';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKChart } from 'src/app/modules/skresources/resource-classes';
 import type { ChartProvider } from 'src/app/types';
@@ -61,11 +65,12 @@ interface TileJson {
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
     MatDialogModule,
     MatProgressBarModule,
-    MatInputModule
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent
   ],
   template: `
     <div class="_ap-mapbox">
@@ -75,35 +80,53 @@ interface TileJson {
           >Add JSON Map Source</span
         >
         <span style="text-align: right">
-          <button mat-icon-button (click)="dialogRef.close()">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="dialogRef.close()"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
       <mat-dialog-content>
-        <mat-form-field floatLabel="always" style="width:100%">
-          <mat-label> Map Server host. </mat-label>
-          <input matInput #txturl type="url" required [(value)]="hostUrl" />
-          @if (txturl) {
-            <button
-              matSuffix
-              mat-icon-button
-              [disabled]="txturl.value.length === 0"
-              (click)="getJsonFile(txturl.value)"
-            >
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          }
-          <mat-hint> Enter url of the Map Server. </mat-hint>
-          @if (txturl.invalid) {
-            <mat-error>Map server host url is required!</mat-error>
-          }
-        </mat-form-field>
+        <label for="json-mapsource-host" style="display:block; font-weight:600">
+          Map Server host.
+        </label>
+        <div style="display:flex; gap:6px; align-items:center">
+          <fb-input
+            name="json-mapsource-host"
+            type="text"
+            [(value)]="hostUrl"
+            [invalid]="!hostUrl"
+            ariaLabel="Map server host URL"
+          ></fb-input>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Fetch JSON"
+            [disabled]="hostUrl.length === 0"
+            (pressed)="getJsonFile(hostUrl)"
+          >
+            <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
+          </fb-button>
+        </div>
+        <div style="font-size:12px; color: var(--color-text-muted)">
+          Enter url of the Map Server.
+        </div>
+        @if (!hostUrl) {
+          <div style="color: var(--color-error); font-size:12px">
+            Map server host url is required!
+          </div>
+        }
         @if (isFetching) {
           <mat-progress-bar mode="query"></mat-progress-bar>
         } @else {
           @if (errorMsg) {
-            <mat-error>Error retrieving data from server!</mat-error>
+            <div style="color: var(--color-error)">
+              Error retrieving data from server!
+            </div>
           } @else {
             <div>
               @if (provider) {
@@ -137,7 +160,9 @@ interface TileJson {
       </mat-dialog-content>
       @if (provider) {
         <mat-dialog-actions align="right">
-          <button mat-raised-button (click)="handleSave()">Save</button>
+          <fb-button variant="primary" (pressed)="handleSave()">
+            Save
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

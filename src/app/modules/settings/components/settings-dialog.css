@@ -37,6 +37,30 @@
   font-family: Arial, Helvetica, sans-serif;
   padding: 10px 0 10px 0;
 }
+
+.setting-label {
+  display: block;
+  font-size: var(--font-size-sm, 14px);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs, 4px);
+}
+
+.setting-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  width: 100%;
+}
+.setting-input-row > fb-input {
+  flex: 1 1 auto;
+}
+
+.setting-error {
+  display: block;
+  margin-top: var(--space-xs, 4px);
+  color: var(--color-error);
+  font-size: var(--font-size-sm, 14px);
+}
 .setting-card-row {
   display: flex;
   flex-wrap: wrap;

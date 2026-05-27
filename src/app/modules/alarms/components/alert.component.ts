@@ -10,11 +10,15 @@ import {
   OnDestroy
 } from '@angular/core';
 
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TimerButtonComponent } from './timer-button.component';
+
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { NotificationManager } from '../notification-manager';
@@ -54,9 +58,10 @@ const SoundFiles: Record<ALARM_STATE, string> = {
   selector: 'fb-alert',
   imports: [
     MatIconModule,
-    MatButtonModule,
     MatCardModule,
     MatProgressBarModule,
+    FbButtonComponent,
+    FbIconComponent,
     TimerButtonComponent
   ],
   template: `
@@ -99,9 +104,9 @@ const SoundFiles: Record<ALARM_STATE, string> = {
               <div style="display:flex;flex-wrap: wrap;">
                 @if (alert().sound && alert().canSilence) {
                   <div style="text-align: left;">
-                    <button
-                      mat-raised-button
-                      (click)="muteAlarm()"
+                    <fb-button
+                      variant="primary"
+                      (pressed)="muteAlarm()"
                       [disabled]="alert().silenced"
                     >
                       <mat-icon
@@ -113,26 +118,26 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                         "
                       ></mat-icon>
                       {{ alert().silenced ? 'MUTED' : 'MUTE' }}
-                    </button>
+                    </fb-button>
                   </div>
                 }
                 @if (alert().canAcknowledge) {
                   <div>
-                    <button mat-raised-button (click)="ackAlarm()">
-                      <mat-icon>check</mat-icon>
+                    <fb-button variant="primary" (pressed)="ackAlarm()">
+                      <fb-icon name="check" ariaLabel=""></fb-icon>
                       ACK
-                    </button>
+                    </fb-button>
                   </div>
                 } @else {
-                  <button
-                    mat-raised-button
+                  <fb-button
+                    variant="primary"
                     matTooltip="Dismiss"
                     matTooltipPosition="left"
-                    (click)="hide()"
+                    (pressed)="hide()"
                   >
-                    <mat-icon>clear_all</mat-icon>
+                    <fb-icon name="clear_all" ariaLabel=""></fb-icon>
                     Dismiss
-                  </button>
+                  </fb-button>
                 }
 
                 @if (app.data.activeRoute) {
@@ -169,23 +174,23 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                       </div>
                     } @else if (showStaticNextPoint) {
                       @if (isLastPoint) {
-                        <button
-                          mat-button
+                        <fb-button
+                          variant="ghost"
                           [disabled]="nextPointClicked"
-                          (click)="endRoute()"
+                          (pressed)="endRoute()"
                         >
-                          <mat-icon>clear_all</mat-icon>
+                          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
                           END ROUTE
-                        </button>
+                        </fb-button>
                       } @else {
-                        <button
-                          mat-button
+                        <fb-button
+                          variant="ghost"
                           [disabled]="nextPointClicked"
-                          (click)="gotoNextPoint()"
+                          (pressed)="gotoNextPoint()"
                         >
-                          <mat-icon>skip_next</mat-icon>
+                          <fb-icon name="skip_next" ariaLabel=""></fb-icon>
                           NEXT POINT
-                        </button>
+                        </fb-button>
                       }
                     }
                   </div>

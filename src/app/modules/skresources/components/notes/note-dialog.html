@@ -43,12 +43,14 @@
       (data.addMode) ? 'New Note' : 'Edit Note' : data.title}} }
     </span>
     <div style="width: 50px">
-      <button
-        mat-icon-button
-        (click)="dialogRef.close({result:false, data: null})"
+      <fb-button
+        variant="ghost"
+        size="sm"
+        ariaLabel="Close"
+        (pressed)="dialogRef.close({result:false, data: null})"
       >
-        <mat-icon>close</mat-icon>
-      </button>
+        <fb-icon name="close" ariaLabel=""></fb-icon>
+      </fb-button>
     </div>
   </mat-toolbar>
 
@@ -72,13 +74,15 @@
             </div>
             @if(data.note.group && app.config.resources.notes.groupNameEdit) {
             <div>
-              <button
-                mat-button
-                (click)="dialogRef.close({result:true, data: 'group', value: data.note.group})"
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="View group notes"
+                (pressed)="dialogRef.close({result:true, data: 'group', value: data.note.group})"
                 matTooltip="View Group Notes"
               >
-                <mat-icon>style</mat-icon>
-              </button>
+                <fb-icon name="style" ariaLabel=""></fb-icon>
+              </fb-button>
             </div>
             }
           </div>
@@ -107,29 +111,35 @@
         <div style="display: flex; width: 100%">
           <div>
             @if(data.note.url) {
-            <button
-              mat-icon-button
-              (click)="openNoteUrl()"
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Open note link"
+              (pressed)="openNoteUrl()"
               matTooltip="Open Note link in browser window"
             >
-              <mat-icon>open_in_new</mat-icon>
-            </button>
+              <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
+            </fb-button>
             &nbsp; } @if(!data.note.properties['readOnly']) {
-            <button
-              mat-icon-button
-              (click)="dialogRef.close({result:true, data: 'edit'})"
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Edit note"
+              (pressed)="dialogRef.close({result:true, data: 'edit'})"
               matTooltip="Edit Note"
             >
-              <mat-icon>edit</mat-icon>
-            </button>
+              <fb-icon name="edit" ariaLabel=""></fb-icon>
+            </fb-button>
             &nbsp;
-            <button
-              mat-icon-button
-              (click)="dialogRef.close({result:true, data: 'delete'})"
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Delete note"
+              (pressed)="dialogRef.close({result:true, data: 'delete'})"
               matTooltip="Delete Note"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <fb-icon name="delete" ariaLabel=""></fb-icon>
+            </fb-button>
             }
           </div>
           @if(data.note.position; as pos) {
@@ -157,38 +167,46 @@
     <div style="display: flex">
       <div style="flex: 1 1 auto">
         <div>
-          <mat-form-field floatLabel="always" style="width: 100%">
-            <mat-label>Name</mat-label>
-            <input matInput type="text" [formField]="noteForm.name" />
-            @if(noteForm.name().invalid() && (noteForm.name().dirty() ||
-            noteForm.name().touched())) {
-            <mat-error> Please enter a title for the note </mat-error>
-            }
-          </mat-form-field>
+          <label for="note-name" style="display: block; font-weight: 600">
+            Name
+          </label>
+          <fb-input
+            name="note-name"
+            type="text"
+            [formField]="noteForm.name"
+            [invalid]="noteForm.name().invalid() && (noteForm.name().dirty() || noteForm.name().touched())"
+          ></fb-input>
+          @if(noteForm.name().invalid() && (noteForm.name().dirty() ||
+          noteForm.name().touched())) {
+          <div style="color: var(--color-error); font-size: 12px">
+            Please enter a title for the note
+          </div>
+          }
         </div>
         @if(app.config.resources.notes.groupNameEdit) {
         <div>
-          <mat-form-field floatLabel="always" style="width: 100%">
-            <mat-label>Group Name</mat-label>
-            <input
-              matInput
-              #inpgroup="ngModel"
-              type="text"
-              [(ngModel)]="data.note.group"
-            />
-          </mat-form-field>
+          <label for="note-group" style="display: block; font-weight: 600">
+            Group Name
+          </label>
+          <fb-input
+            name="note-group"
+            type="text"
+            [(value)]="data.note.group"
+          ></fb-input>
         </div>
         }
         <div>
           @if(data.note.mimeType.includes('markdown')) {
-          <mat-form-field floatLabel="always" style="width: 100%">
-            <mat-label>Description</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              [(ngModel)]="data.note.description"
-            ></textarea>
-          </mat-form-field>
+          <label
+            for="note-description"
+            style="display: block; font-weight: 600"
+          >
+            Description
+          </label>
+          <fb-textarea
+            name="note-description"
+            [(value)]="data.note.description"
+          ></fb-textarea>
           } @else { @defer{
           <angular-editor
             height
@@ -201,15 +219,15 @@
         </div>
 
         <div>
-          <mat-form-field floatLabel="always" style="width: 100%">
-            <mat-label>Link to additional content</mat-label>
-            <input
-              type="text"
-              matInput
-              placeholder="URL"
-              [(ngModel)]="data.note.url"
-            />
-          </mat-form-field>
+          <label for="note-url" style="display: block; font-weight: 600">
+            Link to additional content
+          </label>
+          <fb-input
+            name="note-url"
+            type="text"
+            placeholder="URL"
+            [(value)]="data.note.url"
+          ></fb-input>
         </div>
         <div style="display: flex">
           <div style="padding-left: 10px">
@@ -234,13 +252,14 @@
             </mat-form-field>
           </div>
           <div style="padding-left: 10px">
-            <mat-form-field style="width: 145px">
-              <mat-label>Format</mat-label>
-              <mat-select [(ngModel)]="data.note.mimeType">
-                <mat-option value="text/markdown">Markdown</mat-option>
-                <mat-option value="">HTML</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <label for="note-mime" style="display: block; font-weight: 600">
+              Format
+            </label>
+            <fb-select
+              name="note-mime"
+              [options]="mimeTypeOptions"
+              [(value)]="data.note.mimeType"
+            ></fb-select>
           </div>
           @if(data.position && data.note.position; as pos) {
           <div style="font-size: 10pt">
@@ -259,20 +278,22 @@
     </div>
   </mat-dialog-content>
   <mat-dialog-actions align="right">
-    <div>
-      <mat-slide-toggle
-        labelPosition="before"
-        [hideIcon]="true"
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span>Draft:</span>
+      <fb-switch
+        ariaLabel="Draft"
         [checked]="!!data.note.properties['draft']"
-        (change)="data.note.properties['draft']=$event.checked;"
-      >
-        Draft:
-      </mat-slide-toggle>
+        (checkedChange)="data.note.properties['draft']=$event"
+      ></fb-switch>
     </div>
     <div style="flex: 2">&nbsp;</div>
-    <button mat-flat-button [disabled]="saveDisabled()" (click)="onSave()">
+    <fb-button
+      variant="primary"
+      [disabled]="saveDisabled()"
+      (pressed)="onSave()"
+    >
       SAVE
-    </button>
+    </fb-button>
   </mat-dialog-actions>
   }
 </div>

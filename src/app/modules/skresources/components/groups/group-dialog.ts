@@ -10,13 +10,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   MatDialogModule,
@@ -24,6 +21,14 @@ import {
   MAT_DIALOG_DATA,
   MatDialog
 } from '@angular/material/dialog';
+
+import {
+  FbButtonComponent,
+  FbCheckboxComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbTextareaComponent
+} from 'src/app/design-system/primitives';
 import type { SKResourceGroup } from './groups.service';
 import type { SKResourceType } from '../../resources.service';
 import { SKResourceService } from '../../resources.service';
@@ -50,15 +55,17 @@ interface GroupItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    MatInputModule,
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
     MatTabsModule,
     MatListModule,
     MatTooltipModule,
-    MatCheckboxModule,
-    MatToolbarModule
+    MatToolbarModule,
+    FbButtonComponent,
+    FbCheckboxComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbTextareaComponent
   ],
   template: `
     <div class="_ap-group">
@@ -70,9 +77,14 @@ interface GroupItem {
           {{ this.data.addMode ? 'New Group' : 'Group Information' }}
         </span>
         <div style="width: 50px;text-align:right;">
-          <button mat-icon-button (click)="handleClose(false)">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="handleClose(false)"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
       </mat-toolbar>
 
@@ -84,33 +96,48 @@ interface GroupItem {
           <mat-tab label="Details">
             <div style="padding-top: 10px;">
               <div>
-                <mat-form-field floatLabel="always" style="width:100%">
-                  <mat-label>Name</mat-label>
-                  <input matInput type="text" [formField]="gForm.name" />
-                  @if (
+                <label for="group-name" style="display:block; font-weight:600">
+                  Name
+                </label>
+                <fb-input
+                  name="group-name"
+                  type="text"
+                  [formField]="gForm.name"
+                  [invalid]="
                     gForm.name().invalid() &&
                     (gForm.name().dirty() || gForm.name().touched())
-                  ) {
-                    <mat-error> Please enter a name.</mat-error>
-                  }
-                </mat-form-field>
+                  "
+                ></fb-input>
+                @if (
+                  gForm.name().invalid() &&
+                  (gForm.name().dirty() || gForm.name().touched())
+                ) {
+                  <div style="color: var(--color-error); font-size:12px">
+                    Please enter a name.
+                  </div>
+                }
               </div>
               <div>
-                <mat-form-field floatLabel="always" style="width:100%">
-                  <mat-label>Description</mat-label>
-                  <textarea matInput rows="3" [formField]="gForm.description">
-                  </textarea>
-                </mat-form-field>
+                <label
+                  for="group-description"
+                  style="display:block; font-weight:600"
+                >
+                  Description
+                </label>
+                <fb-textarea
+                  name="group-description"
+                  [formField]="gForm.description"
+                ></fb-textarea>
               </div>
             </div>
           </mat-tab>
           @if (!this.data.addMode) {
             <mat-tab label="Routes">
               @if (!gItem.routes.length) {
-                <mat-checkbox
+                <fb-checkbox
                   [checked]="mask.routes"
-                  (change)="mask.routes = $event.checked"
-                  >Hide routes.</mat-checkbox
+                  (checkedChange)="mask.routes = $event"
+                  >Hide routes.</fb-checkbox
                 >
               }
               <mat-list>
@@ -123,13 +150,15 @@ interface GroupItem {
                         {{ i.name }}
                       </div>
                       <div>
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
+                          size="sm"
+                          ariaLabel="Remove"
                           matTooltip="Remove"
-                          (click)="removeItem('route', i.id)"
+                          (pressed)="removeItem('route', i.id)"
                         >
                           <mat-icon class="icon-warn">delete</mat-icon>
-                        </button>
+                        </fb-button>
                       </div>
                     </div>
                   </mat-list-item>
@@ -139,10 +168,10 @@ interface GroupItem {
 
             <mat-tab label="Waypoints">
               @if (!gItem.waypoints.length) {
-                <mat-checkbox
+                <fb-checkbox
                   [checked]="mask.waypoints"
-                  (change)="mask.waypoints = $event.checked"
-                  >Hide waypoints.</mat-checkbox
+                  (checkedChange)="mask.waypoints = $event"
+                  >Hide waypoints.</fb-checkbox
                 >
               }
               <mat-list>
@@ -155,13 +184,15 @@ interface GroupItem {
                         {{ i.name }}
                       </div>
                       <div>
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
+                          size="sm"
+                          ariaLabel="Remove"
                           matTooltip="Remove"
-                          (click)="removeItem('waypoint', i.id)"
+                          (pressed)="removeItem('waypoint', i.id)"
                         >
                           <mat-icon class="icon-warn">delete</mat-icon>
-                        </button>
+                        </fb-button>
                       </div>
                     </div>
                   </mat-list-item>
@@ -171,10 +202,10 @@ interface GroupItem {
 
             <mat-tab label="Regions">
               @if (!gItem.regions.length) {
-                <mat-checkbox
+                <fb-checkbox
                   [checked]="mask.regions"
-                  (change)="mask.regions = $event.checked"
-                  >Hide regions.</mat-checkbox
+                  (checkedChange)="mask.regions = $event"
+                  >Hide regions.</fb-checkbox
                 >
               }
               <mat-list>
@@ -187,13 +218,15 @@ interface GroupItem {
                         {{ i.name }}
                       </div>
                       <div>
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
+                          size="sm"
+                          ariaLabel="Remove"
                           matTooltip="Remove"
-                          (click)="removeItem('region', i.id)"
+                          (pressed)="removeItem('region', i.id)"
                         >
                           <mat-icon class="icon-warn">delete</mat-icon>
-                        </button>
+                        </fb-button>
                       </div>
                     </div>
                   </mat-list-item>
@@ -212,13 +245,15 @@ interface GroupItem {
                         {{ i.name }}
                       </div>
                       <div>
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
+                          size="sm"
+                          ariaLabel="Remove"
                           matTooltip="Remove"
-                          (click)="removeItem('chart', i.id)"
+                          (pressed)="removeItem('chart', i.id)"
                         >
                           <mat-icon class="icon-warn">delete</mat-icon>
-                        </button>
+                        </fb-button>
                       </div>
                     </div>
                   </mat-list-item>
@@ -230,23 +265,23 @@ interface GroupItem {
       </mat-dialog-content>
       <mat-dialog-actions align="left">
         <div style="text-align:left;flex: 1;">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="selTab === 0"
-            (click)="addResources()"
+            (pressed)="addResources()"
             matTooltip="Add Resource"
           >
             ADD
-          </button>
+          </fb-button>
         </div>
         <div style="text-align:right;flex: 1;">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="saveDisabled()"
-            (click)="handleClose(true)"
+            (pressed)="handleClose(true)"
           >
             SAVE
-          </button>
+          </fb-button>
         </div>
       </mat-dialog-actions>
     </div>

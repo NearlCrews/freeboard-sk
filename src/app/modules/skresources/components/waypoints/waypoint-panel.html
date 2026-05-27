@@ -40,49 +40,67 @@
 
     <div style="display: flex">
       <div>
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_waypoint()?.feature?.properties?.['readOnly']"
-          (click)="onEdit()"
+          (pressed)="onEdit()"
           matTooltip="Edit Waypoint"
         >
-          <mat-icon>edit</mat-icon>
+          <fb-icon name="edit" ariaLabel=""></fb-icon>
           EDIT
-        </button>
+        </fb-button>
         &nbsp; @if(this.app.data.activeWaypoint !== id()) {
-        <button mat-button (click)="onGoto()" matTooltip="Navigate To">
-          <mat-icon>near_me</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onGoto()"
+          matTooltip="Navigate To"
+        >
+          <fb-icon name="near_me" ariaLabel=""></fb-icon>
           GO TO
-        </button>
+        </fb-button>
         } @else {
-        <button
-          mat-button
-          (click)="onGoto(true)"
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onGoto(true)"
           matTooltip="Clear Destination"
         >
-          <mat-icon>clear_all</mat-icon>
+          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           CLEAR
-        </button>
+        </fb-button>
         } @if(app.featureFlags().resourceGroups) { &nbsp;
-        <button mat-button (click)="addToGroup()" matTooltip="Add to Group">
-          <mat-icon>category</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="addToGroup()"
+          matTooltip="Add to Group"
+        >
+          <fb-icon name="category" ariaLabel=""></fb-icon>
           GROUP
-        </button>
+        </fb-button>
         } &nbsp;
-        <button mat-button (click)="onPanTo()" matTooltip="Center Waypoint">
-          <mat-icon>center_focus_strong</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onPanTo()"
+          matTooltip="Center Waypoint"
+        >
+          <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
           CENTER
-        </button>
+        </fb-button>
         &nbsp;
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_waypoint()?.feature?.properties?.['readOnly'] || this.app.data.activeWaypoint === id()"
-          (click)="onDelete()"
+          (pressed)="onDelete()"
           matTooltip="Delete Waypoint"
         >
-          <mat-icon>delete</mat-icon>
+          <fb-icon name="delete" ariaLabel=""></fb-icon>
           DELETE
-        </button>
+        </fb-button>
       </div>
     </div>
 

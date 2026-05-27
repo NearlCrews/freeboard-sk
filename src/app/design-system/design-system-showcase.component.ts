@@ -17,6 +17,17 @@ import type { FbMenuItem } from './primitives/menu/menu.component';
 import { FbSnackbarService } from './primitives/snackbar/snackbar.service';
 import { FbSidenavComponent } from './primitives/sidenav/sidenav.component';
 import { FbSidenavService } from './primitives/sidenav/sidenav.service';
+import { FbInputComponent } from './primitives/input/input.component';
+import { FbTextareaComponent } from './primitives/textarea/textarea.component';
+import { FbSelectComponent } from './primitives/select/select.component';
+import type { FbSelectOption } from './primitives/select/select.component';
+import { FbCheckboxComponent } from './primitives/checkbox/checkbox.component';
+import { FbRadioComponent } from './primitives/radio/radio.component';
+import { FbRadioGroupComponent } from './primitives/radio/radio-group.component';
+import { FbSwitchComponent } from './primitives/switch/switch.component';
+import { FbSliderComponent } from './primitives/slider/slider.component';
+import { FbSegmentedComponent } from './primitives/segmented/segmented.component';
+import type { FbSegmentedOption } from './primitives/segmented/segmented.component';
 
 type Theme = 'light' | 'dark' | 'night-red';
 
@@ -131,7 +142,20 @@ export class FbDemoSidenavBodyComponent {
   selector: 'fb-design-system-showcase',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FbButtonComponent, FbIconComponent, FbFabComponent],
+  imports: [
+    FbButtonComponent,
+    FbIconComponent,
+    FbFabComponent,
+    FbInputComponent,
+    FbTextareaComponent,
+    FbSelectComponent,
+    FbCheckboxComponent,
+    FbRadioComponent,
+    FbRadioGroupComponent,
+    FbSwitchComponent,
+    FbSliderComponent,
+    FbSegmentedComponent
+  ],
   templateUrl: './design-system-showcase.component.html',
   styleUrls: ['./design-system-showcase.component.css']
 })
@@ -155,6 +179,26 @@ export class DesignSystemShowcaseComponent {
     { id: 'archive', label: 'Archive', icon: 'visibility_off', disabled: true },
     { id: 'delete', label: 'Delete', icon: 'delete', destructive: true }
   ];
+
+  readonly inputValue = signal<string>('');
+  readonly textareaValue = signal<string>('');
+  readonly selectOptions: readonly FbSelectOption[] = [
+    { id: 'light', label: 'Light' },
+    { id: 'dark', label: 'Dark' },
+    { id: 'night-red', label: 'Night red', disabled: true }
+  ];
+  readonly selectValue = signal<string | null>(null);
+  readonly checkboxChecked = signal<boolean>(false);
+  readonly indeterminateChecked = signal<boolean>(false);
+  readonly switchChecked = signal<boolean>(false);
+  readonly radioValue = signal<string | null>(null);
+  readonly sliderValue = signal<number>(40);
+  readonly segmentedOptions: readonly FbSegmentedOption[] = [
+    { id: 'day', label: 'Day', icon: 'light_mode' },
+    { id: 'night', label: 'Night', icon: 'dark_mode' },
+    { id: 'auto', label: 'Auto', icon: 'brightness_auto' }
+  ];
+  readonly segmentedValue = signal<string>('day');
 
   setTheme(t: Theme): void {
     this.theme.set(t);

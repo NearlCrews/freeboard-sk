@@ -12,8 +12,12 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 import { SignalKDetailsComponent } from '../../skresources';
 import type { AlertData } from './alert.component';
@@ -32,8 +36,9 @@ import { alertSeverityClass } from './alert-severity';
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
+    FbButtonComponent,
+    FbIconComponent,
     SignalKDetailsComponent
   ],
   template: `
@@ -53,15 +58,16 @@ import { alertSeverityClass } from './alert-severity';
           Alert Information
         </h2>
         <span>
-          <button
-            mat-icon-button
-            (click)="modalRef.dismiss()"
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close alert information"
+            (pressed)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
-            aria-label="Close alert information"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </button>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
 
@@ -71,13 +77,13 @@ import { alertSeverityClass } from './alert-severity';
             @if (data.alert.canAcknowledge && !data.alert.acknowledged) {
               <div style="display:flex;">
                 <div style="flex: 1 1 auto;">
-                  <button
+                  <fb-button
+                    variant="primary"
                     class="button-warn"
-                    mat-raised-button
-                    (click)="notiMgr.acknowledge(data.alert.path)"
+                    (pressed)="notiMgr.acknowledge(data.alert.path)"
                   >
-                    <mat-icon>check</mat-icon> Acknowledge
-                  </button>
+                    <fb-icon name="check" ariaLabel=""></fb-icon> Acknowledge
+                  </fb-button>
                 </div>
               </div>
             }
@@ -100,14 +106,17 @@ import { alertSeverityClass } from './alert-severity';
               <div style="flex: 1 1 auto;">{{ raisedAt }}</div>
             </div>
             @if (hasProperties) {
-              <button mat-stroked-button (click)="toggleProperties()">
+              <fb-button variant="secondary" (pressed)="toggleProperties()">
                 <span>Show {{ showProperties ? 'Less' : 'More' }}</span>
-                <mat-icon>{{
-                  showProperties
-                    ? 'keyboard_arrow_down'
-                    : 'keyboard_arrow_right'
-                }}</mat-icon>
-              </button>
+                <fb-icon
+                  [name]="
+                    showProperties
+                      ? 'keyboard_arrow_down'
+                      : 'keyboard_arrow_right'
+                  "
+                  ariaLabel=""
+                ></fb-icon>
+              </fb-button>
               @if (showProperties) {
                 <signalk-details-list
                   [details]="properties"

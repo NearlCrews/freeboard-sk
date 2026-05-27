@@ -237,10 +237,193 @@
     </div>
   </section>
 
+  <section class="ds-section" aria-labelledby="ds-input-heading">
+    <h2 id="ds-input-heading" class="ds-section__heading">Input</h2>
+    <p class="ds-section__a11y">
+      A11y: native <code>&lt;input&gt;</code> so focus, IME, autofill, and form
+      submission work without ARIA gymnastics. <code>aria-invalid</code> mirrors
+      the <code>invalid</code> input. Min-height pinned to
+      <code>--touch-secondary</code> (44 px).
+    </p>
+    <h3 class="ds-grid__title">Types</h3>
+    <div class="ds-grid">
+      <fb-input
+        name="ds-input-text"
+        [(value)]="inputValue"
+        placeholder="Text"
+        ariaLabel="Text"
+      ></fb-input>
+      <fb-input
+        name="ds-input-email"
+        type="email"
+        placeholder="you@example.com"
+        ariaLabel="Email"
+      ></fb-input>
+      <fb-input
+        name="ds-input-pass"
+        type="password"
+        placeholder="Password"
+        ariaLabel="Password"
+      ></fb-input>
+      <fb-input
+        name="ds-input-num"
+        type="number"
+        placeholder="0"
+        ariaLabel="Number"
+      ></fb-input>
+    </div>
+    <h3 class="ds-grid__title">States</h3>
+    <div class="ds-grid">
+      <fb-input
+        name="ds-input-d"
+        placeholder="Disabled"
+        [disabled]="true"
+        ariaLabel="Disabled"
+      ></fb-input>
+      <fb-input
+        name="ds-input-i"
+        placeholder="Invalid"
+        [invalid]="true"
+        ariaLabel="Invalid"
+      ></fb-input>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ inputValue() || '(empty)' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-textarea-heading">
+    <h2 id="ds-textarea-heading" class="ds-section__heading">Textarea</h2>
+    <p class="ds-section__a11y">
+      A11y: native <code>&lt;textarea&gt;</code>, same invalid + disabled
+      contract as Input. Default <code>rows=3</code>; vertical resize handle
+      retained.
+    </p>
+    <div class="ds-grid">
+      <fb-textarea
+        name="ds-textarea"
+        [(value)]="textareaValue"
+        placeholder="Multi-line notes"
+        ariaLabel="Notes"
+      ></fb-textarea>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-select-heading">
+    <h2 id="ds-select-heading" class="ds-section__heading">Select</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="combobox"</code> trigger with
+      <code>aria-haspopup="listbox"</code>; CDK Overlay renders a
+      <code>role="listbox"</code>. Arrow keys move the active option, Enter
+      selects, Escape closes. <code>aria-activedescendant</code>
+      tracks the highlight without moving focus off the trigger.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-theme"
+        [options]="selectOptions"
+        [(value)]="selectValue"
+        placeholder="Choose theme"
+        ariaLabel="Theme"
+      ></fb-select>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ selectValue() || '(none)' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-checkbox-heading">
+    <h2 id="ds-checkbox-heading" class="ds-section__heading">Checkbox</h2>
+    <p class="ds-section__a11y">
+      A11y: native <code>&lt;input type="checkbox"&gt;</code> hidden under the
+      custom box, so Space activates and the form posts. Indeterminate surfaces
+      as <code>aria-checked="mixed"</code>.
+    </p>
+    <div class="ds-grid">
+      <fb-checkbox [(checked)]="checkboxChecked"
+        >Subscribe to updates</fb-checkbox
+      >
+      <fb-checkbox [(checked)]="indeterminateChecked" [indeterminate]="true">
+        Indeterminate
+      </fb-checkbox>
+      <fb-checkbox [disabled]="true">Disabled</fb-checkbox>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-radio-heading">
+    <h2 id="ds-radio-heading" class="ds-section__heading">Radio group</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="radiogroup"</code> on the parent,
+      <code>role="radio"</code>
+      on children, roving tabindex per WAI-ARIA radiogroup pattern. Arrow keys
+      move both focus and selection.
+    </p>
+    <fb-radio-group [(value)]="radioValue" ariaLabel="Units">
+      <fb-radio value="metric">Metric</fb-radio>
+      <fb-radio value="imperial">Imperial</fb-radio>
+      <fb-radio value="nautical">Nautical</fb-radio>
+    </fb-radio-group>
+    <span class="ds-result" aria-live="polite">
+      Value: {{ radioValue() || '(none)' }}
+    </span>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-switch-heading">
+    <h2 id="ds-switch-heading" class="ds-section__heading">Switch</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="switch"</code> with <code>aria-checked</code>. Native
+      button so Space and Enter activate. Reduced-motion drops the thumb slide
+      transition.
+    </p>
+    <div class="ds-grid">
+      <fb-switch [(checked)]="switchChecked">Enable feature</fb-switch>
+      <fb-switch [disabled]="true">Disabled</fb-switch>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-slider-heading">
+    <h2 id="ds-slider-heading" class="ds-section__heading">Slider</h2>
+    <p class="ds-section__a11y">
+      A11y: native <code>&lt;input type="range"&gt;</code> with
+      <code>role="slider"</code>, <code>aria-valuemin</code>,
+      <code>aria-valuemax</code>, and <code>aria-valuenow</code>. Arrow keys,
+      Home, End, PageUp, and PageDown all navigate.
+    </p>
+    <div class="ds-grid">
+      <fb-slider
+        [(value)]="sliderValue"
+        [min]="0"
+        [max]="100"
+        [step]="1"
+        ariaLabel="Brightness"
+      ></fb-slider>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ sliderValue() }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-segmented-heading">
+    <h2 id="ds-segmented-heading" class="ds-section__heading">Segmented</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="radiogroup"</code> on host, <code>role="radio"</code>
+      per segment. Arrow keys move focus + selection, Home and End jump.
+      Disabled segments stay visible but skip keyboard navigation.
+    </p>
+    <fb-segmented
+      [options]="segmentedOptions"
+      [(value)]="segmentedValue"
+      ariaLabel="Day/Night mode"
+    ></fb-segmented>
+    <span class="ds-result" aria-live="polite">
+      Value: {{ segmentedValue() }}
+    </span>
+  </section>
+
   <footer class="ds-footer">
     <p>
-      Tier-1 primitives shipped. Tier-2 forms (input, select, textarea, switch,
-      checkbox, radio, slider, segmented) land in the next gate.
+      Tier-1 plus Tier-2 layout and forms shipped. Consumer migrations (settings
+      dialog, weather, gpx dialogs) follow.
     </p>
   </footer>
 </main>

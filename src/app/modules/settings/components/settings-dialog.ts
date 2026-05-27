@@ -11,24 +11,29 @@ import {
 
 import type { NgModel } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { FbListPaneComponent } from 'src/app/design-system/primitives/list-pane/list-pane.component';
 import { FbDetailPaneComponent } from 'src/app/design-system/primitives/detail-pane/detail-pane.component';
+import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
+import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
+import { FbInputComponent } from 'src/app/design-system/primitives/input/input.component';
+import {
+  FbSelectComponent,
+  type FbSelectOption
+} from 'src/app/design-system/primitives/select/select.component';
+import { FbCheckboxComponent } from 'src/app/design-system/primitives/checkbox/checkbox.component';
+import { FbSliderComponent } from 'src/app/design-system/primitives/slider/slider.component';
 
 import type {
   LineStyleConfig,
@@ -62,15 +67,11 @@ export interface SettingsSection {
   imports: [
     FormsModule,
     MatDialogModule,
-    MatCheckboxModule,
-    MatRadioModule,
     MatCardModule,
     MatListModule,
-    MatButtonModule,
     MatIconModule,
+    MatRadioModule,
     MatTooltipModule,
-    MatSliderModule,
-    MatSlideToggleModule,
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
@@ -78,6 +79,12 @@ export interface SettingsSection {
     MatToolbarModule,
     FbListPaneComponent,
     FbDetailPaneComponent,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbSelectComponent,
+    FbCheckboxComponent,
+    FbSliderComponent,
     SignalKPreferredPathsComponent,
     LineStyleSelectComponent
   ],
@@ -414,5 +421,197 @@ export class SettingsDialog implements OnInit {
 
   renderSymbol(unit: TARGET_UNIT) {
     return Convert.getSymbol(unit);
+  }
+
+  // Convert a Map<string-literal, string> options source to FbSelectOption[].
+  // Accepts string-literal keys (e.g. 'kilometer' | 'naut-mile') by widening to
+  // string for fb-select consumption.
+  protected mapToOptions(
+    m: ReadonlyMap<string, string>
+  ): readonly FbSelectOption[];
+  protected mapToOptions(
+    m: ReadonlyMap<unknown, string>
+  ): readonly FbSelectOption[];
+  protected mapToOptions(
+    m: ReadonlyMap<unknown, string>
+  ): readonly FbSelectOption[] {
+    const out: FbSelectOption[] = [];
+    m.forEach((label, id) => {
+      if (typeof id === 'string') {
+        out.push({ id, label });
+      }
+    });
+    return out;
+  }
+
+  // Convert a string[][] (pairs of [id, label]) to FbSelectOption[].
+  protected pairsToOptions(
+    pairs: readonly (readonly [string, string])[] | readonly string[][]
+  ): readonly FbSelectOption[] {
+    return pairs.map((p) => ({ id: p[0] as string, label: p[1] as string }));
+  }
+
+  // Convert a string[] of identical id/label values to FbSelectOption[].
+  protected listToOptions(list: readonly string[]): readonly FbSelectOption[] {
+    return list.map((v) => ({ id: v, label: v }));
+  }
+
+  // Two-way bridges so string-typed fb-input value() models persist into the
+  // facade's string-typed fields without a wrapper subject.
+  protected get instrumentsParameters(): string {
+    return this.facade.settings.display.plugins.parameters ?? '';
+  }
+  protected set instrumentsParameters(v: string) {
+    this.facade.settings.display.plugins.parameters = v;
+    this.persistModel('pluginParameters');
+  }
+
+  protected get notesRootFilter(): string {
+    return this.facade.settings.resources.notes.rootFilter ?? '';
+  }
+  protected set notesRootFilter(v: string) {
+    this.facade.settings.resources.notes.rootFilter = v;
+    this.persistModel('fetchNotes');
+  }
+
+  protected get videoUrl(): string {
+    return this.facade.settings.resources.video.url ?? '';
+  }
+  protected set videoUrl(v: string) {
+    this.facade.settings.resources.video.url = v;
+    this.persistModel('videoUrl');
+  }
+
+  // Trail duration is numeric in storage. fb-slider models number directly.
+  protected onTrailDuration(value: number): void {
+    this.facade.settings.vessels.trailDuration = value;
+    this.deferPersist();
+  }
+
+  // Setters that round-trip narrow string-literal union values through
+  // fb-select's generic `string | null` model() without losing strict types.
+  protected onFab(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.display.fab = v as
+      | 'wpt'
+      | 'pob'
+      | 'autopilot'
+      | 'radar';
+    this.persistModel();
+  }
+
+  protected onInstrumentsApp(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.display.plugins.instruments = v;
+    this.onInstrumentApp();
+  }
+
+  protected onDistanceUnit(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.distance = v as 'kilometer' | 'naut-mile';
+    this.raiseChange();
+    this.persistModel();
+  }
+
+  protected onDepthUnit(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.depth = v as 'm' | 'foot';
+    this.raiseChange();
+    this.doS57();
+  }
+
+  protected onLengthUnit(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.length = v as 'm' | 'foot';
+    this.raiseChange();
+    this.persistModel();
+  }
+
+  protected onTemperatureUnit(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.temperature = v as 'C' | 'F';
+    this.raiseChange();
+    this.persistModel();
+  }
+
+  protected onSpeedUnit(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.speed = v as 'kn' | 'm/s' | 'km/h' | 'mph';
+    this.raiseChange();
+    this.persistModel();
+  }
+
+  protected onPositionFormat(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.positionFormat = v as
+      | 'XY'
+      | 'SHDd'
+      | 'HDd'
+      | 'DMdH'
+      | 'HDMS'
+      | 'DHMS';
+    this.persistModel();
+  }
+
+  protected onHeadingAttribute(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.units.headingAttribute = v as
+      | 'navigation.headingTrue'
+      | 'navigation.headingMagnetic';
+    this.persistModel('headingAttribute');
+  }
+
+  protected onS57GraphicsStyle(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.map.s57Options.graphicsStyle = v as
+      | 'Simplified'
+      | 'Paper';
+    this.doS57();
+  }
+
+  protected onS57Boundaries(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.map.s57Options.boundaries = v as
+      | 'Symbolized'
+      | 'Plain';
+    this.doS57();
+  }
+
+  protected onAutoNextPointTrigger(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.course.autoNextPointTrigger = v as
+      | 'perpendicularPassed'
+      | 'arrivalCircleEntered';
+    this.persistModel();
+  }
+
+  protected onTrailResolutionLastHour(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.trailResolution.lastHour = v;
+    this.persistModel();
+  }
+
+  protected onTrailResolutionNext23(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.trailResolution.next23 = v;
+    this.persistModel();
+  }
+
+  protected onTrailResolutionBeyond24(v: string | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.trailResolution.beyond24 = v;
+    this.persistModel();
+  }
+
+  // fb-select requires a non-null id, so drop any AppListEntry entry that
+  // carries url === null (matches the prior template's filter against null).
+  protected instrumentsOptions(): readonly FbSelectOption[] {
+    const out: FbSelectOption[] = [];
+    for (const i of this.facade.applicationList) {
+      if (i.url !== null) {
+        out.push({ id: i.url, label: i.name });
+      }
+    }
+    return out;
   }
 }

@@ -10,7 +10,6 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +18,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { RemarkModule } from 'ngx-remark';
+
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { AppIconDef, getResourceIcon } from 'src/app/modules/icons';
@@ -38,12 +42,13 @@ import { HttpErrorResponse } from '@angular/common/http';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatCardModule,
-    MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MatDivider,
     MatListModule,
     MatExpansionModule,
+    FbButtonComponent,
+    FbIconComponent,
     RemarkModule
   ],
   templateUrl: `region-panel.html`,

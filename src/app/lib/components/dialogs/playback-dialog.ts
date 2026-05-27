@@ -1,8 +1,14 @@
 /** History Playback Dialog **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  computed,
+  signal
+} from '@angular/core';
+import { form, FormField, required } from '@angular/forms/signals';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -20,7 +26,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   selector: 'ap-playbackdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
+    FormField,
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
@@ -43,7 +49,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
             <div>
               <mat-form-field>
                 <mat-label>Context</mat-label>
-                <mat-select [(ngModel)]="formData.context">
+                <mat-select [formField]="playbackForm.context">
                   @for (i of ['self', 'all']; track i) {
                     <mat-option [value]="i">{{ i }}</mat-option>
                   }
@@ -55,10 +61,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
                 <mat-label>Start date</mat-label>
                 <input
                   matInput
-                  required
                   [max]="maxDate"
                   [matDatepicker]="picker"
-                  [(ngModel)]="formData.startDate"
+                  [formField]="playbackForm.startDate"
                 />
                 <mat-hint>MM/DD/YYYY</mat-hint>
                 <mat-datepicker-toggle
@@ -72,7 +77,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
               <b>Start Time:</b><br />
               <mat-form-field style="width:100px;">
                 <mat-label>Hour</mat-label>
-                <mat-select [(ngModel)]="formData.startTimeHr">
+                <mat-select [formField]="playbackForm.startTimeHr">
                   @for (i of hrValues(); track i) {
                     <mat-option [value]="i">{{ i }}</mat-option>
                   }
@@ -81,7 +86,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
               <b>: </b>
               <mat-form-field style="width:100px;">
                 <mat-label>Minutes</mat-label>
-                <mat-select [(ngModel)]="formData.startTimeMin">
+                <mat-select [formField]="playbackForm.startTimeMin">
                   @for (i of minValues(); track i) {
                     <mat-option [value]="i">{{ i }}</mat-option>
                   }
@@ -94,7 +99,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
                 matTooltip="Advance stream the selected number of seconds for every second of playback"
               >
                 <mat-label>Playback Rate</mat-label>
-                <mat-select [(ngModel)]="formData.playbackRate">
+                <mat-select [formField]="playbackForm.playbackRate">
                   @for (i of rateValues(); track i) {
                     <mat-option [value]="i">{{ i }}</mat-option>
                   }
@@ -108,7 +113,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
         <div style="text-align:center;width:100%;">
           <button
             mat-raised-button
-            [disabled]="!formData.startDate"
+            [disabled]="submitDisabled()"
             (click)="submit()"
           >
             START
@@ -133,19 +138,25 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 export class PlaybackDialog {
   public hour: number | undefined;
   public minute: number | undefined;
-  public formData: {
+  protected playbackModel = signal<{
     context: string;
     startTimeHr: string;
     startTimeMin: string;
     startDate: Date | null;
     playbackRate: number;
-  } = {
+  }>({
     context: 'all',
     startTimeHr: '00',
     startTimeMin: '00',
     startDate: null,
     playbackRate: 1
-  };
+  });
+  protected playbackForm = form(this.playbackModel, (p) => {
+    required(p.startDate, { message: 'Please select a start date.' });
+  });
+  protected submitDisabled = computed(
+    () => this.playbackModel().startDate === null
+  );
   public maxDate = new Date();
 
   constructor(
@@ -157,15 +168,16 @@ export class PlaybackDialog {
   submit(cancel = false) {
     let q = {};
     let ts = '';
-    if (!cancel && this.formData.startDate) {
-      this.formData.startDate.setHours(parseInt(this.formData.startTimeHr));
-      this.formData.startDate.setMinutes(parseInt(this.formData.startTimeMin));
-      ts = this.formData.startDate.toISOString();
+    const v = this.playbackModel();
+    if (!cancel && v.startDate) {
+      v.startDate.setHours(parseInt(v.startTimeHr));
+      v.startDate.setMinutes(parseInt(v.startTimeMin));
+      ts = v.startDate.toISOString();
       ts = ts.slice(0, ts.indexOf('.')) + 'Z';
       q = {
-        subscribe: this.formData.context,
+        subscribe: v.context,
         startTime: ts,
-        playbackRate: this.formData.playbackRate
+        playbackRate: v.playbackRate
       };
     }
     this.dialogRef.close({

@@ -3,9 +3,14 @@
     <span><mat-icon>category</mat-icon></span>
     <span style="flex: 1 1 auto; text-align: center">Load Resource</span>
     <span style="text-align: right">
-      <button mat-icon-button (click)="this.dialogRef.close();">
-        <mat-icon>close</mat-icon>
-      </button>
+      <fb-button
+        variant="ghost"
+        size="sm"
+        ariaLabel="Close"
+        (pressed)="this.dialogRef.close();"
+      >
+        <fb-icon name="close" ariaLabel=""></fb-icon>
+      </fb-button>
     </span>
   </mat-toolbar>
 
@@ -13,19 +18,15 @@
     @if(!display.notValid) {
     <div class="card-group">
       <div>
-        <mat-form-field floatLabel="always" style="width: 100%">
-          <mat-label>Select Destination Path</mat-label>
-          <mat-select
-            id="respaths"
-            #respaths
-            [disabled]="!resPaths"
-            [(value)]="targetPath"
-          >
-            @for(i of resPaths; track i) {
-            <mat-option [value]="i">{{i}}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        <label for="respaths" style="display: block; font-weight: 600">
+          Select Destination Path
+        </label>
+        <fb-select
+          name="respaths"
+          [options]="pathOptions()"
+          [disabled]="resPaths().length === 0"
+          [(value)]="targetPath"
+        ></fb-select>
       </div>
 
       @if(!source.name) {
@@ -45,10 +46,10 @@
           <i>Selected file does not contain valid data. </i><br />
         </div>
         <div style="width: 100%; text-align: center">
-          <button mat-raised-button (click)="app.showHelp('resource')">
-            <mat-icon>help</mat-icon>
+          <fb-button variant="primary" (pressed)="app.showHelp('resource')">
+            <fb-icon name="help" ariaLabel=""></fb-icon>
             Help
-          </button>
+          </fb-button>
         </div>
       </div>
       }
@@ -66,16 +67,16 @@
           </div>
         </div>
         <div style="text-align: center; padding-top: 15px">
-          <button
-            mat-raised-button
+          <fb-button
+            variant="primary"
             [disabled]="!targetPath || !source.name"
             matTooltip="Load features"
             matTooltipPosition="below"
-            (click)="load()"
+            (pressed)="load()"
           >
-            <mat-icon>file_upload</mat-icon>
+            <fb-icon name="file_upload" ariaLabel=""></fb-icon>
             &nbsp;Load&nbsp;
-          </button>
+          </fb-button>
           <br />&nbsp; @if(targetPath && source.name) {
           <div
             style="padding: 10px; border: gray 1px dashed; font-style: italic"

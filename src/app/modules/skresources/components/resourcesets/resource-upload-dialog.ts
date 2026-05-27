@@ -2,26 +2,31 @@ import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   Inject,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogRef,
   MatDialogModule,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbSelectComponent,
+  type FbSelectOption
+} from 'src/app/design-system/primitives';
 
 import { SignalKClient } from 'src/lib/signalk-client';
 import { FileInputComponent } from 'src/app/lib/components/file-input.component';
@@ -35,20 +40,19 @@ import { AppFacade } from 'src/app/app.facade';
   styleUrls: ['./resource-upload-dialog.css'],
   imports: [
     FormsModule,
-    MatInputModule,
-    MatSelectModule,
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
-    MatCheckboxModule,
     MatDialogModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbSelectComponent,
     FileInputComponent
   ]
 })
 export class ResourceImportDialog implements OnInit {
-  public resPaths: string[] = [];
+  public resPaths = signal<readonly string[]>([]);
   public targetPath: string | null = null;
   public source: {
     type: string | null;
@@ -59,6 +63,10 @@ export class ResourceImportDialog implements OnInit {
   public display = {
     notValid: false
   };
+
+  public pathOptions = computed<readonly FbSelectOption[]>(() =>
+    this.resPaths().map((p) => ({ id: p, label: p }))
+  );
 
   private destroyRef = inject(DestroyRef);
 
@@ -76,21 +84,22 @@ export class ResourceImportDialog implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
         (r: Record<string, unknown>) => {
-          this.resPaths = [];
           this.targetPath = null;
-          this.resPaths = Object.keys(r).filter((i) => {
-            return ![
-              'routes',
-              'waypoints',
-              'notes',
-              'regions',
-              'charts',
-              'tracks'
-            ].includes(i);
-          });
+          this.resPaths.set(
+            Object.keys(r).filter((i) => {
+              return ![
+                'routes',
+                'waypoints',
+                'notes',
+                'regions',
+                'charts',
+                'tracks'
+              ].includes(i);
+            })
+          );
         },
         () => {
-          this.resPaths = [];
+          this.resPaths.set([]);
           this.targetPath = null;
         }
       );

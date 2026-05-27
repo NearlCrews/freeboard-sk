@@ -26,35 +26,47 @@
 
     <div style="display: flex">
       <div>
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_region()?.feature?.properties?.['readOnly']"
-          (click)="onEdit()"
+          (pressed)="onEdit()"
           matTooltip="Edit Region"
         >
-          <mat-icon>edit</mat-icon>
+          <fb-icon name="edit" ariaLabel=""></fb-icon>
           EDIT
-        </button>
+        </fb-button>
         @if(app.featureFlags().resourceGroups) { &nbsp;
-        <button mat-button (click)="addToGroup()" matTooltip="Add to Group">
-          <mat-icon>category</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="addToGroup()"
+          matTooltip="Add to Group"
+        >
+          <fb-icon name="category" ariaLabel=""></fb-icon>
           GROUP
-        </button>
+        </fb-button>
         } &nbsp;
-        <button mat-button (click)="onPanTo()" matTooltip="Center Region">
-          <mat-icon>center_focus_strong</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onPanTo()"
+          matTooltip="Center Region"
+        >
+          <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
           CENTER
-        </button>
+        </fb-button>
         &nbsp;
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_region()?.feature?.properties?.['readOnly']"
-          (click)="onDelete()"
+          (pressed)="onDelete()"
           matTooltip="Delete Region"
         >
-          <mat-icon>delete</mat-icon>
+          <fb-icon name="delete" ariaLabel=""></fb-icon>
           DELETE
-        </button>
+        </fb-button>
       </div>
     </div>
 

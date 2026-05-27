@@ -3,59 +3,79 @@
     <mat-card-title>
       <div class="title-block">
         <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close waypoint list"
+            (pressed)="close()"
             matTooltip="Close Waypoint List"
             matTooltipPosition="right"
           >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
         <div style="flex: 1 1 auto; padding-top: 7px">Waypoints</div>
       </div>
     </mat-card-title>
     <mat-card-content>
       <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: 3px">
-          <mat-form-field floatLabel="always" style="width: 180px">
-            <mat-label>Type to filter list</mat-label>
-            <input
-              #ftext
+        <div
+          style="
+            flex: 1 1 auto;
+            padding-left: 3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          "
+        >
+          <div style="width: 180px">
+            <label
+              for="wpt-filter"
+              style="display: block; font-size: 11px; font-weight: 600"
+            >
+              Type to filter list
+            </label>
+            <fb-input
+              name="wpt-filter"
               type="text"
-              matInput
               [value]="filterText"
-              (keyup)="filterKeyUp(ftext.value)"
-            />
-            @if(filterText) {
-            <button matSuffix mat-icon-button (click)="filterKeyUp('')">
-              <mat-icon>close</mat-icon>
-            </button>
-            }
-          </mat-form-field>
+              (valueChange)="filterKeyUp($event)"
+            ></fb-input>
+          </div>
+          @if(filterText) {
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Clear filter"
+            (pressed)="filterKeyUp('')"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
+          }
         </div>
         <div>
-          <button
-            mat-icon-button
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Reload waypoints"
             [disabled]="disableRefresh"
-            (click)="initItems()"
+            (pressed)="initItems()"
             matTooltip="Reload Waypoints"
             matTooltipPosition="below"
           >
-            <mat-icon>refresh</mat-icon>
-          </button>
+            <fb-icon name="refresh" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
         <div>
-          <mat-checkbox
-            #selall
+          <fb-checkbox
             [disabled]="fullList.length === 0 || disableRefresh"
             [checked]="allSel"
             [indeterminate]="someSel"
-            (change)="toggleAll($event.checked)"
-            [matTooltip]="(!selall.checked || someSel) ? 'Select All' : 'Deselect All'"
+            (checkedChange)="toggleAll($event)"
+            [matTooltip]="(!allSel || someSel) ? 'Select All' : 'Deselect All'"
             matTooltipPosition="below"
           >
-          </mat-checkbox>
+          </fb-checkbox>
         </div>
       </div>
     </mat-card-content>
@@ -87,93 +107,107 @@
               </div>
             </div>
             <div style="text-align: right">
-              <mat-checkbox
+              <fb-checkbox
                 [disabled]="r[0] === activeWaypoint() || disableRefresh"
                 [checked]="r[2]"
-                (change)="itemSelect($event.checked, r[0])"
+                (checkedChange)="itemSelect($event, r[0])"
                 matTooltip="Show on Map"
                 matTooltipPosition="left"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
         </mat-card-content>
         <mat-card-actions>
           <div style="display: flex">
             <div>
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Delete waypoint"
                 [disabled]="r[0] === activeWaypoint() || disableRefresh"
-                (click)="itemDelete(r[0])"
+                (pressed)="itemDelete(r[0])"
                 matTooltip="Delete Waypoint"
                 matTooltipPosition="above"
               >
-                <mat-icon>delete</mat-icon>
-              </button>
+                <fb-icon name="delete" ariaLabel=""></fb-icon>
+              </fb-button>
             </div>
-            <button
-              mat-icon-button
-              (click)="itemViewNotes(r)"
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Waypoint notes"
+              (pressed)="itemViewNotes(r)"
               matTooltip="Waypoint notes"
               matTooltipPosition="above"
             >
-              <mat-icon>local_offer</mat-icon>
-            </button>
+              <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+            </fb-button>
             <div style="flex: 1 1 auto; text-align: center">
               @if(!activeWaypoint() || activeWaypoint() !== r[0]) {
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Navigate to waypoint"
                 [disabled]="disableRefresh"
-                (click)="itemGoTo(r[0])"
+                (pressed)="itemGoTo(r[0])"
                 matTooltip="Navigate to Waypoint"
                 matTooltipPosition="above"
               >
-                <mat-icon>near_me</mat-icon>
-              </button>
+                <fb-icon name="near_me" ariaLabel=""></fb-icon>
+              </fb-button>
               } @if(activeWaypoint() === r[0]) {
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Clear destination"
                 [disabled]="disableRefresh"
-                (click)="itemClearActive()"
+                (pressed)="itemClearActive()"
                 matTooltip="Clear Destination"
                 matTooltipPosition="above"
               >
-                <mat-icon>clear_all</mat-icon>
-              </button>
+                <fb-icon name="clear_all" ariaLabel=""></fb-icon>
+              </fb-button>
               }
             </div>
             <div>
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Center waypoint"
                 [disabled]="app.uiConfig().mapMove || !r[2]"
-                (click)="emitCenter(r[1].feature.geometry.coordinates)"
+                (pressed)="emitCenter(r[1].feature.geometry.coordinates)"
                 matTooltip="Center Waypoint"
                 matTooltipPosition="above"
               >
-                <mat-icon>center_focus_strong</mat-icon>
-              </button>
+                <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
+              </fb-button>
               @if(app.featureFlags().resourceGroups) {
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Add to group"
                 [disabled]="disableRefresh"
-                (click)="itemAddToGroup(r[0])"
+                (pressed)="itemAddToGroup(r[0])"
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
               >
-                <mat-icon>category</mat-icon>
-              </button>
+                <fb-icon name="category" ariaLabel=""></fb-icon>
+              </fb-button>
               }
             </div>
             <div>
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Waypoint properties"
                 [disabled]="disableRefresh"
-                (click)="itemProperties(r[0])"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Waypoint Properties"
                 matTooltipPosition="above"
               >
-                <mat-icon>info</mat-icon>
-              </button>
+                <fb-icon name="info" ariaLabel=""></fb-icon>
+              </fb-button>
             </div>
           </div>
         </mat-card-actions>

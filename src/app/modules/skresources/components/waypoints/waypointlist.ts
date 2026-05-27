@@ -16,13 +16,17 @@ import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
+
+import {
+  FbButtonComponent,
+  FbCheckboxComponent,
+  FbIconComponent,
+  FbInputComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -48,12 +52,13 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatCheckboxModule,
-    MatButtonModule,
     FormsModule,
-    MatInputModule,
     ScrollingModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    FbButtonComponent,
+    FbCheckboxComponent,
+    FbIconComponent,
+    FbInputComponent
   ]
 })
 export class WaypointListComponent

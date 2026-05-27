@@ -1,5 +1,33 @@
 // **** Signal K Standard ALARMS notifier ****
 import { NextFunction, Request, Response } from 'express';
+
+// Express req.body shape for area-alarm endpoints. Raw input from the
+// network: every field is validated by validateAreaBody before reuse.
+interface AreaAlarmBody {
+  trigger?: AlarmTrigger;
+  geometry?: AlarmGeometry;
+  coords?: Position[];
+  center?: Position;
+  radius?: number;
+  name?: string;
+}
+
+interface RegionFeatureProperties {
+  skIcon?: string;
+}
+
+interface RegionFeatureGeometry {
+  type?: string;
+  coordinates: number[][][] | number[][][][];
+}
+
+interface RegionResource {
+  name?: string;
+  feature: {
+    geometry: RegionFeatureGeometry;
+    properties: RegionFeatureProperties;
+  };
+}
 import {
   ALARM_METHOD,
   ALARM_STATE,
@@ -262,7 +290,7 @@ const handleDeltaMessage = (delta: Delta) => {
     u.values.forEach((v: PathValue) => {
       const t = v.path.split('.');
       if (t[0] === 'resources' && t[1] === 'regions' && t[2]) {
-        processRegionUpdate(t[2], v.value);
+        processRegionUpdate(t[2], v.value as RegionResource | null | undefined);
       }
       if (t[0] === 'navigation' && t[1] === 'position') {
         processVesselPositionUpdate(v.value as Position);
@@ -344,15 +372,18 @@ const initAlarmEndpoints = async () => {
 
       if (req.body.geometry === 'region') {
         try {
-          const reg: any = await fetchRegion(id);
+          const reg = (await fetchRegion(id)) as RegionResource;
           const coords = parseRegionCoords(reg);
           if (Array.isArray(coords)) {
-            alarmAreas.set(id, {
+            const def: AreaAlarmDef = {
               geometry: req.body.geometry,
-              trigger: req.body.trigger,
-              coords: coords,
-              name: reg.name
-            });
+              trigger: req.body.trigger ?? 'entry',
+              coords: coords
+            };
+            if (reg.name) {
+              def.name = reg.name;
+            }
+            alarmAreas.set(id, def);
             res.status(200).json({
               state: 'COMPLETE',
               statusCode: 200,
@@ -487,7 +518,7 @@ const deleteArea = (id: string) => {
  * Validate Area Alarm request parameters
  * @param body request body
  */
-const validateAreaBody = (body: any) => {
+const validateAreaBody = (body: AreaAlarmBody) => {
   if (!body.trigger) {
     body.trigger = 'entry';
   } else if (!AREA_TRIGGERS.includes(body.trigger)) {
@@ -503,9 +534,11 @@ const validateAreaBody = (body: any) => {
     if (!Array.isArray(body.coords)) {
       throw new Error(`Area coordinates not provided or are invalid!`);
     }
-    if (body.coords.length === 0) {
+    const first = body.coords[0];
+    if (!first) {
       throw new Error(`Area coordinates not provided!`);
-    } else if (!isValidPosition(body.coords[0])) {
+    }
+    if (!isValidPosition(first)) {
       throw new Error(`Area coordinates are invalid!`);
     }
     delete body.center;
@@ -561,7 +594,9 @@ const fetchRegion = (id: string) =>
  */
 const parseRegionList = async () => {
   const regList = await server.resourcesApi.listResources('regions', {});
-  Object.entries(regList).forEach((r) => processRegionUpdate(r[0], r[1]));
+  Object.entries(regList).forEach(([id, region]) =>
+    processRegionUpdate(id, region as RegionResource | null | undefined)
+  );
 };
 
 /**
@@ -569,16 +604,13 @@ const parseRegionList = async () => {
  * @param region Region data
  * @returns coordinates array
  */
-const parseRegionCoords = (region: any): Position[] => {
-  let c: number[][];
-  if (region.feature.geometry?.type === 'MultiPolygon') {
-    c = region.feature.geometry?.coordinates[0][0];
-  } else {
-    c = region.feature.geometry?.coordinates[0];
-  }
-  return c.map((i) => {
-    return { latitude: i[1]!, longitude: i[0]! };
-  });
+const parseRegionCoords = (region: RegionResource): Position[] => {
+  const coords = region.feature.geometry.coordinates;
+  const c: number[][] =
+    region.feature.geometry.type === 'MultiPolygon'
+      ? (coords as number[][][][])[0]![0]!
+      : (coords as number[][][])[0]!;
+  return c.map((i) => ({ latitude: i[1]!, longitude: i[0]! }));
 };
 
 /**
@@ -586,27 +618,39 @@ const parseRegionCoords = (region: any): Position[] => {
  * @param id Region identifier
  * @param region Region data
  */
-const processRegionUpdate = (id: string, region: any) => {
+const processRegionUpdate = (
+  id: string,
+  region: RegionResource | null | undefined
+) => {
   const existing = alarmAreas.get(id);
   if (existing) {
     if (!region) {
       deleteArea(id);
-    } else if (region.feature.properties.skIcon !== 'hazard') {
+      return;
+    }
+    if (region.feature.properties.skIcon !== 'hazard') {
       deleteArea(id);
-    } else {
-      existing.coords = parseRegionCoords(region);
+      return;
+    }
+    existing.coords = parseRegionCoords(region);
+    if (region.name) {
       existing.name = region.name;
-      alarmAreas.set(id, existing);
+    } else {
+      delete existing.name;
     }
-  } else {
-    if (region.feature.properties.skIcon === 'hazard') {
-      alarmAreas.set(id, {
-        trigger: 'entry',
-        geometry: 'region',
-        coords: parseRegionCoords(region),
-        name: region.name
-      });
+    alarmAreas.set(id, existing);
+    return;
+  }
+  if (region && region.feature.properties.skIcon === 'hazard') {
+    const def: AreaAlarmDef = {
+      trigger: 'entry',
+      geometry: 'region',
+      coords: parseRegionCoords(region)
+    };
+    if (region.name) {
+      def.name = region.name;
     }
+    alarmAreas.set(id, def);
   }
 };
 

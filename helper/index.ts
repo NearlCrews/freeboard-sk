@@ -21,8 +21,7 @@ const CONFIG_UISCHEMA = {};
 
 interface AlarmSettings {
   enable: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface SETTINGS {
@@ -45,9 +44,8 @@ module.exports = (server: FreeboardHelperApp): Plugin => {
     name: 'Freeboard-SK',
     schema: () => CONFIG_SCHEMA,
     uiSchema: () => CONFIG_UISCHEMA,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    start: (settings: any) => {
-      doStartup(settings);
+    start: (options) => {
+      doStartup(options as SETTINGS);
     },
     stop: () => {
       doShutdown();
@@ -85,13 +83,11 @@ module.exports = (server: FreeboardHelperApp): Plugin => {
         initAlarms(server, plugin.id);
       }
       server.setPluginStatus('Started');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const msg = 'Started with errors!';
-      server.setPluginError(msg);
+    } catch (error) {
+      server.setPluginError('Started with errors!');
       server.error('** EXCEPTION: **');
-      server.error(error.stack);
-      return error;
+      const stack = error instanceof Error ? error.stack : String(error);
+      server.error(stack ?? 'unknown error');
     }
   };
 

@@ -7,10 +7,14 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatInputModule } from '@angular/material/input';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { ChartProvider } from 'src/app/types';
 import { SKInfoLayer } from '../../custom-resource-classes';
@@ -27,11 +31,12 @@ import { NodeTreeSelect } from './node-tree-select';
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
     MatDialogModule,
     MatProgressBarModule,
-    MatInputModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
     NodeTreeSelect
   ],
   template: `
@@ -40,36 +45,54 @@ import { NodeTreeSelect } from './node-tree-select';
         <span class="dialog-icon"><mat-icon>public</mat-icon></span>
         <span style="flex: 1 1 auto; text-align: center">Add WMS Source</span>
         <span style="text-align: right">
-          <button mat-icon-button (click)="dialogRef.close()">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="dialogRef.close()"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
       <mat-dialog-content>
-        <mat-form-field floatLabel="always" style="width:100%">
-          <mat-label> WMS host. </mat-label>
-          <input matInput #txturl type="url" required [(value)]="hostUrl" />
-          @if (txturl) {
-            <button
-              matSuffix
-              mat-icon-button
-              [disabled]="txturl.value.length === 0"
-              (click)="getCapabilities(txturl.value)"
-            >
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          }
-          <mat-hint> Enter url of the WMS host. </mat-hint>
-          @if (txturl.invalid) {
-            <mat-error>WMS host is required!</mat-error>
-          }
-        </mat-form-field>
+        <label for="wms-host" style="display:block; font-weight:600">
+          WMS host.
+        </label>
+        <div style="display:flex; gap:6px; align-items:center">
+          <fb-input
+            name="wms-host"
+            type="text"
+            [(value)]="hostUrl"
+            [invalid]="!hostUrl"
+            ariaLabel="WMS host URL"
+          ></fb-input>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Fetch capabilities"
+            [disabled]="hostUrl.length === 0"
+            (pressed)="getCapabilities(hostUrl)"
+          >
+            <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
+          </fb-button>
+        </div>
+        <div style="font-size: 12px; color: var(--color-text-muted)">
+          Enter url of the WMS host.
+        </div>
+        @if (!hostUrl) {
+          <div style="color: var(--color-error); font-size:12px">
+            WMS host is required!
+          </div>
+        }
 
         @if (isFetching) {
           <mat-progress-bar mode="query"></mat-progress-bar>
         } @else {
           @if (errorMsg) {
-            <mat-error>Error retrieving capabilities from server!</mat-error>
+            <div style="color: var(--color-error)">
+              Error retrieving capabilities from server!
+            </div>
           } @else {
             <node-tree-select
               [layers]="dataSource"
@@ -81,13 +104,13 @@ import { NodeTreeSelect } from './node-tree-select';
       </mat-dialog-content>
       @if (data.format !== 'chartprovider') {
         <mat-dialog-actions align="right">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="this.selections.length === 0"
-            (click)="handleSave()"
+            (pressed)="handleSave()"
           >
             Save
-          </button>
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

@@ -10,7 +10,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
   MatDialogModule,
@@ -19,9 +18,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
@@ -29,6 +26,16 @@ import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbTextareaComponent,
+  FbSelectComponent,
+  FbSwitchComponent,
+  type FbSelectOption
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { AppIconDef } from 'src/app/modules/icons';
@@ -58,14 +65,17 @@ interface DialogData {
     FormField,
     MatCardModule,
     MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
     MatFormFieldModule,
-    MatInputModule,
+    MatIconModule,
     MatSelectModule,
+    MatTooltipModule,
     MatToolbarModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbTextareaComponent,
+    FbSelectComponent,
+    FbSwitchComponent,
     AngularEditorModule,
     CoordsPipe,
     AddTargetPipe,
@@ -155,6 +165,11 @@ export class NoteDialog implements OnInit {
     required(p.name, { message: 'Please enter a title for the note' });
   });
   protected saveDisabled = computed(() => this.noteForm().invalid());
+
+  protected readonly mimeTypeOptions: readonly FbSelectOption[] = [
+    { id: 'text/markdown', label: 'Markdown' },
+    { id: '', label: 'HTML' }
+  ];
 
   ngOnInit() {
     if (!this.data.note.properties) {

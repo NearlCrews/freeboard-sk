@@ -27,55 +27,78 @@
 
     <div style="display: flex">
       <div>
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_route()?.feature?.properties?.['readOnly']"
-          (click)="onEdit()"
+          (pressed)="onEdit()"
           matTooltip="Edit Route"
         >
-          <mat-icon>edit</mat-icon>
+          <fb-icon name="edit" ariaLabel=""></fb-icon>
           EDIT
-        </button>
+        </fb-button>
         &nbsp; @if (this.app.data.activeRoute !== id()) {
-        <button mat-button (click)="onGoto()" matTooltip="Navigate To">
-          <mat-icon>near_me</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onGoto()"
+          matTooltip="Navigate To"
+        >
+          <fb-icon name="near_me" ariaLabel=""></fb-icon>
           START
-        </button>
+        </fb-button>
         } @else {
-        <button mat-button (click)="onGoto(-1)" matTooltip="Clear Destination">
-          <mat-icon>clear_all</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onGoto(-1)"
+          matTooltip="Clear Destination"
+        >
+          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           CLEAR
-        </button>
+        </fb-button>
         &nbsp; } @if(app.featureFlags().resourceGroups) { &nbsp;
-        <button mat-button (click)="addToGroup()" matTooltip="Add to Group">
-          <mat-icon>category</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="addToGroup()"
+          matTooltip="Add to Group"
+        >
+          <fb-icon name="category" ariaLabel=""></fb-icon>
           GROUP
-        </button>
+        </fb-button>
         } &nbsp;
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="this.app.data.activeRoute !== id()"
-          (click)="onReverse()"
+          (pressed)="onReverse()"
           matTooltip="Reverse direction"
         >
-          <mat-icon>multiple_stop</mat-icon>
+          <fb-icon name="multiple_stop" ariaLabel=""></fb-icon>
           REVERSE
-        </button>
+        </fb-button>
         &nbsp;
-        <button mat-button (click)="onPanTo()" matTooltip="Center Route">
-          <mat-icon>center_focus_strong</mat-icon>
+        <fb-button
+          variant="ghost"
+          size="sm"
+          (pressed)="onPanTo()"
+          matTooltip="Center Route"
+        >
+          <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
           CENTER
-        </button>
+        </fb-button>
         &nbsp;
-        <button
-          mat-button
+        <fb-button
+          variant="ghost"
+          size="sm"
           [disabled]="!!_route()?.feature?.properties?.['readOnly'] || this.app.data.activeRoute === id()"
-          (click)="onDelete()"
+          (pressed)="onDelete()"
           matTooltip="Delete Route"
         >
-          <mat-icon>delete</mat-icon>
+          <fb-icon name="delete" ariaLabel=""></fb-icon>
           DELETE
-        </button>
+        </fb-button>
       </div>
     </div>
 
@@ -115,13 +138,15 @@
         </mat-panel-title>
         <mat-panel-description>
           ({{this.points().length}})
-          <button
-            matIconButton
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Re-order points"
             matTooltip="Re-order points"
-            (click)="arrangePoints()"
+            (pressed)="arrangePoints()"
           >
-            <mat-icon>import_export</mat-icon>
-          </button>
+            <fb-icon name="import_export" ariaLabel=""></fb-icon>
+          </fb-button>
         </mat-panel-description>
       </mat-expansion-panel-header>
       @if(this.points().length){
@@ -139,13 +164,15 @@
         @for( point of points(); track point.index) {
         <mat-step state="point" [completed]="true">
           <ng-template matStepLabel>
-            <button
-              matIconButton
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Start here"
               matTooltip="Start here"
-              (click)="onGoto(point.index)"
+              (pressed)="onGoto(point.index)"
             >
-              <mat-icon>near_me</mat-icon>
-            </button>
+              <fb-icon name="near_me" ariaLabel=""></fb-icon>
+            </fb-button>
             {{point.name}}
           </ng-template>
           <p style="font-size: smaller; padding: 0">

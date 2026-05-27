@@ -9,16 +9,22 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import type { SKTrack } from '../../resource-classes';
 import { MatToolbarModule } from '@angular/material/toolbar';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbTextareaComponent
+} from 'src/app/design-system/primitives';
+
+import type { SKTrack } from '../../resource-classes';
 
 interface DialogData {
   track: SKTrack;
@@ -30,11 +36,13 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatInputModule,
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
-    MatToolbarModule
+    MatToolbarModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbInputComponent,
+    FbTextareaComponent
   ],
   template: `
     <div class="_ap-track">
@@ -44,9 +52,14 @@ interface DialogData {
         >
         <span style="flex: 1 1 auto; text-align: center">Track Details</span>
         <span style="text-align: right">
-          <button mat-icon-button (click)="handleClose(false)">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="handleClose(false)"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
 
@@ -54,28 +67,39 @@ interface DialogData {
         <div>
           <div style="padding-left: 10px;">
             <div>
-              <mat-form-field floatLabel="always">
-                <mat-label>Name</mat-label>
-                <input matInput type="text" [formField]="tForm.name" />
-                @if (
+              <label for="track-name" style="display:block; font-weight:600">
+                Name
+              </label>
+              <fb-input
+                name="track-name"
+                type="text"
+                [formField]="tForm.name"
+                [invalid]="
                   tForm.name().invalid() &&
                   (tForm.name().dirty() || tForm.name().touched())
-                ) {
-                  <mat-error> Please enter a name.</mat-error>
-                }
-              </mat-form-field>
+                "
+              ></fb-input>
+              @if (
+                tForm.name().invalid() &&
+                (tForm.name().dirty() || tForm.name().touched())
+              ) {
+                <div style="color: var(--color-error); font-size:12px">
+                  Please enter a name.
+                </div>
+              }
             </div>
             <div>
-              <mat-form-field floatLabel="always">
-                <mat-label>Description</mat-label>
-                <textarea
-                  matInput
-                  rows="3"
-                  [readonly]="readOnly"
-                  [(ngModel)]="description"
-                >
-                </textarea>
-              </mat-form-field>
+              <label
+                for="track-description"
+                style="display:block; font-weight:600"
+              >
+                Description
+              </label>
+              <fb-textarea
+                name="track-description"
+                [disabled]="readOnly"
+                [(value)]="description"
+              ></fb-textarea>
             </div>
           </div>
         </div>
@@ -83,13 +107,13 @@ interface DialogData {
 
       @if (!readOnly) {
         <mat-dialog-actions align="right">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="saveDisabled()"
-            (click)="handleClose(true)"
+            (pressed)="handleClose(true)"
           >
             SAVE
-          </button>
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

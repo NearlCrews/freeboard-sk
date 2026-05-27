@@ -1,8 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
-  OnInit
+  OnInit,
+  signal
 } from '@angular/core';
 import {
   MatDialogModule,
@@ -11,14 +13,19 @@ import {
 } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { FBChart, Position } from 'src/app/types';
+
+import {
+  FbButtonComponent,
+  FbIconComponent,
+  FbSelectComponent,
+  type FbSelectOption
+} from 'src/app/design-system/primitives';
 
 interface DialogData {
   chart: FBChart;
@@ -32,11 +39,12 @@ interface DialogData {
     MatTooltipModule,
     MatIconModule,
     MatCardModule,
-    MatButtonModule,
     MatToolbarModule,
     MatDialogModule,
-    MatSelectModule,
     FormsModule,
+    FbButtonComponent,
+    FbIconComponent,
+    FbSelectComponent,
     CoordsPipe
   ],
   template: `
@@ -45,9 +53,14 @@ interface DialogData {
         <span class="dialog-icon"><mat-icon>download</mat-icon></span>
         <span style="flex: 1 1 auto; text-align: center">Chart Seed job</span>
         <span style="text-align: right">
-          <button mat-icon-button (click)="dialogRef.close(-1)">
-            <mat-icon>close</mat-icon>
-          </button>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
+            (pressed)="dialogRef.close(-1)"
+          >
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </span>
       </mat-toolbar>
       <mat-dialog-content>
@@ -86,21 +99,22 @@ interface DialogData {
             </div>
           }
           <div style="flex: 1 1 auto;">
-            <mat-form-field style="width: 100%;">
-              <mat-label>Max. Zoom Level</mat-label>
-              <mat-select [(ngModel)]="selZoom">
-                @for (zoom of zoomRange; track zoom) {
-                  <mat-option [value]="zoom">{{ zoom }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <label for="chart-seed-zoom" style="display:block; font-weight:600">
+              Max. Zoom Level
+            </label>
+            <fb-select
+              name="chart-seed-zoom"
+              [options]="zoomOptions()"
+              [value]="String(selZoom)"
+              (valueChange)="onZoomChange($event)"
+            ></fb-select>
           </div>
         </div>
       </mat-dialog-content>
       <mat-dialog-actions align="right">
-        <button mat-flat-button (click)="dialogRef.close(selZoom)">
+        <fb-button variant="primary" (pressed)="dialogRef.close(selZoom)">
           Submit
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,
@@ -134,8 +148,13 @@ interface DialogData {
 })
 export class ChartSeedJobDialog implements OnInit {
   protected icon = '';
-  protected zoomRange: number[] = [];
+  protected zoomRange = signal<readonly number[]>([]);
   protected selZoom = 0;
+  protected readonly String = String;
+
+  protected zoomOptions = computed<readonly FbSelectOption[]>(() =>
+    this.zoomRange().map((z) => ({ id: String(z), label: String(z) }))
+  );
 
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<ChartSeedJobDialog>);
@@ -147,8 +166,16 @@ export class ChartSeedJobDialog implements OnInit {
     const minZoom = this.data.chart[1].minZoom ?? 1;
     const maxZoom = this.data.chart[1].maxZoom ?? 15;
     this.selZoom = maxZoom;
+    const range: number[] = [];
     for (let i = minZoom; i <= maxZoom; i++) {
-      this.zoomRange.push(i);
+      range.push(i);
     }
+    this.zoomRange.set(range);
+  }
+
+  protected onZoomChange(v: string | null) {
+    if (v === null) return;
+    const n = Number(v);
+    if (!Number.isNaN(n)) this.selZoom = n;
   }
 }

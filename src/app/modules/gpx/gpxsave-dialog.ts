@@ -13,7 +13,6 @@ import {
   MatDialogModule
 } from '@angular/material/dialog';
 
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -47,8 +46,7 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
     MatDividerModule,
     MatExpansionModule,
     MatCheckboxModule,
-    MatTooltipModule,
-    FormsModule
+    MatTooltipModule
   ],
   templateUrl: './gpxsave-dialog.html',
   styleUrls: ['./gpxsave-dialog.css']

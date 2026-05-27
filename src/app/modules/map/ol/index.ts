@@ -9,7 +9,6 @@ import { OverlayComponent } from './lib/overlay.component';
 import { ControlsDirective } from './lib/controls.directive';
 import { ViewDirective } from './lib/view.directive';
 import { ContentComponent } from './lib/content.component';
-import { LayerComponent } from './lib/layer.component';
 import { ControlComponent } from './lib/control.component';
 
 import { InteractionDrawComponent } from './lib/interactions/interaction-draw.component';
@@ -62,7 +61,6 @@ export { S57Service } from './lib/charts/s57.service';
 export { ContentComponent } from './lib/content.component';
 export { ControlsDirective } from './lib/controls.directive';
 export { InteractionsDirective } from './lib/interactions.directive';
-export { LayerComponent } from './lib/layer.component';
 export { LayerType, SourceType } from './lib/models';
 export { MapComponent } from './lib/map.component';
 export { OverlayComponent } from './lib/overlay.component';
@@ -116,7 +114,6 @@ export { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.compon
 const declarations = [
   ContentComponent,
   ControlsDirective,
-  LayerComponent,
   InteractionsDirective,
   MapComponent,
   OverlayComponent,

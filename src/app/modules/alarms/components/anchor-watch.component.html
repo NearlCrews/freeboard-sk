@@ -3,15 +3,16 @@
     <mat-card-title>
       <div class="title-block">
         <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close anchor watch"
+            (pressed)="close()"
             matTooltip="Close"
             matTooltipPosition="left"
-            aria-label="Close anchor watch"
           >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
         <div style="flex: 1 1 auto; padding-top: 7px">Anchor Watch</div>
       </div>
@@ -46,108 +47,96 @@
 
     <mat-card-actions>
       <div style="width: 100%">
-        <div>
-          RAISE
-          <mat-slide-toggle
-            #slideCtl
-            [hideIcon]="true"
-            [disabled]="disableRaiseDrop || ctlAlarmRadius.invalid"
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span>RAISE</span>
+          <fb-switch
+            [disabled]="disableRaiseDrop || defaultAlarmRadius() <= 0"
             [checked]="!raised"
-            [attr.aria-label]="raised ? 'Drop anchor' : 'Raise anchor'"
-            (change)="dropRaiseAnchor($event)"
-          >
-          </mat-slide-toggle>
-          DROP
+            [ariaLabel]="raised ? 'Drop anchor' : 'Raise anchor'"
+            (checkedChange)="dropRaiseAnchor($event)"
+          ></fb-switch>
+          <span>DROP</span>
         </div>
         <div [style.display]="raised ? 'flex' : 'none'">
           <div style="flex: 2">
-            <mat-checkbox
-              #chkDefaultRadius
-              (change)="onDefaultRadiusChecked($event)"
+            <fb-checkbox
+              (checkedChange)="onDefaultRadiusChecked($event)"
               [checked]="useDefaultRadius"
               [disabled]="!raised || useSetManual"
               >Set Radius
-            </mat-checkbox>
+            </fb-checkbox>
           </div>
           <div>
-            <mat-form-field floatLabel="always" style="max-width: 130px">
-              <mat-label
-                >Alarm Radius ({{
-                  convert.getSymbol(app.config.units.length)
-                }})</mat-label
-              >
-              <input
-                #ctlAlarmRadius="ngModel"
-                [ngModel]="defaultAlarmRadius()"
-                (ngModelChange)="onDefaultRadiusChange($event)"
-                [disabled]="!raised || !useDefaultRadius || useSetManual"
-                matInput
-                required
-                type="number"
-                min="1"
-                step="1"
-              />
-              @if (
-                ctlAlarmRadius.invalid &&
-                (ctlAlarmRadius.dirty || ctlAlarmRadius.touched)
-              ) {
-                <mat-error>Value must be greater than 0.</mat-error>
-              }
-            </mat-form-field>
+            <label
+              for="alarm-radius"
+              style="display: block; font-weight: 600; font-size: 12px"
+            >
+              Alarm Radius ({{ convert.getSymbol(app.config.units.length) }})
+            </label>
+            <fb-input
+              name="alarm-radius"
+              type="number"
+              [value]="defaultAlarmRadiusStr()"
+              (valueChange)="onDefaultRadiusChange(+$event)"
+              [disabled]="!raised || !useDefaultRadius || useSetManual"
+              [invalid]="defaultAlarmRadius() <= 0"
+              ariaLabel="Alarm radius"
+            ></fb-input>
+            @if (defaultAlarmRadius() <= 0) {
+              <div style="color: var(--color-error); font-size: 12px">
+                Value must be greater than 0.
+              </div>
+            }
           </div>
         </div>
 
         <div [style.display]="raised ? 'flex' : 'none'">
           <div>
-            <mat-checkbox
-              #chkSetManual
-              (change)="onSetManualCheck($event)"
+            <fb-checkbox
+              (checkedChange)="onSetManualCheck($event)"
               [checked]="useSetManual"
               [disabled]="!raised || useDefaultRadius"
-              aria-label="Use manual anchor set"
+              ariaLabel="Use manual anchor set"
             >
-            </mat-checkbox>
+            </fb-checkbox>
           </div>
 
           <div style="flex: 2">
-            <button
-              mat-raised-button
-              (click)="setManualAnchor()"
+            <fb-button
+              variant="primary"
+              (pressed)="setManualAnchor()"
               [disabled]="
                 !raised ||
                 useDefaultRadius ||
                 !useSetManual ||
-                ctlRodeLength.invalid
+                defaultRodeLength() <= 0
               "
             >
               Manual Set
-            </button>
+            </fb-button>
           </div>
 
           <div>
-            <mat-form-field floatLabel="always" style="max-width: 130px">
-              <mat-label
-                >Rode Length ({{
-                  convert.getSymbol(app.config.units.length)
-                }})</mat-label
-              >
-              <input
-                #ctlRodeLength="ngModel"
-                [(ngModel)]="defaultRodeLength"
-                [disabled]="!raised || useDefaultRadius || !useSetManual"
-                matInput
-                required
-                type="number"
-                min="1"
-                step="1"
-              />
-              @if (
-                ctlRodeLength.invalid &&
-                (ctlRodeLength.dirty || ctlRodeLength.touched)
-              ) {
-                <mat-error>Value must be greater than 0.</mat-error>
-              }
-            </mat-form-field>
+            <label
+              for="rode-length"
+              style="display: block; font-weight: 600; font-size: 12px"
+            >
+              Rode Length ({{ convert.getSymbol(app.config.units.length) }})
+            </label>
+            <fb-input
+              name="rode-length"
+              type="number"
+              [value]="defaultRodeLengthStr()"
+              (valueChange)="onDefaultRodeLengthChange($event)"
+              [disabled]="!raised || useDefaultRadius || !useSetManual"
+              [invalid]="defaultRodeLength() <= 0"
+              ariaLabel="Rode length"
+            ></fb-input>
+            @if (defaultRodeLength() <= 0) {
+              <div style="color: var(--color-error); font-size: 12px">
+                Value must be greater than 0.
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -167,9 +156,13 @@
         >
           <i>When rode is out click <b>Set</b>.</i>
           <div>
-            <button mat-mini-fab matStepperNext (click)="stepSetRode()">
+            <fb-button
+              variant="primary"
+              matStepperNext
+              (pressed)="stepSetRode()"
+            >
               Set
-            </button>
+            </fb-button>
           </div>
         </mat-step>
         <mat-step label="Adjust" editable="false">
@@ -180,21 +173,15 @@
             </div>
             <div style="display: flex">
               <div>
-                <mat-slider
-                  discrete
+                <fb-slider
                   [disabled]="disableRaiseDrop"
-                  [displayWith]="formatSliderLabel"
                   [min]="min"
                   [max]="max"
-                  step="1"
-                  tickInterval="1"
-                >
-                  <input
-                    matSliderThumb
-                    [value]="sliderValue"
-                    (valueChange)="setRadius($event)"
-                  />
-                </mat-slider>
+                  [step]="1"
+                  [value]="sliderValue"
+                  (valueChange)="setRadius($event)"
+                  ariaLabel="Anchor alarm radius"
+                ></fb-slider>
               </div>
               <div
                 style="

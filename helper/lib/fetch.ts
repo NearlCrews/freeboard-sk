@@ -1,29 +1,32 @@
 import * as https from 'https';
 import * as url from 'url';
 import * as http from 'http';
+import type { IncomingMessage, RequestOptions } from 'http';
+
+type FetchOpts = RequestOptions & { headers: Record<string, string> };
 
 // HTTP GET
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const fetch = (href: string): Promise<any> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const opt: any = url.parse(href);
-  opt.headers = { 'User-Agent': 'Mozilla/5.0' };
+export const fetch = (href: string): Promise<unknown> => {
+  const parsed = url.parse(href);
+  const opt: FetchOpts = {
+    ...parsed,
+    headers: { 'User-Agent': 'Mozilla/5.0' }
+  };
 
-  const req = href.indexOf('https') !== -1 ? https : http;
+  const req = href.includes('https') ? https : http;
 
   return new Promise((resolve, reject) => {
     req
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .get(opt, (res: any) => {
+      .get(opt, (res: IncomingMessage) => {
         let data = '';
         res.on('data', (chunk: string) => {
           data += chunk;
         });
         res.on('end', () => {
           try {
-            const json = JSON.parse(data.toString());
+            const json: unknown = JSON.parse(data.toString());
             resolve(json);
-          } catch (error) {
+          } catch {
             reject(new Error(data));
           }
         });
@@ -34,27 +37,35 @@ export const fetch = (href: string): Promise<any> => {
   });
 };
 
-// HTTP POST
-export const post = (href: string, data: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const opt: any = url.parse(href);
-  ((opt.method = 'POST'),
-    (opt.headers = {
-      'Content-Type': 'application/json'
-    }));
+interface PostResult {
+  statusCode: number | undefined;
+  state: 'COMPLETED' | 'FAILED';
+  message?: string;
+}
 
-  const req = href.indexOf('https') !== -1 ? https : http;
+// HTTP POST
+export const post = (href: string, data: string): Promise<PostResult> => {
+  const parsed = url.parse(href);
+  const opt: FetchOpts = {
+    ...parsed,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  const req = href.includes('https') ? https : http;
 
   return new Promise((resolve, reject) => {
     const postReq = req
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .request(opt, (res: any) => {
+      .request(opt, (res: IncomingMessage) => {
         let resText = '';
         res.on('data', (chunk: string) => {
           resText += chunk;
         });
         res.on('end', () => {
-          if (Math.floor(res.statusCode / 100) === 2) {
+          const status = res.statusCode ?? 0;
+          if (Math.floor(status / 100) === 2) {
             resolve({
               statusCode: res.statusCode,
               state: 'COMPLETED'

@@ -8,13 +8,16 @@ import {
   output
 } from '@angular/core';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatButtonModule } from '@angular/material/button';
-
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
+
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { AppIconDef } from 'src/app/modules/icons';
@@ -32,9 +35,10 @@ import {
   selector: 'note-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    FbButtonComponent,
+    FbIconComponent,
     CoordsPipe,
     AddTargetPipe,
     RemarkModule
