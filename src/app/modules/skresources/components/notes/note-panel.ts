@@ -150,6 +150,13 @@ export class NotePanel {
     return (idx > -1 ? raw.slice(0, idx) : raw).trim();
   });
 
+  // The SignalK server's built-in storage plugin assigns this as
+  // $source for every user-created resource. Surfacing it in an
+  // attribution footer is noise (it just means "stored locally").
+  // Skip the footer entirely when the resource is local-storage with
+  // no producer-side attribution metadata.
+  private static readonly LOCAL_STORAGE_SOURCE = 'resources-provider';
+
   protected readonly pluginInfo = computed<{
     name: string;
     url: string;
@@ -157,21 +164,33 @@ export class NotePanel {
   } | null>(() => {
     const note = this._note();
     const props = note.properties ?? {};
-    // Prefer the SignalK delta $source field (captured on SKNote as
-    // 'source') since that is the authoritative producer identifier
-    // every server emits. Fall back to a structured properties.plugin
-    // field, then to a regex against the description text for older
-    // notes that predate either.
-    const name =
-      note.source ||
-      (typeof props['plugin'] === 'string' ? props['plugin'] : '') ||
-      (typeof props['pluginId'] === 'string' ? props['pluginId'] : '') ||
-      this.pluginNameFromDescription();
-    if (!name) {
-      return null;
-    }
     const attribution =
       (typeof props['attribution'] === 'string' && props['attribution']) || '';
+    const propsPlugin =
+      (typeof props['plugin'] === 'string' && props['plugin']) ||
+      (typeof props['pluginId'] === 'string' && props['pluginId']) ||
+      '';
+    const skSource = note.source;
+    const isLocalStorage =
+      !skSource || skSource === NotePanel.LOCAL_STORAGE_SOURCE;
+    // Skip the footer entirely when nothing interesting is available:
+    // a local-storage resource with no attribution and no explicit
+    // plugin metadata reads as anonymous, not from "resources-provider".
+    if (isLocalStorage && !attribution && !propsPlugin) {
+      return null;
+    }
+    // Prefer a real 3rd-party producer name (the SK delta $source, or
+    // a structured properties.plugin). Fall back to regex-parsing the
+    // description for legacy notes. If we still cannot find a plugin
+    // name but the resource carries an attribution string, render the
+    // attribution alone (no link) so credit is still shown.
+    const name =
+      (!isLocalStorage ? skSource : '') ||
+      propsPlugin ||
+      this.pluginNameFromDescription();
+    if (!name) {
+      return { name: '', url: '', attribution };
+    }
     return {
       name,
       url: `https://www.npmjs.com/package/${name}`,

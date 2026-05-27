@@ -120,11 +120,12 @@
     <p class="ip-empty">No description. Click Edit to add one.</p>
     } @if (pluginInfo(); as plugin) {
     <p class="ip-attribution">
-      Source:
+      @if (plugin.name) { Source:
       <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
         >{{ plugin.name }}</a
       >
-      @if (plugin.attribution) { · {{ plugin.attribution }} }
+      @if (plugin.attribution) { · {{ plugin.attribution }} } } @else if
+      (plugin.attribution) { {{ plugin.attribution }} }
     </p>
     }
   </div>

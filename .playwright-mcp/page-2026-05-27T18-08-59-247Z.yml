@@ -1,0 +1,93 @@
+- generic [ref=e1]:
+    - generic [ref=e9]:
+        - button "Menu" [ref=e12] [cursor=pointer]:
+            - img [ref=e13]: menu
+        - generic [ref=e16]:
+            - button "Alarms" [ref=e18] [cursor=pointer]:
+                - img [ref=e19]:
+                    - img [ref=e20]
+                - generic: '1'
+            - button "Resource layers" [expanded] [ref=e31] [cursor=pointer]:
+                - img [ref=e32]: layers
+            - button "Draw, measure, or select" [ref=e36] [cursor=pointer]:
+                - img [ref=e37]: edit
+            - button "Show Heading Up" [ref=e41] [cursor=pointer]:
+                - img [ref=e42]:
+                    - img [ref=e43]
+            - button "Follow Vessel" [ref=e124] [cursor=pointer]:
+                - img [ref=e125]:
+                    - img [ref=e126]
+            - button "Center Vessel" [ref=e134] [cursor=pointer]:
+                - img [ref=e135]: center_focus_strong
+            - button "More actions" [ref=e51] [cursor=pointer]:
+                - img [ref=e52]: more_horiz
+        - button "Hide Toolbars" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]: apps
+        - generic [ref=e62]:
+            - button "Instruments" [ref=e64] [cursor=pointer]:
+                - img [ref=e65]: av_timer
+            - button "Enable Web Audio" [ref=e69] [cursor=pointer]:
+                - img [ref=e70]: volume_off
+            - button "Go Fullscreen" [ref=e74] [cursor=pointer]:
+                - img [ref=e75]: fullscreen
+            - button "Constrain map zoom" [ref=e79] [cursor=pointer]:
+                - img [ref=e80]: zoom_in_map
+            - button "Invert feature text color" [ref=e84] [cursor=pointer]:
+                - img [ref=e85]: invert_colors
+        - generic [ref=e92]:
+            - generic:
+                - generic:
+                    - generic:
+                        - generic:
+                            - generic: '0'
+                        - generic:
+                            - generic: 1000 km
+                        - generic: 2000 km
+                - generic [ref=e96]:
+                    - button [ref=e97] [cursor=pointer]:
+                        - img [ref=e98]: remove
+                    - button [ref=e101] [cursor=pointer]:
+                        - img [ref=e102]: add
+                - generic [ref=e106]: 'Lat: 0.00000 Lon: 0.00000 Zm: 2.3'
+        - img "North arrow" [ref=e108]
+        - generic [ref=e111]:
+            - button "Drop waypoint at vessel position" [disabled]:
+                - img: add_location
+    - menu [ref=e140]:
+        - generic [ref=e141]:
+            - menuitem "Routes" [active] [ref=e142] [cursor=pointer]:
+                - img [ref=e143]:
+                    - img [ref=e144]
+                - generic [ref=e158]: Routes
+            - menuitem "Waypoints" [ref=e159] [cursor=pointer]:
+                - img [ref=e160]: location_on
+                - generic [ref=e161]: Waypoints
+            - menuitem "Notes" [ref=e162] [cursor=pointer]:
+                - img [ref=e163]: local_offer
+                - generic [ref=e164]: Notes
+            - menuitem "Regions" [ref=e165] [cursor=pointer]:
+                - img [ref=e166]: tab_unselected
+                - generic [ref=e167]: Regions
+            - menuitem "Charts" [ref=e168] [cursor=pointer]:
+                - img [ref=e169]: map
+                - generic [ref=e170]: Charts
+            - menuitem "Groups" [ref=e171] [cursor=pointer]:
+                - img [ref=e172]: category
+                - generic [ref=e173]: Groups
+            - menuitem "Overlays" [ref=e174] [cursor=pointer]:
+                - img [ref=e175]: layers
+                - generic [ref=e176]: Overlays
+            - separator [ref=e177]
+            - menuitem "Import" [ref=e178] [cursor=pointer]:
+                - generic [ref=e183]:
+                    - img [ref=e184]:
+                        - img [ref=e185]
+                    - text: Import
+            - menuitem "Export" [ref=e195] [cursor=pointer]:
+                - img [ref=e196]:
+                    - img [ref=e197]
+                - generic [ref=e207]: Export
+            - separator [ref=e208]
+            - menuitem "Tracks" [ref=e209] [cursor=pointer]:
+                - img [ref=e210]: show_chart
+                - generic [ref=e211]: Tracks

@@ -1,0 +1,3 @@
+[     929ms] [INFO] Internet connection detected. @ http://localhost:3000/@signalk/freeboard-sk/chunk-STTG2K3V.js:2159
+[    1183ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/signalk/v1/api/tracks?radius=0:0
+[    1776ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/signalk/v1/api/vessels/self/navigation/anchor:0

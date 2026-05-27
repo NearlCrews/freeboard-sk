@@ -1,0 +1,75 @@
+- generic [ref=e1]:
+    - generic [ref=e9]:
+        - button [ref=e12] [cursor=pointer]:
+            - img [ref=e13]: menu
+            - generic: '!'
+        - generic [ref=e16]:
+            - button [ref=e18] [cursor=pointer]:
+                - img [ref=e19]:
+                    - img [ref=e20]
+            - button [ref=e31] [cursor=pointer]:
+                - img [ref=e32]: layers
+            - button [ref=e36] [cursor=pointer]:
+                - img [ref=e37]: edit
+            - button [ref=e41] [cursor=pointer]:
+                - img [ref=e42]:
+                    - img [ref=e43]
+            - generic [ref=e48]:
+                - button [disabled]:
+                    - img:
+                        - img
+            - generic [ref=e49]:
+                - button [disabled]:
+                    - img: center_focus_strong
+            - button [ref=e51] [cursor=pointer]:
+                - img [ref=e52]: more_horiz
+        - img [ref=e57]: visibility_off
+        - button [ref=e60] [cursor=pointer]:
+            - img [ref=e61]: apps
+        - generic [ref=e64]:
+            - button [ref=e66] [cursor=pointer]:
+                - img [ref=e67]: av_timer
+            - button [ref=e71] [cursor=pointer]:
+                - img [ref=e72]: volume_off
+            - button [ref=e76] [cursor=pointer]:
+                - img [ref=e77]: fullscreen
+            - button [ref=e81] [cursor=pointer]:
+                - img [ref=e82]: zoom_in_map
+            - button [ref=e86] [cursor=pointer]:
+                - img [ref=e87]: invert_colors
+        - generic [ref=e94]:
+            - generic:
+                - generic:
+                    - generic:
+                        - generic:
+                            - generic: '0'
+                        - generic:
+                            - generic: 1000 km
+                        - generic: 2000 km
+                - generic [ref=e98]:
+                    - button [ref=e99] [cursor=pointer]:
+                        - img [ref=e100]: remove
+                    - button [ref=e103] [cursor=pointer]:
+                        - img [ref=e104]: add
+                - generic [ref=e108]: 'Lat: 0.00000 Lon: 0.00000 Zm: 2.3'
+        - img [ref=e110]
+        - generic [ref=e113]:
+            - button [disabled]:
+                - img: add_location
+    - generic:
+        - dialog [ref=e120]:
+            - generic [ref=e125]:
+                - tabpanel "1" [ref=e129]:
+                    - heading "Welcome to Freeboard" [level=3] [ref=e131]
+                    - generic [ref=e132]:
+                        - generic [ref=e134]: Freeboard is your Signal K chartplotter WebApp from which you can manage routes, waypoints, notes, alarms, notifications and more.
+                        - button "Next page" [active] [ref=e136] [cursor=pointer]:
+                            - img [ref=e137]: keyboard_arrow_right
+                - generic [ref=e140]:
+                    - img [ref=e141]: fiber_manual_record
+                    - img [ref=e142]: fiber_manual_record
+                - button "Get Started" [ref=e144]:
+                    - generic [ref=e145]: Get Started
+        - generic [ref=e155]:
+            - img [ref=e156]: message
+            - text: Connection Open.

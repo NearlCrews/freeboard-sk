@@ -1,0 +1,26 @@
+[    1034ms] [INFO] Internet connection detected. @ http://localhost:3000/@signalk/freeboard-sk/chunk-C3EWBU3Q.js:2159
+[    1142ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/routes:0
+[    1151ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/waypoints:0
+[    1152ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/charts:0
+[    1155ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/regions:0
+[    1156ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/tracks:0
+[    1157ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/infolayers:0
+[    1190ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/tracks:0
+[    1196ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/infolayers:0
+[    1346ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/groups:0
+[    1354ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v1/api/tracks?radius=0:0
+[    1362ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/plugins/freeboard-sk:0
+[    1379ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/routes:0
+[    1380ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/waypoints:0
+[    1382ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/charts:0
+[    1384ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/regions:0
+[    1385ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/tracks:0
+[    1386ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/infolayers:0
+[    1387ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/plugins/resources-provider/_config/tracks:0
+[    1389ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources/notes?position=[0,0]&distance=20000:0
+[    1445ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/plugins/resources-provider/_config/infolayers:0
+[    1446ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/plugins/resources-provider/_config/groups:0
+[    1448ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v2/api/resources:0
+[    1449ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3000/signalk/v1/api/vessels/self:0
+[    1575ms] Zn
+[    1986ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/@signalk/freeboard-sk/:0
