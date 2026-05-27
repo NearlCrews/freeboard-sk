@@ -125,28 +125,6 @@
     } @else {
     <p class="ip-empty">No description. Click Edit to add one.</p>
     }
-
-    <dl class="ip-props">
-      <dt>Name</dt>
-      <dd>{{ _waypoint().name || '—' }}</dd>
-      <dt>Position</dt>
-      <dd>
-        {{ (_waypoint().feature.geometry.coordinates[1] ?? 0) | coords:
-        app.config.units.positionFormat : true }}<br />
-        {{ (_waypoint().feature.geometry.coordinates[0] ?? 0) | coords:
-        app.config.units.positionFormat : false }}
-      </dd>
-      @if (_waypoint().type) {
-      <dt>Type</dt>
-      <dd>{{ _waypoint().type }}</dd>
-      } @if (notes().length) {
-      <dt>Related notes</dt>
-      <dd>{{ notes().length }}</dd>
-      } @if (groups().length) {
-      <dt>Groups</dt>
-      <dd>{{ groups().length }}</dd>
-      }
-    </dl>
   </div>
 
   <div fbInfoPanelRelated>

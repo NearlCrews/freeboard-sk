@@ -276,10 +276,11 @@ export class FbInfoPanelRelatedDirective {}
       margin-top: 0;
     }
 
-    /* Property list rendered by each resource panel below the description
-       (or as the only body content when there is no description). Two
-       columns: term on the left, value on the right. Quiet typography so
-       the description, when present, stays the visual hero. */
+    /* Term-value grid available to any future panel that wants one.
+       Resource panels currently use just the description and the
+       attribution footer below since duplicating header chrome (name,
+       position, link) is noise. The dt and dd share the same font-size
+       so baseline alignment lines them up correctly. */
     :host ::ng-deep .ip-body .ip-props {
       display: grid;
       grid-template-columns: max-content 1fr;
@@ -295,14 +296,18 @@ export class FbInfoPanelRelatedDirective {}
       font-weight: var(--font-weight-medium);
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      font-size: var(--font-size-xs);
-      align-self: baseline;
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+      align-self: start;
     }
     :host ::ng-deep .ip-body .ip-props dd {
       margin: 0;
       color: var(--color-text);
       word-break: break-word;
       font-family: var(--font-family-sans);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+      align-self: start;
     }
     :host ::ng-deep .ip-body .ip-props dd a {
       color: var(--color-primary);
@@ -322,6 +327,26 @@ export class FbInfoPanelRelatedDirective {}
       color: var(--color-text-muted);
       font-style: italic;
       font-size: var(--font-size-sm);
+    }
+
+    /* Small attribution line at the bottom of the body: "Source:
+       <plugin-name>" linked to the plugin's npm page. Quiet typography,
+       hairline separator so it reads as a footnote rather than chrome. */
+    :host ::ng-deep .ip-body .ip-attribution {
+      margin: var(--space-lg) 0 0;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: var(--font-size-xs);
+      letter-spacing: 0.02em;
+    }
+    :host ::ng-deep .ip-body .ip-attribution a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-family: var(--font-family-mono);
+    }
+    :host ::ng-deep .ip-body .ip-attribution a:hover {
+      text-decoration: underline;
     }
 
     .ip-related {

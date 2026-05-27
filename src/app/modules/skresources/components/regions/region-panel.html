@@ -100,21 +100,6 @@
     } @else {
     <p class="ip-empty">No description. Click Edit to add one.</p>
     }
-
-    <dl class="ip-props">
-      <dt>Name</dt>
-      <dd>{{ _region().name || '—' }}</dd>
-      @if (_region().feature.properties?.['skIcon']) {
-      <dt>Icon</dt>
-      <dd>{{ _region().feature.properties?.['skIcon'] }}</dd>
-      } @if (notes().length) {
-      <dt>Related notes</dt>
-      <dd>{{ notes().length }}</dd>
-      } @if (groups().length) {
-      <dt>Groups</dt>
-      <dd>{{ groups().length }}</dd>
-      }
-    </dl>
   </div>
 
   <div fbInfoPanelRelated>

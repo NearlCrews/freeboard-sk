@@ -120,25 +120,6 @@
     } @else {
     <p class="ip-empty">No description. Click Edit to add one.</p>
     }
-
-    <dl class="ip-props">
-      <dt>Name</dt>
-      <dd>{{ _route().name || '—' }}</dd>
-      <dt>Distance</dt>
-      <dd>{{ app.formatValueForDisplay(_route().distance, 'm') }}</dd>
-      <dt>Points</dt>
-      <dd>{{ points().length }}</dd>
-      @if (app.data.activeRoute === id()) {
-      <dt>State</dt>
-      <dd>Active</dd>
-      } @if (notes().length) {
-      <dt>Related notes</dt>
-      <dd>{{ notes().length }}</dd>
-      } @if (groups().length) {
-      <dt>Groups</dt>
-      <dd>{{ groups().length }}</dd>
-      }
-    </dl>
   </div>
 
   <div fbInfoPanelRelated>

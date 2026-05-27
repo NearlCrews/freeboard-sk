@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -129,46 +130,36 @@ export class NotePanel {
     return timeAgoOf(timestamp);
   }
 
-  // Keys we render explicitly elsewhere in the panel chrome (header
-  // pills, action buttons, the named property rows). Anything else in
-  // the properties dict gets dumped into the catch-all "Properties"
-  // section so plugin-specific fields (ActiveCaptain POI types, custom
-  // user metadata, etc.) stay discoverable.
-  private static readonly KNOWN_PROPERTY_KEYS: ReadonlySet<string> = new Set([
-    'draft',
-    'readOnly',
-    'icon',
-    'name',
-    'description',
-    'mimeType',
-    'position',
-    'url',
-    'group',
-    'href'
-  ]);
+  // Plugin-source contributions (e.g. signalk-crows-nest from
+  // ActiveCaptain) append a boilerplate trailer to every note's
+  // description text:
+  //   "Data sourced from <X> via the <plugin-name> plugin."
+  //   "Something missing or room for improvement? You are encouraged to
+  //   contribute."
+  // The user sees the same template on every note; redundant noise.
+  // Strip it from the rendered description and expose the plugin name
+  // as a tiny attribution footer at the bottom of the body, linked to
+  // its npm page (which always exists for published plugins and
+  // forwards to the GitHub repo from there).
+  private static readonly PLUGIN_TRAILER =
+    /\n\s*Data sourced from .+?(?:\nSomething missing or room for improvement\?[\s\S]*)?$/i;
+  private static readonly PLUGIN_NAME = /via the (signalk-[\w.-]+) plugin/i;
 
-  protected extraProperties(): readonly { key: string; value: string }[] {
-    const props = this._note().properties ?? {};
-    return Object.keys(props)
-      .filter((k) => !NotePanel.KNOWN_PROPERTY_KEYS.has(k))
-      .map((k) => ({ key: k, value: this.stringify(props[k]) }))
-      .filter((entry) => entry.value.length > 0);
-  }
+  protected readonly cleanDescription = computed<string>(() => {
+    const raw = this._note().description ?? '';
+    return raw.replace(NotePanel.PLUGIN_TRAILER, '').trim();
+  });
 
-  private stringify(value: unknown): string {
-    if (value === null || value === undefined) {
-      return '';
+  protected readonly pluginInfo = computed<{
+    name: string;
+    url: string;
+  } | null>(() => {
+    const raw = this._note().description ?? '';
+    const match = raw.match(NotePanel.PLUGIN_NAME);
+    if (!match || !match[1]) {
+      return null;
     }
-    if (typeof value === 'string' || typeof value === 'number') {
-      return String(value);
-    }
-    if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
-    }
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return '';
-    }
-  }
+    const name = match[1];
+    return { name, url: `https://www.npmjs.com/package/${name}` };
+  });
 }
