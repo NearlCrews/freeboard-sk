@@ -16,7 +16,7 @@
   </div>
 
   <div fbInfoPanelActions>
-    <div class="action-grid">
+    <div class="action-grid-3">
       <fb-button
         variant="secondary"
         size="sm"
@@ -30,11 +30,47 @@
       <fb-button
         variant="secondary"
         size="sm"
+        (pressed)="onInfo()"
+        matTooltip="Show properties"
+      >
+        <fb-icon name="info" ariaLabel=""></fb-icon>
+        Info
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
         (pressed)="onPanTo()"
         matTooltip="Centre Region"
       >
         <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
         Centre
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onAddNote()"
+        matTooltip="Add note here"
+      >
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+        Add Note
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onNotes()"
+        matTooltip="Show related notes"
+      >
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+        Notes
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onRelated()"
+        matTooltip="Related items"
+      >
+        <fb-icon name="style" ariaLabel=""></fb-icon>
+        Related
       </fb-button>
       @if (app.featureFlags().resourceGroups) {
       <fb-button

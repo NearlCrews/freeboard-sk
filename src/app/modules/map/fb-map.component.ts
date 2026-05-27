@@ -23,8 +23,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
-// ** OL & popvers **
-import { PopoverComponent, S57_CLICKABLE_LAYERS, S57_NAMES } from './popovers';
+// ** OL & popovers **
+import { PopoverComponent } from './popovers';
+import { S57_CLICKABLE_LAYERS, S57_NAMES } from './popovers/s57-consts';
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
@@ -183,7 +184,7 @@ export class FBMapComponent
     heading: []
   });
 
-  protected overlay = signal<IPopover>({
+  public overlay = signal<IPopover>({
     id: null,
     type: null,
     position: [0, 0],
@@ -765,7 +766,7 @@ export class FBMapComponent
   }
 
   /** Toggle display of chart feature  */
-  protected toggleFeatureSelection(id: string | string[], resType: 'charts') {
+  public toggleFeatureSelection(id: string | string[], resType: 'charts') {
     if (resType === 'charts') {
       this.skres.chartSelected(id);
     }
@@ -892,7 +893,7 @@ export class FBMapComponent
   }
 
   /** Enter modify mode */
-  protected modifyFeature(featureType?: string) {
+  public modifyFeature(featureType?: string) {
     if (this.mapInteract.draw.features.getLength() === 0) {
       return;
     }
@@ -1860,17 +1861,17 @@ export class FBMapComponent
 
   // Template proxies that absorb IPopover's nullable id/type so the
   // strict TCB can call the string-typed downstream APIs safely.
-  protected deleteOverlay(ov: IPopover) {
+  public deleteOverlay(ov: IPopover) {
     if (ov.id !== null && ov.type !== null) {
       this.deleteFeature(ov.id, ov.type);
     }
   }
-  protected itemInfoFromOverlay(ov: IPopover) {
+  public itemInfoFromOverlay(ov: IPopover) {
     if (ov.id !== null && ov.type !== null) {
       this.itemInfo(ov.id, ov.type, ov.isSelf ?? false);
     }
   }
-  protected addNoteFromOverlay(ov: IPopover) {
+  public addNoteFromOverlay(ov: IPopover) {
     if (ov.id !== null && ov.type !== null) {
       void this.skres.showNoteEditor({
         type: ov.type,
@@ -1878,7 +1879,7 @@ export class FBMapComponent
       });
     }
   }
-  protected showRelatedNotesFromOverlay(ov: IPopover) {
+  public showRelatedNotesFromOverlay(ov: IPopover) {
     if (ov.id !== null && ov.type !== null) {
       void this.skres.showRelatedNotes(ov.id, ov.type, ov.readOnly);
     }

@@ -31,7 +31,7 @@
   </div>
 
   <div fbInfoPanelActions>
-    <div class="action-grid">
+    <div class="action-grid-3">
       <fb-button
         variant="secondary"
         size="sm"
@@ -41,6 +41,15 @@
       >
         <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onInfo()"
+        matTooltip="Show properties"
+      >
+        <fb-icon name="info" ariaLabel=""></fb-icon>
+        Info
       </fb-button>
       @if (_note().url) {
       <fb-button

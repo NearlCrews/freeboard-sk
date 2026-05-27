@@ -13,7 +13,7 @@ import {
   FbInfoPanelBodyDirective
 } from 'src/app/modules/info-panel/layout';
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
-import { S57_NAMES } from 'src/app/modules/map/popovers/s57-popover.component';
+import { S57_NAMES } from 'src/app/modules/map/popovers/s57-consts';
 
 type S57Properties = Record<string, unknown>;
 

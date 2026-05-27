@@ -21,7 +21,7 @@
   </div>
 
   <div fbInfoPanelActions>
-    <div class="action-grid">
+    <div class="action-grid-3">
       <fb-button
         variant="secondary"
         size="sm"
@@ -31,6 +31,15 @@
       >
         <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onInfo()"
+        matTooltip="Show properties"
+      >
+        <fb-icon name="info" ariaLabel=""></fb-icon>
+        Info
       </fb-button>
       <fb-button
         variant="secondary"
@@ -71,6 +80,42 @@
       >
         <fb-icon name="multiple_stop" ariaLabel=""></fb-icon>
         Reverse
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onPoints()"
+        matTooltip="Route points"
+      >
+        <fb-icon name="location_on" ariaLabel=""></fb-icon>
+        Points
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onAddNote()"
+        matTooltip="Add note here"
+      >
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+        Add Note
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onNotes()"
+        matTooltip="Show related notes"
+      >
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+        Notes
+      </fb-button>
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onRelated()"
+        matTooltip="Related items"
+      >
+        <fb-icon name="style" ariaLabel=""></fb-icon>
+        Related
       </fb-button>
       @if (app.featureFlags().resourceGroups) {
       <fb-button

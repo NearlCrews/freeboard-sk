@@ -72,7 +72,14 @@ export class RoutePanel {
   related = input<string | undefined>(undefined);
 
   activate = output<string>();
+  deactivate = output<void>();
   edit = output<string>();
+  delete = output<void>();
+  info = output<void>();
+  addNote = output<void>();
+  showRelated = output<string>();
+  showNotes = output<void>();
+  showPoints = output<void>();
   panTo = output<{
     center: Position;
     zoomLevel: number | null;
@@ -262,7 +269,7 @@ export class RoutePanel {
       return;
     }
     if (index === -1) {
-      this.course.clearCourse();
+      this.deactivate.emit();
       return;
     }
     const id = this.id();
@@ -277,10 +284,30 @@ export class RoutePanel {
   }
 
   protected onDelete() {
+    this.delete.emit();
+  }
+
+  protected onInfo() {
+    this.info.emit();
+  }
+
+  protected onAddNote() {
+    this.addNote.emit();
+  }
+
+  protected onRelated() {
     const id = this.id();
     if (id) {
-      this.skres.deleteRoute(id);
+      this.showRelated.emit(id);
     }
+  }
+
+  protected onNotes() {
+    this.showNotes.emit();
+  }
+
+  protected onPoints() {
+    this.showPoints.emit();
   }
 
   protected onPanTo() {

@@ -293,6 +293,8 @@
                       id: $event
                     })
                   "
+                  (delete)="deleteResourceFromPanel(ipItem)"
+                  (info)="infoFromResource(ipItem)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
@@ -302,6 +304,11 @@
                   [id]="ipItem.id"
                   [related]="infoPanel.related()"
                   (edit)="skres.editRegionInfo($event)"
+                  (delete)="deleteResourceFromPanel(ipItem)"
+                  (info)="infoFromResource(ipItem)"
+                  (addNote)="addNoteFromResource(ipItem)"
+                  (showRelated)="showRelatedFromResource($event)"
+                  (showNotes)="showNotesFromResource(ipItem)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
@@ -311,6 +318,13 @@
                   [id]="ipItem.id"
                   [related]="infoPanel.related()"
                   (edit)="skres.editWaypointInfo($event)"
+                  (delete)="deleteResourceFromPanel(ipItem)"
+                  (info)="infoFromResource(ipItem)"
+                  (activate)="activateWaypoint($event)"
+                  (deactivate)="clearActiveDestination()"
+                  (addNote)="addNoteFromResource(ipItem)"
+                  (showRelated)="showRelatedFromResource($event)"
+                  (showNotes)="showNotesFromResource(ipItem)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }
@@ -321,6 +335,13 @@
                   [related]="infoPanel.related()"
                   (edit)="skres.editRouteInfo($event)"
                   (activate)="activateRoute($event)"
+                  (deactivate)="clearActiveDestination()"
+                  (delete)="deleteResourceFromPanel(ipItem)"
+                  (info)="infoFromResource(ipItem)"
+                  (addNote)="addNoteFromResource(ipItem)"
+                  (showRelated)="showRelatedFromResource($event)"
+                  (showNotes)="showNotesFromResource(ipItem)"
+                  (showPoints)="pointsFromResource(ipItem)"
                   (panTo)="centerAndZoom($event.center, $event.zoomLevel)"
                 />
               }

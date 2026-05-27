@@ -69,6 +69,11 @@ export class RegionPanel {
   protected groups = signal<FBResourceGroups>([]);
 
   edit = output<string>();
+  delete = output<void>();
+  info = output<void>();
+  addNote = output<void>();
+  showRelated = output<string>();
+  showNotes = output<void>();
   panTo = output<{
     center: Position;
     zoomLevel: number | null;
@@ -137,10 +142,26 @@ export class RegionPanel {
   }
 
   protected onDelete() {
+    this.delete.emit();
+  }
+
+  protected onInfo() {
+    this.info.emit();
+  }
+
+  protected onAddNote() {
+    this.addNote.emit();
+  }
+
+  protected onRelated() {
     const id = this.id();
     if (id) {
-      this.skres.deleteRegion(id);
+      this.showRelated.emit(id);
     }
+  }
+
+  protected onNotes() {
+    this.showNotes.emit();
   }
 
   protected onPanTo() {

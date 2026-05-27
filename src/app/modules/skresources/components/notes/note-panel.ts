@@ -26,7 +26,6 @@ import { getResourceIcon } from 'src/app/modules/icons';
 import { SKNote } from '../../resource-classes';
 import { CourseService } from 'src/app/modules/course';
 import type { Position } from 'src/app/types';
-import { SKResourceService } from '../../resources.service';
 import {
   groupColor as groupColorOf,
   timeAgo as timeAgoOf
@@ -54,6 +53,8 @@ export class NotePanel {
   protected _note = linkedSignal(() => this.note());
 
   edit = output<string>();
+  delete = output<void>();
+  info = output<void>();
   panTo = output<{
     center: Position;
     zoomLevel: number | null;
@@ -62,7 +63,6 @@ export class NotePanel {
   protected icon: AppIconDef | undefined;
   protected app = inject(AppFacade);
   private course = inject(CourseService);
-  private skres = inject(SKResourceService);
 
   constructor() {
     effect(() => {
@@ -89,10 +89,11 @@ export class NotePanel {
   }
 
   onDelete() {
-    const id = this.id();
-    if (id) {
-      this.skres.deleteNote(id);
-    }
+    this.delete.emit();
+  }
+
+  onInfo() {
+    this.info.emit();
   }
 
   onGoto() {

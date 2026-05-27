@@ -40,7 +40,6 @@ import {
   SKResourceGroupService
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
-import { CourseService } from 'src/app/modules/course';
 
 @Component({
   selector: 'waypoint-panel',
@@ -73,6 +72,13 @@ export class WaypointPanel {
   protected groups = signal<FBResourceGroups>([]);
 
   edit = output<string>();
+  delete = output<void>();
+  info = output<void>();
+  activate = output<{ id: string }>();
+  deactivate = output<void>();
+  addNote = output<void>();
+  showRelated = output<string>();
+  showNotes = output<void>();
   panTo = output<{
     center: Position;
     zoomLevel: number | null;
@@ -83,7 +89,6 @@ export class WaypointPanel {
   // Phase 3 Batch 3: direct AlarmStore for showMessage and parseHttpErrorResponse.
   private alarm = inject(AlarmStore);
   private skres = inject(SKResourceService);
-  private course = inject(CourseService);
   protected skgroups = inject(SKResourceGroupService);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -141,20 +146,36 @@ export class WaypointPanel {
 
   protected onGoto(clear?: boolean) {
     if (clear) {
-      this.course.clearCourse();
+      this.deactivate.emit();
       return;
     }
     const id = this.id();
     if (id) {
-      this.course.setDestination(`/resources/waypoints/${id}`);
+      this.activate.emit({ id });
     }
   }
 
   protected onDelete() {
+    this.delete.emit();
+  }
+
+  protected onInfo() {
+    this.info.emit();
+  }
+
+  protected onAddNote() {
+    this.addNote.emit();
+  }
+
+  protected onRelated() {
     const id = this.id();
     if (id) {
-      this.skres.deleteWaypoint(id);
+      this.showRelated.emit(id);
     }
+  }
+
+  protected onNotes() {
+    this.showNotes.emit();
   }
 
   protected onPanTo() {

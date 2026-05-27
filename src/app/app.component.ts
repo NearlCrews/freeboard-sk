@@ -173,6 +173,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('sideright', { static: false }) sideright?: MatSidenav;
+  @ViewChild(FBMapComponent) private fbMap?: FBMapComponent;
 
   // Phase 3 shell services (state and orchestration extracted from this file)
   private readonly shell = inject(AppShellService);
@@ -884,40 +885,42 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected vesselInfoFromPanel(
     item: InfoPanelItem & { kind: 'vessel' }
   ): void {
-    this.notiMgr.showAlertInfo(item.id);
+    void this.dialogs.featureProperties({
+      id: item.id,
+      type: item.isSelf ? 'self' : 'vessel'
+    });
   }
 
   protected aircraftInfoFromPanel(
     item: InfoPanelItem & { kind: 'aircraft' }
   ): void {
-    // Reuses the existing alert-info modal for read-only display by id.
-    this.notiMgr.showAlertInfo(item.id);
+    void this.dialogs.featureProperties({ id: item.id, type: 'aircraft' });
   }
 
   protected atonInfoFromPanel(item: InfoPanelItem & { kind: 'aton' }): void {
-    this.notiMgr.showAlertInfo(item.id);
+    const type = item.id.includes('meteo') ? 'meteo' : 'aton';
+    void this.dialogs.featureProperties({ id: item.id, type });
   }
 
   protected resourceSetInfoFromPanel(
     item: InfoPanelItem & { kind: 'resourceset' }
   ): void {
-    this.notiMgr.showAlertInfo(item.id);
+    void this.dialogs.featureProperties({ id: item.id, type: 'rset' });
   }
 
   protected modifyResourceSetFromPanel(
     _item: InfoPanelItem & { kind: 'resourceset' }
   ): void {
-    // Routed through fb-map's existing modify flow via overlay state; the
-    // user clicked the resource on the map, so the map already has an
-    // overlay record pointing at the same feature.
-    // No-op stub: modify is initiated via the resource-list shell.
+    this.fbMap?.modifyFeature();
   }
 
   protected deleteResourceSetFromPanel(
     _item: InfoPanelItem & { kind: 'resourceset' }
   ): void {
-    // Routed through fb-map's existing delete flow; map holds the
-    // overlay record pointing at the selected resource set.
+    const ov = this.fbMap?.overlay();
+    if (ov) {
+      this.fbMap?.deleteOverlay(ov);
+    }
   }
 
   protected featureListSelectionFromPanel(event: {
@@ -934,10 +937,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     id: string;
     selected: boolean;
   }): void {
-    // Toggle chart visibility via the existing chart-selection store.
-    // Detailed wiring lives in fb-map.toggleFeatureSelection; keep this a
-    // no-op until that helper is exposed on AppFacade.
-    void event;
+    this.fbMap?.toggleFeatureSelection(event.id, 'charts');
   }
 
   protected centerVessel() {
@@ -991,6 +991,65 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   protected clearDestination() {
+    this.course.clearCourse();
+  }
+
+  // Resource info-panel action handlers (notes / regions / routes /
+  // waypoints): delegate to the existing fb-map helpers via the
+  // ViewChild so the map's overlay state stays the single source of
+  // truth.
+  protected deleteResourceFromPanel(
+    _item: InfoPanelItem & { kind: 'resource' }
+  ): void {
+    const ov = this.fbMap?.overlay();
+    if (ov) {
+      this.fbMap?.deleteOverlay(ov);
+    }
+  }
+
+  protected addNoteFromResource(
+    _item: InfoPanelItem & { kind: 'resource' }
+  ): void {
+    const ov = this.fbMap?.overlay();
+    if (ov) {
+      this.fbMap?.addNoteFromOverlay(ov);
+    }
+  }
+
+  protected showRelatedFromResource(id: string): void {
+    void this.skres.showRelatedNotes(id, 'group');
+  }
+
+  protected showNotesFromResource(
+    _item: InfoPanelItem & { kind: 'resource' }
+  ): void {
+    const ov = this.fbMap?.overlay();
+    if (ov) {
+      this.fbMap?.showRelatedNotesFromOverlay(ov);
+    }
+  }
+
+  protected infoFromResource(item: InfoPanelItem & { kind: 'resource' }): void {
+    const singular = item.type.endsWith('s')
+      ? item.type.slice(0, -1)
+      : item.type;
+    this.skres.resourceProperties({ id: item.id, type: singular });
+  }
+
+  protected pointsFromResource(
+    _item: InfoPanelItem & { kind: 'resource' }
+  ): void {
+    const ov = this.fbMap?.overlay();
+    if (ov) {
+      this.fbMap?.itemInfoFromOverlay(ov);
+    }
+  }
+
+  protected activateWaypoint(event: { id: string }): void {
+    this.course.navigateToWaypoint(event.id);
+  }
+
+  protected clearActiveDestination(): void {
     this.course.clearCourse();
   }
 
