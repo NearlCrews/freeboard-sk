@@ -1076,7 +1076,11 @@ export class FBMapComponent
             text = 'Destination';
             break;
           case 'note': {
-            icon = feature.get('icon');
+            // Note features carry a POI-category icon name (e.g. 'marina',
+            // 'boat_ramp') that is not a Material Icons ligature. Use a
+            // safe Material glyph so the feature-list panel does not
+            // render the literal POI-category text.
+            icon = 'local_offer';
             addToFeatureList = true;
             text = this.skres.fromCache('notes', suffix)?.[1]?.name ?? '';
             break;
@@ -1454,27 +1458,61 @@ export class FBMapComponent
           );
         }
         return;
-      case 'list':
-        // featurelist popover content is opaque; the panel renders a
-        // generic id-and-label list. The original popover emitted a
-        // selection that featureListSelection() handles.
+      case 'list': {
+        // fb-map's featureList entries carry { id, coord, icon, text }
+        // where `text` is the resource name resolved from the cache.
+        // The info-panel FeatureListEntry uses `label`, so we map
+        // text -> label. `type` is derived from the id prefix so users
+        // see at a glance what kind of feature each row is. `icon` is
+        // only forwarded when it is a known Material Icons ligature
+        // (the prefix-driven set fb-map's case branch assigns); raw
+        // POI-category strings like 'marina' or 'boat_ramp' are
+        // dropped so fb-icon does not render them as literal text.
+        const KNOWN_ICONS = new Set<string>([
+          'local_offer',
+          'route',
+          'location_on',
+          'tab_unselected',
+          'beenhere',
+          'star',
+          'flag',
+          'anchor',
+          'air',
+          'directions_boat',
+          'airplanemode_active',
+          'notification_important',
+          'tour'
+        ]);
         this.infoPanel.openFeatureList(
           po.title || 'Features',
           (
             po.content as {
               id?: string;
-              label?: string;
-              type?: string;
+              text?: string;
               icon?: string;
             }[]
-          ).map((entry) => ({
-            id: String(entry?.id ?? ''),
-            label: String(entry?.label ?? entry?.id ?? ''),
-            ...(entry?.icon ? { icon: entry.icon } : {}),
-            ...(entry?.type ? { type: entry.type } : {})
-          }))
+          ).map((entry) => {
+            const id = String(entry?.id ?? '');
+            const dot = id.indexOf('.');
+            const type = dot > -1 ? id.slice(0, dot) : '';
+            const label = entry?.text || id;
+            const payload: {
+              id: string;
+              label: string;
+              icon?: string;
+              type?: string;
+            } = { id, label };
+            if (entry?.icon && KNOWN_ICONS.has(entry.icon)) {
+              payload.icon = entry.icon;
+            }
+            if (type) {
+              payload.type = type;
+            }
+            return payload;
+          })
         );
         return;
+      }
       case 'chartlist':
         this.infoPanel.openChartList(
           (po.content as { id?: string; label?: string }[]).map((entry) => ({
