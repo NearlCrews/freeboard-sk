@@ -234,6 +234,37 @@ export class FbInfoPanelRelatedDirective {}
       gap: var(--space-sm);
     }
 
+    /* Buttons inside an action grid stretch to fill their cell so every
+       row reads as a uniform strip. The icon-then-label pair inside each
+       button is left-aligned with a consistent indent so the icons line
+       up vertically across rows. */
+    .ip-actions ::ng-deep .action-grid > fb-button,
+    .ip-actions ::ng-deep .action-grid-3 > fb-button {
+      width: 100%;
+    }
+    .ip-actions ::ng-deep .action-grid > fb-button button.fb-btn,
+    .ip-actions ::ng-deep .action-grid-3 > fb-button button.fb-btn {
+      width: 100%;
+      justify-content: flex-start;
+      padding-left: var(--space-md);
+      padding-right: var(--space-md);
+    }
+
+    /* A standalone fb-button hosting a danger button (typically the
+       Delete action) sits centered at a comfortable width rather than
+       stretching to the full pane. The 200 px max keeps it visually
+       anchored on narrow side panels and from looking lonely on wider
+       ones. :has() reaches through fb-button to the inner button class
+       so consumers do not need to add a wrapper. */
+    .ip-actions ::ng-deep fb-button:has(button.fb-btn--danger) {
+      align-self: center;
+      width: min(100%, 200px);
+    }
+    .ip-actions ::ng-deep fb-button:has(button.fb-btn--danger) button.fb-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
     .ip-actions ::ng-deep fb-button {
       min-height: var(--touch-secondary);
     }
