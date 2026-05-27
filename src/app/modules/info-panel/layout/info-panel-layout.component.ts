@@ -139,18 +139,25 @@ export class FbInfoPanelRelatedDirective {}
     .ip-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: var(--space-xs);
+      gap: var(--space-sm);
     }
 
     .ip-meta:empty {
       display: none;
     }
 
+    /* All pills share the same physical height regardless of which font-
+       size variant they use. min-height (28px) pins the box height so a
+       smaller-font badge (draft, warn, alarm at --font-size-xs) renders
+       the same height as a default pill (--font-size-sm). The padding-y
+       is unset because min-height plus align-items: center inside the
+       parent flex row centers the label correctly. */
     .ip-meta ::ng-deep .pill {
       display: inline-flex;
       align-items: center;
       gap: var(--space-xs);
-      padding: 6px var(--space-md);
+      min-height: 28px;
+      padding: 0 var(--space-md);
       border-radius: 999px;
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-bold);
