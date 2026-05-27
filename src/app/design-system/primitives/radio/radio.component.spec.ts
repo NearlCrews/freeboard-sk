@@ -26,6 +26,21 @@ class HostComponent {
   bDisabled = signal<boolean>(false);
 }
 
+@Component({
+  standalone: true,
+  imports: [FbRadioComponent, FbRadioGroupComponent],
+  template: `
+    <fb-radio-group [(value)]="value" ariaLabel="Zoom">
+      <fb-radio [value]="10">Ten</fb-radio>
+      <fb-radio [value]="20">Twenty</fb-radio>
+      <fb-radio [value]="30">Thirty</fb-radio>
+    </fb-radio-group>
+  `
+})
+class NumericHostComponent {
+  value = signal<number | null>(null);
+}
+
 function setup(): {
   host: HostComponent;
   fixture: ComponentFixture<HostComponent>;
@@ -135,5 +150,55 @@ describe('FbRadioGroupComponent', () => {
     fixture.detectChanges();
     expect(host.value()).toBe(null);
     expect(group().getAttribute('aria-disabled')).toBe('true');
+  });
+});
+
+describe('FbRadioGroupComponent (numeric values)', () => {
+  let host: NumericHostComponent;
+  let fixture: ComponentFixture<NumericHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [NumericHostComponent] });
+    fixture = TestBed.createComponent(NumericHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  function radios(): HTMLButtonElement[] {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll('fb-radio button')
+    ) as HTMLButtonElement[];
+  }
+
+  it('selects a numeric value on click and stores it as a number', () => {
+    radios()[1]!.click();
+    fixture.detectChanges();
+    expect(host.value()).toBe(20);
+    expect(typeof host.value()).toBe('number');
+  });
+
+  it('moves numeric selection on ArrowDown', () => {
+    host.value.set(10);
+    fixture.detectChanges();
+    const group = fixture.nativeElement.querySelector(
+      'fb-radio-group'
+    ) as HTMLElement;
+    const evt = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true
+    });
+    group.dispatchEvent(evt);
+    fixture.detectChanges();
+    expect(host.value()).toBe(20);
+  });
+
+  it('marks the numeric-matched radio as aria-checked', () => {
+    host.value.set(30);
+    fixture.detectChanges();
+    const list = radios();
+    expect(list[0]!.getAttribute('aria-checked')).toBe('false');
+    expect(list[2]!.getAttribute('aria-checked')).toBe('true');
   });
 });

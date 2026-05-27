@@ -290,6 +290,32 @@
         Value: {{ inputValue() || '(empty)' }}
       </span>
     </div>
+
+    <h3 class="ds-grid__title">Numeric mode</h3>
+    <p class="ds-section__a11y">
+      A11y: <code>numericMode</code> forces <code>type="number"</code> and
+      <code>inputmode="numeric"</code>, forwards <code>min</code>,
+      <code>max</code>, and <code>step</code>, and routes through a
+      <code>numericValue</code> model of <code>number | null</code>. Empty
+      fields and unparseable input both map to <code>null</code> so consumers
+      never see <code>NaN</code>.
+    </p>
+    <div class="ds-grid">
+      <fb-input
+        name="ds-input-numeric"
+        [numericMode]="true"
+        [(numericValue)]="numericInputValue"
+        [min]="0"
+        [max]="100"
+        [step]="0.5"
+        placeholder="0.0"
+        ariaLabel="Depth in meters"
+      ></fb-input>
+      <span class="ds-result" aria-live="polite">
+        Value:
+        {{ numericInputValue() === null ? '(empty)' : numericInputValue() }}
+      </span>
+    </div>
   </section>
 
   <section class="ds-section" aria-labelledby="ds-textarea-heading">
@@ -330,6 +356,72 @@
         Value: {{ selectValue() || '(none)' }}
       </span>
     </div>
+
+    <h3 class="ds-grid__title">Numeric-keyed options</h3>
+    <p class="ds-section__a11y">
+      A11y: same combobox pattern; option ids are <code>number</code>, so the
+      model holds a number. Useful for zoom levels, port indexes, and other
+      numeric enums where stringifying the id loses information.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-zoom"
+        [options]="zoomOptions"
+        [(value)]="zoomValue"
+        placeholder="Choose zoom"
+        ariaLabel="Zoom"
+      ></fb-select>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ zoomValue() === null ? '(none)' : zoomValue() }}
+      </span>
+    </div>
+
+    <h3 class="ds-grid__title">Multiple selection</h3>
+    <p class="ds-section__a11y">
+      A11y: listbox sets <code>aria-multiselectable="true"</code>. Space and
+      Enter toggle the active option; Escape closes. The trigger shows
+      comma-joined labels for two or fewer values and a count once more than two
+      are selected, so the trigger stays a fixed width on long lists.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-tags"
+        [options]="tagOptions"
+        [(values)]="tagValues"
+        [multiple]="true"
+        placeholder="Add tags"
+        ariaLabel="Tags"
+      ></fb-select>
+      <span class="ds-result" aria-live="polite">
+        Values:
+        {{ tagValues().length === 0 ? '(none)' : tagValues().join(', ') }}
+      </span>
+    </div>
+
+    <h3 class="ds-grid__title">Custom trigger slot</h3>
+    <p class="ds-section__a11y">
+      A11y: the trigger element stays a <code>role="combobox"</code> button. The
+      <code>[fb-select-trigger]</code> slot only replaces the inner label, so
+      screen-reader semantics are unchanged. Placeholder still applies when
+      nothing is selected.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-mime"
+        [options]="mimeOptions"
+        [(value)]="mimeValue"
+        placeholder="Choose mime"
+        ariaLabel="Mime type"
+      >
+        <span fb-select-trigger>
+          <fb-icon name="description" size="sm"></fb-icon>
+          {{ mimeValue() }}
+        </span>
+      </fb-select>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ mimeValue() || '(none)' }}
+      </span>
+    </div>
   </section>
 
   <section class="ds-section" aria-labelledby="ds-checkbox-heading">
@@ -365,6 +457,21 @@
     </fb-radio-group>
     <span class="ds-result" aria-live="polite">
       Value: {{ radioValue() || '(none)' }}
+    </span>
+
+    <h3 class="ds-grid__title">Numeric-keyed values</h3>
+    <p class="ds-section__a11y">
+      A11y: same radiogroup pattern; values are <code>number</code> so the model
+      holds a number. Useful for zoom levels, sample rates, or any finite
+      numeric enum.
+    </p>
+    <fb-radio-group [(value)]="radioZoomValue" ariaLabel="Zoom level">
+      <fb-radio [value]="10">10</fb-radio>
+      <fb-radio [value]="20">20</fb-radio>
+      <fb-radio [value]="30">30</fb-radio>
+    </fb-radio-group>
+    <span class="ds-result" aria-live="polite">
+      Value: {{ radioZoomValue() === null ? '(none)' : radioZoomValue() }}
     </span>
   </section>
 
@@ -418,6 +525,427 @@
     <span class="ds-result" aria-live="polite">
       Value: {{ segmentedValue() }}
     </span>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-card-heading">
+    <h2 id="ds-card-heading" class="ds-section__heading">Card</h2>
+    <p class="ds-section__a11y">
+      A11y: presentational container only. Header projects title, subtitle, and
+      a header-actions slot. Actions row aligns with <code>align</code> input
+      (start, end, or space-between). Filled and outlined variants are
+      token-driven.
+    </p>
+
+    <h3 class="ds-grid__title">Variants</h3>
+    <div class="ds-grid">
+      <fb-card variant="filled">
+        <fb-card-header>
+          <span fbCardTitle>Filled card</span>
+          <span fbCardSubtitle>Surface-raised background</span>
+        </fb-card-header>
+        <fb-card-content>
+          Card content slot. Body copy renders with the standard text size and
+          normal line height.
+        </fb-card-content>
+        <fb-card-actions align="end">
+          <fb-button variant="ghost" size="md">Cancel</fb-button>
+          <fb-button variant="primary" size="md">Confirm</fb-button>
+        </fb-card-actions>
+      </fb-card>
+
+      <fb-card variant="outlined">
+        <fb-card-header>
+          <span fbCardTitle>Outlined card</span>
+          <span fbCardSubtitle>Bordered, no fill</span>
+          <fb-button fbCardHeaderActions variant="ghost" size="sm">
+            More
+          </fb-button>
+        </fb-card-header>
+        <fb-card-content>
+          Card content slot. Header-actions slot is projected to the right of
+          the title.
+        </fb-card-content>
+        <fb-card-actions align="space-between">
+          <fb-button variant="ghost" size="md">Back</fb-button>
+          <fb-button variant="primary" size="md">Next</fb-button>
+        </fb-card-actions>
+      </fb-card>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-divider-heading">
+    <h2 id="ds-divider-heading" class="ds-section__heading">Divider</h2>
+    <p class="ds-section__a11y">
+      A11y: horizontal renders <code>&lt;hr&gt;</code> (implicit
+      <code>role="separator"</code>); vertical renders a span with
+      <code>role="separator"</code> and
+      <code>aria-orientation="vertical"</code>.
+    </p>
+
+    <h3 class="ds-grid__title">Horizontal</h3>
+    <div>
+      <span>Above</span>
+      <fb-divider></fb-divider>
+      <span>Below</span>
+    </div>
+
+    <h3 class="ds-grid__title">Vertical</h3>
+    <div class="ds-grid">
+      <span>Left</span>
+      <fb-divider orientation="vertical"></fb-divider>
+      <span>Right</span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-hint-heading">
+    <h2 id="ds-hint-heading" class="ds-section__heading">Hint</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="note"</code> on the host. Inline span by default; colors
+      route through <code>--color-text-muted</code>,
+      <code>--color-warning</code>, <code>--color-error</code>, and
+      <code>--color-success</code>.
+    </p>
+    <div class="ds-grid">
+      <fb-hint>Info hint copy</fb-hint>
+      <fb-hint variant="warn">Warn hint copy</fb-hint>
+      <fb-hint variant="error">Error hint copy</fb-hint>
+      <fb-hint variant="success">Success hint copy</fb-hint>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-toolbar-heading">
+    <h2 id="ds-toolbar-heading" class="ds-section__heading">Toolbar</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="toolbar"</code> on the host. Min row height stays at 44
+      px in <code>comfortable</code> density and 40 px in <code>dense</code>.
+      Title slot is centered; leading and actions slots flank it.
+    </p>
+
+    <h3 class="ds-grid__title">Comfortable</h3>
+    <fb-toolbar density="comfortable">
+      <fb-button fbToolbarLeading variant="ghost" size="sm">Back</fb-button>
+      <span fbToolbarTitle>Routes</span>
+      <fb-button fbToolbarActions variant="primary" size="sm">Add</fb-button>
+    </fb-toolbar>
+
+    <h3 class="ds-grid__title">Dense</h3>
+    <fb-toolbar density="dense">
+      <fb-button fbToolbarLeading variant="ghost" size="sm">Back</fb-button>
+      <span fbToolbarTitle>Waypoints</span>
+      <fb-button fbToolbarActions variant="primary" size="sm">Add</fb-button>
+    </fb-toolbar>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-progress-heading">
+    <h2 id="ds-progress-heading" class="ds-section__heading">Progress bar</h2>
+    <p class="ds-section__a11y">
+      A11y: native <code>&lt;progress&gt;</code> element with
+      <code>role="progressbar"</code>, <code>aria-valuemin</code>,
+      <code>aria-valuemax</code>, and <code>aria-valuenow</code>. Indeterminate
+      state omits <code>aria-valuenow</code> and runs an animated stripe that
+      drops to 0 ms under prefers-reduced-motion.
+    </p>
+
+    <h3 class="ds-grid__title">Determinate</h3>
+    <fb-progress-bar [value]="progressValue()" [max]="100"></fb-progress-bar>
+    <span class="ds-result" aria-live="polite">
+      Value: {{ progressValue() }} / 100
+    </span>
+
+    <h3 class="ds-grid__title">Indeterminate</h3>
+    <fb-progress-bar [indeterminate]="true"></fb-progress-bar>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-list-heading">
+    <h2 id="ds-list-heading" class="ds-section__heading">List family</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>fb-list</code> sets <code>role="list"</code> on the host;
+      <code>fb-list-item</code> sets <code>role="listitem"</code>. Interactive
+      rows are focusable (<code>tabindex=0</code>), expose
+      <code>aria-selected</code>, and emit <code>activated</code> on click,
+      Enter, or Space. Disabled rows drop <code>tabindex</code> and surface
+      <code>aria-disabled</code>. <code>fb-nav-list</code> wraps the inner list
+      in a <code>&lt;nav&gt;</code> landmark.
+    </p>
+
+    <h3 class="ds-grid__title">Comfortable density</h3>
+    <fb-list
+      density="comfortable"
+      style="
+        max-width: 320px;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+      "
+    >
+      <fb-list-item
+        [interactive]="true"
+        [selected]="listSelectedRow() === 'r1'"
+        (activated)="selectListRow('r1')"
+      >
+        Coastal route
+        <span fbListItemSubtext>12 waypoints</span>
+      </fb-list-item>
+      <fb-list-item
+        [interactive]="true"
+        [selected]="listSelectedRow() === 'r2'"
+        (activated)="selectListRow('r2')"
+      >
+        Offshore passage
+        <span fbListItemSubtext>4 waypoints</span>
+      </fb-list-item>
+      <fb-list-item [disabled]="true" [interactive]="true">
+        Archived route
+        <span fbListItemSubtext>read-only</span>
+      </fb-list-item>
+    </fb-list>
+    <span class="ds-result" aria-live="polite">
+      Last selected: {{ listSelectedRow() || '(none)' }}
+    </span>
+
+    <h3 class="ds-grid__title">Compact density</h3>
+    <fb-list
+      density="compact"
+      style="
+        max-width: 320px;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+      "
+    >
+      <fb-list-item>Row 1</fb-list-item>
+      <fb-list-item>Row 2</fb-list-item>
+      <fb-list-item>Row 3</fb-list-item>
+    </fb-list>
+
+    <h3 class="ds-grid__title">Nav list landmark</h3>
+    <fb-nav-list
+      ariaLabel="Demo sidebar"
+      style="
+        max-width: 320px;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+      "
+    >
+      <fb-list-item [interactive]="true">Charts</fb-list-item>
+      <fb-list-item [interactive]="true">Routes</fb-list-item>
+      <fb-list-item [interactive]="true">Settings</fb-list-item>
+    </fb-nav-list>
+
+    <h3 class="ds-grid__title">Selection list (multi-select)</h3>
+    <fb-selection-list
+      ariaLabel="Resource tags"
+      [options]="selectionOptions"
+      [(values)]="selectionValues"
+      style="
+        max-width: 320px;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+      "
+    ></fb-selection-list>
+    <span class="ds-result" aria-live="polite">
+      Selected: {{ selectionValues().join(', ') || '(none)' }}
+    </span>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-tabs-heading">
+    <h2 id="ds-tabs-heading" class="ds-section__heading">Tabs</h2>
+    <p class="ds-section__a11y">
+      A11y: tab strip is <code>role="tablist"</code>, each tab is
+      <code>role="tab"</code> with <code>aria-selected</code>,
+      <code>aria-controls</code>, and roving <code>tabindex</code> (active = 0,
+      rest = -1) per WAI-ARIA tabs pattern. Arrow keys move focus + selection
+      (automatic activation), Home and End jump to the ends, disabled tabs are
+      skipped. Panels are <code>role="tabpanel"</code> with
+      <code>aria-labelledby</code> back to their tab; inactive panels stay in
+      the DOM with the <code>hidden</code> attribute set so screen readers skip
+      them.
+    </p>
+
+    <fb-tabs
+      [tabs]="tabDefs"
+      [(activeId)]="tabsActiveId"
+      ariaLabel="Demo group details"
+      style="border: 1px solid var(--color-border); border-radius: 8px"
+    >
+      <div fbTabPanel fbTabPanelId="info" style="padding: var(--space-md)">
+        <p>Info panel. Name, color, member count.</p>
+      </div>
+      <div fbTabPanel fbTabPanelId="route" style="padding: var(--space-md)">
+        <p>Route panel. Waypoints and bearings.</p>
+      </div>
+      <div fbTabPanel fbTabPanelId="notes" style="padding: var(--space-md)">
+        <p>Notes panel. Free-form markdown text.</p>
+      </div>
+      <div fbTabPanel fbTabPanelId="archived" style="padding: var(--space-md)">
+        <p>Archived panel (disabled tab, unreachable).</p>
+      </div>
+    </fb-tabs>
+    <span class="ds-result" aria-live="polite">
+      Active tab: {{ tabsActiveId() || '(none)' }}
+    </span>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-expansion-heading">
+    <h2 id="ds-expansion-heading" class="ds-section__heading">
+      Expansion panel and accordion
+    </h2>
+    <p class="ds-section__a11y">
+      A11y: each <code>fb-expansion-panel</code> renders a
+      <code>&lt;button&gt;</code> header with <code>aria-expanded</code> and
+      <code>aria-controls</code>, plus a <code>role="region"</code> body
+      labelled by the header id. The chevron rotates 180deg on expand and drops
+      to 0 ms under prefers-reduced-motion. <code>fb-accordion</code> wraps
+      children in a region, supports <code>mode="single"</code> for
+      at-most-one-open coordination, and rolls focus across panel headers via
+      ArrowUp, ArrowDown, Home, and End.
+    </p>
+
+    <h3 class="ds-grid__title">Standalone panel</h3>
+    <fb-expansion-panel panelId="ds-panel-solo">
+      <span fbExpansionPanelTitle>Trip plan</span>
+      <span fbExpansionPanelDescription>3 legs</span>
+      <p>Body content reveals when the header is activated.</p>
+    </fb-expansion-panel>
+
+    <h3 class="ds-grid__title">Multi-open accordion</h3>
+    <fb-accordion ariaLabel="Layers">
+      <fb-expansion-panel panelId="ds-panel-routes">
+        <span fbExpansionPanelTitle>Routes</span>
+        <p>Route list goes here.</p>
+      </fb-expansion-panel>
+      <fb-expansion-panel panelId="ds-panel-waypoints">
+        <span fbExpansionPanelTitle>Waypoints</span>
+        <p>Waypoint list goes here.</p>
+      </fb-expansion-panel>
+      <fb-expansion-panel panelId="ds-panel-regions">
+        <span fbExpansionPanelTitle>Regions</span>
+        <p>Region list goes here.</p>
+      </fb-expansion-panel>
+    </fb-accordion>
+
+    <h3 class="ds-grid__title">Single-open accordion</h3>
+    <fb-accordion mode="single" ariaLabel="Inspector sections">
+      <fb-expansion-panel panelId="ds-panel-overview">
+        <span fbExpansionPanelTitle>Overview</span>
+        <p>Opening this collapses the others.</p>
+      </fb-expansion-panel>
+      <fb-expansion-panel panelId="ds-panel-details">
+        <span fbExpansionPanelTitle>Details</span>
+        <p>And vice versa.</p>
+      </fb-expansion-panel>
+      <fb-expansion-panel panelId="ds-panel-history" [disabled]="true">
+        <span fbExpansionPanelTitle>History</span>
+        <span fbExpansionPanelDescription>disabled</span>
+        <p>This panel is disabled.</p>
+      </fb-expansion-panel>
+    </fb-accordion>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-stepper-heading">
+    <h2 id="ds-stepper-heading" class="ds-section__heading">Stepper</h2>
+    <p class="ds-section__a11y">
+      A11y: host is <code>role="region"</code> with <code>aria-label</code>. The
+      header strip is <code>role="tablist"</code>, each header is
+      <code>role="tab"</code> with <code>aria-selected</code> and roving
+      <code>tabindex</code>. Body is <code>role="tabpanel"</code>
+      <code>aria-labelledby</code> the active header. Linear mode blocks advance
+      past a step that is neither complete nor valid. Arrow keys move focus
+      across headers, Home and End jump to ends, Enter activates the focused
+      step (still gated by linear validity). Connector animation drops to 0 ms
+      under prefers-reduced-motion.
+    </p>
+
+    <fb-stepper
+      [(activeIndex)]="stepperActive"
+      ariaLabel="Demo wizard"
+      (completed)="onStepperFinish()"
+      style="border: 1px solid var(--color-border); border-radius: 8px"
+    >
+      <fb-step label="Start" [complete]="stepperStep1Complete()">
+        <p>
+          Confirm the starting position before continuing. Use the button below
+          to mark this step complete.
+        </p>
+        <fb-button
+          variant="secondary"
+          size="md"
+          [disabled]="stepperStep1Complete()"
+          (pressed)="stepperConfirmStep1()"
+        >
+          Confirm start
+        </fb-button>
+      </fb-step>
+      <fb-step
+        label="Configure"
+        [valid]="stepperStep2Valid()"
+        [complete]="stepperStep2Complete()"
+      >
+        <p>
+          Next is blocked until this step is marked valid. Toggle below, then
+          mark it complete to unlock the final step.
+        </p>
+        <fb-button
+          variant="secondary"
+          size="md"
+          (pressed)="stepperToggleStep2Valid()"
+        >
+          {{ stepperStep2Valid() ? 'Mark invalid' : 'Mark valid' }}
+        </fb-button>
+        <fb-button
+          variant="ghost"
+          size="md"
+          [disabled]="!stepperStep2Valid() || stepperStep2Complete()"
+          (pressed)="stepperMarkStep2Complete()"
+        >
+          Mark complete
+        </fb-button>
+      </fb-step>
+      <fb-step label="Review">
+        <p>Review and finish. Pressing Finish emits <code>completed</code>.</p>
+      </fb-step>
+    </fb-stepper>
+    <span class="ds-result" aria-live="polite">
+      Step: {{ stepperActive() + 1 }} of 3, finishes: {{ stepperFinishCount() }}
+    </span>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-datepicker-heading">
+    <h2 id="ds-datepicker-heading" class="ds-section__heading">Date picker</h2>
+    <p class="ds-section__a11y">
+      A11y: trigger is a button with <code>aria-haspopup="dialog"</code>,
+      <code>aria-expanded</code>, and <code>aria-label</code> (when supplied).
+      The overlay is a <code>role="dialog"</code> wrapper around a
+      <code>role="grid"</code> day grid labelled by the month/year header. Day
+      cells are <code>role="gridcell"</code> buttons with
+      <code>aria-selected</code> and <code>aria-disabled</code>. Keyboard:
+      arrows step day, PageUp/PageDown step month, Shift+PageUp/PageDown step
+      year, Home/End jump to start/end of the focused week, Enter or Space
+      selects, and Escape closes without selecting. Animations drop to 0 ms
+      under prefers-reduced-motion.
+    </p>
+
+    <h3 class="ds-grid__title">Default</h3>
+    <fb-datepicker
+      [(value)]="datepickerValue"
+      ariaLabel="Pick a date"
+    ></fb-datepicker>
+    <span class="ds-result" aria-live="polite">
+      Picked: {{ datepickerValue()?.toDateString() ?? '(none)' }}
+    </span>
+
+    <h3 class="ds-grid__title">With min and max (calendar year 2026)</h3>
+    <fb-datepicker
+      [(value)]="datepickerBoundedValue"
+      [min]="datepickerMin"
+      [max]="datepickerMax"
+      ariaLabel="Pick a date in 2026"
+    ></fb-datepicker>
+
+    <h3 class="ds-grid__title">Disabled</h3>
+    <fb-datepicker
+      [(value)]="datepickerDisabledValue"
+      [disabled]="true"
+      ariaLabel="Disabled picker"
+    ></fb-datepicker>
   </section>
 
   <footer class="ds-footer">

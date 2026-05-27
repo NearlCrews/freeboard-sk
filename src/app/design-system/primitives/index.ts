@@ -89,13 +89,17 @@ export { FbTextareaComponent } from './textarea/textarea.component';
 
 export {
   FbSelectComponent,
+  FbSelectTriggerDirective,
   type FbSelectOption
 } from './select/select.component';
 
 export { FbCheckboxComponent } from './checkbox/checkbox.component';
 
 export { FbRadioComponent } from './radio/radio.component';
-export { FbRadioGroupComponent } from './radio/radio-group.component';
+export {
+  FbRadioGroupComponent,
+  type RadioGroupHost
+} from './radio/radio-group.component';
 
 export { FbSwitchComponent } from './switch/switch.component';
 
@@ -105,3 +109,59 @@ export {
   FbSegmentedComponent,
   type FbSegmentedOption
 } from './segmented/segmented.component';
+
+/* Tier-3 simple primitives (this gate). */
+export {
+  FbCardComponent,
+  FbCardHeaderComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent,
+  type FbCardActionsAlign,
+  type FbCardVariant
+} from './card/card.component';
+export {
+  FbDividerComponent,
+  type FbDividerOrientation
+} from './divider/divider.component';
+export { FbHintComponent, type FbHintVariant } from './hint/hint.component';
+export {
+  FbToolbarComponent,
+  type FbToolbarDensity
+} from './toolbar/toolbar.component';
+export { FbProgressBarComponent } from './progress-bar/progress-bar.component';
+
+/* Tier-3 list family + tabs (this gate). */
+export {
+  FbListComponent,
+  FbListItemComponent,
+  FbNavListComponent,
+  FbSelectionListComponent,
+  type FbListDensity,
+  type FbSelectionListOption
+} from './list/list.component';
+
+export {
+  FbTabsComponent,
+  FbTabPanelDirective,
+  type FbTabDef
+} from './tabs/tabs.component';
+
+/* Tier-3 expansion panel + accordion (this gate). */
+export {
+  FbAccordionComponent,
+  FbExpansionPanelComponent,
+  FbExpansionPanelTitleDirective,
+  FbExpansionPanelDescriptionDirective,
+  FbExpansionPanelIconDirective,
+  type AccordionHost
+} from './expansion-panel/expansion-panel.component';
+
+/* Tier-3 stepper (this gate). */
+export {
+  FbStepperComponent,
+  FbStepComponent,
+  FbStepActionsDirective
+} from './stepper/stepper.component';
+
+/* Tier-3 datepicker (this gate). */
+export { FbDatepickerComponent } from './datepicker/datepicker.component';

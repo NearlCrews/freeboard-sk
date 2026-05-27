@@ -17,6 +17,9 @@ import { FbRadioComponent } from './radio.component';
  * pattern: arrow keys move both focus and selection, Home/End jump to
  * first/last, roving tabindex on the children.
  *
+ * Generic over the value type. Default `T = string` keeps existing
+ * call sites source-compatible; numeric-keyed groups can specialize.
+ *
  * A11y posture:
  *  - Host gets role="radiogroup" and forwards aria-label.
  *  - Children get role="radio" + aria-checked, with tabindex 0 on the
@@ -42,8 +45,10 @@ import { FbRadioComponent } from './radio.component';
     `
   ]
 })
-export class FbRadioGroupComponent implements AfterContentInit {
-  readonly value = model<string | null>(null);
+export class FbRadioGroupComponent<
+  T extends string | number = string
+> implements AfterContentInit {
+  readonly value = model<T | null>(null);
   readonly disabled = input<boolean>(false);
   readonly ariaLabel = input<string>('');
 
@@ -55,14 +60,14 @@ export class FbRadioGroupComponent implements AfterContentInit {
     }
   }
 
-  isSelected(radioValue: string): boolean {
-    return this.value() === radioValue;
+  isSelected(radioValue: string | number): boolean {
+    return this.value() === (radioValue as T);
   }
 
-  isFocusable(radioValue: string): boolean {
+  isFocusable(radioValue: string | number): boolean {
     const current = this.value();
     if (current !== null) {
-      return current === radioValue;
+      return current === (radioValue as T);
     }
     return this.firstEnabledValue() === radioValue;
   }
@@ -71,9 +76,9 @@ export class FbRadioGroupComponent implements AfterContentInit {
     return this.disabled();
   }
 
-  select(radioValue: string): void {
+  select(radioValue: string | number): void {
     if (this.disabled()) return;
-    this.value.set(radioValue);
+    this.value.set(radioValue as T);
   }
 
   @HostListener('keydown', ['$event'])
@@ -116,16 +121,30 @@ export class FbRadioGroupComponent implements AfterContentInit {
     target?.focus();
   }
 
-  private enabledValues(): string[] {
-    const out: string[] = [];
+  private enabledValues(): T[] {
+    const out: T[] = [];
     for (const child of this.children()) {
-      if (!child.disabled()) out.push(child.value());
+      if (!child.disabled()) out.push(child.value() as T);
     }
     return out;
   }
 
-  private firstEnabledValue(): string | null {
+  private firstEnabledValue(): T | null {
     const enabled = this.enabledValues();
     return enabled.length > 0 ? (enabled[0] ?? null) : null;
   }
+}
+
+/**
+ * Structural host contract the child `fb-radio` uses to read selection
+ * state, focusability, and disabled-state from its parent group. The
+ * group implements this implicitly via its public methods above; the
+ * child stores it as a type-erased `string | number` reference so it
+ * does not need to be generic itself.
+ */
+export interface RadioGroupHost {
+  isSelected(value: string | number): boolean;
+  isFocusable(value: string | number): boolean;
+  isDisabled(): boolean;
+  select(value: string | number): void;
 }

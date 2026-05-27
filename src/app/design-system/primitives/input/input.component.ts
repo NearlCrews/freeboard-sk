@@ -14,6 +14,12 @@ export type FbInputType = 'text' | 'number' | 'email' | 'password' | 'search';
  * Wraps a native `<input>` with token-driven chrome. No MatInput dependency.
  * Two-way binding via `model()` so consumers can do `[(value)]="model"`.
  *
+ * Numeric mode (`numericMode=true`) switches the model to a separate
+ * `numericValue` signal of `number | null` and forces type="number" with
+ * inputmode="numeric". Parsed values that come back NaN map to null so
+ * consumers always see a numeric value or the explicit "empty" sentinel.
+ * The string `value` model is ignored while numericMode is true.
+ *
  * A11y posture:
  *  - aria-invalid mirrors the `invalid` input so screen readers announce
  *    validation state.
@@ -29,10 +35,14 @@ export type FbInputType = 'text' | 'number' | 'email' | 'password' | 'search';
   template: `
     <input
       [class]="classes()"
-      [type]="type()"
+      [type]="effectiveType()"
+      [attr.inputmode]="inputMode()"
+      [attr.step]="numericMode() ? step() : null"
+      [attr.min]="numericMode() ? min() : null"
+      [attr.max]="numericMode() ? max() : null"
       [name]="name()"
       [id]="name()"
-      [value]="value()"
+      [value]="displayValue()"
       [placeholder]="placeholder() || null"
       [disabled]="disabled()"
       [attr.aria-label]="ariaLabel() || null"
@@ -91,7 +101,12 @@ export type FbInputType = 'text' | 'number' | 'email' | 'password' | 'search';
 export class FbInputComponent {
   readonly name = input.required<string>();
   readonly value = model<string>('');
+  readonly numericValue = model<number | null>(null);
   readonly type = input<FbInputType>('text');
+  readonly numericMode = input<boolean>(false);
+  readonly step = input<number | null>(null);
+  readonly min = input<number | null>(null);
+  readonly max = input<number | null>(null);
   readonly placeholder = input<string>('');
   readonly disabled = input<boolean>(false);
   readonly invalid = input<boolean>(false);
@@ -101,8 +116,34 @@ export class FbInputComponent {
     () => `fb-input${this.invalid() ? ' fb-input--invalid' : ''}`
   );
 
+  readonly effectiveType = computed<FbInputType>(() =>
+    this.numericMode() ? 'number' : this.type()
+  );
+
+  readonly inputMode = computed<string | null>(() =>
+    this.numericMode() ? 'numeric' : null
+  );
+
+  readonly displayValue = computed<string>(() => {
+    if (this.numericMode()) {
+      const n = this.numericValue();
+      return n === null ? '' : String(n);
+    }
+    return this.value();
+  });
+
   onInput(event: Event): void {
     const target = event.target as HTMLInputElement;
+    if (this.numericMode()) {
+      const raw = target.value;
+      if (raw === '') {
+        this.numericValue.set(null);
+        return;
+      }
+      const parsed = Number(raw);
+      this.numericValue.set(Number.isNaN(parsed) ? null : parsed);
+      return;
+    }
     this.value.set(target.value);
   }
 }

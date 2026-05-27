@@ -28,6 +28,25 @@ class HostComponent {
   ariaLabel = signal<string>('');
 }
 
+@Component({
+  standalone: true,
+  imports: [FbInputComponent],
+  template: `
+    <fb-input
+      name="depth"
+      [numericMode]="true"
+      [(numericValue)]="depth"
+      [min]="0"
+      [max]="100"
+      [step]="0.1"
+      ariaLabel="Depth"
+    ></fb-input>
+  `
+})
+class NumericHostComponent {
+  depth = signal<number | null>(null);
+}
+
 function setup(): {
   host: HostComponent;
   fixture: ComponentFixture<HostComponent>;
@@ -96,5 +115,60 @@ describe('FbInputComponent', () => {
     el.dispatchEvent(new Event('input', { bubbles: true }));
     fixture.detectChanges();
     expect(host.value()).toBe('hello');
+  });
+});
+
+describe('FbInputComponent (numeric mode)', () => {
+  let host: NumericHostComponent;
+  let fixture: ComponentFixture<NumericHostComponent>;
+  let query: () => HTMLInputElement;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [NumericHostComponent] });
+    fixture = TestBed.createComponent(NumericHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+    query = () =>
+      fixture.nativeElement.querySelector('input') as HTMLInputElement;
+  });
+
+  it('forces type=number and inputmode=numeric', () => {
+    const el = query();
+    expect(el.type).toBe('number');
+    expect(el.getAttribute('inputmode')).toBe('numeric');
+  });
+
+  it('forwards min, max, and step attributes', () => {
+    const el = query();
+    expect(el.getAttribute('min')).toBe('0');
+    expect(el.getAttribute('max')).toBe('100');
+    expect(el.getAttribute('step')).toBe('0.1');
+  });
+
+  it('parses numeric input into the numericValue model', () => {
+    const el = query();
+    el.value = '42.5';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(host.depth()).toBe(42.5);
+  });
+
+  it('maps an empty field to null', () => {
+    const el = query();
+    el.value = '12';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(host.depth()).toBe(12);
+    el.value = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(host.depth()).toBe(null);
+  });
+
+  it('renders the stored number back into the field', () => {
+    host.depth.set(7);
+    fixture.detectChanges();
+    expect(query().value).toBe('7');
   });
 });

@@ -7,13 +7,7 @@ import {
   input,
   signal
 } from '@angular/core';
-
-interface RadioGroupHost {
-  isSelected(value: string): boolean;
-  isFocusable(value: string): boolean;
-  isDisabled(): boolean;
-  select(value: string): void;
-}
+import type { RadioGroupHost } from './radio-group.component';
 
 /**
  * Tier-2 form Radio primitive (child of fb-radio-group).
@@ -21,6 +15,9 @@ interface RadioGroupHost {
  * Renders a single radio with a token-driven dot. Selection state and
  * keyboard nav are owned by the parent group; this child is a leaf button
  * that forwards click to the group and exposes role="radio".
+ *
+ * Generic over the value type. Default `T = string` keeps existing call
+ * sites unchanged; numeric-keyed groups can specialize at the call site.
  *
  * A11y posture:
  *  - role="radio" + aria-checked + tabindex (roving) supplied by the
@@ -115,8 +112,8 @@ interface RadioGroupHost {
     `
   ]
 })
-export class FbRadioComponent {
-  readonly value = input.required<string>();
+export class FbRadioComponent<T extends string | number = string> {
+  readonly value = input.required<T>();
   readonly disabled = input<boolean>(false);
   readonly ariaLabel = input<string>('');
 

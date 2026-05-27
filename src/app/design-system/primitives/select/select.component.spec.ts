@@ -2,7 +2,11 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { FbSelectComponent, type FbSelectOption } from './select.component';
+import {
+  FbSelectComponent,
+  FbSelectTriggerDirective,
+  type FbSelectOption
+} from './select.component';
 
 @Component({
   standalone: true,
@@ -30,6 +34,74 @@ class HostComponent {
   disabled = signal<boolean>(false);
   invalid = signal<boolean>(false);
   ariaLabel = signal<string>('Theme');
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="zoom"
+      [options]="options()"
+      [(value)]="value"
+      ariaLabel="Zoom"
+    ></fb-select>
+  `
+})
+class NumericHostComponent {
+  options = signal<readonly FbSelectOption<number>[]>([
+    { id: 10, label: 'Ten' },
+    { id: 20, label: 'Twenty' },
+    { id: 30, label: 'Thirty' }
+  ]);
+  value = signal<number | null>(null);
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="cats"
+      [options]="options()"
+      [(values)]="values"
+      [multiple]="true"
+      ariaLabel="Categories"
+    ></fb-select>
+  `
+})
+class MultiHostComponent {
+  options = signal<readonly FbSelectOption[]>([
+    { id: 'a', label: 'Alpha' },
+    { id: 'b', label: 'Bravo' },
+    { id: 'c', label: 'Charlie' },
+    { id: 'd', label: 'Delta' }
+  ]);
+  values = signal<readonly string[]>([]);
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent, FbSelectTriggerDirective],
+  template: `
+    <fb-select
+      name="mime"
+      [options]="options()"
+      [(value)]="value"
+      ariaLabel="Mime"
+    >
+      <span fb-select-trigger data-testid="custom-trigger">
+        ICON {{ value() ?? '' }}
+      </span>
+    </fb-select>
+  `
+})
+class CustomTriggerHostComponent {
+  options = signal<readonly FbSelectOption[]>([
+    { id: 'md', label: 'Markdown' },
+    { id: 'txt', label: 'Plain text' }
+  ]);
+  value = signal<string | null>(null);
 }
 
 function setup(): {
@@ -132,5 +204,139 @@ describe('FbSelectComponent', () => {
     trigger().click();
     fixture.detectChanges();
     expect(trigger().getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+describe('FbSelectComponent (numeric ids)', () => {
+  let host: NumericHostComponent;
+  let fixture: ComponentFixture<NumericHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [NumericHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(NumericHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  it('selects a numeric-keyed option and stores the number in the model', () => {
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const opts = Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+    opts[1]!.click();
+    fixture.detectChanges();
+    expect(host.value()).toBe(20);
+    expect(typeof host.value()).toBe('number');
+  });
+
+  it('renders the matching label when a numeric value is set', () => {
+    host.value.set(30);
+    fixture.detectChanges();
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    expect(trigger.textContent).toContain('Thirty');
+  });
+});
+
+describe('FbSelectComponent (multiple mode)', () => {
+  let host: MultiHostComponent;
+  let fixture: ComponentFixture<MultiHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [MultiHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(MultiHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  function triggerBtn(): HTMLButtonElement {
+    return fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+  }
+
+  function visibleOptions(): HTMLElement[] {
+    return Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+  }
+
+  it('marks the listbox as aria-multiselectable', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const listbox = document.querySelector('.fb-select__listbox')!;
+    expect(listbox.getAttribute('aria-multiselectable')).toBe('true');
+  });
+
+  it('toggles values without closing the listbox', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    visibleOptions()[0]!.click();
+    fixture.detectChanges();
+    visibleOptions()[2]!.click();
+    fixture.detectChanges();
+    expect([...host.values()]).toEqual(['a', 'c']);
+    expect(triggerBtn().getAttribute('aria-expanded')).toBe('true');
+    // Toggling off
+    visibleOptions()[0]!.click();
+    fixture.detectChanges();
+    expect([...host.values()]).toEqual(['c']);
+  });
+
+  it('shows a count once more than two values are selected', () => {
+    host.values.set(['a', 'b', 'c']);
+    fixture.detectChanges();
+    expect(triggerBtn().textContent).toContain('3 selected');
+  });
+
+  it('shows comma-joined labels for two or fewer values', () => {
+    host.values.set(['a', 'b']);
+    fixture.detectChanges();
+    expect(triggerBtn().textContent).toContain('Alpha, Bravo');
+  });
+});
+
+describe('FbSelectComponent (custom trigger slot)', () => {
+  it('renders the projected trigger content in place of the default label', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [CustomTriggerHostComponent, OverlayModule]
+    });
+    const fixture = TestBed.createComponent(CustomTriggerHostComponent);
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    host.value.set('md');
+    fixture.detectChanges();
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    const custom = trigger.querySelector('[data-testid="custom-trigger"]');
+    expect(custom).not.toBeNull();
+    expect(trigger.textContent).toContain('ICON');
+    expect(trigger.textContent).not.toContain('Markdown');
+  });
+
+  it('still falls back to the placeholder when nothing is selected', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [CustomTriggerHostComponent, OverlayModule]
+    });
+    const fixture = TestBed.createComponent(CustomTriggerHostComponent);
+    fixture.detectChanges();
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    expect(trigger.textContent).toContain('Select...');
   });
 });

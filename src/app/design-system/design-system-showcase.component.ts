@@ -19,7 +19,10 @@ import { FbSidenavComponent } from './primitives/sidenav/sidenav.component';
 import { FbSidenavService } from './primitives/sidenav/sidenav.service';
 import { FbInputComponent } from './primitives/input/input.component';
 import { FbTextareaComponent } from './primitives/textarea/textarea.component';
-import { FbSelectComponent } from './primitives/select/select.component';
+import {
+  FbSelectComponent,
+  FbSelectTriggerDirective
+} from './primitives/select/select.component';
 import type { FbSelectOption } from './primitives/select/select.component';
 import { FbCheckboxComponent } from './primitives/checkbox/checkbox.component';
 import { FbRadioComponent } from './primitives/radio/radio.component';
@@ -28,6 +31,41 @@ import { FbSwitchComponent } from './primitives/switch/switch.component';
 import { FbSliderComponent } from './primitives/slider/slider.component';
 import { FbSegmentedComponent } from './primitives/segmented/segmented.component';
 import type { FbSegmentedOption } from './primitives/segmented/segmented.component';
+import {
+  FbCardActionsComponent,
+  FbCardComponent,
+  FbCardContentComponent,
+  FbCardHeaderComponent
+} from './primitives/card/card.component';
+import { FbDividerComponent } from './primitives/divider/divider.component';
+import { FbHintComponent } from './primitives/hint/hint.component';
+import { FbToolbarComponent } from './primitives/toolbar/toolbar.component';
+import { FbProgressBarComponent } from './primitives/progress-bar/progress-bar.component';
+import {
+  FbListComponent,
+  FbListItemComponent,
+  FbNavListComponent,
+  FbSelectionListComponent
+} from './primitives/list/list.component';
+import type { FbSelectionListOption } from './primitives/list/list.component';
+import {
+  FbTabPanelDirective,
+  FbTabsComponent
+} from './primitives/tabs/tabs.component';
+import type { FbTabDef } from './primitives/tabs/tabs.component';
+import {
+  FbAccordionComponent,
+  FbExpansionPanelComponent,
+  FbExpansionPanelDescriptionDirective,
+  FbExpansionPanelIconDirective,
+  FbExpansionPanelTitleDirective
+} from './primitives/expansion-panel/expansion-panel.component';
+import {
+  FbStepActionsDirective,
+  FbStepComponent,
+  FbStepperComponent
+} from './primitives/stepper/stepper.component';
+import { FbDatepickerComponent } from './primitives/datepicker/datepicker.component';
 
 type Theme = 'light' | 'dark' | 'night-red';
 
@@ -149,12 +187,36 @@ export class FbDemoSidenavBodyComponent {
     FbInputComponent,
     FbTextareaComponent,
     FbSelectComponent,
+    FbSelectTriggerDirective,
     FbCheckboxComponent,
     FbRadioComponent,
     FbRadioGroupComponent,
     FbSwitchComponent,
     FbSliderComponent,
-    FbSegmentedComponent
+    FbSegmentedComponent,
+    FbCardComponent,
+    FbCardHeaderComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent,
+    FbDividerComponent,
+    FbHintComponent,
+    FbToolbarComponent,
+    FbProgressBarComponent,
+    FbListComponent,
+    FbListItemComponent,
+    FbNavListComponent,
+    FbSelectionListComponent,
+    FbTabsComponent,
+    FbTabPanelDirective,
+    FbAccordionComponent,
+    FbExpansionPanelComponent,
+    FbExpansionPanelTitleDirective,
+    FbExpansionPanelDescriptionDirective,
+    FbExpansionPanelIconDirective,
+    FbStepperComponent,
+    FbStepComponent,
+    FbStepActionsDirective,
+    FbDatepickerComponent
   ],
   templateUrl: './design-system-showcase.component.html',
   styleUrls: ['./design-system-showcase.component.css']
@@ -181,6 +243,7 @@ export class DesignSystemShowcaseComponent {
   ];
 
   readonly inputValue = signal<string>('');
+  readonly numericInputValue = signal<number | null>(null);
   readonly textareaValue = signal<string>('');
   readonly selectOptions: readonly FbSelectOption[] = [
     { id: 'light', label: 'Light' },
@@ -188,10 +251,31 @@ export class DesignSystemShowcaseComponent {
     { id: 'night-red', label: 'Night red', disabled: true }
   ];
   readonly selectValue = signal<string | null>(null);
+  readonly zoomOptions: readonly FbSelectOption<number>[] = [
+    { id: 4, label: 'Zoom 4' },
+    { id: 8, label: 'Zoom 8' },
+    { id: 12, label: 'Zoom 12' },
+    { id: 16, label: 'Zoom 16' }
+  ];
+  readonly zoomValue = signal<number | null>(null);
+  readonly tagOptions: readonly FbSelectOption[] = [
+    { id: 'anchor', label: 'Anchor' },
+    { id: 'fuel', label: 'Fuel' },
+    { id: 'marina', label: 'Marina' },
+    { id: 'tide', label: 'Tide note' }
+  ];
+  readonly tagValues = signal<readonly string[]>([]);
+  readonly mimeOptions: readonly FbSelectOption[] = [
+    { id: 'md', label: 'Markdown' },
+    { id: 'txt', label: 'Plain text' },
+    { id: 'html', label: 'HTML' }
+  ];
+  readonly mimeValue = signal<string | null>('md');
   readonly checkboxChecked = signal<boolean>(false);
   readonly indeterminateChecked = signal<boolean>(false);
   readonly switchChecked = signal<boolean>(false);
   readonly radioValue = signal<string | null>(null);
+  readonly radioZoomValue = signal<number | null>(null);
   readonly sliderValue = signal<number>(40);
   readonly segmentedOptions: readonly FbSegmentedOption[] = [
     { id: 'day', label: 'Day', icon: 'light_mode' },
@@ -199,6 +283,50 @@ export class DesignSystemShowcaseComponent {
     { id: 'auto', label: 'Auto', icon: 'brightness_auto' }
   ];
   readonly segmentedValue = signal<string>('day');
+
+  readonly progressValue = signal<number>(35);
+
+  readonly listSelectedRow = signal<string>('');
+  readonly selectionOptions: readonly FbSelectionListOption[] = [
+    { id: 'anchor', label: 'Anchor', icon: 'anchor' },
+    { id: 'fuel', label: 'Fuel', icon: 'local_gas_station' },
+    { id: 'marina', label: 'Marina', icon: 'directions_boat' },
+    { id: 'tide', label: 'Tide note', disabled: true, icon: 'waves' }
+  ];
+  readonly selectionValues = signal<readonly string[]>(['anchor']);
+
+  readonly tabDefs: readonly FbTabDef[] = [
+    { id: 'info', label: 'Info', icon: 'info' },
+    { id: 'route', label: 'Route', icon: 'route' },
+    { id: 'notes', label: 'Notes', icon: 'note' },
+    { id: 'archived', label: 'Archived', icon: 'archive', disabled: true }
+  ];
+  readonly tabsActiveId = signal<string | null>('info');
+
+  readonly stepperActive = signal<number>(0);
+  readonly stepperStep1Complete = signal<boolean>(false);
+  readonly stepperStep2Valid = signal<boolean>(false);
+  readonly stepperStep2Complete = signal<boolean>(false);
+  readonly stepperFinishCount = signal<number>(0);
+
+  stepperConfirmStep1(): void {
+    this.stepperStep1Complete.set(true);
+  }
+  stepperToggleStep2Valid(): void {
+    this.stepperStep2Valid.update((v) => !v);
+  }
+  stepperMarkStep2Complete(): void {
+    this.stepperStep2Complete.set(true);
+  }
+  onStepperFinish(): void {
+    this.stepperFinishCount.update((n) => n + 1);
+  }
+
+  readonly datepickerValue = signal<Date | null>(null);
+  readonly datepickerBoundedValue = signal<Date | null>(null);
+  readonly datepickerDisabledValue = signal<Date | null>(new Date());
+  readonly datepickerMin = new Date(2026, 0, 1);
+  readonly datepickerMax = new Date(2026, 11, 31);
 
   setTheme(t: Theme): void {
     this.theme.set(t);
@@ -251,5 +379,9 @@ export class DesignSystemShowcaseComponent {
       instance.side.set(side);
     }
     this.sidenavOpenCount.update((n) => n + 1);
+  }
+
+  selectListRow(id: string): void {
+    this.listSelectedRow.set(id);
   }
 }
