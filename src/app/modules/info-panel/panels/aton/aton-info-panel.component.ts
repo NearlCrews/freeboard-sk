@@ -203,7 +203,7 @@ export class AtonInfoPanelComponent {
   );
 
   protected readonly iconName = computed<string>(() =>
-    this.isMeteo() ? 'cloud' : 'place'
+    this.isMeteo() ? 'cloud' : 'beenhere'
   );
 
   private readonly meteo = computed<SKMeteo | null>(() => {

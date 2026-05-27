@@ -42,7 +42,7 @@ export interface FeatureListEntry {
   ],
   template: `
     <fb-info-panel-layout [ariaLabel]="ariaLabel()">
-      <fb-icon fbInfoPanelIcon name="filter_list"></fb-icon>
+      <fb-icon fbInfoPanelIcon name="list_alt"></fb-icon>
       <ng-container fbInfoPanelTitle>{{ title() }}</ng-container>
 
       <ng-container fbInfoPanelMeta>

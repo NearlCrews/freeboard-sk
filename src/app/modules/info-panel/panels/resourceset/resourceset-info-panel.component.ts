@@ -44,7 +44,7 @@ interface ResourcesetRecord extends ResourceSet {
   ],
   template: `
     <fb-info-panel-layout [ariaLabel]="ariaLabel()">
-      <fb-icon fbInfoPanelIcon name="dataset"></fb-icon>
+      <fb-icon fbInfoPanelIcon name="layers"></fb-icon>
       <ng-container fbInfoPanelTitle>{{ title() }}</ng-container>
 
       <ng-container fbInfoPanelMeta>
