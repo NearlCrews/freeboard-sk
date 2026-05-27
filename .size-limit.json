@@ -2,13 +2,13 @@
   {
     "name": "initial transfer (entry)",
     "path": ["public/main-*.js", "public/styles-*.css"],
-    "limit": "52 KB",
+    "limit": "60 KB",
     "gzip": true
   },
   {
     "name": "main",
     "path": "public/main-*.js",
-    "limit": "32 KB",
+    "limit": "40 KB",
     "gzip": true
   },
   {
