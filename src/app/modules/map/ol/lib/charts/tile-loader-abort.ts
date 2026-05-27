@@ -68,7 +68,17 @@ export function createAbortableRasterTileLoader(): (
     tile.setState(TileState.LOADING);
 
     fetch(src, { signal: controller.signal })
-      .then((r) => r.blob())
+      .then((r) => {
+        // fetch() only rejects on network errors, not HTTP errors, so
+        // 404 / 500 / etc. arrive here with a non-image body. Marking
+        // the tile LOADED on that path lets OL try to drawImage the
+        // broken HTMLImageElement and throw InvalidStateError; flag
+        // the tile as ERROR up front and stop the load chain.
+        if (!r.ok) {
+          throw new TileHttpError(r.status);
+        }
+        return r.blob();
+      })
       .then((blob) => assignImageBlob(img, blob))
       .then(() => {
         tile.setState(TileState.LOADED);
@@ -84,6 +94,13 @@ export function createAbortableRasterTileLoader(): (
         releaseController(pending, z, controller);
       });
   };
+}
+
+class TileHttpError extends Error {
+  constructor(public readonly status: number) {
+    super(`tile fetch returned HTTP ${status}`);
+    this.name = 'TileHttpError';
+  }
 }
 
 /**
@@ -106,7 +123,12 @@ export function createAbortableVectorTileLoader(): LoadFunction {
 
         tile.setState(TileState.LOADING);
         fetch(src, { signal: controller.signal })
-          .then((r) => r.arrayBuffer())
+          .then((r) => {
+            if (!r.ok) {
+              throw new TileHttpError(r.status);
+            }
+            return r.arrayBuffer();
+          })
           .then((data) => {
             const format = vectorTile.getFormat();
             const features = format.readFeatures(data, {
