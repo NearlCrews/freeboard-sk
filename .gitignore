@@ -12,3 +12,9 @@ playwright-results
 test-results
 out-tsc
 .lighthouseci
+*.playwright-mcp/
+/.playwright-mcp/
+/centered.png
+/notes-shell.png
+/zoomed*.png
+/page-*.png
