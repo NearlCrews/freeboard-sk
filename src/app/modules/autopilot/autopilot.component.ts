@@ -16,8 +16,12 @@ import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent
+} from 'src/app/design-system/primitives';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppFacade } from 'src/app/app.facade';
@@ -31,11 +35,12 @@ import { AutopilotService } from './autopilot.service';
     CommonModule,
     DragDropModule,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
     MatSlideToggleModule,
-    FormsModule
+    FormsModule,
+    FbCardComponent,
+    FbCardContentComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./autopilot.component.css'],
@@ -64,7 +69,7 @@ import { AutopilotService } from './autopilot.service';
         </button>
       }
     </mat-menu>
-    <mat-card cdkDragHandle>
+    <fb-card cdkDragHandle>
       <div
         class="autopilot-console"
         cdkDrag
@@ -83,7 +88,7 @@ import { AutopilotService } from './autopilot.service';
             </button>
           </div>
         </div>
-        <mat-card-content>
+        <fb-card-content>
           <div class="content">
             <div style="height: 45px;color:whitesmoke;">
               Autopilot<br />
@@ -297,9 +302,9 @@ import { AutopilotService } from './autopilot.service';
               </div>
             </div>
           </div>
-        </mat-card-content>
+        </fb-card-content>
       </div>
-    </mat-card>
+    </fb-card>
   `
 })
 export class AutopilotComponent {

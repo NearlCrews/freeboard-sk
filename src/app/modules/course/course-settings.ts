@@ -10,8 +10,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -19,17 +17,14 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
-
 import {
   FbButtonComponent,
+  FbDatepickerComponent,
   FbIconComponent,
   FbInputComponent,
   FbSelectComponent,
   FbSwitchComponent,
+  FbToolbarComponent,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
@@ -65,31 +60,27 @@ interface CoursePutResponse {
   selector: 'ap-course-modal',
   imports: [
     FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatBottomSheetModule,
-    MatCardModule,
     MatIconModule,
-    MatToolbarModule,
     MatTooltipModule,
-    MatDatepickerModule,
     FbButtonComponent,
+    FbDatepickerComponent,
     FbIconComponent,
     FbInputComponent,
     FbSelectComponent,
-    FbSwitchComponent
+    FbSwitchComponent,
+    FbToolbarComponent
   ],
-  providers: [provideNativeDateAdapter()],
   template: `
     <div class="_ap-course">
-      <mat-toolbar style="background-color: transparent">
-        <span>
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading>
           <mat-icon class="ob" svgIcon="navigation-route"></mat-icon>
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <span fbToolbarTitle>
           {{ data.title }}
         </span>
-        <span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -101,7 +92,7 @@ interface CoursePutResponse {
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
       <fieldset>
         <legend>Arrival</legend>
@@ -137,26 +128,20 @@ interface CoursePutResponse {
 
         <div style="display:flex; flex-wrap:wrap;">
           <div>
-            <mat-form-field floatLabel="always">
-              <mat-label>Date</mat-label>
-              <input
-                id="arrivalDate"
-                [disabled]="!targetArrivalEnabled"
-                matInput
-                required
-                [matDatepicker]="picker"
-                [min]="minDate"
-                [(ngModel)]="arrivalData.datetime"
-                (dateChange)="onFormChange($event)"
-                placeholder="Choose a start date"
-              />
-              <mat-hint>MM/DD/YYYY</mat-hint>
-              <mat-datepicker-toggle
-                matIconSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <label
+              for="arrivalDate"
+              style="display:block; font-weight:600; font-size:12px"
+            >
+              Date
+            </label>
+            <fb-datepicker
+              [value]="arrivalData.datetime"
+              (valueChange)="onArrivalDateChange($event)"
+              [min]="minDate"
+              [disabled]="!targetArrivalEnabled"
+              ariaLabel="Arrival date"
+              placeholder="Choose a start date"
+            ></fb-datepicker>
           </div>
 
           <div style="display:flex;flex-wrap:nowrap; gap: 8px;">
@@ -445,6 +430,11 @@ export class CourseSettingsModal implements OnInit {
     this.onFormChange({
       target: { id: 'arrivalCircle', value }
     });
+  }
+
+  protected onArrivalDateChange(value: Date | null) {
+    this.arrivalData.datetime = value;
+    this.onFormChange({ targetElement: { id: 'arrivalDate' } });
   }
 
   protected onArrivalHourChange(value: string | null) {

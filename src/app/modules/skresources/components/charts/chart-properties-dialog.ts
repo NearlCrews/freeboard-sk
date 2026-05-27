@@ -14,14 +14,13 @@ import {
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import {
   FbButtonComponent,
   FbIconComponent,
-  FbInputComponent
+  FbInputComponent,
+  FbProgressBarComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKChart } from 'src/app/modules/skresources/resource-classes';
@@ -43,25 +42,24 @@ import { NodeListSelect } from './node-list-select';
     FormsModule,
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     MatDialogModule,
-    MatProgressBarModule,
     FbButtonComponent,
     FbIconComponent,
     FbInputComponent,
+    FbProgressBarComponent,
+    FbToolbarComponent,
     CoordsPipe,
     NodeTreeSelect,
     NodeListSelect
   ],
   template: `
     <div class="_ap-chartinfo">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
           ><mat-icon>{{ isLocal(data.url) }}</mat-icon></span
         >
-        <span style="flex: 1 1 auto; text-align: center">Chart Properties</span>
-        <span style="text-align: right">
+        <span fbToolbarTitle>Chart Properties</span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -71,7 +69,7 @@ import { NodeListSelect } from './node-list-select';
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <div style="display:flex;flex-direction: column;">
           <div style="display:flex;">
@@ -200,7 +198,7 @@ import { NodeListSelect } from './node-list-select';
               <div class="key-label">Layers:</div>
               <div style="flex: 1 1 auto;">
                 @if (capabilitiesResource.isLoading()) {
-                  <mat-progress-bar mode="query"></mat-progress-bar>
+                  <fb-progress-bar indeterminate></fb-progress-bar>
                 } @else {
                   @if (layerErrorText.length) {
                     <div style="display:flex;">

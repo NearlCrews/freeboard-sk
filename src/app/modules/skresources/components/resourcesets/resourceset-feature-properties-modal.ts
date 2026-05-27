@@ -5,10 +5,14 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -37,19 +41,19 @@ interface ResourceSetFeatureProperties {
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-resource-set-feature">
-      <mat-toolbar style="background-color: transparent">
-        <span> </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarTitle>
           {{ title }}
         </span>
-        <span>
+        <span fbToolbarActions>
           <button
             mat-icon-button
             (click)="closeModal()"
@@ -59,10 +63,10 @@ interface ResourceSetFeatureProperties {
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div style="padding-bottom: 5px; display: flex">
             <div style="font-weight: bold; vertical-align: top">Name:</div>
             <div style="padding-left: 10px">{{ properties.name }}</div>
@@ -87,8 +91,8 @@ interface ResourceSetFeatureProperties {
               {{ properties['resourceset.collection'] }}
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
   `,
   styles: [

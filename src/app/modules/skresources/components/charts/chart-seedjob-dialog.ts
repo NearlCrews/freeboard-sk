@@ -14,8 +14,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { FBChart, Position } from 'src/app/types';
@@ -24,6 +22,7 @@ import {
   FbButtonComponent,
   FbIconComponent,
   FbSelectComponent,
+  FbToolbarComponent,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -38,21 +37,22 @@ interface DialogData {
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     MatDialogModule,
     FormsModule,
     FbButtonComponent,
     FbIconComponent,
     FbSelectComponent,
+    FbToolbarComponent,
     CoordsPipe
   ],
   template: `
     <div class="_ap-chartjob">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"><mat-icon>download</mat-icon></span>
-        <span style="flex: 1 1 auto; text-align: center">Chart Seed job</span>
-        <span style="text-align: right">
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
+          ><mat-icon>download</mat-icon></span
+        >
+        <span fbToolbarTitle>Chart Seed job</span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -62,7 +62,7 @@ interface DialogData {
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <div>
           <div style="flex: 1 1 auto;">{{ data.chart[1].name }}</div>

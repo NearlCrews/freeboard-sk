@@ -1,44 +1,34 @@
 <div class="gpxload-dialog">
-  <mat-toolbar style="background-color: transparent">
-    <div style="display: flex; width: 100%">
-      <div>
-        @if(!app.sIsFetching()) {
-        <button
-          style="width: 85px"
-          mat-raised-button
-          matTooltip="Load selected resources"
-          matTooltipPosition="right"
-          [disabled]="!display.loadRoutesOK && !display.loadWaypointsOK && !display.loadTracksOK"
-          (click)="load()"
-        >
-          <mat-icon>file_upload</mat-icon>
-          &nbsp;Load
-        </button>
-        }
-      </div>
-      <h2
-        style="
-          flex: 1 1 auto;
-          text-align: center;
-          margin: 0;
-          font-size: inherit;
-          font-weight: 500;
-        "
+  <fb-toolbar style="background-color: transparent">
+    <div fbToolbarLeading>
+      @if(!app.sIsFetching()) {
+      <button
+        style="width: 85px"
+        mat-raised-button
+        matTooltip="Load selected resources"
+        matTooltipPosition="right"
+        [disabled]="!display.loadRoutesOK && !display.loadWaypointsOK && !display.loadTracksOK"
+        (click)="load()"
       >
-        Import GPX
-      </h2>
-      <div style="text-align: right">
-        <button
-          mat-icon-button
-          aria-label="Close import dialog"
-          [disabled]="app.sIsFetching()"
-          (click)="this.dialogRef.close(-1);"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
+        <mat-icon>file_upload</mat-icon>
+        &nbsp;Load
+      </button>
+      }
     </div>
-  </mat-toolbar>
+    <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
+      Import GPX
+    </h2>
+    <div fbToolbarActions>
+      <button
+        mat-icon-button
+        aria-label="Close import dialog"
+        [disabled]="app.sIsFetching()"
+        (click)="this.dialogRef.close(-1);"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </fb-toolbar>
 
   @if(display.notValid) {
   <div mat-dialog-content>
@@ -54,7 +44,7 @@
   } @else {
   <div mat-dialog-content>
     @if (app.sIsFetching()) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <fb-progress-bar indeterminate></fb-progress-bar>
     } @else{
     <!--valid GPX file-->
     <div class="card-group">

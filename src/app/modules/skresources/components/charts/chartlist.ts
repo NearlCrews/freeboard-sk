@@ -13,7 +13,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +20,14 @@ import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import {
+  FbCardComponent,
+  FbCardHeaderComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent,
+  FbProgressBarComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -51,7 +57,6 @@ import { SKChart } from '../../resource-classes';
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatCheckboxModule,
     MatButtonModule,
     FormsModule,
@@ -59,8 +64,12 @@ import { SKChart } from '../../resource-classes';
     ScrollingModule,
     MatSlideToggle,
     MatMenuModule,
-    MatProgressBarModule,
-    ChartLayers
+    ChartLayers,
+    FbCardComponent,
+    FbCardHeaderComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent,
+    FbProgressBarComponent
   ]
 })
 export class ChartListComponent extends ResourceListBase implements OnInit {

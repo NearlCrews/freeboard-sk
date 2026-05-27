@@ -1,21 +1,23 @@
 <div class="resourcelist">
-  <mat-card style="border-radius: unset">
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
-            matTooltip="Close Vessels List"
-            matTooltipPosition="right"
-          >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+  <fb-card style="border-radius: unset">
+    <fb-card-header>
+      <span fbCardTitle>
+        <div class="title-block">
+          <div style="width: 50px">
+            <button
+              mat-icon-button
+              (click)="close()"
+              matTooltip="Close Vessels List"
+              matTooltipPosition="right"
+            >
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+          <div style="flex: 1 1 auto; padding-top: 7px">Vessels</div>
         </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Vessels</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
+      </span>
+    </fb-card-header>
+    <fb-card-content>
       <div style="display: flex">
         <div style="flex: 1 1 auto; padding-left: 3px">
           <mat-form-field floatLabel="always" style="width: 180px">
@@ -59,8 +61,8 @@
           </mat-checkbox>
         </div>
       </div>
-    </mat-card-content>
-    <mat-card-actions>
+    </fb-card-content>
+    <fb-card-actions align="start">
       Filter:&nbsp;
       <mat-slide-toggle
         [checked]="app.config.selections.aisFilterByShipType"
@@ -75,15 +77,15 @@
       >
         IMO Only
       </mat-slide-toggle>
-    </mat-card-actions>
-  </mat-card>
+    </fb-card-actions>
+  </fb-card>
 
   <div class="resources vessels">
     @if(this.app.sIsFetching()) {
-    <mat-progress-bar mode="query"></mat-progress-bar>
+    <fb-progress-bar indeterminate></fb-progress-bar>
     } @if (app.config.selections.aisFilterByShipType) {
-    <mat-card>
-      <mat-card-content>
+    <fb-card>
+      <fb-card-content>
         @for (i of shipTypes; track i.id) {
         <div style="display: flex">
           <div style="width: 35px">
@@ -108,16 +110,16 @@
           </div>
         </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </fb-card-content>
+    </fb-card>
 
     } @else {
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="48">
-      <mat-card
+      <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
         style="border-bottom: silver 1px outset; border-radius: unset"
       >
-        <mat-card-content>
+        <fb-card-content>
           <div style="display: flex">
             <div style="flex: 1 1 auto; padding-left: 7px">
               <a
@@ -143,8 +145,8 @@
               </mat-checkbox>
             </div>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
+        </fb-card-content>
+        <fb-card-actions align="start">
           <div style="display: flex">
             <div style="flex: 1 1 auto">
               @if(r[0] !== focusId()) {
@@ -186,8 +188,8 @@
               </button>
             </div>
           </div>
-        </mat-card-actions>
-      </mat-card>
+        </fb-card-actions>
+      </fb-card>
     </cdk-virtual-scroll-viewport>
     }
   </div>

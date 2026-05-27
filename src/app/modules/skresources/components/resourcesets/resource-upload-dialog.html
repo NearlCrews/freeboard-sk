@@ -1,8 +1,8 @@
 <div class="resourceload-dialog">
-  <mat-toolbar style="background-color: transparent">
-    <span><mat-icon>category</mat-icon></span>
-    <span style="flex: 1 1 auto; text-align: center">Load Resource</span>
-    <span style="text-align: right">
+  <fb-toolbar style="background-color: transparent">
+    <span fbToolbarLeading><mat-icon>category</mat-icon></span>
+    <span fbToolbarTitle>Load Resource</span>
+    <span fbToolbarActions>
       <fb-button
         variant="ghost"
         size="sm"
@@ -12,7 +12,7 @@
         <fb-icon name="close" ariaLabel=""></fb-icon>
       </fb-button>
     </span>
-  </mat-toolbar>
+  </fb-toolbar>
 
   <div mat-dialog-content>
     @if(!display.notValid) {

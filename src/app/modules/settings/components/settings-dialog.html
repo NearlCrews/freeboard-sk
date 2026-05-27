@@ -1,19 +1,9 @@
-<mat-toolbar style="background-color: transparent">
-  <span class="dialog-icon">
+<fb-toolbar density="comfortable" class="settings-toolbar">
+  <span fbToolbarLeading class="dialog-icon">
     <fb-icon name="settings"></fb-icon>
   </span>
-  <h2
-    style="
-      flex: 1 1 auto;
-      text-align: center;
-      margin: 0;
-      font-size: inherit;
-      font-weight: 500;
-    "
-  >
-    Settings
-  </h2>
-  <span style="text-align: right">
+  <h2 fbToolbarTitle class="settings-title">Settings</h2>
+  <span fbToolbarActions>
     <fb-button
       variant="ghost"
       size="sm"
@@ -23,7 +13,7 @@
       <fb-icon name="close"></fb-icon>
     </fb-button>
   </span>
-</mat-toolbar>
+</fb-toolbar>
 
 <div mat-dialog-content class="settings-shell">
   <fb-list-pane
@@ -38,22 +28,21 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectDisplay">
           <div class="setting-group-title">DISPLAY</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Dark Mode setting</mat-label>
-                    <mat-select
-                      matTooltip="Dark Mode setting."
-                      [(ngModel)]="facade.settings.display.darkMode.source"
-                      (selectionChange)="persistModel('darkTheme')"
-                    >
-                      @for(i of options.darkMode; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="display-darkmode">
+                    Dark Mode setting
+                  </label>
+                  <fb-select
+                    name="display-darkmode"
+                    matTooltip="Dark Mode setting."
+                    [options]="mapToNumberOptions(options.darkMode)"
+                    [value]="facade.settings.display.darkMode.source"
+                    (valueChange)="onDarkModeSource($event)"
+                    ariaLabel="Dark Mode setting"
+                  ></fb-select>
                 </div>
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -72,8 +61,8 @@
                   <fb-select
                     name="display-fab"
                     [options]="mapToOptions(options.buttons.fab)"
-                    [(value)]="facade.settings.display.fab"
-                    (valueChange)="persistModel()"
+                    [value]="facade.settings.display.fab"
+                    (valueChange)="onFab($event)"
                     ariaLabel="Action button selection."
                   ></fb-select>
                 </div>
@@ -89,12 +78,12 @@
                   </fb-checkbox>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
           <br />
 
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               @if(facade.applicationList.length > 1) {
               <div class="setting-card-row">
                 <div class="setting-card-row-item">
@@ -148,32 +137,24 @@
                   <div style="font-style: italic">
                     <br />Select Favourite Apps:
                   </div>
-                  <mat-divider></mat-divider>
-                  <mat-selection-list
-                    #favs
-                    (selectionChange)="onFavSelected($event, favs)"
-                  >
-                    @for(fav of facade.favouritesList; track fav) {
-                    <mat-list-option
-                      [disabled]="fav.url==facade.settings.display.plugins.instruments"
-                      [selected]="isFavouriteSelected(fav.url)"
-                      [value]="fav.url"
-                    >
-                      {{fav.name}}
-                    </mat-list-option>
-                    }
-                  </mat-selection-list>
+                  <fb-divider></fb-divider>
+                  <fb-selection-list
+                    [options]="favouritesOptions()"
+                    [values]="favouritesValues()"
+                    (valuesChange)="onFavSelected($event)"
+                    ariaLabel="Favourite Apps"
+                  ></fb-selection-list>
                 </div>
               </div>
               }
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
           <br />
         </div>
-        <div class="setting-group" id="sectDisplay">
+        <div class="setting-group" id="sectSound">
           <div class="setting-group-title">SOUND</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -195,23 +176,22 @@
                   </fb-checkbox>
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Alarm Smoothing Time</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.display.depthAlarm.smoothing"
-                      matTooltip="Period of time out of alarm state before re-triggering."
-                      [disabled]="!facade.settings.display.depthAlarm.enabled"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.alarm.smoothing; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="alarm-smoothing">
+                    Alarm Smoothing Time
+                  </label>
+                  <fb-select
+                    name="alarm-smoothing"
+                    matTooltip="Period of time out of alarm state before re-triggering."
+                    [disabled]="!facade.settings.display.depthAlarm.enabled"
+                    [options]="mapToNumberOptions(options.alarm.smoothing)"
+                    [value]="facade.settings.display.depthAlarm.smoothing"
+                    (valueChange)="onAlarmSmoothing($event)"
+                    ariaLabel="Alarm Smoothing Time"
+                  ></fb-select>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -220,8 +200,8 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectUnits">
           <div class="setting-group-title">UNITS &amp; VALUES</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
                   <fieldset>
@@ -348,8 +328,8 @@
                   </signalk-preferred-paths>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -358,34 +338,32 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectMap">
           <div class="setting-group-title">MAP</div>
-          <mat-card>
-            <mat-card-content>
+          <fb-card>
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Feature label zoom level</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.map.labelsMinZoom"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.zoomLevels; track i) {
-                      <mat-option [value]="i">{{i}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="map-labels-min-zoom">
+                    Feature label zoom level
+                  </label>
+                  <fb-select
+                    name="map-labels-min-zoom"
+                    [options]="numberListToOptions(options.zoomLevels)"
+                    [value]="facade.settings.map.labelsMinZoom"
+                    (valueChange)="onLabelsMinZoom($event)"
+                    ariaLabel="Feature label zoom level"
+                  ></fb-select>
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Offset Vessel Center</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.map.centerOffset"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.map.centerOffset; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="map-center-offset">
+                    Offset Vessel Center
+                  </label>
+                  <fb-select
+                    name="map-center-offset"
+                    [options]="mapToNumberOptions(options.map.centerOffset)"
+                    [value]="facade.settings.map.centerOffset"
+                    (valueChange)="onCenterOffset($event)"
+                    ariaLabel="Offset Vessel Center"
+                  ></fb-select>
                 </div>
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -428,11 +406,11 @@
                   </fb-checkbox>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
           <div class="setting-group-title">VECTOR CHARTS</div>
-          <mat-card>
-            <mat-card-content>
+          <fb-card>
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="s57-graphics-style">
@@ -461,110 +439,106 @@
                   ></fb-select>
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Color Table (Requires refresh)</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.map.s57Options.colorTable"
-                      (selectionChange)="doS57()"
-                      placeholder="Color Table"
-                    >
-                      @for(i of options.map.s57.colorTables; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-color-table">
+                    Color Table (Requires refresh)
+                  </label>
+                  <fb-select
+                    name="s57-color-table"
+                    [options]="mapToNumberOptions(options.map.s57.colorTables)"
+                    [value]="facade.settings.map.s57Options.colorTable"
+                    (valueChange)="onS57ColorTable($event)"
+                    placeholder="Color Table"
+                    ariaLabel="Color Table"
+                  ></fb-select>
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Colors</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.map.s57Options.colors"
-                      (selectionChange)="doS57()"
-                      placeholder="Colors"
-                    >
-                      @for(i of options.map.s57.colors; track i) {
-                      <mat-option [value]="i">{{i}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-colors"> Colors </label>
+                  <fb-select
+                    name="s57-colors"
+                    [options]="numberListToOptions(options.map.s57.colors)"
+                    [value]="facade.settings.map.s57Options.colors"
+                    (valueChange)="onS57Colors($event)"
+                    placeholder="Colors"
+                    ariaLabel="Colors"
+                  ></fb-select>
                 </div>
               </div>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Shallow depth</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      #s57shallowDepth="ngModel"
-                      required
-                      [(ngModel)]="facade.settings.map.s57Options.shallowDepth"
-                      (change)="doS57(s57shallowDepth)"
-                      min="0"
-                    />
-                    @if(s57shallowDepth.invalid && (s57shallowDepth.dirty ||
-                    s57shallowDepth.touched)) {
-                    <mat-error> Please enter a positive number </mat-error>
-                    }
-                    <span matSuffix>m</span>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-shallow-depth">
+                    Shallow depth (m)
+                  </label>
+                  <fb-input
+                    name="s57-shallow-depth"
+                    [numericMode]="true"
+                    [min]="0"
+                    [numericValue]="facade.settings.map.s57Options.shallowDepth"
+                    (numericValueChange)="onS57ShallowDepth($event)"
+                    [invalid]="facade.settings.map.s57Options.shallowDepth === null || facade.settings.map.s57Options.shallowDepth < 0"
+                    ariaLabel="Shallow depth in metres"
+                  ></fb-input>
+                  @if(facade.settings.map.s57Options.shallowDepth === null ||
+                  facade.settings.map.s57Options.shallowDepth < 0) {
+                  <fb-hint variant="error">
+                    Please enter a positive number
+                  </fb-hint>
+                  }
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Safety depth</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      #s57safetyDepth="ngModel"
-                      required
-                      [(ngModel)]="facade.settings.map.s57Options.safetyDepth"
-                      (change)="doS57(s57safetyDepth)"
-                      min="0"
-                    />
-                    @if(s57safetyDepth.invalid && (s57safetyDepth.dirty ||
-                    s57safetyDepth.touched)) {
-                    <mat-error> Please enter a positive number </mat-error>
-                    }
-                    <span matSuffix>m</span>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-safety-depth">
+                    Safety depth (m)
+                  </label>
+                  <fb-input
+                    name="s57-safety-depth"
+                    [numericMode]="true"
+                    [min]="0"
+                    [numericValue]="facade.settings.map.s57Options.safetyDepth"
+                    (numericValueChange)="onS57SafetyDepth($event)"
+                    [invalid]="facade.settings.map.s57Options.safetyDepth === null || facade.settings.map.s57Options.safetyDepth < 0"
+                    ariaLabel="Safety depth in metres"
+                  ></fb-input>
+                  @if(facade.settings.map.s57Options.safetyDepth === null ||
+                  facade.settings.map.s57Options.safetyDepth < 0) {
+                  <fb-hint variant="error">
+                    Please enter a positive number
+                  </fb-hint>
+                  }
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Deep depth</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      #s57deepDepth="ngModel"
-                      required
-                      [(ngModel)]="facade.settings.map.s57Options.deepDepth"
-                      (change)="doS57(s57deepDepth)"
-                      min="0"
-                    />
-                    @if(s57deepDepth.invalid && (s57deepDepth.dirty ||
-                    s57deepDepth.touched)) {
-                    <mat-error> Please enter a positive number </mat-error>
-                    }
-                    <span matSuffix>m</span>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-deep-depth">
+                    Deep depth (m)
+                  </label>
+                  <fb-input
+                    name="s57-deep-depth"
+                    [numericMode]="true"
+                    [min]="0"
+                    [numericValue]="facade.settings.map.s57Options.deepDepth"
+                    (numericValueChange)="onS57DeepDepth($event)"
+                    [invalid]="facade.settings.map.s57Options.deepDepth === null || facade.settings.map.s57Options.deepDepth < 0"
+                    ariaLabel="Deep depth in metres"
+                  ></fb-input>
+                  @if(facade.settings.map.s57Options.deepDepth === null ||
+                  facade.settings.map.s57Options.deepDepth < 0) {
+                  <fb-hint variant="error">
+                    Please enter a positive number
+                  </fb-hint>
+                  }
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Layers</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.map.s57Options.otherLayers"
-                      (selectionChange)="doS57()"
-                      multiple
-                      placeholder="Layers"
-                    >
-                      @for(i of options.map.s57.otherLayers; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="s57-layers"> Layers </label>
+                  <fb-select
+                    name="s57-layers"
+                    [multiple]="true"
+                    [options]="mapToOptions(options.map.s57.otherLayers)"
+                    [values]="facade.settings.map.s57Options.otherLayers"
+                    (valuesChange)="onS57OtherLayers($event)"
+                    placeholder="Layers"
+                    ariaLabel="Layers"
+                  ></fb-select>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -573,28 +547,28 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectCourse">
           <div class="setting-group-title">COURSE</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Arrival Circle</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      #coursearrivalcircle="ngModel"
-                      required
-                      [(ngModel)]="facade.settings.course.arrivalCircle"
-                      (change)="parseNumber(coursearrivalcircle)"
-                      min="0"
-                    />
-                    @if(coursearrivalcircle.invalid &&
-                    (coursearrivalcircle.dirty || coursearrivalcircle.touched))
-                    {
-                    <mat-error> Please enter a number > 0 </mat-error>
-                    }
-                    <span matSuffix>m</span>
-                  </mat-form-field>
+                  <label class="setting-label" for="course-arrival-circle">
+                    Arrival Circle (m)
+                  </label>
+                  <fb-input
+                    name="course-arrival-circle"
+                    [numericMode]="true"
+                    [min]="0"
+                    [numericValue]="facade.settings.course.arrivalCircle"
+                    (numericValueChange)="onArrivalCircle($event)"
+                    [invalid]="facade.settings.course.arrivalCircle === null || facade.settings.course.arrivalCircle < 0"
+                    ariaLabel="Arrival circle radius in metres"
+                  ></fb-input>
+                  @if(facade.settings.course.arrivalCircle === null ||
+                  facade.settings.course.arrivalCircle < 0) {
+                  <fb-hint variant="error">
+                    Please enter a number &gt; 0
+                  </fb-hint>
+                  }
                 </div>
               </div>
 
@@ -627,23 +601,22 @@
                 </div>
 
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Time to wait before advancing</mat-label>
-                    <mat-select
-                      matTooltip="Period of time before destination is advanced to next waypoint."
-                      [disabled]="!facade.settings.course.autoNextPointOnArrival"
-                      [(ngModel)]="facade.settings.course.autoNextPointDelay"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.course.nextPointDelay; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="course-next-point-delay">
+                    Time to wait before advancing
+                  </label>
+                  <fb-select
+                    name="course-next-point-delay"
+                    matTooltip="Period of time before destination is advanced to next waypoint."
+                    [disabled]="!facade.settings.course.autoNextPointOnArrival"
+                    [options]="mapToNumberOptions(options.course.nextPointDelay)"
+                    [value]="facade.settings.course.autoNextPointDelay"
+                    (valueChange)="onAutoNextPointDelay($event)"
+                    ariaLabel="Time to wait before advancing"
+                  ></fb-select>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -652,28 +625,29 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectVessels">
           <div class="setting-group-title">VESSEL</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
                   <fieldset>
                     <legend>Vessel Icon Size</legend>
                     <div class="setting-card-row" style="padding-bottom: 10px">
                       <div class="setting-card-row-item">
-                        <mat-radio-group
-                          [(ngModel)]="facade.settings.vessels.iconScale"
-                          (change)="persistModel()"
+                        <fb-radio-group
+                          [value]="facade.settings.vessels.iconScale"
+                          (valueChange)="onVesselIconScale($event)"
+                          ariaLabel="Vessel icon size"
                         >
                           @for(i of options.vessel.selfIconScale; track i[0]) {
-                          <mat-radio-button [value]="i[0]">
+                          <fb-radio [value]="i[0]">
                             <img
                               src="./assets/img/vessels/self.png"
                               [style]="`transform: scale(${i[0]})`"
                             />
                             ({{i[1]}})
-                          </mat-radio-button>
+                          </fb-radio>
                           }
-                        </mat-radio-group>
+                        </fb-radio-group>
                       </div>
                     </div>
                   </fieldset>
@@ -693,59 +667,60 @@
                   </legend>
                   <div class="setting-card-row" style="padding-bottom: 10px">
                     <div class="setting-card-row-item">
-                      <mat-form-field floatLabel="always">
-                        <mat-label>Latitude</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          #fixedlat="ngModel"
-                          required
-                          pattern="^-?([1-8]?[0-9])(\.\d{1,9})?$"
-                          [(ngModel)]="facade.fixedPosition[1]"
-                          (change)="parseNumber(fixedlat, true)"
-                          [disabled]="!facade.settings.vessels.fixedLocationMode"
-                          min="-90"
-                          max="90"
-                        />
-                        @if(fixedlat.invalid && (fixedlat.dirty ||
-                        fixedlat.touched)) {
-                        <mat-error>
-                          Please enter a value between -90 and 90 (max 9
-                          decimals)
-                        </mat-error>
-                        }
-                      </mat-form-field>
-                      <mat-form-field floatLabel="always">
-                        <mat-label>Longitude</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          #fixedlon="ngModel"
-                          required
-                          pattern="^-?(1[0-7]?[0-9]|[1-9]?[0-9])(\.\d{1,9})?$"
-                          [(ngModel)]="facade.fixedPosition[0]"
-                          (change)="parseNumber(fixedlon, true)"
-                          [disabled]="!facade.settings.vessels.fixedLocationMode"
-                          min="-180"
-                          max="180"
-                        />
-                        @if(fixedlon.invalid && (fixedlon.dirty ||
-                        fixedlon.touched)) {
-                        <mat-error>
-                          Please enter a value between -180 and 180 (max 9
-                          decimals)
-                        </mat-error>
-                        }
-                      </mat-form-field>
+                      <label class="setting-label" for="vessel-fixed-lat">
+                        Latitude
+                      </label>
+                      <fb-input
+                        name="vessel-fixed-lat"
+                        [numericMode]="true"
+                        [min]="-90"
+                        [max]="90"
+                        [numericValue]="facade.fixedPosition[1]"
+                        (numericValueChange)="onFixedLat($event)"
+                        [disabled]="!facade.settings.vessels.fixedLocationMode"
+                        [invalid]="facade.fixedPosition[1] === null || facade.fixedPosition[1] < -90 || facade.fixedPosition[1] > 90"
+                        ariaLabel="Fixed location latitude"
+                      ></fb-input>
+                      @if(facade.fixedPosition[1] === null ||
+                      facade.fixedPosition[1] < -90 || facade.fixedPosition[1] >
+                      90) {
+                      <fb-hint variant="error">
+                        Please enter a value between -90 and 90 (max 9 decimals)
+                      </fb-hint>
+                      }
+                    </div>
+                    <div class="setting-card-row-item">
+                      <label class="setting-label" for="vessel-fixed-lon">
+                        Longitude
+                      </label>
+                      <fb-input
+                        name="vessel-fixed-lon"
+                        [numericMode]="true"
+                        [min]="-180"
+                        [max]="180"
+                        [numericValue]="facade.fixedPosition[0]"
+                        (numericValueChange)="onFixedLon($event)"
+                        [disabled]="!facade.settings.vessels.fixedLocationMode"
+                        [invalid]="facade.fixedPosition[0] === null || facade.fixedPosition[0] < -180 || facade.fixedPosition[0] > 180"
+                        ariaLabel="Fixed location longitude"
+                      ></fb-input>
+                      @if(facade.fixedPosition[0] === null ||
+                      facade.fixedPosition[0] < -180 || facade.fixedPosition[0]
+                      > 180) {
+                      <fb-hint variant="error">
+                        Please enter a value between -180 and 180 (max 9
+                        decimals)
+                      </fb-hint>
+                      }
                     </div>
                   </div>
                 </fieldset>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
           <br />
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row-item">
                 <fieldset>
                   <legend>Vessel Lines:</legend>
@@ -775,19 +750,20 @@
                           style="padding-bottom: 10px"
                         >
                           <div class="setting-card-row-item">
-                            <mat-form-field>
-                              <mat-label>Heading Line Length</mat-label>
-                              <mat-select
-                                matTooltip="Length of heading line."
-                                [(ngModel)]="facade.settings.vessels.selfLines.heading.length"
-                                (selectionChange)="persistModel()"
-                              >
-                                @for(i of options.vessel.headingLine; track i[0]
-                                ) {
-                                <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                                }
-                              </mat-select>
-                            </mat-form-field>
+                            <label
+                              class="setting-label"
+                              for="vessel-heading-line"
+                            >
+                              Heading Line Length
+                            </label>
+                            <fb-select
+                              name="vessel-heading-line"
+                              matTooltip="Length of heading line."
+                              [options]="mapToNumberOptions(options.vessel.headingLine)"
+                              [value]="facade.settings.vessels.selfLines.heading.length"
+                              (valueChange)="onHeadingLineLength($event)"
+                              ariaLabel="Heading Line Length"
+                            ></fb-select>
                           </div>
                           <div class="setting-card-row-item">
                             <linestyle-select
@@ -810,18 +786,17 @@
                           style="padding-bottom: 10px"
                         >
                           <div class="setting-card-row-item">
-                            <mat-form-field>
-                              <mat-label>COG Line Length</mat-label>
-                              <mat-select
-                                matTooltip="Length of COG line."
-                                [(ngModel)]="facade.settings.vessels.selfLines.cog.length"
-                                (selectionChange)="persistModel()"
-                              >
-                                @for(i of options.vessel.cogLine; track i[0]) {
-                                <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                                }
-                              </mat-select>
-                            </mat-form-field>
+                            <label class="setting-label" for="vessel-cog-line">
+                              COG Line Length
+                            </label>
+                            <fb-select
+                              name="vessel-cog-line"
+                              matTooltip="Length of COG line."
+                              [options]="mapToNumberOptions(options.vessel.cogLine)"
+                              [value]="facade.settings.vessels.selfLines.cog.length"
+                              (valueChange)="onCogLineLength($event)"
+                              ariaLabel="COG Line Length"
+                            ></fb-select>
                           </div>
                           <div class="setting-card-row-item">
                             <linestyle-select
@@ -850,32 +825,30 @@
                   </legend>
                   <div class="setting-card-row" style="padding-bottom: 10px">
                     <div class="setting-card-row-item">
-                      <mat-form-field style="width: 100%">
-                        <mat-label>Number of Range Circles</mat-label>
-                        <mat-select
-                          [(ngModel)]="facade.settings.vessels.rangeCircleCount"
-                          [disabled]="!facade.settings.vessels.rangeCircles"
-                          (selectionChange)="persistModel()"
-                        >
-                          @for(i of options.rangeCircles.count; track i) {
-                          <mat-option [value]="i">{{i}}</mat-option>
-                          }
-                        </mat-select>
-                      </mat-form-field>
+                      <label class="setting-label" for="vessel-range-count">
+                        Number of Range Circles
+                      </label>
+                      <fb-select
+                        name="vessel-range-count"
+                        [options]="numberListToOptions(options.rangeCircles.count)"
+                        [value]="facade.settings.vessels.rangeCircleCount"
+                        (valueChange)="onRangeCircleCount($event)"
+                        [disabled]="!facade.settings.vessels.rangeCircles"
+                        ariaLabel="Number of Range Circles"
+                      ></fb-select>
                     </div>
                     <div class="setting-card-row-item">
-                      <mat-form-field style="width: 100%">
-                        <mat-label>Minimum Zoom Level</mat-label>
-                        <mat-select
-                          [(ngModel)]="facade.settings.vessels.rangeCircleMinZoom"
-                          [disabled]="!facade.settings.vessels.rangeCircles"
-                          (selectionChange)="persistModel()"
-                        >
-                          @for(i of options.rangeCircles.zoomLevels; track i) {
-                          <mat-option [value]="i">{{i}}</mat-option>
-                          }
-                        </mat-select>
-                      </mat-form-field>
+                      <label class="setting-label" for="vessel-range-min-zoom">
+                        Minimum Zoom Level
+                      </label>
+                      <fb-select
+                        name="vessel-range-min-zoom"
+                        [options]="numberListToOptions(options.rangeCircles.zoomLevels)"
+                        [value]="facade.settings.vessels.rangeCircleMinZoom"
+                        (valueChange)="onRangeCircleMinZoom($event)"
+                        [disabled]="!facade.settings.vessels.rangeCircles"
+                        ariaLabel="Minimum Zoom Level"
+                      ></fb-select>
                     </div>
                   </div>
                   <div class="setting-card-row" style="padding-bottom: 10px">
@@ -890,36 +863,34 @@
                       </fb-checkbox>
                     </div>
                     <div class="setting-card-row-item">
-                      <mat-form-field floatLabel="always">
-                        <mat-label>
-                          Distance between circles
-                          ({{renderSymbol(facade.settings.units.distance)}})
-                        </mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          #rangeCirclesDistance="ngModel"
-                          required
-                          [(ngModel)]="formattedNumberModel.rangeCirclesDistance"
-                          (change)="parseFormattedNumber(rangeCirclesDistance)"
-                          [disabled]="!facade.settings.vessels.rangeCircles || !facade.settings.vessels.rangeCirclesFixed"
-                          min="1"
-                        />
-                        @if(rangeCirclesDistance.invalid &&
-                        (rangeCirclesDistance.dirty ||
-                        rangeCirclesDistance.touched)) {
-                        <mat-error> Please enter a number >= 1. </mat-error>
-                        }
-                      </mat-form-field>
+                      <label class="setting-label" for="vessel-range-distance">
+                        Distance between circles
+                        ({{renderSymbol(facade.settings.units.distance)}})
+                      </label>
+                      <fb-input
+                        name="vessel-range-distance"
+                        [numericMode]="true"
+                        [min]="1"
+                        [numericValue]="formattedNumberModel.rangeCirclesDistance"
+                        (numericValueChange)="onRangeCirclesDistance($event)"
+                        [disabled]="!facade.settings.vessels.rangeCircles || !facade.settings.vessels.rangeCirclesFixed"
+                        [invalid]="formattedNumberModel.rangeCirclesDistance < 1"
+                        ariaLabel="Distance between circles"
+                      ></fb-input>
+                      @if(formattedNumberModel.rangeCirclesDistance < 1) {
+                      <fb-hint variant="error">
+                        Please enter a number &gt;= 1.
+                      </fb-hint>
+                      }
                     </div>
                   </div>
                 </fieldset>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
           <br />
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <fieldset>
                   <legend>
@@ -999,12 +970,12 @@
                   </div>
                 </fieldset>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
 
           <div class="setting-group-title">OTHER VESSELS</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -1034,77 +1005,72 @@
               </div>
               <div class="setting-card-row" style="padding-bottom: 10px">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Mark AIS target inactive after</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.vessels.aisStaleAge"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.vessel.aisTimeouts; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="vessel-ais-stale-age">
+                    Mark AIS target inactive after
+                  </label>
+                  <fb-select
+                    name="vessel-ais-stale-age"
+                    [options]="mapToNumberOptions(options.vessel.aisTimeouts)"
+                    [value]="facade.settings.vessels.aisStaleAge"
+                    (valueChange)="onAisStaleAge($event)"
+                    ariaLabel="Mark AIS target inactive after"
+                  ></fb-select>
                 </div>
 
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Remove AIS target after</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.vessels.aisMaxAge"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.vessel.aisTimeouts; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="vessel-ais-max-age">
+                    Remove AIS target after
+                  </label>
+                  <fb-select
+                    name="vessel-ais-max-age"
+                    [options]="mapToNumberOptions(options.vessel.aisTimeouts)"
+                    [value]="facade.settings.vessels.aisMaxAge"
+                    (valueChange)="onAisMaxAge($event)"
+                    ariaLabel="Remove AIS target after"
+                  ></fb-select>
                 </div>
 
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Wind Vector Value</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.vessels.aisWindApparent"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.preferredValues.wind; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="vessel-ais-wind">
+                    Wind Vector Value
+                  </label>
+                  <fb-select
+                    name="vessel-ais-wind"
+                    [options]="boolWindOptions()"
+                    [value]="aisWindApparentNumeric()"
+                    (valueChange)="onAisWindApparent($event)"
+                    ariaLabel="Wind Vector Value"
+                  ></fb-select>
                 </div>
 
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Wind / Track Zoom Level</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.vessels.aisWindMinZoom"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.zoomLevels; track i) {
-                      <mat-option [value]="i">{{i}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="vessel-ais-wind-min-zoom">
+                    Wind / Track Zoom Level
+                  </label>
+                  <fb-select
+                    name="vessel-ais-wind-min-zoom"
+                    [options]="numberListToOptions(options.zoomLevels)"
+                    [value]="facade.settings.vessels.aisWindMinZoom"
+                    (valueChange)="onAisWindMinZoom($event)"
+                    ariaLabel="Wind / Track Zoom Level"
+                  ></fb-select>
                 </div>
 
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>COG Line</mat-label>
-                    <mat-select
-                      [(ngModel)]="facade.settings.vessels.aisCogLine"
-                      (selectionChange)="persistModel()"
-                    >
-                      @for(i of options.vessel.aisCogLine; track i[0]) {
-                      <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="vessel-ais-cog-line">
+                    COG Line
+                  </label>
+                  <fb-select
+                    name="vessel-ais-cog-line"
+                    [options]="mapToNumberOptions(options.vessel.aisCogLine)"
+                    [value]="facade.settings.vessels.aisCogLine"
+                    (valueChange)="onAisCogLine($event)"
+                    ariaLabel="COG Line"
+                  ></fb-select>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -1113,8 +1079,8 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectNotes">
           <div class="setting-group-title">NOTES</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row">
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -1126,38 +1092,34 @@
                   </fb-checkbox>
                 </div>
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label>Notes Zoom Level</mat-label>
-                    <mat-select
-                      [disabled]="!facade.settings.ui.showNotes"
-                      [(value)]="facade.settings.resources.notes.minZoom"
-                      (selectionChange)="persistModel(`fetchNotes`)"
-                    >
-                      @for(i of options.zoomLevels; track i) {
-                      <mat-option [value]="i">{{i}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="notes-min-zoom">
+                    Notes Zoom Level
+                  </label>
+                  <fb-select
+                    name="notes-min-zoom"
+                    [disabled]="!facade.settings.ui.showNotes"
+                    [options]="numberListToOptions(options.zoomLevels)"
+                    [value]="facade.settings.resources.notes.minZoom"
+                    (valueChange)="onNotesMinZoom($event)"
+                    ariaLabel="Notes Zoom Level"
+                  ></fb-select>
                 </div>
               </div>
               <div class="setting-card-row">
                 <div class="setting-card-row-item">
-                  <mat-form-field style="width: 100%">
-                    <mat-label
-                      >{{'Fetch Notes radius: (' +
-                      options.availableUnits.distance.get(facade.settings.units.distance)
-                      + ')'}}</mat-label
-                    >
-                    <mat-select
-                      [disabled]="!facade.settings.ui.showNotes"
-                      [(ngModel)]="facade.settings.resources.notes.getRadius"
-                      (selectionChange)="persistModel(`fetchNotes`)"
-                    >
-                      @for(i of options.resources.noteRadius;track i) {
-                      <mat-option [value]="i">{{i}}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
+                  <label class="setting-label" for="notes-get-radius">
+                    {{'Fetch Notes radius: (' +
+                    options.availableUnits.distance.get(facade.settings.units.distance)
+                    + ')'}}
+                  </label>
+                  <fb-select
+                    name="notes-get-radius"
+                    [disabled]="!facade.settings.ui.showNotes"
+                    [options]="numberListToOptions(options.resources.noteRadius)"
+                    [value]="facade.settings.resources.notes.getRadius"
+                    (valueChange)="onNotesGetRadius($event)"
+                    ariaLabel="Fetch Notes radius"
+                  ></fb-select>
                 </div>
               </div>
               <div class="setting-card-row">
@@ -1207,83 +1169,29 @@
                   </fb-checkbox>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
         <div class="setting-group" id="sectResLayers">
           <div class="setting-group-title">CUSTOM RESOURCES</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
-              <!--<div class="setting-card-row">
-                  <div class="setting-card-row-item">
-                    <mat-form-field style="width: 100%">
-                      <mat-label
-                        >{{'Fetch radius: (' +
-                        options.availableUnits.distance.get(facade.settings.units.distance) +
-                        ')'}}</mat-label
-                      >
-                      <mat-hint
-                        >Note: Changing Fetch radius requires re-load.</mat-hint
-                      >
-                      <mat-select
-                        [(ngModel)]="facade.settings.resources.fetchRadius"
-                        (selectionChange)="persistModel()"
-                      >
-                        @for(i of options.resources.resSetRadius;track i) {
-                        <mat-option [value]="i">{{i}}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-                <div class="setting-card-row">
-                  <div class="setting-card-row-item">
-                    <mat-form-field style="width: 100%" floatLabel="always">
-                      <mat-label>Fetch filter:</mat-label>
-                      <input
-                        matInput
-                        type="text"
-                        #resfetchfilter
-                        [(ngModel)]="facade.settings.resources.fetchFilter"
-                        (change)="persistModel()"
-                        placeholder="?radius=%fetch:radius%"
-                        matTooltip="Filter to apply when retrieving resource sets"
-                      />
-                      @if(resfetchfilter.value) {
-                      <button
-                        matSuffix
-                        mat-icon-button
-                        (click)="resfetchfilter.value=''"
-                      >
-                        <mat-icon>close</mat-icon>
-                      </button>
-                      }
-                    </mat-form-field>
-                  </div>
-                </div>-->
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row">
                 <div class="setting-card-row-item">
                   <div style="font-style: italic">
                     Select custom resource types (./resources/&lt;name&gt;)
                   </div>
-                  <mat-selection-list
-                    #respath
+                  <fb-selection-list
                     matTooltip="Select resource layers to show."
-                    (selectionChange)="onResPathSelected(respath)"
-                  >
-                    @for(f of facade.resourcePathList; track f) {
-                    <mat-list-option
-                      [selected]="facade.settings.resources.paths.includes(f)"
-                      [value]="f"
-                    >
-                      {{f}}
-                    </mat-list-option>
-                    }
-                  </mat-selection-list>
+                    [options]="resourcePathOptions()"
+                    [values]="resourcePathValues()"
+                    (valuesChange)="onResPathSelected($event)"
+                    ariaLabel="Custom resource layers"
+                  ></fb-selection-list>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -1292,8 +1200,8 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectSKConnection">
           <div class="setting-group-title">SIGNAL K: CONNECTION</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row">
                 <fieldset>
                   <legend>Filter Stream data:</legend>
@@ -1358,20 +1266,18 @@
 
                   <div class="setting-card-row-item">
                     <br />
-                    <mat-form-field style="width: 100%">
-                      <mat-label>Max. distance from vessel</mat-label>
-                      <mat-select
-                        #skmaxradius
-                        [(ngModel)]="facade.settings.signalk.maxRadius"
-                        (selectionChange)="persistModel()"
-                        matToolTip="Only include AIS targets within this distance"
-                        matTooltipPosition="below"
-                      >
-                        @for(i of options.vessel.aisMaxRadius; track i[0]) {
-                        <mat-option [value]="i[0]">{{i[1]}}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
+                    <label class="setting-label" for="signalk-max-radius">
+                      Max. distance from vessel
+                    </label>
+                    <fb-select
+                      name="signalk-max-radius"
+                      [options]="mapToNumberOptions(options.vessel.aisMaxRadius)"
+                      [value]="facade.settings.signalk.maxRadius"
+                      (valueChange)="onSignalkMaxRadius($event)"
+                      matTooltip="Only include AIS targets within this distance"
+                      matTooltipPosition="below"
+                      ariaLabel="Max. distance from vessel"
+                    ></fb-select>
                   </div>
                 </fieldset>
               </div>
@@ -1388,8 +1294,8 @@
                   </fb-button>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>
@@ -1398,7 +1304,7 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectExperiments">
           <div class="setting-group-title">RADAR SETTINGS</div>
-          <mat-card class="setting-card"> </mat-card>
+          <fb-card class="setting-card"></fb-card>
         </div>
       </div>
     </div>
@@ -1407,8 +1313,8 @@
       <div class="theme-panel">
         <div class="setting-group" id="sectExperiments">
           <div class="setting-group-title">EXPERIMENTS</div>
-          <mat-card class="setting-card">
-            <mat-card-content>
+          <fb-card class="setting-card">
+            <fb-card-content>
               <div class="setting-card-row">
                 <div class="setting-card-row-item">
                   <fb-checkbox
@@ -1430,7 +1336,7 @@
                     ariaLabel="Enter URL of video stream"
                   ></fb-input>
                   @if(!videoUrl) {
-                  <span class="setting-error">Value required.</span>
+                  <fb-hint variant="error">Value required.</fb-hint>
                   }
                 </div>
               </div>
@@ -1446,28 +1352,8 @@
                   </fb-checkbox>
                 </div>
               </div>
-              <!--<div class="setting-card-row">
-                  <div class="setting-card-row-item">
-                    <mat-form-field style="width: 100%" floatLabel="always">
-                      <mat-label>Feature Server url:</mat-label>
-                      <input
-                        matInput
-                        type="text"
-                        #featureserverurl="ngModel"
-                        [disabled]="!facade.settings.experiments"
-                        [(ngModel)]="facade.settings.resources.featureServer.url"
-                        (change)="persistModel('featureServerUrl')"
-                        placeholder="e.g. http://host:port/path/?position=[%pointer:longitude%,%pointer:latitude%]"
-                        matTooltip="Enter URL of feature server"
-                      />
-                      @if(featureserverurl.invalid) {
-                      <mat-error> Value required. </mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-                </div>-->
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         </div>
       </div>
     </div>

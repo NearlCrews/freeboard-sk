@@ -5,11 +5,15 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 
-import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PopoverComponent } from './popover.component';
+
+import {
+  FbListItemComponent,
+  FbNavListComponent
+} from 'src/app/design-system/primitives';
 
 /*********** Chart boundaries List Popover ***************
   features: Array<{id: string, name: string}> - list of chart boundaries
@@ -18,22 +22,23 @@ import { PopoverComponent } from './popover.component';
   selector: 'chart-list-popover',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatListModule,
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
+    FbListItemComponent,
+    FbNavListComponent,
     PopoverComponent
   ],
   template: `
     <ap-popover [title]="title" [canClose]="canClose" (closed)="handleClose()">
-      <mat-nav-list>
+      <fb-nav-list ariaLabel="Chart list">
         @for (c of features; track c) {
-          <mat-list-item (click)="handleSelect(c.id)">
-            <mat-icon>map</mat-icon>
+          <fb-list-item interactive (activated)="handleSelect(c.id)">
+            <mat-icon fbListItemLeading>map</mat-icon>
             {{ c.text }}
-          </mat-list-item>
+          </fb-list-item>
         }
-      </mat-nav-list>
+      </fb-nav-list>
     </ap-popover>
   `,
   styleUrls: []

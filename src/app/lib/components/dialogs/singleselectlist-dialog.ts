@@ -13,7 +13,6 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
@@ -21,6 +20,11 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
+
+import {
+  FbListComponent,
+  FbListItemComponent
+} from 'src/app/design-system/primitives';
 
 /********* SingleSelectListDialog *********
  * data: {
@@ -37,8 +41,9 @@ import type { AppIconDef } from 'src/app/modules/icons';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    MatListModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FbListComponent,
+    FbListItemComponent
   ],
   template: `
     <div class="_ap-singlesellist">
@@ -68,13 +73,13 @@ import type { AppIconDef } from 'src/app/modules/icons';
       </div>
 
       <mat-dialog-content style="padding-top: 5px;">
-        <mat-action-list>
+        <fb-list>
           @for (i of this.data.items; track i.id) {
-            <button mat-list-item (click)="handleClose(i)">
+            <fb-list-item interactive (activated)="handleClose(i)">
               {{ i.name }}
-            </button>
+            </fb-list-item>
           }
-        </mat-action-list>
+        </fb-list>
       </mat-dialog-content>
     </div>
   `,

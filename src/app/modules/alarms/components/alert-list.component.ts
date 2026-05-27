@@ -13,11 +13,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CdkDrag } from '@angular/cdk/drag-drop';
+
+import { FbCardComponent } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { getAlertIcon } from '../../icons';
 import { AlertData } from './alert.component';
@@ -31,12 +32,12 @@ import { alertSeverityClass } from './alert-severity';
     MatTooltipModule,
     CommonModule,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
     MatSlideToggleModule,
     FormsModule,
-    CdkDrag
+    CdkDrag,
+    FbCardComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./alert-list.component.css'],
@@ -47,7 +48,7 @@ import { alertSeverityClass } from './alert-severity';
         &nbsp;Overboard!
       </button>
     </mat-menu>
-    <mat-card appearance="outlined">
+    <fb-card variant="outlined">
       <div class="alert-list-main mat-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
           @if (app.featureFlags().notificationApi) {
@@ -201,7 +202,7 @@ import { alertSeverityClass } from './alert-severity';
           </div>
         </div>
       </div>
-    </mat-card>
+    </fb-card>
   `
 })
 export class AlertListComponent {

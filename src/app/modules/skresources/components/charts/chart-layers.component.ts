@@ -7,10 +7,14 @@ import {
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { FBCharts } from 'src/app/types';
@@ -20,7 +24,13 @@ import { SKResourceService } from '../../resources.service';
 @Component({
   selector: 'ap-chartlayers',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatTooltipModule, MatIconModule, MatCardModule, DragDropModule],
+  imports: [
+    MatTooltipModule,
+    MatIconModule,
+    DragDropModule,
+    FbCardComponent,
+    FbCardContentComponent
+  ],
   template: `
     <div class="_ap-chartlayers">
       <div style="flex: 1 1 auto;position:relative;">
@@ -31,8 +41,8 @@ import { SKResourceService } from '../../resources.service';
             (cdkDropListDropped)="drop($event)"
           >
             @for (ch of chartList; track ch; let i = $index) {
-              <mat-card cdkDrag style="border-radius: unset;">
-                <mat-card-content>
+              <fb-card cdkDrag style="border-radius: unset;">
+                <fb-card-content>
                   <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
 
                   <div
@@ -52,15 +62,15 @@ import { SKResourceService } from '../../resources.service';
                       <mat-icon>drag_indicator</mat-icon>
                     </div>
                   </div>
-                </mat-card-content>
-              </mat-card>
+                </fb-card-content>
+              </fb-card>
             }
           </div>
         </div>
       </div>
 
-      <mat-card style="border-radius: unset;">
-        <mat-card-content>
+      <fb-card style="border-radius: unset;">
+        <fb-card-content>
           <div
             style="display:flex; font-style:italic; border-top:gray 1px solid;"
           >
@@ -72,8 +82,8 @@ import { SKResourceService } from '../../resources.service';
               (e.g. World Map)
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
   `,
   styles: [

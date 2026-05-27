@@ -1,18 +1,12 @@
 <div class="_ap-trail2route">
-  <mat-toolbar style="background-color: transparent">
-    <span><mat-icon aria-hidden="true">insights</mat-icon></span>
-    <h2
-      style="
-        flex: 1 1 auto;
-        text-align: center;
-        margin: 0;
-        font-size: inherit;
-        font-weight: 500;
-      "
+  <fb-toolbar style="background-color: transparent">
+    <span fbToolbarLeading
+      ><mat-icon aria-hidden="true">insights</mat-icon></span
     >
+    <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
       Vessel Trail to Route
     </h2>
-    <span style="text-align: right">
+    <span fbToolbarActions>
       <button
         mat-icon-button
         aria-label="Cancel trail conversion"
@@ -21,7 +15,7 @@
         <mat-icon>close</mat-icon>
       </button>
     </span>
-  </mat-toolbar>
+  </fb-toolbar>
 
   <mat-dialog-content style="width: 50vw">
     <div style="display: block">

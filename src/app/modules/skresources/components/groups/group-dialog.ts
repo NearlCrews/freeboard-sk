@@ -11,10 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -27,7 +24,13 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbInputComponent,
-  FbTextareaComponent
+  FbListComponent,
+  FbListItemComponent,
+  FbTabPanelDirective,
+  FbTabsComponent,
+  FbTextareaComponent,
+  FbToolbarComponent,
+  type FbTabDef
 } from 'src/app/design-system/primitives';
 import type { SKResourceGroup } from './groups.service';
 import type { SKResourceType } from '../../resources.service';
@@ -57,26 +60,28 @@ interface GroupItem {
     FormField,
     MatIconModule,
     MatDialogModule,
-    MatTabsModule,
-    MatListModule,
     MatTooltipModule,
-    MatToolbarModule,
     FbButtonComponent,
     FbCheckboxComponent,
     FbIconComponent,
     FbInputComponent,
-    FbTextareaComponent
+    FbListComponent,
+    FbListItemComponent,
+    FbTabPanelDirective,
+    FbTabsComponent,
+    FbTextareaComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-group">
-      <mat-toolbar style="background-color: transparent">
-        <div>
+      <fb-toolbar style="background-color: transparent">
+        <div fbToolbarLeading>
           <mat-icon class="icon-region">category</mat-icon>
         </div>
-        <span style="flex: 1 1 auto; text-align: center;">
+        <span fbToolbarTitle>
           {{ this.data.addMode ? 'New Group' : 'Group Information' }}
         </span>
-        <div style="width: 50px;text-align:right;">
+        <div fbToolbarActions style="width: 50px; text-align: right;">
           <fb-button
             variant="ghost"
             size="sm"
@@ -86,14 +91,15 @@ interface GroupItem {
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </div>
-      </mat-toolbar>
+      </fb-toolbar>
 
       <mat-dialog-content>
-        <mat-tab-group
-          dynamicHeight="false"
-          (selectedTabChange)="tabSelected($event.index)"
+        <fb-tabs
+          [tabs]="visibleTabs()"
+          [activeId]="activeTabId()"
+          (activeIdChange)="onTabChange($event)"
         >
-          <mat-tab label="Details">
+          <ng-template fbTabPanel fbTabPanelId="details">
             <div style="padding-top: 10px;">
               <div>
                 <label for="group-name" style="display:block; font-weight:600">
@@ -130,9 +136,9 @@ interface GroupItem {
                 ></fb-textarea>
               </div>
             </div>
-          </mat-tab>
+          </ng-template>
           @if (!this.data.addMode) {
-            <mat-tab label="Routes">
+            <ng-template fbTabPanel fbTabPanelId="routes">
               @if (!gItem.routes.length) {
                 <fb-checkbox
                   [checked]="mask.routes"
@@ -140,9 +146,9 @@ interface GroupItem {
                   >Hide routes.</fb-checkbox
                 >
               }
-              <mat-list>
+              <fb-list>
                 @for (i of gItem.routes; track i.id) {
-                  <mat-list-item>
+                  <fb-list-item>
                     <div style="display:flex;">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
@@ -161,12 +167,12 @@ interface GroupItem {
                         </fb-button>
                       </div>
                     </div>
-                  </mat-list-item>
+                  </fb-list-item>
                 }
-              </mat-list>
-            </mat-tab>
+              </fb-list>
+            </ng-template>
 
-            <mat-tab label="Waypoints">
+            <ng-template fbTabPanel fbTabPanelId="waypoints">
               @if (!gItem.waypoints.length) {
                 <fb-checkbox
                   [checked]="mask.waypoints"
@@ -174,9 +180,9 @@ interface GroupItem {
                   >Hide waypoints.</fb-checkbox
                 >
               }
-              <mat-list>
+              <fb-list>
                 @for (i of gItem.waypoints; track i.id) {
-                  <mat-list-item>
+                  <fb-list-item>
                     <div style="display:flex;">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
@@ -195,12 +201,12 @@ interface GroupItem {
                         </fb-button>
                       </div>
                     </div>
-                  </mat-list-item>
+                  </fb-list-item>
                 }
-              </mat-list>
-            </mat-tab>
+              </fb-list>
+            </ng-template>
 
-            <mat-tab label="Regions">
+            <ng-template fbTabPanel fbTabPanelId="regions">
               @if (!gItem.regions.length) {
                 <fb-checkbox
                   [checked]="mask.regions"
@@ -208,9 +214,9 @@ interface GroupItem {
                   >Hide regions.</fb-checkbox
                 >
               }
-              <mat-list>
+              <fb-list>
                 @for (i of gItem.regions; track i.id) {
-                  <mat-list-item>
+                  <fb-list-item>
                     <div style="display:flex;">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
@@ -229,15 +235,15 @@ interface GroupItem {
                         </fb-button>
                       </div>
                     </div>
-                  </mat-list-item>
+                  </fb-list-item>
                 }
-              </mat-list>
-            </mat-tab>
+              </fb-list>
+            </ng-template>
 
-            <mat-tab label="Charts">
-              <mat-list>
+            <ng-template fbTabPanel fbTabPanelId="charts">
+              <fb-list>
                 @for (i of gItem.charts; track i.id) {
-                  <mat-list-item>
+                  <fb-list-item>
                     <div style="display:flex;">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
@@ -256,12 +262,12 @@ interface GroupItem {
                         </fb-button>
                       </div>
                     </div>
-                  </mat-list-item>
+                  </fb-list-item>
                 }
-              </mat-list>
-            </mat-tab>
+              </fb-list>
+            </ng-template>
           }
-        </mat-tab-group>
+        </fb-tabs>
       </mat-dialog-content>
       <mat-dialog-actions align="left">
         <div style="text-align:left;flex: 1;">
@@ -304,7 +310,28 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
     charts: []
   };
   protected selTab = 0;
+  protected activeTabId = signal<string>('details');
   protected wpts: RListEntry[] = [];
+
+  private readonly tabOrder: readonly string[] = [
+    'details',
+    'routes',
+    'waypoints',
+    'regions',
+    'charts'
+  ];
+
+  protected visibleTabs = computed<readonly FbTabDef[]>(() => {
+    const base: FbTabDef[] = [{ id: 'details', label: 'Details' }];
+    if (this.data.addMode) return base;
+    return [
+      ...base,
+      { id: 'routes', label: 'Routes' },
+      { id: 'waypoints', label: 'Waypoints' },
+      { id: 'regions', label: 'Regions' },
+      { id: 'charts', label: 'Charts' }
+    ];
+  });
   protected rtes: RListEntry[] = [];
   protected regions: RListEntry[] = [];
   protected charts: RListEntry[] = [];
@@ -463,11 +490,13 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
   }
 
   /**
-   * Handle tab selection change
-   * @param index Selected tab index
+   * Handle tab selection change.
    */
-  tabSelected(index: number) {
-    this.selTab = index;
+  onTabChange(id: string | null) {
+    if (id === null) return;
+    this.activeTabId.set(id);
+    const idx = this.tabOrder.indexOf(id);
+    this.selTab = idx === -1 ? 0 : idx;
   }
 
   /**

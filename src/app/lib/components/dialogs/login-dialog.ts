@@ -10,7 +10,6 @@ import {
   ViewChild
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -19,6 +18,13 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+
+import {
+  FbCardComponent,
+  FbCardHeaderComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent
+} from 'src/app/design-system/primitives';
 
 /********* LoginDialog ****************
     data: {
@@ -34,20 +40,22 @@ import { MatInputModule } from '@angular/material/input';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    FbCardComponent,
+    FbCardHeaderComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent
   ],
   styles: [],
   template: `
     <mat-dialog-content>
-      <mat-card>
-        <mat-card-title-group>
-          <mat-icon>account_circle</mat-icon>
-          <mat-card-title>Sign-In</mat-card-title>
-          <mat-card-subtitle>{{ data.message }}</mat-card-subtitle>
-        </mat-card-title-group>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-header>
+          <span fbCardTitle> <mat-icon>account_circle</mat-icon> Sign-In </span>
+          <span fbCardSubtitle>{{ data.message }}</span>
+        </fb-card-header>
+        <fb-card-content>
           <mat-form-field>
             <mat-label>User name</mat-label>
             <input
@@ -72,8 +80,8 @@ import { MatInputModule } from '@angular/material/input';
               (focus)="handleFocus($event)"
             />
           </mat-form-field>
-        </mat-card-content>
-        <mat-card-actions align="end">
+        </fb-card-content>
+        <fb-card-actions align="end">
           <button
             default
             mat-raised-button
@@ -86,8 +94,8 @@ import { MatInputModule } from '@angular/material/input';
           <button default mat-raised-button (click)="cancel()">
             {{ data.button2Text }}
           </button>
-        </mat-card-actions>
-      </mat-card>
+        </fb-card-actions>
+      </fb-card>
     </mat-dialog-content>
   `
 })

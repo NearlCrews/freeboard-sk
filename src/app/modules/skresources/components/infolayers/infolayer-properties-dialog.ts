@@ -6,11 +6,11 @@ import {
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'ap-infolayerproperties',
@@ -18,24 +18,23 @@ import { SKInfoLayer } from '../../custom-resource-classes';
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
-    MatDialogModule
+    MatDialogModule,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-infolayer">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"><mat-icon>layers</mat-icon></span>
-        <span style="flex: 1 1 auto; text-align: center"
-          >Overlay Properties</span
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
+          ><mat-icon>layers</mat-icon></span
         >
-        <span style="text-align: right">
+        <span fbToolbarTitle>Overlay Properties</span>
+        <span fbToolbarActions>
           <button mat-icon-button (click)="dialogRef.close()">
             <mat-icon>close</mat-icon>
           </button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <div style="display:flex;flex-direction: column;">
           <div style="display:flex;">

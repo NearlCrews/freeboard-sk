@@ -129,26 +129,24 @@
   </remark>
 
   <mat-divider></mat-divider>
-  <mat-accordion>
-    <mat-expansion-panel expanded="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>location_on</mat-icon>
-          &nbsp;Points:
-        </mat-panel-title>
-        <mat-panel-description>
-          ({{this.points().length}})
-          <fb-button
-            variant="ghost"
-            size="sm"
-            ariaLabel="Re-order points"
-            matTooltip="Re-order points"
-            (pressed)="arrangePoints()"
-          >
-            <fb-icon name="import_export" ariaLabel=""></fb-icon>
-          </fb-button>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
+  <fb-accordion mode="multi">
+    <fb-expansion-panel [expanded]="true">
+      <span fbExpansionPanelTitle>
+        <mat-icon>location_on</mat-icon>
+        &nbsp;Points:
+      </span>
+      <span fbExpansionPanelDescription>
+        ({{this.points().length}})
+        <fb-button
+          variant="ghost"
+          size="sm"
+          ariaLabel="Re-order points"
+          matTooltip="Re-order points"
+          (pressed)="arrangePoints()"
+        >
+          <fb-icon name="import_export" ariaLabel=""></fb-icon>
+        </fb-button>
+      </span>
       @if(this.points().length){
       <mat-stepper
         orientation="vertical"
@@ -183,50 +181,47 @@
         }
       </mat-stepper>
       }
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>local_offer</mat-icon>
-          &nbsp;Notes:
-        </mat-panel-title>
-        <mat-panel-description>
-          ({{this.notes().length}})
-        </mat-panel-description>
-      </mat-expansion-panel-header>
+    </fb-expansion-panel>
+    <fb-expansion-panel>
+      <span fbExpansionPanelTitle>
+        <mat-icon>local_offer</mat-icon>
+        &nbsp;Notes:
+      </span>
+      <span fbExpansionPanelDescription> ({{this.notes().length}}) </span>
       @if(this.notes().length){
-      <mat-nav-list
+      <fb-nav-list
+        ariaLabel="Related notes"
         style="min-height: 50px; max-height: 200px; overflow-y: auto"
       >
         @for( note of notes(); track note[0]) {
-        <a mat-list-item (click)="showNote(note[0])">
-          <span matListItemTitle> {{note[1].name}}</span>
-        </a>
+        <fb-list-item interactive (activated)="showNote(note[0])">
+          {{note[1].name}}
+        </fb-list-item>
         }
-      </mat-nav-list>
+      </fb-nav-list>
       }
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>category</mat-icon>
-          &nbsp;Groups:
-        </mat-panel-title>
-        <mat-panel-description>
-          ({{this.groups().length}})
-        </mat-panel-description>
-      </mat-expansion-panel-header>
+    </fb-expansion-panel>
+    <fb-expansion-panel>
+      <span fbExpansionPanelTitle>
+        <mat-icon>category</mat-icon>
+        &nbsp;Groups:
+      </span>
+      <span fbExpansionPanelDescription> ({{this.groups().length}}) </span>
       @if(this.groups().length){
-      <mat-nav-list
+      <fb-nav-list
+        ariaLabel="Related groups"
         style="min-height: 50px; max-height: 200px; overflow-y: auto"
       >
         @for( group of groups(); track group[0]) {
-        <a mat-list-item (click)="skgroups.editGroupInfo(group[0])">
-          <span matListItemTitle> {{group[1].name}}</span>
-        </a>
+        <fb-list-item
+          interactive
+          (activated)="skgroups.editGroupInfo(group[0])"
+        >
+          {{group[1].name}}
+        </fb-list-item>
         }
-      </mat-nav-list>
+      </fb-nav-list>
       }
-    </mat-expansion-panel>
-  </mat-accordion>
+    </fb-expansion-panel>
+  </fb-accordion>
 </div>

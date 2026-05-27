@@ -1,8 +1,11 @@
 <div class="related-notes-dialog">
-  <mat-toolbar class="related-toolbar">
-    <mat-icon class="toolbar-icon" aria-hidden="true">local_offer</mat-icon>
-    <span class="toolbar-title">{{ relatedBy }} Notes</span>
+  <fb-toolbar class="related-toolbar">
+    <mat-icon fbToolbarLeading class="toolbar-icon" aria-hidden="true"
+      >local_offer</mat-icon
+    >
+    <span fbToolbarTitle class="toolbar-title">{{ relatedBy }} Notes</span>
     <button
+      fbToolbarActions
       mat-icon-button
       (click)="dialogRef.close({ result: false })"
       matTooltip="Close"
@@ -10,7 +13,7 @@
     >
       <mat-icon>close</mat-icon>
     </button>
-  </mat-toolbar>
+  </fb-toolbar>
 
   <mat-dialog-content class="related-content">
     <div class="related-notes-grid">

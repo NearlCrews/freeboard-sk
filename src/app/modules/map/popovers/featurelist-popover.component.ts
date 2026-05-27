@@ -5,11 +5,15 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PopoverComponent } from './popover.component';
+
+import {
+  FbListItemComponent,
+  FbNavListComponent
+} from 'src/app/design-system/primitives';
 
 /*********** feature List Popover ***************
   title: string -  title text,
@@ -20,34 +24,37 @@ import { PopoverComponent } from './popover.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    MatListModule,
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
+    FbListItemComponent,
+    FbNavListComponent,
     PopoverComponent
   ],
   template: `
     <ap-popover [title]="title" [canClose]="canClose" (closed)="handleClose()">
-      <mat-nav-list>
+      <fb-nav-list ariaLabel="Feature list">
         @for (f of features; track f) {
-          <mat-list-item (click)="handleSelect(f)">
-            @if (f.icon === 'route') {
-              <mat-icon class="ob" [svgIcon]="f.icon"></mat-icon>
-            } @else if (f.icon.indexOf('sk-') === 0) {
-              <mat-icon [svgIcon]="f.icon"></mat-icon>
-            } @else {
-              <mat-icon
-                [ngClass]="{
-                  'icon-warn': f.text && f.text.indexOf('self') !== -1
-                }"
-              >
-                {{ f.icon }}
-              </mat-icon>
-            }
+          <fb-list-item interactive (activated)="handleSelect(f)">
+            <span fbListItemLeading>
+              @if (f.icon === 'route') {
+                <mat-icon class="ob" [svgIcon]="f.icon"></mat-icon>
+              } @else if (f.icon.indexOf('sk-') === 0) {
+                <mat-icon [svgIcon]="f.icon"></mat-icon>
+              } @else {
+                <mat-icon
+                  [ngClass]="{
+                    'icon-warn': f.text && f.text.indexOf('self') !== -1
+                  }"
+                >
+                  {{ f.icon }}
+                </mat-icon>
+              }
+            </span>
             {{ f.text }}
-          </mat-list-item>
+          </fb-list-item>
         }
-      </mat-nav-list>
+      </fb-nav-list>
     </ap-popover>
   `,
   styleUrls: []

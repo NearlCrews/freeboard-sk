@@ -13,8 +13,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+
+import { FbCardComponent } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import {
   CdkDragDrop,
@@ -40,14 +41,14 @@ interface BuildRoutePoint {
     CdkDrag,
     CdkDropList,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
-    FormsModule
+    FormsModule,
+    FbCardComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./build-route.component.css'],
   template: `
-    <mat-card>
+    <fb-card>
       <div class="rte-builder mat-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
           <div>
@@ -144,7 +145,7 @@ interface BuildRoutePoint {
           </button>
         </div>
       </div>
-    </mat-card>
+    </fb-card>
   `
 })
 export class BuildRouteComponent implements AfterViewInit {

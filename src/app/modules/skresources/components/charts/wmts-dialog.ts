@@ -6,15 +6,15 @@ import {
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatListModule, MatSelectionListChange } from '@angular/material/list';
 
 import {
   FbButtonComponent,
   FbIconComponent,
-  FbInputComponent
+  FbInputComponent,
+  FbListComponent,
+  FbListItemComponent,
+  FbProgressBarComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
@@ -26,21 +26,23 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     MatDialogModule,
-    MatProgressBarModule,
-    MatListModule,
     FbButtonComponent,
     FbIconComponent,
-    FbInputComponent
+    FbInputComponent,
+    FbListComponent,
+    FbListItemComponent,
+    FbProgressBarComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-wmts">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"><mat-icon>public</mat-icon></span>
-        <span style="flex: 1 1 auto; text-align: center">Add WMTS Source</span>
-        <span style="text-align: right">
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
+          ><mat-icon>public</mat-icon></span
+        >
+        <span fbToolbarTitle>Add WMTS Source</span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -50,7 +52,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <label for="wmts-host" style="display:block; font-weight:600">
           WMTS host.
@@ -83,7 +85,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
         }
 
         @if (isFetching) {
-          <mat-progress-bar mode="query"></mat-progress-bar>
+          <fb-progress-bar indeterminate></fb-progress-bar>
         } @else {
           @if (errorMsg) {
             <div style="color: var(--color-error)">
@@ -93,21 +95,18 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
             <div>
               @if (wmtsLayers.length > 0) {
                 <div style="height: 200px;overflow-x: hidden;overflow-y: auto;">
-                  <mat-selection-list
-                    #wlayers
-                    [multiple]="false"
-                    (selectionChange)="handleSelection($event)"
-                  >
+                  <fb-list density="compact">
                     @for (layer of wmtsLayers; track layer; let idx = $index) {
-                      <mat-list-option [value]="idx">
-                        <span matListItemTitle>{{ layer.name }}</span>
-                        <span
-                          style="flex: 1 1 auto;white-space: pre; overflow:hidden;text-overflow:elipsis;"
-                          >{{ layer.description }}</span
-                        >
-                      </mat-list-option>
+                      <fb-list-item
+                        interactive
+                        [selected]="selections[0] === idx"
+                        (activated)="selectLayer(idx)"
+                      >
+                        {{ layer.name }}
+                        <span fbListItemSubtext>{{ layer.description }}</span>
+                      </fb-list-item>
                     }
-                  </mat-selection-list>
+                  </fb-list>
                 </div>
               }
             </div>
@@ -155,8 +154,8 @@ export class WMTSDialog {
 
   constructor() {}
 
-  handleSelection(e: MatSelectionListChange) {
-    this.selections = e.source.selectedOptions.selected.map((opt) => opt.value);
+  selectLayer(idx: number) {
+    this.selections = [idx];
   }
 
   handleSave() {

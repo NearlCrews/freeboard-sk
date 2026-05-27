@@ -1,40 +1,40 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
-  output
+  output,
+  signal
 } from '@angular/core';
 
-import { MatListModule, MatSelectionListChange } from '@angular/material/list';
 import { AppFacade } from 'src/app/app.facade';
+
+import {
+  FbListComponent,
+  FbListItemComponent
+} from 'src/app/design-system/primitives';
 
 /********* NodeList Select ***********/
 @Component({
   selector: 'node-list-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatListModule],
+  imports: [FbListComponent, FbListItemComponent],
   template: `
     <div class="_ap-node-list">
       <div>
-        <mat-selection-list
-          #wlayers
-          [multiple]="false"
-          (selectionChange)="handleSelection($event)"
-        >
-          @for (layer of layers(); track layer.name; let idx = $index) {
-            <mat-list-option
-              [value]="layer.id"
-              [selected]="preSelect().includes(layer.id)"
+        <fb-list density="compact">
+          @for (layer of layers(); track layer.name) {
+            <fb-list-item
+              interactive
+              [selected]="activeId() === layer.id"
+              (activated)="selectLayer(layer.id)"
             >
-              <span matListItemTitle>{{ layer.name }}</span>
-              <span
-                style="flex: 1 1 auto;white-space: pre; overflow:hidden;text-overflow:elipsis;"
-                >{{ layer.description }}</span
-              >
-            </mat-list-option>
+              {{ layer.name }}
+              <span fbListItemSubtext>{{ layer.description }}</span>
+            </fb-list-item>
           }
-        </mat-selection-list>
+        </fb-list>
       </div>
     </div>
   `,
@@ -56,18 +56,20 @@ export class NodeListSelect {
     []
   );
 
-  private selections: string[] = [];
+  private readonly selectedId = signal<string | null>(null);
+  protected readonly activeId = computed<string | null>(
+    () => this.selectedId() ?? this.preSelect()[0] ?? null
+  );
 
   protected app = inject(AppFacade);
 
   constructor() {}
 
   /**
-   * Handle user check box selection
-   * @param e selection change event
+   * Handle list item activation; emits the single selected layer id.
    */
-  protected handleSelection(e: MatSelectionListChange) {
-    this.selections = e.source.selectedOptions.selected.map((opt) => opt.value);
-    this.selected.emit(this.selections);
+  protected selectLayer(id: string) {
+    this.selectedId.set(id);
+    this.selected.emit([id]);
   }
 }

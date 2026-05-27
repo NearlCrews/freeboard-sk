@@ -12,14 +12,13 @@ import {
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import {
   FbButtonComponent,
   FbIconComponent,
-  FbInputComponent
+  FbInputComponent,
+  FbProgressBarComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKChart } from 'src/app/modules/skresources/resource-classes';
@@ -64,22 +63,21 @@ interface TileJson {
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     MatDialogModule,
-    MatProgressBarModule,
     FbButtonComponent,
     FbIconComponent,
-    FbInputComponent
+    FbInputComponent,
+    FbProgressBarComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-mapbox">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"><mat-icon>public</mat-icon></span>
-        <span style="flex: 1 1 auto; text-align: center"
-          >Add JSON Map Source</span
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
+          ><mat-icon>public</mat-icon></span
         >
-        <span style="text-align: right">
+        <span fbToolbarTitle>Add JSON Map Source</span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -89,7 +87,7 @@ interface TileJson {
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <label for="json-mapsource-host" style="display:block; font-weight:600">
           Map Server host.
@@ -121,7 +119,7 @@ interface TileJson {
           </div>
         }
         @if (isFetching) {
-          <mat-progress-bar mode="query"></mat-progress-bar>
+          <fb-progress-bar indeterminate></fb-progress-bar>
         } @else {
           @if (errorMsg) {
             <div style="color: var(--color-error)">

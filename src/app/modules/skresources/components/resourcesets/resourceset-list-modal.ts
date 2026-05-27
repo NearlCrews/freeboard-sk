@@ -10,11 +10,15 @@ import {
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent,
+  FbProgressBarComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -35,16 +39,17 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
     MatCheckboxModule,
-    MatProgressBarModule
+    FbCardComponent,
+    FbCardContentComponent,
+    FbProgressBarComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-resource-set">
-      <mat-toolbar style="background-color: transparent">
-        <span>
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading>
           <button
             mat-icon-button
             [disabled]="
@@ -66,10 +71,10 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             <mat-icon>refresh</mat-icon>
           </button>
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <span fbToolbarTitle>
           {{ title }}
         </span>
-        <span>
+        <span fbToolbarActions>
           <button
             mat-icon-button
             (click)="closeModal()"
@@ -79,13 +84,13 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       @if (app.sIsFetching()) {
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <fb-progress-bar indeterminate></fb-progress-bar>
       } @else {
         @for (res of resList(); track res[0]; let idx = $index) {
-          <mat-card>
-            <mat-card-content>
+          <fb-card>
+            <fb-card-content>
               <div style="display:flex;flex-wrap:no-wrap;">
                 <div style="width:45px;">
                   <mat-checkbox
@@ -103,8 +108,8 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
                 </div>
                 <div style="width:45px;"></div>
               </div>
-            </mat-card-content>
-          </mat-card>
+            </fb-card-content>
+          </fb-card>
         }
       }
     </div>

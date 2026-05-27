@@ -1,23 +1,25 @@
 <div class="anchorwatch mat-app-background">
-  <mat-card>
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <fb-button
-            variant="ghost"
-            size="sm"
-            ariaLabel="Close anchor watch"
-            (pressed)="close()"
-            matTooltip="Close"
-            matTooltipPosition="left"
-          >
-            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-          </fb-button>
+  <fb-card>
+    <fb-card-header>
+      <span fbCardTitle>
+        <div class="title-block">
+          <div style="width: 50px">
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Close anchor watch"
+              (pressed)="close()"
+              matTooltip="Close"
+              matTooltipPosition="left"
+            >
+              <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
+            </fb-button>
+          </div>
+          <div style="flex: 1 1 auto; padding-top: 7px">Anchor Watch</div>
         </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Anchor Watch</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
+      </span>
+    </fb-card-header>
+    <fb-card-content>
       <div>
         <b>Status:</b>
       </div>
@@ -43,9 +45,9 @@
           {{ formattedRadiusValue() }}
         </b>
       </div>
-    </mat-card-content>
+    </fb-card-content>
 
-    <mat-card-actions>
+    <fb-card-actions align="start">
       <div style="width: 100%">
         <div style="display: flex; align-items: center; gap: 8px">
           <span>RAISE</span>
@@ -140,32 +142,26 @@
           </div>
         </div>
       </div>
-    </mat-card-actions>
-  </mat-card>
+    </fb-card-actions>
+  </fb-card>
   @if (!raised) {
     <div>
-      <mat-stepper
-        orientation="vertical"
-        [linear]="true"
-        [selectedIndex]="rodeOut ? 1 : 0"
-        #stepper
+      <fb-stepper
+        [activeIndex]="rodeOut ? 1 : 0"
+        ariaLabel="Anchor watch steps"
       >
-        <mat-step
+        <fb-step
           [label]="rodeOut ? 'Anchor Set' : 'Let out rode'"
-          editable="false"
+          [complete]="rodeOut"
         >
           <i>When rode is out click <b>Set</b>.</i>
-          <div>
-            <fb-button
-              variant="primary"
-              matStepperNext
-              (pressed)="stepSetRode()"
-            >
+          <ng-template fbStepActions>
+            <fb-button variant="primary" (pressed)="stepSetRode()">
               Set
             </fb-button>
-          </div>
-        </mat-step>
-        <mat-step label="Adjust" editable="false">
+          </ng-template>
+        </fb-step>
+        <fb-step label="Adjust">
           <div>
             <div>
               <br />
@@ -205,8 +201,9 @@
               Click on anchor to enable drag.
             </div>
           </div>
-        </mat-step>
-      </mat-stepper>
+          <ng-template fbStepActions></ng-template>
+        </fb-step>
+      </fb-stepper>
     </div>
   }
 </div>

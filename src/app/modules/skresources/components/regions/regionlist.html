@@ -1,21 +1,23 @@
 <div class="resourcelist">
-  <mat-card style="border-radius: unset">
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
-            matTooltip="Close Region List"
-            matTooltipPosition="right"
-          >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+  <fb-card style="border-radius: unset">
+    <fb-card-header>
+      <span fbCardTitle>
+        <div class="title-block">
+          <div style="width: 50px">
+            <button
+              mat-icon-button
+              (click)="close()"
+              matTooltip="Close Region List"
+              matTooltipPosition="right"
+            >
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+          <div style="flex: 1 1 auto; padding-top: 7px">Regions</div>
         </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Regions</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
+      </span>
+    </fb-card-header>
+    <fb-card-content>
       <div style="display: flex">
         <div style="flex: 1 1 auto; padding-left: 3px">
           <mat-form-field floatLabel="always" style="max-width: 170px">
@@ -57,16 +59,16 @@
           </mat-checkbox>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </fb-card-content>
+  </fb-card>
 
   <div class="resources">
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="72">
-      <mat-card
+      <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
         style="border-bottom: silver 1px outset; border-radius: unset"
       >
-        <mat-card-content>
+        <fb-card-content>
           <div style="display: flex">
             <div style="flex: 1 1 auto; width: 215px">
               <div
@@ -107,8 +109,8 @@
               </mat-checkbox>
             </div>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
+        </fb-card-content>
+        <fb-card-actions align="start">
           <div style="display: flex">
             <div style="flex: 1 1 auto; text-align: right">
               <button
@@ -142,8 +144,8 @@
               }
             </div>
           </div>
-        </mat-card-actions>
-      </mat-card>
+        </fb-card-actions>
+      </fb-card>
     </cdk-virtual-scroll-viewport>
   </div>
 </div>

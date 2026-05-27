@@ -11,7 +11,11 @@ import {
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
+
+import {
+  FbListComponent,
+  FbListItemComponent
+} from 'src/app/design-system/primitives';
 
 /********* ErrorListDialog ************
 	data: {
@@ -22,7 +26,13 @@ import { MatListModule } from '@angular/material/list';
 @Component({
   selector: 'ap-errorlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatIconModule, MatButtonModule, MatListModule],
+  imports: [
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule,
+    FbListComponent,
+    FbListItemComponent
+  ],
   template: `
     <div class="_ap-errlist">
       <div>
@@ -32,14 +42,14 @@ import { MatListModule } from '@angular/material/list';
         </h1>
       </div>
       <mat-dialog-content>
-        <mat-list role="list">
+        <fb-list>
           @for (err of data.errorList; track err) {
-            <mat-list-item>
-              <span matListItemTitle>{{ err.message }}</span>
-              <span matListItemLine>Status: {{ err.status }}</span>
-            </mat-list-item>
+            <fb-list-item>
+              {{ err.message }}
+              <span fbListItemSubtext>Status: {{ err.status }}</span>
+            </fb-list-item>
           }
-        </mat-list>
+        </fb-list>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
         <button mat-raised-button (click)="dialogRef.close(true)">

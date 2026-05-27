@@ -12,9 +12,13 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -27,21 +31,22 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbToolbarComponent,
     SignalKDetailsComponent
   ],
   template: `
     <div class="_ap-aton">
-      <mat-toolbar style="background-color: transparent">
-        <span>
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading>
           <mat-icon> {{ data.icon }}</mat-icon>
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <span fbToolbarTitle>
           {{ data.title }}
         </span>
-        <span>
+        <span fbToolbarActions>
           <button
             mat-icon-button
             (click)="modalRef.dismiss()"
@@ -51,10 +56,10 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div style="display:flex;flex-direction: column;">
             <div style="display:flex;">
               <div class="key-label">Name:</div>
@@ -80,8 +85,8 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
               ></signalk-details-list>
             }
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
   `,
   styles: [

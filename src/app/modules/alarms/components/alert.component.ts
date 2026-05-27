@@ -10,14 +10,16 @@ import {
   OnDestroy
 } from '@angular/core';
 
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TimerButtonComponent } from './timer-button.component';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbCardComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent,
+  FbIconComponent,
+  FbProgressBarComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -58,10 +60,12 @@ const SoundFiles: Record<ALARM_STATE, string> = {
   selector: 'fb-alert',
   imports: [
     MatIconModule,
-    MatCardModule,
-    MatProgressBarModule,
     FbButtonComponent,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent,
     FbIconComponent,
+    FbProgressBarComponent,
     TimerButtonComponent
   ],
   template: `
@@ -71,13 +75,10 @@ const SoundFiles: Record<ALARM_STATE, string> = {
       @if (alert().visual && !alert().acknowledged) {
         <div>
           @if (!alert().canAcknowledge) {
-            <mat-progress-bar
-              mode="determinate"
-              [value]="progressValue()"
-            ></mat-progress-bar>
+            <fb-progress-bar [value]="progressValue()"></fb-progress-bar>
           }
-          <mat-card style="padding:5px;border-radius:0;">
-            <mat-card-content>
+          <fb-card style="padding:5px;border-radius:0;">
+            <fb-card-content>
               <div style="display:flex; width:100%;">
                 <div style="width:35px;">
                   <mat-icon
@@ -98,9 +99,9 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                   {{ alert().message }}
                 </div>
               </div>
-            </mat-card-content>
+            </fb-card-content>
 
-            <mat-card-actions>
+            <fb-card-actions align="start">
               <div style="display:flex;flex-wrap: wrap;">
                 @if (alert().sound && alert().canSilence) {
                   <div style="text-align: left;">
@@ -196,8 +197,8 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                   </div>
                 }
               </div>
-            </mat-card-actions>
-          </mat-card>
+            </fb-card-actions>
+          </fb-card>
         </div>
       }
     }

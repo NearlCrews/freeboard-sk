@@ -15,13 +15,13 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 import {
   FbButtonComponent,
   FbIconComponent,
   FbInputComponent,
-  FbTextareaComponent
+  FbTextareaComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
 import type { SKTrack } from '../../resource-classes';
@@ -38,20 +38,20 @@ interface DialogData {
     FormField,
     MatIconModule,
     MatDialogModule,
-    MatToolbarModule,
     FbButtonComponent,
     FbIconComponent,
     FbInputComponent,
-    FbTextareaComponent
+    FbTextareaComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-track">
-      <mat-toolbar style="background-color: transparent">
-        <span class="dialog-icon"
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading class="dialog-icon"
           ><mat-icon class="icon-track">show_chart</mat-icon></span
         >
-        <span style="flex: 1 1 auto; text-align: center">Track Details</span>
-        <span style="text-align: right">
+        <span fbToolbarTitle>Track Details</span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -61,7 +61,7 @@ interface DialogData {
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
       <mat-dialog-content>
         <div>

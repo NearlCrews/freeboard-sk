@@ -7,19 +7,24 @@ import {
   Component,
   ElementRef,
   ViewChild,
-  Inject
+  Inject,
+  computed,
+  signal
 } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import type { MatListOption } from '@angular/material/list';
-import { MatListModule } from '@angular/material/list';
 import {
   MatDialogRef,
   MatDialogModule,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
+
+import {
+  FbSelectionListComponent,
+  type FbSelectionListOption
+} from 'src/app/design-system/primitives';
 
 /********* MultiSelectListDialog **********
  * 
@@ -32,7 +37,12 @@ import type { AppIconDef } from 'src/app/modules/icons';
 @Component({
   selector: 'ap-multiselectlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, MatButtonModule, MatDialogModule, MatListModule],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    FbSelectionListComponent
+  ],
   template: `
     <div class="_ap-multisellist">
       <div style="display:flex;">
@@ -61,17 +71,17 @@ import type { AppIconDef } from 'src/app/modules/icons';
       </div>
 
       <mat-dialog-content style="padding-top: 5px;">
-        <mat-selection-list #lItems>
-          @for (i of this.data.items; track i.id) {
-            <mat-list-option [value]="i">{{ i.name }}</mat-list-option>
-          }
-        </mat-selection-list>
+        <fb-selection-list
+          [options]="options()"
+          [values]="selectedIds()"
+          (valuesChange)="selectedIds.set($event)"
+        ></fb-selection-list>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
         <button
           mat-raised-button
-          [disabled]="lItems.selectedOptions.selected.length === 0"
-          (click)="handleClose(lItems.selectedOptions.selected)"
+          [disabled]="selectedIds().length === 0"
+          (click)="handleSubmit()"
         >
           OK
         </button>
@@ -90,6 +100,11 @@ export class MultiSelectListDialog implements OnInit {
   @ViewChild('btncancel', { static: false })
   btncancel: ElementRef<HTMLButtonElement> | undefined;
 
+  protected selectedIds = signal<readonly string[]>([]);
+  protected options = computed<readonly FbSelectionListOption[]>(() =>
+    (this.data.items ?? []).map((i) => ({ id: i.id, label: i.name }))
+  );
+
   constructor(
     private dialogRef: MatDialogRef<MultiSelectListDialog>,
     @Inject(MAT_DIALOG_DATA)
@@ -102,9 +117,13 @@ export class MultiSelectListDialog implements OnInit {
 
   ngOnInit() {}
 
-  handleClose(sidIds?: MatListOption[]) {
-    this.dialogRef.close(
-      Array.isArray(sidIds) ? sidIds.map((i) => i.value) : undefined
-    );
+  handleClose() {
+    this.dialogRef.close(undefined);
+  }
+
+  handleSubmit() {
+    const ids = new Set(this.selectedIds());
+    const selected = (this.data.items ?? []).filter((i) => ids.has(i.id));
+    this.dialogRef.close(selected);
   }
 }

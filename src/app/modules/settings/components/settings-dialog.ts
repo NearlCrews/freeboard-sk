@@ -9,19 +9,8 @@ import {
   effect
 } from '@angular/core';
 
-import type { NgModel } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatListModule } from '@angular/material/list';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { FbListPaneComponent } from 'src/app/design-system/primitives/list-pane/list-pane.component';
 import { FbDetailPaneComponent } from 'src/app/design-system/primitives/detail-pane/detail-pane.component';
@@ -34,6 +23,19 @@ import {
 } from 'src/app/design-system/primitives/select/select.component';
 import { FbCheckboxComponent } from 'src/app/design-system/primitives/checkbox/checkbox.component';
 import { FbSliderComponent } from 'src/app/design-system/primitives/slider/slider.component';
+import {
+  FbCardComponent,
+  FbCardContentComponent
+} from 'src/app/design-system/primitives/card/card.component';
+import { FbDividerComponent } from 'src/app/design-system/primitives/divider/divider.component';
+import { FbHintComponent } from 'src/app/design-system/primitives/hint/hint.component';
+import { FbToolbarComponent } from 'src/app/design-system/primitives/toolbar/toolbar.component';
+import {
+  FbSelectionListComponent,
+  type FbSelectionListOption
+} from 'src/app/design-system/primitives/list/list.component';
+import { FbRadioGroupComponent } from 'src/app/design-system/primitives/radio/radio-group.component';
+import { FbRadioComponent } from 'src/app/design-system/primitives/radio/radio.component';
 
 import type {
   LineStyleConfig,
@@ -65,18 +67,8 @@ export interface SettingsSection {
   selector: 'settings-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
     MatDialogModule,
-    MatCardModule,
-    MatListModule,
-    MatIconModule,
-    MatRadioModule,
     MatTooltipModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatMenuModule,
-    MatToolbarModule,
     FbListPaneComponent,
     FbDetailPaneComponent,
     FbButtonComponent,
@@ -85,6 +77,14 @@ export interface SettingsSection {
     FbSelectComponent,
     FbCheckboxComponent,
     FbSliderComponent,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbDividerComponent,
+    FbHintComponent,
+    FbToolbarComponent,
+    FbSelectionListComponent,
+    FbRadioGroupComponent,
+    FbRadioComponent,
     SignalKPreferredPathsComponent,
     LineStyleSelectComponent
   ],
@@ -220,14 +220,10 @@ export class SettingsDialog implements OnInit {
   }
 
   /** apply S57 Options  */
-  doS57(numericAttrib?: any) {
+  doS57() {
     this.facade.settings.map.s57Options.depthUnit =
       this.facade.settings.units.depth;
-    if (numericAttrib) {
-      this.parseNumber(numericAttrib);
-    } else {
-      this.persistModel();
-    }
+    this.persistModel();
     this.s57.setOptions(this.facade.settings.map.s57Options);
   }
 
@@ -255,70 +251,6 @@ export class SettingsDialog implements OnInit {
    */
   toggleFavourites() {
     this.show.favourites.update((current) => !current);
-  }
-
-  /**
-   * Parse entered number value and fall back to default if null.
-   * Resultant number value is always positive unless allowNegative = true.
-   */
-  parseNumber(e: NgModel, allowNegative?: boolean) {
-    if (typeof e.model !== 'number') {
-      e.reset(this.fallbackToDefault());
-      return;
-    }
-    if (!allowNegative && e.model < 0) {
-      e.reset(Math.abs(e.model));
-    }
-    this.persistModel();
-  }
-
-  /**
-   * Parse & convert the entered number value to SI units and fall back to default if null.
-   * Resultant number value is always positive unless allowNegative = true.
-   */
-  parseFormattedNumber(e: NgModel, allowNegative?: boolean) {
-    if (typeof e.model !== 'number') {
-      return;
-    }
-    if (!allowNegative && e.model < 0) {
-      e.reset(Math.abs(e.model));
-    }
-    this.facade.settings.vessels.rangeCirclesDistance =
-      this.facade.settings.units.distance === 'kilometer'
-        ? Math.floor(this.formattedNumberModel.rangeCirclesDistance * 1000)
-        : Math.floor(
-            Convert.nauticalMilesToKm(
-              this.formattedNumberModel.rangeCirclesDistance
-            ) * 1000
-          );
-    this.persistModel();
-  }
-
-  /**
-   * Returns the fallback value for an invalid number entry.
-   * @returns default value
-   */
-  private fallbackToDefault() {
-    const dconfig = defaultConfig();
-    if (typeof this.facade.settings.map.s57Options.shallowDepth !== 'number') {
-      return dconfig.map.s57Options.shallowDepth;
-    }
-    if (typeof this.facade.settings.map.s57Options.safetyDepth !== 'number') {
-      return dconfig.map.s57Options.safetyDepth;
-    }
-    if (typeof this.facade.settings.map.s57Options.deepDepth !== 'number') {
-      return dconfig.map.s57Options.deepDepth;
-    }
-    if (
-      typeof this.facade.fixedPosition[0] !== 'number' ||
-      typeof this.facade.fixedPosition[1] !== 'number'
-    ) {
-      return 0;
-    }
-    if (typeof this.facade.settings.course.arrivalCircle !== 'number') {
-      return dconfig.course.arrivalCircle;
-    }
-    return 0;
   }
 
   /**
@@ -357,15 +289,10 @@ export class SettingsDialog implements OnInit {
   }
 
   /**
-   * Handle favourites component event
-   * @param e
+   * Handle favourites multi-selection change.
    */
-  onFavSelected(
-    e: unknown,
-    f: { selectedOptions: { selected: { value: string }[] } }
-  ) {
-    this.facade.settings.display.plugins.favourites =
-      f.selectedOptions.selected.map((i) => i.value);
+  onFavSelected(urls: readonly string[]) {
+    this.facade.settings.display.plugins.favourites = [...urls];
     this.persistModel();
   }
 
@@ -385,12 +312,9 @@ export class SettingsDialog implements OnInit {
 
   /**
    * Handle custom resource path selection changes
-   * @param f
    */
-  onResPathSelected(f: { selectedOptions: { selected: { value: string }[] } }) {
-    this.facade.settings.resources.paths = f.selectedOptions.selected.map(
-      (i) => i.value
-    );
+  onResPathSelected(paths: readonly string[]) {
+    this.facade.settings.resources.paths = [...paths];
     //ensure all selected paths have relevant 'selections' entry
     this.facade.settings.resources.paths.forEach((i: string) => {
       if (i in this.facade.settings.selections.resourceSets) {
@@ -444,6 +368,17 @@ export class SettingsDialog implements OnInit {
     return out;
   }
 
+  // Convert a Map<number, string> options source to FbSelectOption<number>[].
+  protected mapToNumberOptions(
+    m: ReadonlyMap<number, string>
+  ): readonly FbSelectOption<number>[] {
+    const out: FbSelectOption<number>[] = [];
+    m.forEach((label, id) => {
+      out.push({ id, label });
+    });
+    return out;
+  }
+
   // Convert a string[][] (pairs of [id, label]) to FbSelectOption[].
   protected pairsToOptions(
     pairs: readonly (readonly [string, string])[] | readonly string[][]
@@ -454,6 +389,51 @@ export class SettingsDialog implements OnInit {
   // Convert a string[] of identical id/label values to FbSelectOption[].
   protected listToOptions(list: readonly string[]): readonly FbSelectOption[] {
     return list.map((v) => ({ id: v, label: v }));
+  }
+
+  // Convert a number[] of identical id/label values to FbSelectOption<number>[].
+  protected numberListToOptions(
+    list: readonly number[]
+  ): readonly FbSelectOption<number>[] {
+    return list.map((v) => ({ id: v, label: String(v) }));
+  }
+
+  // Map<boolean, string> isn't supported by fb-select (string | number ids
+  // only); represent boolean as 0/1 and translate at the boundary.
+  protected boolWindOptions(): readonly FbSelectOption<number>[] {
+    const out: FbSelectOption<number>[] = [];
+    this.options.preferredValues.wind.forEach((label, key) => {
+      out.push({ id: key ? 1 : 0, label });
+    });
+    return out;
+  }
+
+  // Convert facade urls to a selection-list option set, skipping null urls.
+  protected favouritesOptions(): readonly FbSelectionListOption[] {
+    const activeInstrument =
+      this.facade.settings.display.plugins.instruments ?? '';
+    const out: FbSelectionListOption[] = [];
+    for (const fav of this.facade.favouritesList) {
+      if (fav.url === null) continue;
+      out.push({
+        id: fav.url,
+        label: fav.name,
+        disabled: fav.url === activeInstrument
+      });
+    }
+    return out;
+  }
+
+  protected favouritesValues(): readonly string[] {
+    return this.facade.settings.display.plugins.favourites;
+  }
+
+  protected resourcePathOptions(): readonly FbSelectionListOption[] {
+    return this.facade.resourcePathList.map((p) => ({ id: p, label: p }));
+  }
+
+  protected resourcePathValues(): readonly string[] {
+    return this.facade.settings.resources.paths;
   }
 
   // Two-way bridges so string-typed fb-input value() models persist into the
@@ -600,6 +580,204 @@ export class SettingsDialog implements OnInit {
   protected onTrailResolutionBeyond24(v: string | null): void {
     if (v === null) return;
     this.facade.settings.vessels.trailResolution.beyond24 = v;
+    this.persistModel();
+  }
+
+  // Numeric setters for fb-select<number> models. Skip null inputs so the
+  // empty/cleared state is a no-op rather than zeroing a value out.
+  protected onDarkModeSource(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.display.darkMode.source = v as 0 | 1 | -1;
+    this.persistModel('darkTheme');
+  }
+
+  protected onAlarmSmoothing(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.display.depthAlarm.smoothing = v;
+    this.persistModel();
+  }
+
+  protected onLabelsMinZoom(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.map.labelsMinZoom = v;
+    this.persistModel();
+  }
+
+  protected onCenterOffset(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.map.centerOffset = v;
+    this.persistModel();
+  }
+
+  protected onS57ColorTable(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.map.s57Options.colorTable = v;
+    this.doS57();
+  }
+
+  protected onS57Colors(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.map.s57Options.colors = v as 2 | 4;
+    this.doS57();
+  }
+
+  protected onS57OtherLayers(v: readonly string[]): void {
+    this.facade.settings.map.s57Options.otherLayers = [...v];
+    this.doS57();
+  }
+
+  protected onS57ShallowDepth(v: number | null): void {
+    if (v === null) {
+      this.facade.settings.map.s57Options.shallowDepth =
+        defaultConfig().map.s57Options.shallowDepth;
+    } else {
+      this.facade.settings.map.s57Options.shallowDepth = Math.abs(v);
+    }
+    this.doS57();
+  }
+
+  protected onS57SafetyDepth(v: number | null): void {
+    if (v === null) {
+      this.facade.settings.map.s57Options.safetyDepth =
+        defaultConfig().map.s57Options.safetyDepth;
+    } else {
+      this.facade.settings.map.s57Options.safetyDepth = Math.abs(v);
+    }
+    this.doS57();
+  }
+
+  protected onS57DeepDepth(v: number | null): void {
+    if (v === null) {
+      this.facade.settings.map.s57Options.deepDepth =
+        defaultConfig().map.s57Options.deepDepth;
+    } else {
+      this.facade.settings.map.s57Options.deepDepth = Math.abs(v);
+    }
+    this.doS57();
+  }
+
+  protected onArrivalCircle(v: number | null): void {
+    if (v === null) {
+      this.facade.settings.course.arrivalCircle =
+        defaultConfig().course.arrivalCircle;
+    } else {
+      this.facade.settings.course.arrivalCircle = Math.abs(v);
+    }
+    this.persistModel();
+  }
+
+  protected onAutoNextPointDelay(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.course.autoNextPointDelay = v;
+    this.persistModel();
+  }
+
+  protected onVesselIconScale(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.iconScale = v;
+    this.persistModel();
+  }
+
+  protected onFixedLat(v: number | null): void {
+    this.facade.fixedPosition[1] = v ?? 0;
+    this.persistModel();
+  }
+
+  protected onFixedLon(v: number | null): void {
+    this.facade.fixedPosition[0] = v ?? 0;
+    this.persistModel();
+  }
+
+  protected onHeadingLineLength(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.selfLines.heading.length = v;
+    this.persistModel();
+  }
+
+  protected onCogLineLength(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.selfLines.cog.length = v;
+    this.persistModel();
+  }
+
+  protected onRangeCircleCount(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.rangeCircleCount = v;
+    this.persistModel();
+  }
+
+  protected onRangeCircleMinZoom(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.rangeCircleMinZoom = v;
+    this.persistModel();
+  }
+
+  protected onRangeCirclesDistance(v: number | null): void {
+    if (v === null || v < 1) {
+      this.formattedNumberModel.rangeCirclesDistance = 1;
+    } else {
+      this.formattedNumberModel.rangeCirclesDistance = v;
+    }
+    this.facade.settings.vessels.rangeCirclesDistance =
+      this.facade.settings.units.distance === 'kilometer'
+        ? Math.floor(this.formattedNumberModel.rangeCirclesDistance * 1000)
+        : Math.floor(
+            Convert.nauticalMilesToKm(
+              this.formattedNumberModel.rangeCirclesDistance
+            ) * 1000
+          );
+    this.persistModel();
+  }
+
+  protected onAisStaleAge(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.aisStaleAge = v;
+    this.persistModel();
+  }
+
+  protected onAisMaxAge(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.aisMaxAge = v;
+    this.persistModel();
+  }
+
+  protected onAisWindApparent(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.aisWindApparent = v === 1;
+    this.persistModel();
+  }
+
+  protected aisWindApparentNumeric(): number {
+    return this.facade.settings.vessels.aisWindApparent ? 1 : 0;
+  }
+
+  protected onAisWindMinZoom(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.aisWindMinZoom = v;
+    this.persistModel();
+  }
+
+  protected onAisCogLine(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.vessels.aisCogLine = v;
+    this.persistModel();
+  }
+
+  protected onNotesMinZoom(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.resources.notes.minZoom = v;
+    this.persistModel('fetchNotes');
+  }
+
+  protected onNotesGetRadius(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.resources.notes.getRadius = v;
+    this.persistModel('fetchNotes');
+  }
+
+  protected onSignalkMaxRadius(v: number | null): void {
+    if (v === null) return;
+    this.facade.settings.signalk.maxRadius = v;
     this.persistModel();
   }
 

@@ -340,8 +340,8 @@
             <div
               style="display: flex; flex-direction: column; position: relative"
             >
-              <mat-nav-list>
-                <a mat-list-item>
+              <fb-nav-list ariaLabel="Plugin instrument navigation">
+                <div role="listitem" class="plugin-nav-row">
                   <a mat-icon-button (click)="sideright.toggle()">
                     <mat-icon>arrow_forward</mat-icon>
                   </a>
@@ -381,9 +381,9 @@
                   >
                     <mat-icon>arrow_forward_ios</mat-icon>
                   </a>
-                </a>
+                </div>
                 <mat-divider></mat-divider>
-              </mat-nav-list>
+              </fb-nav-list>
               <div
                 style="
                   position: fixed;
@@ -416,7 +416,7 @@
                 width: 100%;
               "
             >
-              <mat-progress-bar mode="query"></mat-progress-bar>
+              <fb-progress-bar indeterminate></fb-progress-bar>
             </div>
           }
           @if (app.uiCtrl().autopilotConsole) {

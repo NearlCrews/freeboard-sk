@@ -3,23 +3,25 @@
     <button mat-menu-item (click)="addLayer('wmts')">WMTS</button>
     <button mat-menu-item (click)="addLayer('wms')">WMS</button>
   </mat-menu>
-  <mat-card style="border-radius: unset">
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <button
-            mat-icon-button
-            (click)="close()"
-            matTooltip="Close InfoLayer List"
-            matTooltipPosition="right"
-          >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
+  <fb-card style="border-radius: unset">
+    <fb-card-header>
+      <span fbCardTitle>
+        <div class="title-block">
+          <div style="width: 50px">
+            <button
+              mat-icon-button
+              (click)="close()"
+              matTooltip="Close InfoLayer List"
+              matTooltipPosition="right"
+            >
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+          <div style="flex: 1 1 auto; padding-top: 7px">Overlays</div>
         </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Overlays</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
+      </span>
+    </fb-card-header>
+    <fb-card-content>
       <div style="display: flex">
         <div style="flex: 1 1 auto; padding-left: 3px">
           <mat-form-field floatLabel="always" style="width: 180px">
@@ -60,8 +62,8 @@
           </mat-checkbox>
         </div>
       </div>
-    </mat-card-content>
-    <mat-card-actions>
+    </fb-card-content>
+    <fb-card-actions align="start">
       <button
         mat-icon-button
         matTooltip="Add Layer"
@@ -73,19 +75,19 @@
       <small
         >Map layers containing dynamic information to overlay on charts.</small
       >
-    </mat-card-actions>
-  </mat-card>
+    </fb-card-actions>
+  </fb-card>
 
   <div class="resources infolayers">
     @if(this.app.sIsFetching()) {
-    <mat-progress-bar mode="query"></mat-progress-bar>
+    <fb-progress-bar indeterminate></fb-progress-bar>
     } @else {
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="48">
-      <mat-card
+      <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
         style="border-bottom: silver 1px outset; border-radius: unset"
       >
-        <mat-card-content>
+        <fb-card-content>
           <div style="display: flex">
             <div
               style="
@@ -112,8 +114,8 @@
               </mat-checkbox>
             </div>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
+        </fb-card-content>
+        <fb-card-actions align="start">
           <div style="flex: auto">
             <div style="display: flex">
               <div style="flex: 1 1 auto">
@@ -206,8 +208,8 @@
               </div>
             </div>
           </div>
-        </mat-card-actions>
-      </mat-card>
+        </fb-card-actions>
+      </fb-card>
     </cdk-virtual-scroll-viewport>
     }
   </div>

@@ -12,9 +12,7 @@ import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
@@ -27,6 +25,8 @@ import type { SKWaypoint } from '../../resource-classes';
 import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import { MatTooltip } from '@angular/material/tooltip';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 const waypointTypeDef = {
   default: {
@@ -82,30 +82,27 @@ interface WaypointTypeOption {
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
     MatCheckboxModule,
     MatDialogModule,
     CoordsPipe,
     FormField,
-    MatTooltip
+    MatTooltip,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-waypoint">
-      <mat-toolbar style="background-color: transparent">
-        <div>
+      <fb-toolbar style="background-color: transparent">
+        <div fbToolbarLeading>
           <mat-icon class="icon-waypoint">{{ dialogIcon }}</mat-icon>
         </div>
-        <span style="flex: 1 1 auto; text-align: center;">{{
-          data.title
-        }}</span>
-        <div style="width: 50px;text-align:right;">
+        <span fbToolbarTitle>{{ data.title }}</span>
+        <div fbToolbarActions style="width: 50px; text-align: right;">
           <button mat-icon-button (click)="handleClose(false)">
             <mat-icon>close</mat-icon>
           </button>
         </div>
-      </mat-toolbar>
+      </fb-toolbar>
       <mat-dialog-content>
         <div style="display: flex">
           <div style="flex: 1 1 auto">

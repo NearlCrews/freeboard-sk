@@ -11,12 +11,13 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbCardComponent,
+  FbCardContentComponent,
+  FbIconComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
 import { SignalKDetailsComponent } from '../../skresources';
@@ -35,16 +36,17 @@ import { alertSeverityClass } from './alert-severity';
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     FbButtonComponent,
+    FbCardComponent,
+    FbCardContentComponent,
     FbIconComponent,
+    FbToolbarComponent,
     SignalKDetailsComponent
   ],
   template: `
     <div class="_ap-alert">
-      <mat-toolbar style="background-color: transparent">
-        <span>
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading>
           <mat-icon
             [class]="data.alert.icon.class"
             [svgIcon]="data.alert.icon.svgIcon"
@@ -53,11 +55,12 @@ import { alertSeverityClass } from './alert-severity';
           >
         </span>
         <h2
-          style="flex: 1 1 auto; padding-left:20px;text-align:center;margin:0;font-size:inherit;font-weight:inherit;"
+          fbToolbarTitle
+          style="margin: 0; font-size: inherit; font-weight: inherit;"
         >
           Alert Information
         </h2>
-        <span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -69,10 +72,10 @@ import { alertSeverityClass } from './alert-severity';
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div style="display:flex;flex-direction: column;">
             @if (data.alert.canAcknowledge && !data.alert.acknowledged) {
               <div style="display:flex;">
@@ -124,8 +127,8 @@ import { alertSeverityClass } from './alert-severity';
               }
             }
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
   `,
   styles: [

@@ -14,14 +14,18 @@ import {
 } from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 import { GeoJSONLoadFacade } from './geojson-dialog.facade';
 import { AppFacade } from 'src/app/app.facade';
@@ -34,13 +38,14 @@ import { AppFacade } from 'src/app/app.facade';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
     MatExpansionModule,
     MatCheckboxModule,
     MatTooltipModule,
-    MatToolbarModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbToolbarComponent
   ],
   templateUrl: './geojson-dialog.html',
   styleUrls: ['./geojson-dialog.css']

@@ -10,7 +10,6 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { FBMapInteractService } from 'src/app/modules/map/fbmap-interact.service';
 import { Measurements } from './measurements.component';
 
@@ -19,13 +18,7 @@ import { Measurements } from './measurements.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-interact-help',
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatTooltip,
-    MatToolbarModule,
-    Measurements
-  ],
+  imports: [MatIconModule, MatButtonModule, MatTooltip, Measurements],
   template: `
     <div class="mat-app-background _ap_interact_help">
       @if (showHelpPanel()) {

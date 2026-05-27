@@ -2,7 +2,6 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -12,8 +11,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RemarkModule } from 'ngx-remark';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import { textSnippet } from 'src/app/lib/text-snippet';
@@ -31,13 +31,12 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatToolbarModule,
+    FbToolbarComponent,
     RemarkModule
   ],
   templateUrl: `relatednotes-dialog.html`,

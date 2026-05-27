@@ -11,7 +11,6 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -26,7 +25,6 @@ import { LayerNode } from './maplib';
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule
   ],
   template: `

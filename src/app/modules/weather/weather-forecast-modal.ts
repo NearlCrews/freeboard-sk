@@ -11,8 +11,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressBar } from '@angular/material/progress-bar';
 import {
   MatBottomSheetRef,
   MatBottomSheetModule,
@@ -20,6 +18,10 @@ import {
 } from '@angular/material/bottom-sheet';
 import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
+import {
+  FbProgressBarComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
 import type { SI_BASE_UNIT } from 'src/app/lib/convert';
@@ -58,22 +60,22 @@ interface WeatherData {
   imports: [
     MatTooltipModule,
     MatBottomSheetModule,
-    MatToolbarModule,
-    MatProgressBar,
     FbButtonComponent,
     FbIconComponent,
+    FbProgressBarComponent,
+    FbToolbarComponent,
     CoordsPipe
   ],
   template: `
     <div class="_weather-forecast">
-      <mat-toolbar class="weather-toolbar">
-        <span>
+      <fb-toolbar class="weather-toolbar">
+        <span fbToolbarLeading>
           <fb-icon name="air"></fb-icon>
         </span>
-        <h2 class="weather-toolbar-title">
+        <h2 fbToolbarTitle class="weather-toolbar-title">
           {{ data.title }}
         </h2>
-        <span>
+        <span fbToolbarActions>
           <fb-button
             variant="ghost"
             size="sm"
@@ -85,9 +87,9 @@ interface WeatherData {
             <fb-icon name="keyboard_arrow_down"></fb-icon>
           </fb-button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
       @if (isFetching) {
-        <mat-progress-bar mode="query"></mat-progress-bar>
+        <fb-progress-bar indeterminate></fb-progress-bar>
       } @else {
         @if (!forecasts || forecasts.length === 0) {
           <div class="weather-error">{{ errorText }}</div>
@@ -241,7 +243,7 @@ interface WeatherData {
       /* WCAG 2.5.5 secondary touch-target floor (44px). The toolbar close
          button uses fb-button (variant=ghost, size=sm); pin the host to the
          44 px floor so a touch user still has a legal target. */
-      ._weather-forecast mat-toolbar fb-button {
+      ._weather-forecast fb-toolbar fb-button {
         min-width: var(--touch-secondary);
         min-height: var(--touch-secondary);
       }

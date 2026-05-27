@@ -8,13 +8,17 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
+
+import {
+  FbCardComponent,
+  FbCardContentComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import type { FBRoute, FBWaypoint, Position } from 'src/app/types';
@@ -38,17 +42,18 @@ interface CoordinatesMetaEntry {
     CommonModule,
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbToolbarComponent,
     CdkDrag,
     CdkDropList
   ],
   template: `
     <div class="_ap-dest" style="display:flex;flex-direction:column;">
       <div>
-        <mat-toolbar style="background-color: transparent">
-          <span>
+        <fb-toolbar style="background-color: transparent">
+          <span fbToolbarLeading>
             @if (!data.noButtons) {
               @if (showClearButton()) {
                 <button
@@ -72,11 +77,12 @@ interface CoordinatesMetaEntry {
             }
           </span>
           <span
-            style="flex: 1 1 auto; padding-left:20px;text-align:center;text-overflow: ellipsis;white-space: nowrap; overflow: hidden;"
+            fbToolbarTitle
+            style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
           >
             {{ data.title }}
           </span>
-          <span>
+          <span fbToolbarActions>
             <button
               mat-icon-button
               (click)="close()"
@@ -86,7 +92,7 @@ interface CoordinatesMetaEntry {
               <mat-icon>keyboard_arrow_down</mat-icon>
             </button>
           </span>
-        </mat-toolbar>
+        </fb-toolbar>
       </div>
 
       <div
@@ -99,8 +105,8 @@ interface CoordinatesMetaEntry {
           (cdkDropListDropped)="drop($event)"
         >
           @for (pt of points; track pt; let i = $index) {
-            <mat-card cdkDrag [cdkDragDisabled]="readOnly">
-              <mat-card-content style="padding:3px;">
+            <fb-card cdkDrag [cdkDragDisabled]="readOnly">
+              <fb-card-content style="padding:3px;">
                 <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
 
                 <div
@@ -164,8 +170,8 @@ interface CoordinatesMetaEntry {
                     </div>
                   }
                 </div>
-              </mat-card-content>
-            </mat-card>
+              </fb-card-content>
+            </fb-card>
           }
         </div>
       </div>

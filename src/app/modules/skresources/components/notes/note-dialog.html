@@ -30,19 +30,19 @@
   }
 </style>
 <div>
-  <mat-toolbar style="background-color: transparent">
-    <span>
+  <fb-toolbar style="background-color: transparent">
+    <span fbToolbarLeading>
       @if(!data.editable) {
       <mat-icon [class]="icon.class ?? ''" [svgIcon]="icon.svgIcon ?? ''"
         >{{icon.name}}</mat-icon
       >
       }
     </span>
-    <span style="flex: 1 1 auto; text-align: center">
+    <span fbToolbarTitle>
       @if(!data.editable) { {{'Note Details'}} } @else { {{(!data.title) ?
       (data.addMode) ? 'New Note' : 'Edit Note' : data.title}} }
     </span>
-    <div style="width: 50px">
+    <div fbToolbarActions style="width: 50px">
       <fb-button
         variant="ghost"
         size="sm"
@@ -52,12 +52,12 @@
         <fb-icon name="close" ariaLabel=""></fb-icon>
       </fb-button>
     </div>
-  </mat-toolbar>
+  </fb-toolbar>
 
   @if(!data.editable) {
   <mat-dialog-content>
-    <mat-card appearance="outlined">
-      <mat-card-content>
+    <fb-card variant="outlined">
+      <fb-card-content>
         @if(data.note.properties['draft']) {
         <p class="draft-watermark">Draft</p>
         }
@@ -105,9 +105,9 @@
             }
           </div>
         </div>
-      </mat-card-content>
+      </fb-card-content>
       @if(data.note.url || !data.note.properties['readOnly']){
-      <mat-card-actions>
+      <fb-card-actions align="start">
         <div style="display: flex; width: 100%">
           <div>
             @if(data.note.url) {
@@ -158,9 +158,9 @@
           </div>
           }
         </div>
-      </mat-card-actions>
+      </fb-card-actions>
       }
-    </mat-card>
+    </fb-card>
   </mat-dialog-content>
   } @else {
   <mat-dialog-content>

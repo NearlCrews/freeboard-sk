@@ -21,7 +21,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { SimplifyAP } from 'src/lib/simplify-ts';
@@ -42,7 +43,7 @@ import { AppFacade } from 'src/app/app.facade';
     MatTooltipModule,
     MatSliderModule,
     MatCheckboxModule,
-    MatToolbarModule,
+    FbToolbarComponent,
     FreeboardOpenlayersModule
   ],
   templateUrl: `./trail2route-dialog.html`,

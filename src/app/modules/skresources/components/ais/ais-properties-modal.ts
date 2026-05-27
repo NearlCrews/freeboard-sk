@@ -10,9 +10,14 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
+
+import {
+  FbCardComponent,
+  FbCardHeaderComponent,
+  FbCardContentComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { SKVessel } from 'src/app/modules/skresources/resource-classes';
@@ -32,20 +37,22 @@ interface AISDisplay {
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatToolbarModule
+    FbCardComponent,
+    FbCardHeaderComponent,
+    FbCardContentComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-ais">
-      <mat-toolbar style="background-color: transparent">
-        <span>
+      <fb-toolbar style="background-color: transparent">
+        <span fbToolbarLeading>
           <mat-icon [svgIcon]="getShipIcon(data.target.type?.id)"></mat-icon>
         </span>
-        <span style="flex: 1 1 auto; padding-left:20px;text-align:center;">
+        <span fbToolbarTitle>
           {{ data.title }}
         </span>
-        <span>
+        <span fbToolbarActions>
           <button
             mat-icon-button
             (click)="modalRef.dismiss()"
@@ -55,30 +62,34 @@ interface AISDisplay {
             <mat-icon>keyboard_arrow_down</mat-icon>
           </button>
         </span>
-      </mat-toolbar>
+      </fb-toolbar>
 
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title-group>
-            <mat-card-title>{{ data.target.name }}</mat-card-title>
-            <mat-card-subtitle>
-              {{ data.target.mmsi }}
-              <a
-                target="aisinfo"
-                [href]="
-                  'https://www.vesselfinder.com/vessels/details/' +
-                  data.target.mmsi
-                "
-              >
-                <mat-icon>info</mat-icon>
-              </a>
-            </mat-card-subtitle>
-            @if (showFlag()) {
-              <img mat-card-sm-image [src]="flagIcon" (error)="imgError()" />
-            }
-          </mat-card-title-group>
-        </mat-card-header>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-header>
+          <span fbCardTitle>{{ data.target.name }}</span>
+          <span fbCardSubtitle>
+            {{ data.target.mmsi }}
+            <a
+              target="aisinfo"
+              [href]="
+                'https://www.vesselfinder.com/vessels/details/' +
+                data.target.mmsi
+              "
+            >
+              <mat-icon>info</mat-icon>
+            </a>
+          </span>
+          @if (showFlag()) {
+            <img
+              fbCardHeaderActions
+              [src]="flagIcon"
+              alt=""
+              style="max-width: 40px; max-height: 40px;"
+              (error)="imgError()"
+            />
+          }
+        </fb-card-header>
+        <fb-card-content>
           <div style="display:flex;flex-direction: column;">
             @if (data.target.type?.name) {
               <div style="display:flex;">
@@ -181,8 +192,8 @@ interface AISDisplay {
               </div>
             }
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
   `,
   styles: [

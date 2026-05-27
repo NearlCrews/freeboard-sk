@@ -1,20 +1,12 @@
 <div class="geojsonload-dialog">
-  <mat-toolbar style="background-color: transparent">
-    <span class="dialog-icon"
+  <fb-toolbar style="background-color: transparent">
+    <span fbToolbarLeading class="dialog-icon"
       ><mat-icon aria-hidden="true">public</mat-icon></span
     >
-    <h2
-      style="
-        flex: 1 1 auto;
-        text-align: center;
-        margin: 0;
-        font-size: inherit;
-        font-weight: 500;
-      "
-    >
+    <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
       Load GeoJSON
     </h2>
-    <span style="text-align: right">
+    <span fbToolbarActions>
       <button
         mat-icon-button
         aria-label="Cancel GeoJSON load"
@@ -23,7 +15,7 @@
         <mat-icon>close</mat-icon>
       </button>
     </span>
-  </mat-toolbar>
+  </fb-toolbar>
 
   @if(display.notValid) {
   <div>
@@ -55,8 +47,8 @@
     <!-- Waypoints -->
     @if(geoData.waypoints.length !== 0) {
     <div class="card-group">
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div class="pnlRow">
             <div class="pnlGeoType">
               <b>Point:</b>
@@ -71,16 +63,16 @@
               &nbsp;({{geoData?.waypoints.length}})
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
     }
 
     <!-- Routes -->
     @if(geoData.routes.length !== 0) {
     <div class="card-group">
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div class="pnlRow">
             <div class="pnlGeoType">
               <b>LineString:</b>
@@ -95,16 +87,16 @@
               &nbsp;({{geoData?.routes.length}})
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
     }
 
     <!-- Tracks -->
     @if(geoData.tracks.length!=0 && app.featureFlags().resourceTracks) {
     <div class="card-group">
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div class="pnlRow">
             <div class="pnlGeoType">
               <b>MultiLineString:</b>
@@ -119,16 +111,16 @@
               &nbsp;({{geoData?.tracks.length}})
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
     }
 
     <!-- Regions -->
     @if(geoData.regions.length !== 0) {
     <div class="card-group">
-      <mat-card>
-        <mat-card-content>
+      <fb-card>
+        <fb-card-content>
           <div class="pnlRow">
             <div class="pnlGeoType">
               <b>Polygon:</b>
@@ -143,8 +135,8 @@
               &nbsp;({{geoData?.regions.length}})
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </fb-card-content>
+      </fb-card>
     </div>
     }
 

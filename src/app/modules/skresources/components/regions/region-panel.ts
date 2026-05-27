@@ -10,18 +10,21 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDivider } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 import { RemarkModule } from 'ngx-remark';
 
 import {
+  FbAccordionComponent,
   FbButtonComponent,
-  FbIconComponent
+  FbExpansionPanelComponent,
+  FbExpansionPanelDescriptionDirective,
+  FbExpansionPanelTitleDirective,
+  FbIconComponent,
+  FbListItemComponent,
+  FbNavListComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -41,14 +44,17 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'region-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatCardModule,
     MatIconModule,
     MatTooltipModule,
     MatDivider,
-    MatListModule,
-    MatExpansionModule,
+    FbAccordionComponent,
     FbButtonComponent,
+    FbExpansionPanelComponent,
+    FbExpansionPanelDescriptionDirective,
+    FbExpansionPanelTitleDirective,
     FbIconComponent,
+    FbListItemComponent,
+    FbNavListComponent,
     RemarkModule
   ],
   templateUrl: `region-panel.html`,

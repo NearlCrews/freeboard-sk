@@ -1,23 +1,25 @@
 <div class="resourcelist">
-  <mat-card style="border-radius: unset">
-    <mat-card-title>
-      <div class="title-block">
-        <div style="width: 50px">
-          <fb-button
-            variant="ghost"
-            size="sm"
-            ariaLabel="Close waypoint list"
-            (pressed)="close()"
-            matTooltip="Close Waypoint List"
-            matTooltipPosition="right"
-          >
-            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-          </fb-button>
+  <fb-card style="border-radius: unset">
+    <fb-card-header>
+      <span fbCardTitle>
+        <div class="title-block">
+          <div style="width: 50px">
+            <fb-button
+              variant="ghost"
+              size="sm"
+              ariaLabel="Close waypoint list"
+              (pressed)="close()"
+              matTooltip="Close Waypoint List"
+              matTooltipPosition="right"
+            >
+              <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
+            </fb-button>
+          </div>
+          <div style="flex: 1 1 auto; padding-top: 7px">Waypoints</div>
         </div>
-        <div style="flex: 1 1 auto; padding-top: 7px">Waypoints</div>
-      </div>
-    </mat-card-title>
-    <mat-card-content>
+      </span>
+    </fb-card-header>
+    <fb-card-content>
       <div style="display: flex">
         <div
           style="
@@ -78,19 +80,19 @@
           </fb-checkbox>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </fb-card-content>
+  </fb-card>
 
   <div class="resources">
     @if(this.app.sIsFetching()) {
-    <mat-progress-bar mode="query"></mat-progress-bar>
+    <fb-progress-bar indeterminate></fb-progress-bar>
     }
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="90">
-      <mat-card
+      <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
         style="border-bottom: silver 1px outset; border-radius: unset"
       >
-        <mat-card-content>
+        <fb-card-content>
           <div style="display: flex; padding-left: 5px">
             <div style="flex: 1 1 auto; width: 215px">
               <div
@@ -117,8 +119,8 @@
               </fb-checkbox>
             </div>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
+        </fb-card-content>
+        <fb-card-actions align="start">
           <div style="display: flex">
             <div>
               <fb-button
@@ -210,8 +212,8 @@
               </fb-button>
             </div>
           </div>
-        </mat-card-actions>
-      </mat-card>
+        </fb-card-actions>
+      </fb-card>
     </cdk-virtual-scroll-viewport>
   </div>
 </div>

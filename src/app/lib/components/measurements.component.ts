@@ -14,17 +14,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
 import { Position } from 'src/app/types';
 import { GeoUtils } from '../geoutils';
-import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 // ********* Measurements Component ********
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-measurements',
-  imports: [MatIconModule, MatButtonModule, MatTooltip, MatToolbarModule],
+  imports: [MatIconModule, MatButtonModule, MatTooltip, FbToolbarComponent],
   template: `
     <div class="_ap_measurements">
-      <mat-toolbar>
+      <fb-toolbar>
         <div class="_ap_row">
           <div class="_ap_row">
             <div class="icon-label">
@@ -64,7 +65,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
             </button>
           </div>
         </div>
-      </mat-toolbar>
+      </fb-toolbar>
     </div>
   `,
   styles: [

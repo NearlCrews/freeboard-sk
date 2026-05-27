@@ -15,13 +15,13 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 import {
   FbButtonComponent,
   FbIconComponent,
   FbInputComponent,
-  FbTextareaComponent
+  FbTextareaComponent,
+  FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
 import type { SKRoute } from '../../resource-classes';
@@ -38,20 +38,20 @@ interface DialogData {
     FormField,
     MatIconModule,
     MatDialogModule,
-    MatToolbarModule,
     FbButtonComponent,
     FbIconComponent,
     FbInputComponent,
-    FbTextareaComponent
+    FbTextareaComponent,
+    FbToolbarComponent
   ],
   template: `
     <div class="_ap-route">
-      <mat-toolbar style="background-color: transparent">
-        <div>
+      <fb-toolbar style="background-color: transparent">
+        <div fbToolbarLeading>
           <mat-icon class="icon-route" svgIcon="route"></mat-icon>
         </div>
-        <span style="flex: 1 1 auto; text-align: center;">Route Details</span>
-        <div style="width: 50px;text-align:right;">
+        <span fbToolbarTitle>Route Details</span>
+        <div fbToolbarActions style="width: 50px; text-align: right;">
           <fb-button
             variant="ghost"
             size="sm"
@@ -61,7 +61,7 @@ interface DialogData {
             <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </div>
-      </mat-toolbar>
+      </fb-toolbar>
 
       <mat-dialog-content>
         <div style="display: flex">

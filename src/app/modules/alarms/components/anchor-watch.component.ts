@@ -13,20 +13,25 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatStepperModule } from '@angular/material/stepper';
 
 import { NSEWButtonsComponent } from './nsew-buttons.component';
 
 import {
   FbButtonComponent,
+  FbCardComponent,
+  FbCardHeaderComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent,
   FbCheckboxComponent,
   FbIconComponent,
   FbInputComponent,
   FbSliderComponent,
+  FbStepComponent,
+  FbStepperComponent,
+  FbStepActionsDirective,
   FbSwitchComponent
 } from 'src/app/design-system/primitives';
 
@@ -40,15 +45,20 @@ import { GeoUtils } from 'src/app/lib/geoutils';
   selector: 'anchor-watch',
   imports: [
     MatIconModule,
-    MatCardModule,
     FormsModule,
     MatTooltipModule,
-    MatStepperModule,
     FbButtonComponent,
+    FbCardComponent,
+    FbCardHeaderComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent,
     FbCheckboxComponent,
     FbIconComponent,
     FbInputComponent,
     FbSliderComponent,
+    FbStepComponent,
+    FbStepperComponent,
+    FbStepActionsDirective,
     FbSwitchComponent,
     NSEWButtonsComponent
   ],

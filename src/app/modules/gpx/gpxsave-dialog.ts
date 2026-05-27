@@ -14,16 +14,15 @@ import {
 } from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { FbToolbarComponent } from 'src/app/design-system/primitives';
 
 import { GPXSaveFacade } from './gpxsave-dialog.facade';
 import { AppFacade } from 'src/app/app.facade';
@@ -35,12 +34,10 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   selector: 'gpxsave-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatToolbarModule,
-    MatProgressBarModule,
+    FbToolbarComponent,
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatDividerModule,

@@ -13,8 +13,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -25,6 +23,7 @@ import {
   FbButtonComponent,
   FbIconComponent,
   FbSelectComponent,
+  FbToolbarComponent,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -42,12 +41,11 @@ import { AppFacade } from 'src/app/app.facade';
     FormsModule,
     MatTooltipModule,
     MatIconModule,
-    MatCardModule,
-    MatToolbarModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
     FbSelectComponent,
+    FbToolbarComponent,
     FileInputComponent
   ]
 })

@@ -10,7 +10,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatCardModule } from '@angular/material/card';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -20,7 +19,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
@@ -29,11 +27,15 @@ import { AddTargetPipe } from './safe.pipe';
 
 import {
   FbButtonComponent,
+  FbCardComponent,
+  FbCardContentComponent,
+  FbCardActionsComponent,
   FbIconComponent,
   FbInputComponent,
   FbTextareaComponent,
   FbSelectComponent,
   FbSwitchComponent,
+  FbToolbarComponent,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -63,19 +65,21 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatCardModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatSelectModule,
     MatTooltipModule,
-    MatToolbarModule,
     FbButtonComponent,
+    FbCardComponent,
+    FbCardContentComponent,
+    FbCardActionsComponent,
     FbIconComponent,
     FbInputComponent,
     FbTextareaComponent,
     FbSelectComponent,
     FbSwitchComponent,
+    FbToolbarComponent,
     AngularEditorModule,
     CoordsPipe,
     AddTargetPipe,
