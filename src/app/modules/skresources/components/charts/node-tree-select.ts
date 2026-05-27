@@ -1,97 +1,101 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
-  inject,
   input,
-  output
+  output,
+  signal
 } from '@angular/core';
 
-import { MatTreeModule } from '@angular/material/tree';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-
-import { AppFacade } from 'src/app/app.facade';
+import {
+  FbTreeSelectComponent,
+  type FbTreeNode
+} from 'src/app/design-system/primitives/tree/tree.component';
 import { LayerNode } from './maplib';
 
-/********* NodeTree Select ***********/
+/**
+ * Adapter from the LayerNode mutable model used by the WMS/WMTS plumbing
+ * to the immutable `FbTreeNode` shape consumed by `fb-tree-select`. We
+ * keep the LayerNode in `data` so leaf-id matching back to the original
+ * graph stays trivial.
+ */
+function toFbNode(layer: LayerNode): FbTreeNode<LayerNode> {
+  const node: {
+    -readonly [K in keyof FbTreeNode<LayerNode>]: FbTreeNode<LayerNode>[K];
+  } = {
+    id: layer.name,
+    label: layer.title ?? layer.name,
+    data: layer
+  };
+  if (layer.children && layer.children.length > 0) {
+    node.children = layer.children.map((c) => toFbNode(c));
+  }
+  return node;
+}
+
+function collectLeafIds(layer: LayerNode, out: string[]): void {
+  if (Array.isArray(layer.children) && layer.children.length > 0) {
+    for (const c of layer.children) collectLeafIds(c, out);
+  } else {
+    out.push(layer.name);
+  }
+}
+
+/**
+ * Map the user's row-level selection back into the LayerNode graph so any
+ * code that still inspects `layer.selected` directly stays in sync, then
+ * emit the flat list of selected LEAF names which is what existing
+ * consumers (wms-dialog, chart-properties-dialog) expect.
+ */
+function syncSelectionToLayers(
+  selected: ReadonlySet<string>,
+  layers: readonly LayerNode[]
+): string[] {
+  const out: string[] = [];
+  const walk = (layer: LayerNode): void => {
+    const isLeaf =
+      !Array.isArray(layer.children) || layer.children.length === 0;
+    layer.selected = selected.has(layer.name);
+    if (isLeaf) {
+      if (layer.selected) out.push(layer.name);
+    } else if (layer.children) {
+      for (const c of layer.children) walk(c);
+    }
+  };
+  for (const root of layers) walk(root);
+  return out;
+}
+
+/**
+ * NodeTreeSelect rebuilt on top of `fb-tree-select`.
+ *
+ * The public API (`preSelect`, `layers`, `expand` inputs and `selected`
+ * output) is preserved so wms-dialog and chart-properties-dialog do not
+ * need template changes. Cascade is enabled because legacy behavior was to
+ * toggle a parent and have it propagate through descendants.
+ */
 @Component({
   selector: 'node-tree-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatTreeModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatButtonModule
-  ],
+  imports: [FbTreeSelectComponent],
   template: `
-    <div class="_ap-node-tree">
-      <div>
-        <mat-tree
-          class="node-tree"
-          #tree
-          [dataSource]="layers()"
-          [childrenAccessor]="childrenAccessor"
-        >
-          <mat-nested-tree-node *matTreeNodeDef="let node">
-            <mat-checkbox
-              [matTooltip]="node.description"
-              [checked]="node.selected"
-              (change)="toggleSelection($event.checked, node)"
-            >
-              {{ node.title ?? node.name }}
-            </mat-checkbox>
-          </mat-nested-tree-node>
-          <mat-nested-tree-node
-            *matTreeNodeDef="let node; when: hasChild"
-            isExpandable
-            [isExpanded]="expand()"
-          >
-            <div class="mat-tree-node">
-              <button mat-icon-button matTreeNodeToggle>
-                <mat-icon class="mat-icon-rtl-mirror">
-                  {{
-                    tree.isExpanded(node)
-                      ? 'expand_circle_down'
-                      : 'chevron_right'
-                  }}
-                </mat-icon>
-              </button>
-              <mat-checkbox
-                [matTooltip]="node.description"
-                [checked]="node.selected"
-                (change)="toggleSelection($event.checked, node)"
-              >
-                {{ node.title ?? node.name }}
-              </mat-checkbox>
-            </div>
-            <div role="group" [class.tree-invisible]="!tree.isExpanded(node)">
-              <ng-container matTreeNodeOutlet></ng-container>
-            </div>
-          </mat-nested-tree-node>
-        </mat-tree>
-      </div>
-    </div>
+    <fb-tree-select
+      class="node-tree-select"
+      [nodes]="treeNodes()"
+      [defaultExpanded]="expand()"
+      [cascade]="true"
+      [(selected)]="selectedIds"
+      ariaLabel="Layer tree"
+    ></fb-tree-select>
   `,
   styles: [
     `
-      ._ap-node-tree {
+      :host {
+        display: block;
       }
-      ._ap-node-tree .key-label {
-        width: 150px;
-        font-weight: 500;
-      }
-      .node-tree .mat-nested-tree-node div[role='group'] {
-        padding-left: 20px;
-      }
-      .node-tree div[role='group'] > .mat-tree-node {
-        padding-left: 20px;
-      }
-      .node-tree .tree-invisible {
-        display: none;
+      .node-tree-select {
+        background: transparent;
       }
     `
   ]
@@ -102,91 +106,37 @@ export class NodeTreeSelect {
   protected layers = input<LayerNode[]>([]);
   protected expand = input<boolean>(false);
 
-  private selections: string[] = [];
-  protected childrenAccessor = (node: LayerNode) => node.children ?? [];
-  protected hasChild = (_: number, node: LayerNode) =>
-    !!node.children && node.children.length > 0;
+  protected readonly selectedIds = signal<readonly string[]>([]);
 
-  private app = inject(AppFacade);
+  protected readonly treeNodes = computed<readonly FbTreeNode<LayerNode>[]>(
+    () => this.layers().map((l) => toFbNode(l))
+  );
+
+  private emittedInitial = false;
 
   constructor() {
     effect(() => {
-      if (Array.isArray(this.preSelect()) && this.preSelect().length) {
-        this.layers()?.forEach((l: LayerNode) => {
-          this.selectNode(l);
-        });
-      }
+      const pre = this.preSelect();
+      const layers = this.layers();
+      if (!Array.isArray(pre) || pre.length === 0 || layers.length === 0)
+        return;
+      const preSet = new Set(pre);
+      const leaves: string[] = [];
+      for (const l of layers) collectLeafIds(l, leaves);
+      const next = leaves.filter((id) => preSet.has(id));
+      if (next.length === 0) return;
+      this.selectedIds.set(next);
     });
-  }
 
-  /**
-   * Handle user check box selection
-   * @param checked
-   * @param node
-   */
-  protected toggleSelection(checked: boolean, node: LayerNode) {
-    this.handleSelection(checked, node);
-    this.parseSelections();
-    this.selected.emit(this.selections);
-  }
-
-  /**
-   * Set / clear check box for node and its children
-   * @param checked
-   * @param node
-   */
-  private handleSelection(checked: boolean, node: LayerNode) {
-    node.selected = checked;
-    if (node.children) {
-      node.children.forEach((child) => {
-        this.handleSelection(checked, child);
-      });
-    }
-  }
-
-  /**
-   * Extract selected node names into this.selections
-   */
-  private parseSelections() {
-    this.selections = [];
-    this.layers().forEach((l: LayerNode) => {
-      this.getSelections(l);
+    effect(() => {
+      const ids = new Set(this.selectedIds());
+      const leafSelections = syncSelectionToLayers(ids, this.layers());
+      if (!this.emittedInitial && leafSelections.length === 0) {
+        this.emittedInitial = true;
+        return;
+      }
+      this.emittedInitial = true;
+      this.selected.emit(leafSelections);
     });
-  }
-
-  /**
-   * Process selected node names into this.selections
-   * @param node LayerNode
-   */
-  private getSelections(node: LayerNode) {
-    const selNode = (n: LayerNode) => {
-      if (n.selected) {
-        if (!this.selections.includes(n.name)) {
-          this.selections.push(n.name);
-        }
-      }
-    };
-    if (Array.isArray(node.children)) {
-      node.children.forEach((c) => this.getSelections(c));
-    } else {
-      selNode(node);
-    }
-  }
-
-  /**
-   * Align the selection of nodes with this.preSelct()
-   * @param node LayerNode
-   */
-  private selectNode(node: LayerNode) {
-    const selNode = (n: LayerNode) => {
-      if (this.preSelect().includes(n.name)) {
-        n.selected = true;
-      }
-    };
-    if (Array.isArray(node.children)) {
-      node.children.forEach((c) => this.selectNode(c));
-    } else {
-      selNode(node);
-    }
   }
 }

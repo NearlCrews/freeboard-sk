@@ -64,19 +64,23 @@
     </fb-card-content>
     <fb-card-actions align="start">
       Filter:&nbsp;
-      <mat-slide-toggle
+      <fb-switch-row
+        density="compact"
+        ariaLabel="Filter by ship type"
         [checked]="app.config.selections.aisFilterByShipType"
-        (change)="toggleFilterType($event.checked)"
+        (checkedChange)="toggleFilterType($event)"
       >
         Ship Type
-      </mat-slide-toggle>
+      </fb-switch-row>
       &nbsp;
-      <mat-slide-toggle
+      <fb-switch-row
+        density="compact"
+        ariaLabel="Show IMO vessels only"
         [checked]="onlyIMO"
-        (change)="shipTypeSelect($event.checked, -999)"
+        (checkedChange)="shipTypeSelect($event, -999)"
       >
         IMO Only
-      </mat-slide-toggle>
+      </fb-switch-row>
     </fb-card-actions>
   </fb-card>
 

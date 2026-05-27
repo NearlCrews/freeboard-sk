@@ -24,7 +24,10 @@ import {
   FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbListItemComponent,
-  FbNavListComponent
+  FbNavListComponent,
+  FbStepComponent,
+  FbStepHeaderActionsDirective,
+  FbStepperComponent
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -41,7 +44,6 @@ import {
 import { SingleSelectListDialog } from 'src/app/lib/components';
 import { CourseService } from 'src/app/modules/course';
 import { GeoUtils } from 'src/app/lib/geoutils';
-import { MatStepperModule } from '@angular/material/stepper';
 import { ActiveResourcePropertiesModal } from '../active-resource-dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
@@ -51,7 +53,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
   imports: [
     MatIconModule,
     MatTooltipModule,
-    MatStepperModule,
     FbAccordionComponent,
     FbButtonComponent,
     FbExpansionPanelComponent,
@@ -61,6 +62,9 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
     FbInfoPanelLayoutComponent,
     FbListItemComponent,
     FbNavListComponent,
+    FbStepComponent,
+    FbStepHeaderActionsDirective,
+    FbStepperComponent,
     RemarkModule
   ],
   templateUrl: `route-panel.html`,

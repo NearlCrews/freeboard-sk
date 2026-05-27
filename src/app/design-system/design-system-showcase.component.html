@@ -422,6 +422,64 @@
         Value: {{ mimeValue() || '(none)' }}
       </span>
     </div>
+
+    <h3 class="ds-grid__title">Grouped options</h3>
+    <p class="ds-section__a11y">
+      A11y: each group label is a <code>role="presentation"</code> row carrying
+      <code>aria-hidden="true"</code>, wrapped by a
+      <code>role="group"</code> list with <code>aria-labelledby</code> pointing
+      at the label id. Arrow keys walk a flat option list across group
+      boundaries; Home and End jump to the first and last enabled options
+      regardless of group.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-wpt-type"
+        [groups]="waypointTypeGroups"
+        [(value)]="waypointTypeValue"
+        placeholder="Pick a type"
+        ariaLabel="Waypoint type"
+      ></fb-select>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ waypointTypeValue() || '(none)' }}
+      </span>
+    </div>
+
+    <h3 class="ds-grid__title">Custom option template + trigger</h3>
+    <p class="ds-section__a11y">
+      A11y: the projected <code>[fbSelectOption]</code> template renders inside
+      each <code>role="option"</code> row, so screen readers still see the
+      option semantics. Pair it with a custom <code>[fb-select-trigger]</code>
+      when the trigger needs the same icon glyph as the rows.
+    </p>
+    <div class="ds-grid">
+      <fb-select
+        name="ds-select-glyph"
+        [options]="glyphOptions"
+        [(value)]="glyphValue"
+        placeholder="Pick a glyph"
+        ariaLabel="Glyph"
+      >
+        <ng-template fbSelectOption let-option>
+          <span style="display: inline-flex; align-items: center; gap: 8px">
+            <fb-icon [name]="iconNameFor(option)" size="sm"></fb-icon>
+            {{ option.label }}
+          </span>
+        </ng-template>
+        <span fb-select-trigger>
+          <span style="display: inline-flex; align-items: center; gap: 8px">
+            <fb-icon
+              [name]="glyphValue() ?? 'help_outline'"
+              size="sm"
+            ></fb-icon>
+            {{ glyphLabel() }}
+          </span>
+        </span>
+      </fb-select>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ glyphValue() || '(none)' }}
+      </span>
+    </div>
   </section>
 
   <section class="ds-section" aria-labelledby="ds-checkbox-heading">
@@ -485,6 +543,46 @@
     <div class="ds-grid">
       <fb-switch [(checked)]="switchChecked">Enable feature</fb-switch>
       <fb-switch [disabled]="true">Disabled</fb-switch>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-switch-row-heading">
+    <h2 id="ds-switch-row-heading" class="ds-section__heading">Switch row</h2>
+    <p class="ds-section__a11y">
+      A11y: host is <code>role="group"</code> with optional
+      <code>aria-label</code>. Inner <code>fb-switch</code> keeps
+      <code>role="switch"</code>. Clicking the icon or label toggles the switch;
+      disabled rows block the toggle. Density toggles row padding.
+    </p>
+    <div class="ds-grid">
+      <fb-switch-row
+        [(checked)]="switchRowComfortable"
+        ariaLabel="Comfortable switch row"
+      >
+        Comfortable row
+      </fb-switch-row>
+      <fb-switch-row
+        [(checked)]="switchRowCompact"
+        density="compact"
+        ariaLabel="Compact switch row"
+      >
+        Compact row
+      </fb-switch-row>
+      <fb-switch-row
+        [(checked)]="switchRowWithIcon"
+        icon="visibility"
+        ariaLabel="Show in map"
+      >
+        With leading icon
+      </fb-switch-row>
+      <fb-switch-row
+        [(checked)]="switchRowDisabled"
+        [disabled]="true"
+        icon="lock"
+        ariaLabel="Disabled switch row"
+      >
+        Disabled row
+      </fb-switch-row>
     </div>
   </section>
 
@@ -906,6 +1004,52 @@
     <span class="ds-result" aria-live="polite">
       Step: {{ stepperActive() + 1 }} of 3, finishes: {{ stepperFinishCount() }}
     </span>
+
+    <h3 class="ds-grid__title">Vertical stepper</h3>
+    <p class="ds-section__a11y">
+      A11y: in vertical orientation every step body is mounted directly beneath
+      its header so the user can scroll the list instead of paging. The header
+      strip becomes a vertical <code>role="tablist"</code>; ArrowUp and
+      ArrowDown roll focus across headers, Home and End jump to ends, and Enter
+      or Space activates. Each step has its own
+      <code>role="tabpanel"</code> labelled by its header. Per-step controls
+      project via <code>&lt;ng-template fbStepHeaderActions&gt;</code> and
+      render to the right of the label. Back, Next, and Finish are omitted in
+      vertical mode.
+    </p>
+    <fb-stepper
+      orientation="vertical"
+      [(activeIndex)]="verticalStepperActive"
+      ariaLabel="Demo route waypoints"
+      style="border: 1px solid var(--color-border); border-radius: 8px"
+    >
+      <fb-step label="Alpha point" icon="location_on" [complete]="true">
+        <ng-template fbStepHeaderActions>
+          <fb-button
+            variant="ghost"
+            size="sm"
+            ariaLabel="Jump to Alpha"
+            (pressed)="verticalStepperJump('Alpha')"
+          >
+            <fb-icon name="near_me" ariaLabel=""></fb-icon>
+          </fb-button>
+        </ng-template>
+        <p>Bearing 045 deg, distance 0.4 nm.</p>
+      </fb-step>
+      <fb-step label="Bravo point" icon="location_on" [complete]="true">
+        <p>Bearing 090 deg, distance 1.2 nm.</p>
+      </fb-step>
+      <fb-step label="Charlie point" icon="location_on" [complete]="true">
+        <p>Bearing 180 deg, distance 0.8 nm.</p>
+      </fb-step>
+      <fb-step label="Delta point" icon="location_on" [complete]="true">
+        <p>Bearing 270 deg, distance 0.6 nm.</p>
+      </fb-step>
+    </fb-stepper>
+    <span class="ds-result" aria-live="polite">
+      Active waypoint: {{ verticalStepperActive() + 1 }} of 4. Last jump:
+      {{ verticalStepperJumpLog() || '(none)' }}
+    </span>
   </section>
 
   <section class="ds-section" aria-labelledby="ds-datepicker-heading">
@@ -946,6 +1090,72 @@
       [disabled]="true"
       ariaLabel="Disabled picker"
     ></fb-datepicker>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-tree-heading">
+    <h2 id="ds-tree-heading" class="ds-section__heading">Tree</h2>
+    <p class="ds-section__a11y">
+      A11y: host is a <code>role="tree"</code> with roving-tabindex rows
+      (<code>role="treeitem"</code>, <code>aria-level</code>, and
+      <code>aria-expanded</code> on parents). Keyboard: ArrowUp and ArrowDown
+      move across visible rows, ArrowRight expands a collapsed parent or
+      descends into the first child, ArrowLeft collapses an expanded parent or
+      jumps to the parent row, Home and End jump to the first and last visible
+      rows, and Enter activates a leaf. The select variant adds
+      <code>aria-multiselectable="true"</code>, a checkbox per row, and Space
+      toggles the focused row. Chevron rotation drops to 0 ms under
+      prefers-reduced-motion.
+    </p>
+
+    <h3 class="ds-grid__title">Read-only tree</h3>
+    <fb-tree
+      [nodes]="treeNodes"
+      ariaLabel="Demo tree"
+      [defaultExpanded]="true"
+      (activated)="treeActivatedId.set($event.id)"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        max-width: 360px;
+      "
+    ></fb-tree>
+    <span class="ds-result" aria-live="polite">
+      Last activated: {{ treeActivatedId() || '(none)' }}
+    </span>
+
+    <h3 class="ds-grid__title">Tree select, cascade off</h3>
+    <fb-tree-select
+      [nodes]="treeNodes"
+      [(selected)]="treeSelectedNoCascade"
+      [cascade]="false"
+      [defaultExpanded]="true"
+      ariaLabel="Layer selection, independent"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        max-width: 360px;
+      "
+    ></fb-tree-select>
+    <span class="ds-result" aria-live="polite">
+      Selected: {{ treeSelectedNoCascade().join(', ') || '(none)' }}
+    </span>
+
+    <h3 class="ds-grid__title">Tree select, cascade on</h3>
+    <fb-tree-select
+      [nodes]="treeNodes"
+      [(selected)]="treeSelectedCascade"
+      [cascade]="true"
+      [defaultExpanded]="true"
+      ariaLabel="Layer selection, cascade"
+      style="
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        max-width: 360px;
+      "
+    ></fb-tree-select>
+    <span class="ds-result" aria-live="polite">
+      Selected: {{ treeSelectedCascade().join(', ') || '(none)' }}
+    </span>
   </section>
 
   <footer class="ds-footer">

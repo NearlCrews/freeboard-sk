@@ -4,7 +4,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { OverlayModule } from '@angular/cdk/overlay';
 import {
   FbSelectComponent,
+  FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective,
+  type FbSelectGroup,
   type FbSelectOption
 } from './select.component';
 
@@ -307,6 +309,68 @@ describe('FbSelectComponent (multiple mode)', () => {
   });
 });
 
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="wt"
+      [groups]="groups()"
+      [(value)]="value"
+      ariaLabel="Waypoint type"
+    ></fb-select>
+  `
+})
+class GroupedHostComponent {
+  groups = signal<readonly FbSelectGroup[]>([
+    {
+      label: 'Points of Interest',
+      options: [
+        { id: 'default', label: 'Waypoint' },
+        { id: 'whale', label: 'Whale Sighting' }
+      ]
+    },
+    {
+      label: 'Alarms',
+      options: [{ id: 'pob', label: 'Person Overboard' }]
+    },
+    {
+      label: 'Racing',
+      options: [
+        { id: 'start-boat', label: 'Start Boat' },
+        { id: 'start-pin', label: 'Start Pin' }
+      ]
+    }
+  ]);
+  value = signal<string | null>(null);
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent, FbSelectOptionTemplateDirective],
+  template: `
+    <fb-select
+      name="icons"
+      [options]="options()"
+      [(value)]="value"
+      ariaLabel="Icon"
+    >
+      <ng-template fbSelectOption let-option>
+        <span class="custom-row" [attr.data-id]="option.id">
+          GLYPH:{{ option.id }}
+        </span>
+      </ng-template>
+    </fb-select>
+  `
+})
+class OptionTemplateHostComponent {
+  options = signal<readonly FbSelectOption[]>([
+    { id: 'anchor', label: 'Anchor' },
+    { id: 'fuel', label: 'Fuel' }
+  ]);
+  value = signal<string | null>(null);
+}
+
 describe('FbSelectComponent (custom trigger slot)', () => {
   it('renders the projected trigger content in place of the default label', () => {
     TestBed.resetTestingModule();
@@ -338,5 +402,149 @@ describe('FbSelectComponent (custom trigger slot)', () => {
       '.fb-select__trigger'
     ) as HTMLButtonElement;
     expect(trigger.textContent).toContain('Select...');
+  });
+});
+
+describe('FbSelectComponent (grouped options)', () => {
+  let host: GroupedHostComponent;
+  let fixture: ComponentFixture<GroupedHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [GroupedHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(GroupedHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  function triggerBtn(): HTMLButtonElement {
+    return fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+  }
+
+  function visibleOptions(): HTMLElement[] {
+    return Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+  }
+
+  function visibleGroupLabels(): HTMLElement[] {
+    return Array.from(
+      document.querySelectorAll('.fb-select__group-label')
+    ) as HTMLElement[];
+  }
+
+  it('renders one group label per provided group, in order', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const labels = visibleGroupLabels();
+    expect(labels.map((el) => el.textContent?.trim())).toEqual([
+      'Points of Interest',
+      'Alarms',
+      'Racing'
+    ]);
+    expect(labels[0]!.getAttribute('aria-hidden')).toBe('true');
+    expect(labels[0]!.getAttribute('role')).toBe('presentation');
+  });
+
+  it('flattens grouped options for keyboard nav across boundaries', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    expect(visibleOptions().length).toBe(5);
+    // After open, syncActiveToValue lands on the first enabled option
+    // (index 0 = "default", Points of Interest). Four ArrowDowns walk
+    // across both group boundaries to the last option.
+    const sequence: string[] = [];
+    for (let i = 0; i < 4; i++) {
+      triggerBtn().dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
+      );
+      fixture.detectChanges();
+      const active = document.querySelector(
+        '.fb-select__option--active'
+      ) as HTMLElement | null;
+      if (active) sequence.push(active.id);
+    }
+    expect(sequence).toEqual([
+      'wt-opt-whale',
+      'wt-opt-pob',
+      'wt-opt-start-boat',
+      'wt-opt-start-pin'
+    ]);
+    // End key jumps to the very last enabled option regardless of group
+    triggerBtn().dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'End', bubbles: true })
+    );
+    fixture.detectChanges();
+    const last = document.querySelector(
+      '.fb-select__option--active'
+    ) as HTMLElement | null;
+    expect(last?.id).toBe('wt-opt-start-pin');
+    // Home key wraps back to the first enabled option in the first group
+    triggerBtn().dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Home', bubbles: true })
+    );
+    fixture.detectChanges();
+    const first = document.querySelector(
+      '.fb-select__option--active'
+    ) as HTMLElement | null;
+    expect(first?.id).toBe('wt-opt-default');
+  });
+
+  it('selects a grouped option on click and stores its id', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const opts = visibleOptions();
+    // pob is the 3rd flat option (POI/POI/Alarms)
+    opts[2]!.click();
+    fixture.detectChanges();
+    expect(host.value()).toBe('pob');
+  });
+});
+
+describe('FbSelectComponent (custom option template)', () => {
+  let fixture: ComponentFixture<OptionTemplateHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [OptionTemplateHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(OptionTemplateHostComponent);
+    fixture.detectChanges();
+  });
+
+  function triggerBtn(): HTMLButtonElement {
+    return fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+  }
+
+  it('renders custom content per option from the projected template', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const rows = Array.from(
+      document.querySelectorAll('.custom-row')
+    ) as HTMLElement[];
+    expect(rows.length).toBe(2);
+    expect(rows[0]!.textContent).toContain('GLYPH:anchor');
+    expect(rows[1]!.textContent).toContain('GLYPH:fuel');
+    // Default label text path is suppressed
+    const firstOption = document.querySelector('.fb-select__option')!;
+    expect(firstOption.textContent).not.toContain('Anchor');
+  });
+
+  it('still selects the option when its custom row is clicked', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const rows = Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+    rows[1]!.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.value()).toBe('fuel');
   });
 });

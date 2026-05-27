@@ -4,13 +4,16 @@ import {
   Directive,
   ElementRef,
   HostListener,
+  TemplateRef,
   computed,
   contentChild,
+  inject,
   input,
   model,
   signal,
   viewChild
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { FbIconComponent } from '../icon/icon.component';
 
@@ -18,6 +21,18 @@ export interface FbSelectOption<T extends string | number = string> {
   readonly id: T;
   readonly label: string;
   readonly disabled?: boolean;
+  /**
+   * Free-form payload accessible from the projected `[fbSelectOption]`
+   * template (and from a custom `[fb-select-trigger]` lookup). Untyped so
+   * the option list stays a single shape across very different consumers
+   * (icon glyph picker, grouped POI categories, plain string lists).
+   */
+  readonly data?: unknown;
+}
+
+export interface FbSelectGroup<T extends string | number = string> {
+  readonly label: string;
+  readonly options: readonly FbSelectOption<T>[];
 }
 
 /**
@@ -30,6 +45,46 @@ export interface FbSelectOption<T extends string | number = string> {
   standalone: true
 })
 export class FbSelectTriggerDirective {}
+
+/**
+ * Template context type for the projected `[fbSelectOption]` row template.
+ * The id-type generic stays open so number-keyed and string-keyed callers
+ * can both reuse the same projection slot.
+ */
+export interface FbSelectOptionContext<T extends string | number = string> {
+  readonly $implicit: FbSelectOption<T>;
+}
+
+/**
+ * Template projection slot for rendering a custom option row.
+ *
+ * Usage:
+ *   <ng-template fbSelectOption let-option>
+ *     <fb-icon [name]="option.id" size="sm"></fb-icon>
+ *     {{ option.label }}
+ *   </ng-template>
+ *
+ * The template receives the full `FbSelectOption` as `$implicit`, so
+ * consumers can read `id`, `label`, and the optional `data` payload.
+ */
+@Directive({
+  selector: '[fbSelectOption]',
+  standalone: true
+})
+export class FbSelectOptionTemplateDirective {
+  readonly template: TemplateRef<unknown> = inject(TemplateRef);
+
+  /**
+   * Template type guard so the projected `let-option` binding is typed as
+   * `FbSelectOption` instead of `unknown` in the Angular compiler.
+   */
+  static ngTemplateContextGuard(
+    _dir: FbSelectOptionTemplateDirective,
+    ctx: unknown
+  ): ctx is FbSelectOptionContext<string | number> {
+    return true;
+  }
+}
 
 /**
  * Tier-2 form Select primitive.
@@ -69,7 +124,12 @@ export class FbSelectTriggerDirective {}
   selector: 'fb-select',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkConnectedOverlay, CdkOverlayOrigin, FbIconComponent],
+  imports: [
+    CdkConnectedOverlay,
+    CdkOverlayOrigin,
+    FbIconComponent,
+    NgTemplateOutlet
+  ],
   template: `
     <button
       #trigger
@@ -123,22 +183,58 @@ export class FbSelectTriggerDirective {}
         [attr.aria-multiselectable]="multiple() ? 'true' : null"
         [attr.aria-activedescendant]="activeOptionId()"
       >
-        @for (opt of options(); track opt.id; let i = $index) {
-          <li
-            [id]="optionDomId(opt.id)"
-            class="fb-select__option"
-            [class.fb-select__option--active]="i === activeIndex()"
-            [class.fb-select__option--selected]="isOptionSelected(opt.id)"
-            role="option"
-            [attr.aria-selected]="isOptionSelected(opt.id) ? 'true' : 'false'"
-            [attr.aria-disabled]="opt.disabled || null"
-            (click)="selectOption(opt)"
-            (mouseenter)="setActive(i)"
-          >
-            {{ opt.label }}
-          </li>
+        @if (hasGroups()) {
+          @for (grp of groups(); track grp.label; let g = $index) {
+            @if (g > 0) {
+              <li class="fb-select__divider" role="presentation"></li>
+            }
+            <li
+              [id]="groupLabelDomId(g)"
+              class="fb-select__group-label"
+              role="presentation"
+              aria-hidden="true"
+            >
+              {{ grp.label }}
+            </li>
+            @for (opt of grp.options; track opt.id) {
+              <ng-container
+                [ngTemplateOutlet]="optionRow"
+                [ngTemplateOutletContext]="{ $implicit: opt }"
+              ></ng-container>
+            }
+          }
+        } @else {
+          @for (opt of options(); track opt.id) {
+            <ng-container
+              [ngTemplateOutlet]="optionRow"
+              [ngTemplateOutletContext]="{ $implicit: opt }"
+            ></ng-container>
+          }
         }
       </ul>
+    </ng-template>
+
+    <ng-template #optionRow let-opt>
+      <li
+        [id]="optionDomId(opt.id)"
+        class="fb-select__option"
+        [class.fb-select__option--active]="opt.id === activeOptionIdValue()"
+        [class.fb-select__option--selected]="isOptionSelected(opt.id)"
+        role="option"
+        [attr.aria-selected]="isOptionSelected(opt.id) ? 'true' : 'false'"
+        [attr.aria-disabled]="opt.disabled || null"
+        (click)="selectOption(opt)"
+        (mouseenter)="setActiveById(opt.id)"
+      >
+        @if (optionTemplate(); as tpl) {
+          <ng-container
+            [ngTemplateOutlet]="tpl.template"
+            [ngTemplateOutletContext]="{ $implicit: opt }"
+          ></ng-container>
+        } @else {
+          {{ opt.label }}
+        }
+      </li>
     </ng-template>
   `,
   styles: [
@@ -227,6 +323,19 @@ export class FbSelectTriggerDirective {}
         cursor: not-allowed;
         opacity: 0.55;
       }
+      .fb-select__group-label {
+        padding: var(--space-xs) var(--space-md);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .fb-select__divider {
+        height: 1px;
+        margin: var(--space-xs) 0;
+        background: var(--color-border);
+      }
       @media (prefers-reduced-motion: reduce) {
         .fb-select__trigger {
           transition: none;
@@ -237,7 +346,8 @@ export class FbSelectTriggerDirective {}
 })
 export class FbSelectComponent<T extends string | number = string> {
   readonly name = input.required<string>();
-  readonly options = input.required<readonly FbSelectOption<T>[]>();
+  readonly options = input<readonly FbSelectOption<T>[]>([]);
+  readonly groups = input<readonly FbSelectGroup<T>[] | undefined>(undefined);
   readonly value = model<T | null>(null);
   readonly values = model<readonly T[]>([]);
   readonly multiple = input<boolean>(false);
@@ -253,6 +363,27 @@ export class FbSelectComponent<T extends string | number = string> {
     viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
   readonly customTrigger = contentChild(FbSelectTriggerDirective);
+  readonly optionTemplate = contentChild(FbSelectOptionTemplateDirective);
+
+  /**
+   * Flat option list used for keyboard nav and label lookup. When `groups()`
+   * is provided we flatten it (groups take precedence over `options()`),
+   * otherwise we fall back to the flat `options()` input. Computed once
+   * per change so the keyboard loop and trigger label share a single
+   * source of truth.
+   */
+  readonly flatOptions = computed<readonly FbSelectOption<T>[]>(() => {
+    const grps = this.groups();
+    if (grps && grps.length > 0) {
+      return grps.flatMap((g) => g.options);
+    }
+    return this.options();
+  });
+
+  readonly hasGroups = computed<boolean>(() => {
+    const grps = this.groups();
+    return !!grps && grps.length > 0;
+  });
 
   readonly overlayPositions = [
     {
@@ -280,7 +411,17 @@ export class FbSelectComponent<T extends string | number = string> {
     if (this.multiple()) return this.multiTriggerLabel();
     const v = this.value();
     if (v === null) return '';
-    return this.options().find((o) => o.id === v)?.label ?? '';
+    return this.flatOptions().find((o) => o.id === v)?.label ?? '';
+  });
+
+  /**
+   * Active option id projected as a value for the option-row template,
+   * which only sees the option object and can't compare against the index.
+   */
+  readonly activeOptionIdValue = computed<T | null>(() => {
+    const idx = this.activeIndex();
+    if (idx < 0) return null;
+    return this.flatOptions()[idx]?.id ?? null;
   });
 
   listboxId(): string {
@@ -291,6 +432,10 @@ export class FbSelectComponent<T extends string | number = string> {
     return `${this.name()}-opt-${String(id)}`;
   }
 
+  groupLabelDomId(index: number): string {
+    return `${this.name()}-grp-${index}`;
+  }
+
   isOptionSelected(id: T): boolean {
     if (this.multiple()) return this.values().includes(id);
     return this.value() === id;
@@ -299,7 +444,7 @@ export class FbSelectComponent<T extends string | number = string> {
   activeOptionId(): string | null {
     const idx = this.activeIndex();
     if (idx < 0) return null;
-    const opt = this.options()[idx];
+    const opt = this.flatOptions()[idx];
     return opt ? this.optionDomId(opt.id) : null;
   }
 
@@ -335,6 +480,11 @@ export class FbSelectComponent<T extends string | number = string> {
     this.activeIndex.set(index);
   }
 
+  setActiveById(id: T): void {
+    const idx = this.flatOptions().findIndex((o) => o.id === id);
+    if (idx >= 0) this.activeIndex.set(idx);
+  }
+
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
@@ -355,7 +505,7 @@ export class FbSelectComponent<T extends string | number = string> {
     if (key === 'Enter' || key === ' ') {
       event.preventDefault();
       const idx = this.activeIndex();
-      const opt = this.options()[idx];
+      const opt = this.flatOptions()[idx];
       if (opt) this.selectOption(opt);
       return;
     }
@@ -374,14 +524,14 @@ export class FbSelectComponent<T extends string | number = string> {
     const selected = this.values();
     if (selected.length === 0) return '';
     if (selected.length > 2) return `${selected.length} selected`;
-    const opts = this.options();
+    const opts = this.flatOptions();
     return selected
       .map((id) => opts.find((o) => o.id === id)?.label ?? String(id))
       .join(', ');
   }
 
   private moveActive(key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End'): void {
-    const opts = this.options();
+    const opts = this.flatOptions();
     const enabledIndices: number[] = [];
     for (let i = 0; i < opts.length; i++) {
       if (!opts[i]?.disabled) enabledIndices.push(i);
@@ -409,10 +559,10 @@ export class FbSelectComponent<T extends string | number = string> {
   }
 
   private syncActiveToValue(): void {
+    const opts = this.flatOptions();
     if (this.multiple()) {
       const selected = this.values();
       if (selected.length === 0) {
-        const opts = this.options();
         for (let i = 0; i < opts.length; i++) {
           if (!opts[i]?.disabled) {
             this.activeIndex.set(i);
@@ -427,13 +577,12 @@ export class FbSelectComponent<T extends string | number = string> {
         this.activeIndex.set(-1);
         return;
       }
-      const idx = this.options().findIndex((o) => o.id === first);
+      const idx = opts.findIndex((o) => o.id === first);
       this.activeIndex.set(idx);
       return;
     }
     const v = this.value();
     if (v === null) {
-      const opts = this.options();
       for (let i = 0; i < opts.length; i++) {
         if (!opts[i]?.disabled) {
           this.activeIndex.set(i);
@@ -443,7 +592,7 @@ export class FbSelectComponent<T extends string | number = string> {
       this.activeIndex.set(-1);
       return;
     }
-    const idx = this.options().findIndex((o) => o.id === v);
+    const idx = opts.findIndex((o) => o.id === v);
     this.activeIndex.set(idx);
   }
 }

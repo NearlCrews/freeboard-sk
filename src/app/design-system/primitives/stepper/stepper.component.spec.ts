@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FbStepActionsDirective,
   FbStepComponent,
+  FbStepHeaderActionsDirective,
   FbStepperComponent
 } from './stepper.component';
 
@@ -66,6 +67,38 @@ class CustomActionsHost {
   }
 }
 
+@Component({
+  standalone: true,
+  imports: [FbStepperComponent, FbStepComponent, FbStepHeaderActionsDirective],
+  template: `
+    <fb-stepper
+      orientation="vertical"
+      [(activeIndex)]="activeIndex"
+      ariaLabel="Waypoints"
+    >
+      <fb-step label="Alpha">
+        <div class="vbody-a">Body A</div>
+        <ng-template fbStepHeaderActions>
+          <button type="button" class="jump-a" (click)="jump('a')">Jump</button>
+        </ng-template>
+      </fb-step>
+      <fb-step label="Bravo">
+        <div class="vbody-b">Body B</div>
+      </fb-step>
+      <fb-step label="Charlie">
+        <div class="vbody-c">Body C</div>
+      </fb-step>
+    </fb-stepper>
+  `
+})
+class VerticalStepperHost {
+  activeIndex = signal<number>(0);
+  jumpedTo: string[] = [];
+  jump(id: string): void {
+    this.jumpedTo.push(id);
+  }
+}
+
 function setup<T>(comp: new () => T): {
   fixture: ComponentFixture<T>;
   host: T;
@@ -85,7 +118,7 @@ function setup<T>(comp: new () => T): {
     el,
     headers: () =>
       Array.from(
-        el.querySelectorAll('.fb-stepper__header')
+        el.querySelectorAll('.fb-stepper__header, .fb-step__header')
       ) as HTMLButtonElement[],
     stepEls: () => Array.from(el.querySelectorAll('fb-step')) as HTMLElement[],
     actionButtons: () =>
@@ -216,5 +249,71 @@ describe('FbStepperComponent custom actions slot', () => {
     const spy = vi.spyOn(host, 'custom');
     customBtn.click();
     expect(spy).toHaveBeenCalledOnce();
+  });
+});
+
+describe('FbStepperComponent vertical orientation', () => {
+  let fixture: ComponentFixture<VerticalStepperHost>;
+  let host: VerticalStepperHost;
+  let el: HTMLElement;
+
+  beforeEach(() => {
+    ({ fixture, host, el } = setup(VerticalStepperHost));
+  });
+
+  it('renders every step body (no hidden attribute on any fb-step)', () => {
+    const stepEls = Array.from(el.querySelectorAll('fb-step')) as HTMLElement[];
+    expect(stepEls.length).toBe(3);
+    stepEls.forEach((s) => expect(s.hasAttribute('hidden')).toBe(false));
+    expect(el.querySelector('.vbody-a')).toBeTruthy();
+    expect(el.querySelector('.vbody-b')).toBeTruthy();
+    expect(el.querySelector('.vbody-c')).toBeTruthy();
+  });
+
+  it('omits the Back / Next footer in vertical mode', () => {
+    expect(el.querySelector('.fb-stepper__actions')).toBeNull();
+  });
+
+  it('header click switches the active step', () => {
+    const headers = Array.from(
+      el.querySelectorAll('.fb-step__header')
+    ) as HTMLButtonElement[];
+    expect(headers.length).toBe(3);
+    headers[2]!.click();
+    fixture.detectChanges();
+    expect(host.activeIndex()).toBe(2);
+  });
+
+  it('renders the fbStepHeaderActions slot inside the step header row', () => {
+    const jumpBtn = el.querySelector<HTMLButtonElement>('.jump-a');
+    expect(jumpBtn).toBeTruthy();
+    // Confirm it lives in the header row, not in the body.
+    expect(jumpBtn!.closest('.fb-step__header-actions')).toBeTruthy();
+    expect(jumpBtn!.closest('.fb-step__body')).toBeNull();
+    jumpBtn!.click();
+    expect(host.jumpedTo).toEqual(['a']);
+  });
+
+  it('ArrowDown on a vertical header rolls focus to the next step header', () => {
+    const headers = Array.from(
+      el.querySelectorAll('.fb-step__header')
+    ) as HTMLButtonElement[];
+    headers[0]!.focus();
+    const evt = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true
+    });
+    headers[0]!.dispatchEvent(evt);
+    fixture.detectChanges();
+    const after = Array.from(
+      el.querySelectorAll('.fb-step__header')
+    ) as HTMLButtonElement[];
+    expect(document.activeElement).toBe(after[1]);
+  });
+
+  it('host carries data-orientation=vertical', () => {
+    const root = el.querySelector('fb-stepper') as HTMLElement | null;
+    expect(root?.getAttribute('data-orientation')).toBe('vertical');
   });
 });

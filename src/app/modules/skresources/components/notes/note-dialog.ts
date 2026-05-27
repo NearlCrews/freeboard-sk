@@ -15,9 +15,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -34,6 +32,8 @@ import {
   FbInputComponent,
   FbTextareaComponent,
   FbSelectComponent,
+  FbSelectOptionTemplateDirective,
+  FbSelectTriggerDirective,
   FbSwitchComponent,
   FbToolbarComponent,
   type FbSelectOption
@@ -66,9 +66,7 @@ interface DialogData {
     FormsModule,
     FormField,
     MatDialogModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatSelectModule,
     MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
@@ -78,6 +76,8 @@ interface DialogData {
     FbInputComponent,
     FbTextareaComponent,
     FbSelectComponent,
+    FbSelectOptionTemplateDirective,
+    FbSelectTriggerDirective,
     FbSwitchComponent,
     FbToolbarComponent,
     AngularEditorModule,
@@ -160,6 +160,7 @@ export class NoteDialog implements OnInit {
 
   protected icon: AppIconDef = {};
   protected poiIcons: { id: string; name: string }[] = [];
+  protected poiIconOptions: readonly FbSelectOption<string>[] = [];
   protected data = inject<DialogData>(MAT_DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(MatDialogRef<NoteDialog>);
@@ -187,12 +188,20 @@ export class NoteDialog implements OnInit {
     }
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
     this.poiIcons = listPoiIds();
+    this.poiIconOptions = this.poiIcons.map((p) => ({
+      id: p.id,
+      label: p.name
+    }));
     this.noteModel.set({ name: this.data.note.name ?? '' });
   }
 
   cleanIconDef(icon: AppIconDef) {
     icon.svgIcon = icon.svgIcon ?? '';
     return icon;
+  }
+
+  asString(v: string | number): string {
+    return String(v);
   }
 
   onIconSelected(e: string) {

@@ -165,3 +165,25 @@ export {
 
 /* Tier-3 datepicker (this gate). */
 export { FbDatepickerComponent } from './datepicker/datepicker.component';
+
+/* Tier-3 tree primitives. */
+export {
+  FbTreeComponent,
+  FbTreeSelectComponent,
+  type FbTreeNode
+} from './tree/tree.component';
+
+/* Tier-3 stepper additions. */
+export { FbStepHeaderActionsDirective } from './stepper/stepper.component';
+
+/* Tier-3 switch-row primitive. */
+export {
+  FbSwitchRowComponent,
+  type FbSwitchRowDensity
+} from './switch-row/switch-row.component';
+
+/* fb-select extensions. */
+export {
+  type FbSelectGroup,
+  FbSelectOptionTemplateDirective
+} from './select/select.component';

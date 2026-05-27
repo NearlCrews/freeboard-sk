@@ -18,7 +18,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 
 import {
@@ -26,7 +25,8 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbSwitchRowComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -62,14 +62,14 @@ import { SKChart } from '../../resource-classes';
     FormsModule,
     MatInputModule,
     ScrollingModule,
-    MatSlideToggle,
     MatMenuModule,
     ChartLayers,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
-    FbProgressBarComponent
+    FbProgressBarComponent,
+    FbSwitchRowComponent
   ]
 })
 export class ChartListComponent extends ResourceListBase implements OnInit {

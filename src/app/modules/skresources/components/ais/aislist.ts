@@ -14,14 +14,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import {
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbSwitchRowComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -45,12 +45,12 @@ import { getAisIcon } from 'src/app/modules/icons';
     FormsModule,
     MatInputModule,
     ScrollingModule,
-    MatSlideToggleModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
-    FbProgressBarComponent
+    FbProgressBarComponent,
+    FbSwitchRowComponent
   ]
 })
 export class AISListComponent extends ResourceListBase implements OnInit {

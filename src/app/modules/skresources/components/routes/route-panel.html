@@ -180,20 +180,14 @@
           </fb-button>
         </span>
         @if (points().length) {
-        <mat-stepper
+        <fb-stepper
           orientation="vertical"
-          #stepper
+          ariaLabel="Route waypoints"
           style="min-height: 50px; max-height: 200px; overflow-y: auto"
         >
-          <ng-template matStepperIcon="edit">
-            <mat-icon>location_on</mat-icon>
-          </ng-template>
-          <ng-template matStepperIcon="point">
-            <mat-icon>location_on</mat-icon>
-          </ng-template>
           @for (point of points(); track point.index) {
-          <mat-step state="point" [completed]="true">
-            <ng-template matStepLabel>
+          <fb-step [label]="point.name" [complete]="true">
+            <ng-template fbStepHeaderActions>
               <fb-button
                 variant="ghost"
                 size="sm"
@@ -203,15 +197,14 @@
               >
                 <fb-icon name="near_me" ariaLabel=""></fb-icon>
               </fb-button>
-              {{ point.name }}
             </ng-template>
             <p style="font-size: smaller; padding: 0">
               <span>{{ point.bearing }}</span>
               <span>{{ point.distance }}</span>
             </p>
-          </mat-step>
+          </fb-step>
           }
-        </mat-stepper>
+        </fb-stepper>
         }
       </fb-expansion-panel>
       <fb-expansion-panel>

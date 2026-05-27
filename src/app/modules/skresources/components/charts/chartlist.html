@@ -87,15 +87,16 @@
     </fb-card-content>
     <fb-card-actions align="start">
       @if(!displayChartLayers) {
-      <mat-slide-toggle
-        [hideIcon]="true"
+      <fb-switch-row
+        density="compact"
+        ariaLabel="Display chart boundaries"
         [checked]="app.data.chartBounds.show"
-        (change)="toggleChartBoundaries()"
+        (checkedChange)="toggleChartBoundaries()"
         matTooltip="Display Chart Boundaries"
         matTooltipPosition="above"
       >
         Boundaries
-      </mat-slide-toggle>
+      </fb-switch-row>
       <button
         mat-button
         (click)="showChartLayers(true)"

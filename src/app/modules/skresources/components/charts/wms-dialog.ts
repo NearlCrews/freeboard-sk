@@ -123,15 +123,6 @@ import { NodeTreeSelect } from './node-tree-select';
         width: 150px;
         font-weight: 500;
       }
-      .wms-tree .mat-nested-tree-node div[role='group'] {
-        padding-left: 20px;
-      }
-      .wms-tree div[role='group'] > .mat-tree-node {
-        padding-left: 20px;
-      }
-      .wms-tree .tree-invisible {
-        display: none;
-      }
     `
   ]
 })

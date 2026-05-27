@@ -15,10 +15,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 
-import { FbCardComponent } from 'src/app/design-system/primitives';
+import {
+  FbCardComponent,
+  FbSwitchComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { getAlertIcon } from '../../icons';
 import { AlertData } from './alert.component';
@@ -34,10 +36,10 @@ import { alertSeverityClass } from './alert-severity';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatSlideToggleModule,
     FormsModule,
     CdkDrag,
-    FbCardComponent
+    FbCardComponent,
+    FbSwitchComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./alert-list.component.css'],
@@ -87,13 +89,12 @@ import { alertSeverityClass } from './alert-severity';
             </button>
             &nbsp; &nbsp;
             <div>
-              <mat-slide-toggle
+              <fb-switch
                 matTooltip="Sound on /off"
-                aria-label="Toggle alert sound"
+                ariaLabel="Toggle alert sound"
                 [checked]="!this.app.config.display.muteSound"
-                (toggleChange)="togglePlaySound()"
-              >
-              </mat-slide-toggle>
+                (checkedChange)="togglePlaySound()"
+              ></fb-switch>
             </div>
             &nbsp;
             <button

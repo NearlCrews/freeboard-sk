@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal
 } from '@angular/core';
@@ -21,13 +22,18 @@ import { FbInputComponent } from './primitives/input/input.component';
 import { FbTextareaComponent } from './primitives/textarea/textarea.component';
 import {
   FbSelectComponent,
+  FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective
 } from './primitives/select/select.component';
-import type { FbSelectOption } from './primitives/select/select.component';
+import type {
+  FbSelectGroup,
+  FbSelectOption
+} from './primitives/select/select.component';
 import { FbCheckboxComponent } from './primitives/checkbox/checkbox.component';
 import { FbRadioComponent } from './primitives/radio/radio.component';
 import { FbRadioGroupComponent } from './primitives/radio/radio-group.component';
 import { FbSwitchComponent } from './primitives/switch/switch.component';
+import { FbSwitchRowComponent } from './primitives/switch-row/switch-row.component';
 import { FbSliderComponent } from './primitives/slider/slider.component';
 import { FbSegmentedComponent } from './primitives/segmented/segmented.component';
 import type { FbSegmentedOption } from './primitives/segmented/segmented.component';
@@ -63,9 +69,15 @@ import {
 import {
   FbStepActionsDirective,
   FbStepComponent,
+  FbStepHeaderActionsDirective,
   FbStepperComponent
 } from './primitives/stepper/stepper.component';
 import { FbDatepickerComponent } from './primitives/datepicker/datepicker.component';
+import {
+  FbTreeComponent,
+  FbTreeSelectComponent,
+  type FbTreeNode
+} from './primitives/tree/tree.component';
 
 type Theme = 'light' | 'dark' | 'night-red';
 
@@ -187,11 +199,13 @@ export class FbDemoSidenavBodyComponent {
     FbInputComponent,
     FbTextareaComponent,
     FbSelectComponent,
+    FbSelectOptionTemplateDirective,
     FbSelectTriggerDirective,
     FbCheckboxComponent,
     FbRadioComponent,
     FbRadioGroupComponent,
     FbSwitchComponent,
+    FbSwitchRowComponent,
     FbSliderComponent,
     FbSegmentedComponent,
     FbCardComponent,
@@ -216,7 +230,10 @@ export class FbDemoSidenavBodyComponent {
     FbStepperComponent,
     FbStepComponent,
     FbStepActionsDirective,
-    FbDatepickerComponent
+    FbStepHeaderActionsDirective,
+    FbDatepickerComponent,
+    FbTreeComponent,
+    FbTreeSelectComponent
   ],
   templateUrl: './design-system-showcase.component.html',
   styleUrls: ['./design-system-showcase.component.css']
@@ -271,9 +288,51 @@ export class DesignSystemShowcaseComponent {
     { id: 'html', label: 'HTML' }
   ];
   readonly mimeValue = signal<string | null>('md');
+  readonly waypointTypeGroups: readonly FbSelectGroup<string>[] = [
+    {
+      label: 'Points of Interest',
+      options: [
+        { id: 'default', label: 'Waypoint' },
+        { id: 'whale', label: 'Whale Sighting' }
+      ]
+    },
+    {
+      label: 'Alarms',
+      options: [{ id: 'pob', label: 'Person Overboard' }]
+    },
+    {
+      label: 'Custom',
+      options: [
+        { id: 'start-boat', label: 'Start Boat' },
+        { id: 'start-pin', label: 'Start Pin' },
+        { id: 'pseudoaton', label: 'Pseudo AtoN' }
+      ]
+    }
+  ];
+  readonly waypointTypeValue = signal<string | null>(null);
+  readonly glyphOptions: readonly FbSelectOption[] = [
+    { id: 'home', label: 'Home' },
+    { id: 'anchor', label: 'Anchor' },
+    { id: 'flag', label: 'Flag' },
+    { id: 'place', label: 'Place' }
+  ];
+  readonly glyphValue = signal<string | null>(null);
+  readonly glyphLabel = computed<string>(() => {
+    const v = this.glyphValue();
+    if (v === null) return 'Pick a glyph';
+    return this.glyphOptions.find((o) => o.id === v)?.label ?? '';
+  });
+
+  iconNameFor(option: { id: string | number }): string {
+    return String(option.id);
+  }
   readonly checkboxChecked = signal<boolean>(false);
   readonly indeterminateChecked = signal<boolean>(false);
   readonly switchChecked = signal<boolean>(false);
+  readonly switchRowComfortable = signal<boolean>(true);
+  readonly switchRowCompact = signal<boolean>(false);
+  readonly switchRowWithIcon = signal<boolean>(true);
+  readonly switchRowDisabled = signal<boolean>(false);
   readonly radioValue = signal<string | null>(null);
   readonly radioZoomValue = signal<number | null>(null);
   readonly sliderValue = signal<number>(40);
@@ -322,11 +381,51 @@ export class DesignSystemShowcaseComponent {
     this.stepperFinishCount.update((n) => n + 1);
   }
 
+  readonly verticalStepperActive = signal<number>(0);
+  readonly verticalStepperJumpLog = signal<string>('');
+  verticalStepperJump(label: string): void {
+    this.verticalStepperJumpLog.set(label);
+  }
+
   readonly datepickerValue = signal<Date | null>(null);
   readonly datepickerBoundedValue = signal<Date | null>(null);
   readonly datepickerDisabledValue = signal<Date | null>(new Date());
   readonly datepickerMin = new Date(2026, 0, 1);
   readonly datepickerMax = new Date(2026, 11, 31);
+
+  readonly treeNodes: readonly FbTreeNode[] = [
+    {
+      id: 'charts',
+      label: 'Charts',
+      icon: 'map',
+      children: [
+        { id: 'chart-noaa', label: 'NOAA' },
+        { id: 'chart-ukho', label: 'UKHO' },
+        { id: 'chart-osm', label: 'OpenStreetMap' }
+      ]
+    },
+    {
+      id: 'overlays',
+      label: 'Overlays',
+      icon: 'layers',
+      children: [
+        { id: 'overlay-ais', label: 'AIS' },
+        { id: 'overlay-weather', label: 'Weather' },
+        {
+          id: 'overlay-routes',
+          label: 'Routes',
+          children: [
+            { id: 'overlay-routes-active', label: 'Active route' },
+            { id: 'overlay-routes-archived', label: 'Archived' }
+          ]
+        }
+      ]
+    },
+    { id: 'notes', label: 'Notes', icon: 'note' }
+  ];
+  readonly treeActivatedId = signal<string>('');
+  readonly treeSelectedNoCascade = signal<readonly string[]>([]);
+  readonly treeSelectedCascade = signal<readonly string[]>([]);
 
   setTheme(t: Theme): void {
     this.theme.set(t);

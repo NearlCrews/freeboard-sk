@@ -230,26 +230,34 @@
           ></fb-input>
         </div>
         <div style="display: flex">
-          <div style="padding-left: 10px">
-            <mat-form-field style="width: 80px">
-              <mat-select
-                [ngModel]="icon.svgIcon"
-                (ngModelChange)="onIconSelected($event)"
-              >
-                <mat-select-trigger>
-                  @if(icon.svgIcon?.length) {
-                  <mat-icon [svgIcon]="icon.svgIcon ?? ''"></mat-icon>
+          <div style="padding-left: 10px; min-width: 80px">
+            <label for="note-icon" style="display: block; font-weight: 600">
+              Icon
+            </label>
+            <fb-select
+              name="note-icon"
+              ariaLabel="Icon"
+              [options]="poiIconOptions"
+              [value]="icon.svgIcon ?? ''"
+              (valueChange)="onIconSelected($event ?? '')"
+            >
+              <ng-template fbSelectOption let-option>
+                <span [matTooltip]="option.label">
+                  @if (option.id) {
+                  <mat-icon [svgIcon]="asString(option.id)"></mat-icon>
                   } @else {
-                  <mat-icon>{{icon.name}}</mat-icon>
+                  <mat-icon>{{ option.label }}</mat-icon>
                   }
-                </mat-select-trigger>
-                @for(i of poiIcons; track i.id) {
-                <mat-option [value]="i.id" [matTooltip]="i.name"
-                  ><mat-icon [svgIcon]="i.id">{{i.name}}</mat-icon>
-                </mat-option>
+                </span>
+              </ng-template>
+              <span fb-select-trigger>
+                @if (icon.svgIcon?.length) {
+                <mat-icon [svgIcon]="icon.svgIcon ?? ''"></mat-icon>
+                } @else {
+                <mat-icon>{{ icon.name }}</mat-icon>
                 }
-              </mat-select>
-            </mat-form-field>
+              </span>
+            </fb-select>
           </div>
           <div style="padding-left: 10px">
             <label for="note-mime" style="display: block; font-weight: 600">

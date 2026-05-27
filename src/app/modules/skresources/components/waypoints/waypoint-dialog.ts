@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -26,7 +25,13 @@ import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import { MatTooltip } from '@angular/material/tooltip';
 
-import { FbToolbarComponent } from 'src/app/design-system/primitives';
+import {
+  FbSelectComponent,
+  FbSelectOptionTemplateDirective,
+  FbSelectTriggerDirective,
+  FbToolbarComponent,
+  type FbSelectGroup
+} from 'src/app/design-system/primitives';
 
 const waypointTypeDef = {
   default: {
@@ -80,7 +85,6 @@ interface WaypointTypeOption {
     CommonModule,
     FormsModule,
     MatInputModule,
-    MatSelectModule,
     MatIconModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -88,6 +92,9 @@ interface WaypointTypeOption {
     CoordsPipe,
     FormField,
     MatTooltip,
+    FbSelectComponent,
+    FbSelectOptionTemplateDirective,
+    FbSelectTriggerDirective,
     FbToolbarComponent
   ],
   template: `
@@ -133,45 +140,59 @@ interface WaypointTypeOption {
             </div>
             <!-- select icon type / category-->
             <div style="display:flex;flex-wrap:wrap;">
-              <mat-form-field style="width:_stretch;" floatLabel="always">
-                <mat-label>Type</mat-label>
-                <mat-select
-                  [disabled]="wptReadOnly"
-                  [(value)]="wptType"
-                  (selectionChange)="handleWptTypeChange($event)"
+              <div style="min-width: 220px;">
+                <label
+                  for="waypoint-type"
+                  style="display: block; font-weight: 600;"
                 >
-                  <mat-select-trigger>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                  Type
+                </label>
+                <fb-select
+                  name="waypoint-type"
+                  ariaLabel="Waypoint type"
+                  [groups]="waypointTypeGroups"
+                  [disabled]="wptReadOnly"
+                  [value]="wptType"
+                  (valueChange)="handleWptTypeChange($event)"
+                >
+                  <ng-template fbSelectOption let-option>
+                    <span
+                      style="display: inline-flex; align-items: center; gap: 8px;"
+                    >
+                      @if (optionIcon(option); as icn) {
+                        @if (icn.svgIcon) {
+                          <mat-icon
+                            [svgIcon]="icn.svgIcon"
+                            [class]="icn.class ?? ''"
+                          ></mat-icon>
+                        } @else {
+                          <mat-icon [class]="icn.class ?? ''">{{
+                            icn.name
+                          }}</mat-icon>
+                        }
+                      }
+                      {{ option.label }}
+                    </span>
+                  </ng-template>
+                  <span fb-select-trigger>
+                    <span
+                      style="display: inline-flex; align-items: center; gap: 8px;"
+                    >
                       @if (wptIcon().svgIcon) {
                         <mat-icon
                           [svgIcon]="wptIcon().svgIcon"
-                          [class]="wptIcon().class"
+                          [class]="wptIcon().class ?? ''"
                         ></mat-icon>
                       } @else {
-                        <mat-icon [class]="wptIcon().class">{{
+                        <mat-icon [class]="wptIcon().class ?? ''">{{
                           wptIcon().name
                         }}</mat-icon>
                       }
                       {{ wptIconDisplayName }}
-                    </div>
-                  </mat-select-trigger>
-
-                  @for (wt of waypointTypeSelections; track wt[0]) {
-                    <mat-optgroup [label]="wt[0]">
-                      @for (i of wt[1]; track i.name) {
-                        <mat-option [value]="i.type">
-                          <mat-icon
-                            [class]="i.icon.class"
-                            [svgIcon]="i.icon.svgIcon"
-                            >{{ i.icon.name }}</mat-icon
-                          >
-                          {{ i.name }}
-                        </mat-option>
-                      }
-                    </mat-optgroup>
-                  }
-                </mat-select>
-              </mat-form-field>
+                    </span>
+                  </span>
+                </fb-select>
+              </div>
 
               @if (iconsForSelection().length !== 0) {
                 <div>
@@ -285,6 +306,7 @@ export class WaypointDialog {
   protected dialogIcon: string;
   protected wptIcon = signal<AppIconDef>({});
   protected waypointTypeSelections: Map<string, WaypointTypeOption[]>;
+  protected waypointTypeGroups: readonly FbSelectGroup<string>[];
   protected wptIconDisplayName = '';
 
   protected wptType: string;
@@ -344,6 +366,37 @@ export class WaypointDialog {
     });
 
     this.waypointTypeSelections = this.buildWptSelections();
+    this.waypointTypeGroups = this.buildWptGroups(this.waypointTypeSelections);
+  }
+
+  /**
+   * Resolve the icon descriptor for an option rendered inside fb-select.
+   * The option payload carries the AppIconDef in `data`; the projected
+   * template only sees the option object so this helper bridges the gap.
+   */
+  protected optionIcon(option: { data?: unknown }): AppIconDef | null {
+    const d = option.data;
+    if (d && typeof d === 'object') {
+      return d as AppIconDef;
+    }
+    return null;
+  }
+
+  private buildWptGroups(
+    selections: Map<string, WaypointTypeOption[]>
+  ): readonly FbSelectGroup<string>[] {
+    const groups: FbSelectGroup<string>[] = [];
+    for (const [label, items] of selections) {
+      groups.push({
+        label,
+        options: items.map((i) => ({
+          id: i.type,
+          label: i.name,
+          data: i.icon
+        }))
+      });
+    }
+    return groups;
   }
 
   protected handleClose(save: boolean) {
@@ -445,7 +498,8 @@ export class WaypointDialog {
     return getResourceIcon('waypoints', wpt ?? this.data.waypoint);
   }
 
-  protected handleWptTypeChange(_e: unknown) {
+  protected handleWptTypeChange(next: string | null) {
+    this.wptType = next ?? '';
     const w: SKWaypoint = { ...this.data.waypoint };
     w.type = this.wptType;
     if (w.feature.properties) {
