@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  inject,
   input,
   effect
 } from '@angular/core';
@@ -20,6 +21,7 @@ import { LineString, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-select.component';
 
@@ -55,6 +57,8 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
   @Input() layerProperties?: Record<string, any>;
 
   protected mapifiedLine: Coordinate[] = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -135,7 +139,10 @@ export class HeadingLineComponent implements OnInit, OnDestroy, OnChanges {
                 width: ls.stroke.width,
                 lineDash: ls.stroke.lineDash ?? undefined
               })
-            : new Stroke({ color: 'rgba(221, 99, 0, 0.5)', width: 4 })
+            : new Stroke({
+                color: this.mapTheme.palette().headingLine,
+                width: 4
+              })
         })
       );
       fa.push(heading);

@@ -23,6 +23,21 @@ export interface MapThemePalette {
   readonly note: string;
   readonly region: string;
   readonly waypoint: string;
+  readonly bearingLine: string;
+  readonly headingLine: string;
+  readonly cogLine: string;
+  readonly aisCogLine: string;
+  readonly rangeCircle: string;
+  readonly arrivalCircle: string;
+  readonly arrivalCircleFill: string;
+  readonly xtePath: string;
+  readonly cpaAlarm: string;
+  readonly cpaAlarmFill: string;
+  readonly aisWindTrue: string;
+  readonly aisWindApparent: string;
+  readonly chartBoundsBackdrop: string;
+  readonly chartBoundsFill: string;
+  readonly mapLabel: string;
 }
 
 type PaletteField = keyof MapThemePalette;
@@ -52,7 +67,22 @@ const TOKEN_MAP: Readonly<Record<PaletteField, string>> = {
   anchorBreached: '--safety-alert-alarm',
   note: '--color-accent',
   region: '--color-warning',
-  waypoint: '--color-accent'
+  waypoint: '--color-accent',
+  bearingLine: '--color-accent',
+  headingLine: '--color-accent',
+  cogLine: '--color-accent',
+  aisCogLine: '--color-text',
+  rangeCircle: '--color-warning',
+  arrivalCircle: '--color-warning',
+  arrivalCircleFill: '--color-surface-raised',
+  xtePath: '--color-error',
+  cpaAlarm: '--safety-alert-alarm',
+  cpaAlarmFill: '--safety-alert-alarm',
+  aisWindTrue: '--color-warning',
+  aisWindApparent: '--safety-ais-safe',
+  chartBoundsBackdrop: '--color-surface-raised',
+  chartBoundsFill: '--color-surface-raised',
+  mapLabel: '--color-text'
 };
 
 /**
@@ -78,7 +108,22 @@ const FALLBACKS: Readonly<MapThemePalette> = {
   anchorBreached: '#d94f4f',
   note: '#e0a52d',
   region: '#e0c52d',
-  waypoint: '#e0a52d'
+  waypoint: '#e0a52d',
+  bearingLine: 'rgba(221, 149, 0, 1)',
+  headingLine: 'rgba(221, 99, 0, 0.5)',
+  cogLine: 'rgba(204, 12, 225, 0.7)',
+  aisCogLine: 'rgba(0, 0, 0, 1)',
+  rangeCircle: 'rgba(152, 153, 10, 1)',
+  arrivalCircle: 'rgba(242, 153, 10, 1)',
+  arrivalCircleFill: 'rgba(255, 255, 255, 0.1)',
+  xtePath: 'rgba(255, 0, 0, 0.2)',
+  cpaAlarm: 'rgba(255, 0, 0, 1)',
+  cpaAlarmFill: 'rgba(255, 0, 0, 0.2)',
+  aisWindTrue: 'rgba(128, 128, 0, 1)',
+  aisWindApparent: 'rgba(16, 75, 16, 1)',
+  chartBoundsBackdrop: 'rgba(255, 255, 255, 0.4)',
+  chartBoundsFill: 'rgba(255, 255, 255, 0.1)',
+  mapLabel: 'rgba(26, 26, 1, 1)'
 };
 
 const PALETTE_FIELDS = Object.keys(TOKEN_MAP) as readonly PaletteField[];

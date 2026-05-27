@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
+  inject,
   input,
   Input,
   OnChanges,
@@ -20,17 +21,12 @@ import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 import { Convert, TARGET_UNIT } from '../../../../../lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { DarkTheme } from '../themes';
 import { circular } from 'ol/geom/Polygon';
-
-const LightTheme = {
-  labelText: {
-    color: 'rgba(26, 26, 1, 1)'
-  }
-};
 
 // Resolution -> circle range (meters) buckets, ordered high to low. The first
 // entry whose resolution threshold is exceeded wins. Hoisted from a 12-deep
@@ -62,8 +58,8 @@ function rangeForResolution(resolution: number): number {
 // Transparent fills/strokes for the per-circle text feature: the canvas needs
 // a no-op fill/stroke so OL draws just the text. Allocating these per circle
 // per render was wasteful (maxCircles * N renders); one instance is enough.
-const TRANSPARENT_FILL = new Fill({ color: 'rgba(255, 255, 255, 0)' });
-const TRANSPARENT_STROKE = new Stroke({ color: 'rgba(255, 255, 255, 0)' });
+const TRANSPARENT_FILL = new Fill({ color: 'transparent' });
+const TRANSPARENT_STROKE = new Stroke({ color: 'transparent' });
 
 // ** Freeboard Range Circles component **
 @Component({
@@ -76,7 +72,8 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   protected layer: Layer | null = null;
   public source!: VectorSource;
   protected features: Feature[] = [];
-  private theme = LightTheme;
+  private readonly mapTheme = inject(MapThemeService);
+  private labelColor = this.mapTheme.palette().mapLabel;
 
   protected darkMode = input<boolean>(false);
   protected fixedMode = input<boolean>(false);
@@ -108,7 +105,9 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
   ) {
     this.changeDetectorRef.detach();
     effect(() => {
-      this.theme = this.darkMode() ? DarkTheme : LightTheme;
+      this.labelColor = this.darkMode()
+        ? DarkTheme.labelText.color
+        : this.mapTheme.palette().mapLabel;
       this.parseValues();
     });
 
@@ -223,7 +222,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
       cs = new Style({
         fill: new Fill({ color: 'transparent' }),
         stroke: new Stroke({
-          color: 'rgba(152, 153, 10, 1)',
+          color: this.mapTheme.palette().rangeCircle,
           width: 1.5,
           lineDash: [2, 3]
         })
@@ -240,7 +239,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
         text: value ? this.formatLabel(value) : '',
         offsetX: 0,
         offsetY: 0,
-        fill: new Fill({ color: this.theme.labelText.color })
+        fill: new Fill({ color: this.labelColor })
       })
     });
   }

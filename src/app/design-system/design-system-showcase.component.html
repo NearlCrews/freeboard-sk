@@ -2,8 +2,8 @@
   <header class="ds-header">
     <h1 class="ds-title">freeboard-sk design system</h1>
     <p class="ds-subtitle">
-      Phase 3 Batch 3 scaffold. Three Tier-1 primitives, theme-switchable,
-      a11y-checked, and token-driven (no hardcoded colors or sizes).
+      Tier-1 primitives, theme-switchable, a11y-checked, and token-driven (no
+      hardcoded colors or sizes).
     </p>
     <nav class="ds-themes" aria-label="Theme switcher">
       <fb-button
@@ -62,6 +62,146 @@
     </div>
   </section>
 
+  <section class="ds-section" aria-labelledby="ds-icon-heading">
+    <h2 id="ds-icon-heading" class="ds-section__heading">Icon</h2>
+    <p class="ds-section__a11y">
+      A11y: when <code>ariaLabel</code> is provided the host gets
+      <code>role="img"</code> and the label; otherwise the host is
+      <code>aria-hidden="true"</code> so screen readers skip decorative glyphs.
+      Sizing tracks <code>--touch-secondary</code> at md and
+      <code>--touch-primary</code> at lg so an icon used as a standalone tap
+      target still meets the floor.
+    </p>
+
+    <h3 class="ds-grid__title">Sizes</h3>
+    <div class="ds-grid">
+      <fb-icon name="anchor" size="sm" ariaLabel="Anchor small"></fb-icon>
+      <fb-icon name="anchor" size="md" ariaLabel="Anchor medium"></fb-icon>
+      <fb-icon name="anchor" size="lg" ariaLabel="Anchor large"></fb-icon>
+    </div>
+
+    <h3 class="ds-grid__title">Glyphs</h3>
+    <div class="ds-grid">
+      <fb-icon name="anchor" ariaLabel="Anchor"></fb-icon>
+      <fb-icon name="route" ariaLabel="Route"></fb-icon>
+      <fb-icon name="navigation" ariaLabel="Navigation"></fb-icon>
+      <fb-icon name="layers" ariaLabel="Layers"></fb-icon>
+      <fb-icon name="settings" ariaLabel="Settings"></fb-icon>
+    </div>
+
+    <h3 class="ds-grid__title">Weight and fill axes</h3>
+    <div class="ds-grid">
+      <fb-icon name="star" [weight]="300" [fill]="0" ariaLabel="Thin"></fb-icon>
+      <fb-icon
+        name="star"
+        [weight]="400"
+        [fill]="0"
+        ariaLabel="Regular"
+      ></fb-icon>
+      <fb-icon name="star" [weight]="700" [fill]="0" ariaLabel="Bold"></fb-icon>
+      <fb-icon
+        name="star"
+        [weight]="400"
+        [fill]="1"
+        ariaLabel="Filled"
+      ></fb-icon>
+    </div>
+
+    <h3 class="ds-grid__title">Decorative (no aria-label)</h3>
+    <div class="ds-grid">
+      <fb-icon name="settings"></fb-icon>
+      <span>Decorative icons are skipped by screen readers.</span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-fab-heading">
+    <h2 id="ds-fab-heading" class="ds-section__heading">FAB</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>ariaLabel</code> is required at compile time because a FAB is
+      always icon-only. Size pinned to <code>--touch-primary</code> (56 px) so
+      it meets the safety-action target. Reduced-motion drops the elevation
+      transform.
+    </p>
+
+    <h3 class="ds-grid__title">Variants (static position)</h3>
+    <div class="ds-grid">
+      <fb-fab icon="add" ariaLabel="Add" variant="primary"></fb-fab>
+      <fb-fab icon="edit" ariaLabel="Edit" variant="secondary"></fb-fab>
+    </div>
+
+    <h3 class="ds-grid__title">States</h3>
+    <div class="ds-grid">
+      <fb-fab icon="anchor" ariaLabel="Drop anchor"></fb-fab>
+      <fb-fab icon="anchor" ariaLabel="Disabled FAB" [disabled]="true"></fb-fab>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-menu-heading">
+    <h2 id="ds-menu-heading" class="ds-section__heading">Menu</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="menu"</code> on the host, <code>role="menuitem"</code>
+      per item, arrow keys move focus, Home and End jump to ends, Enter
+      activates, Escape dismisses. Focus returns to the trigger on close.
+      Disabled items stay visible but are skipped by keyboard navigation.
+    </p>
+    <div class="ds-grid">
+      <fb-button variant="secondary" (pressed)="openMenu($event)">
+        Open menu
+      </fb-button>
+      <span class="ds-result" aria-live="polite">
+        Last result: {{ lastMenuResult() || '(none yet)' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-snack-heading">
+    <h2 id="ds-snack-heading" class="ds-section__heading">Snackbar</h2>
+    <p class="ds-section__a11y">
+      A11y: <code>role="status"</code> with polite live region for info and
+      success; <code>role="alert"</code> with assertive live region for warn and
+      error. Default duration is 4 s, error uses 7 s so the user has time to
+      read.
+    </p>
+    <div class="ds-grid">
+      <fb-button variant="secondary" (pressed)="openSnackbar('info')">
+        Info
+      </fb-button>
+      <fb-button variant="secondary" (pressed)="openSnackbar('success')">
+        Success
+      </fb-button>
+      <fb-button variant="secondary" (pressed)="openSnackbar('warn')">
+        Warn
+      </fb-button>
+      <fb-button variant="danger" (pressed)="openSnackbar('error')">
+        Error
+      </fb-button>
+      <span class="ds-result" aria-live="polite">
+        Last outcome: {{ lastSnackbarResult() || '(none yet)' }}
+      </span>
+    </div>
+  </section>
+
+  <section class="ds-section" aria-labelledby="ds-sidenav-heading">
+    <h2 id="ds-sidenav-heading" class="ds-section__heading">Sidenav</h2>
+    <p class="ds-section__a11y">
+      A11y: CDK Dialog under the hood, so focus trap, escape-to-close, and focus
+      restore are inherited. The host carries
+      <code>role="dialog"</code> and <code>aria-modal="true"</code>. Slide-in
+      animation drops under prefers-reduced-motion.
+    </p>
+    <div class="ds-grid">
+      <fb-button variant="secondary" (pressed)="openSidenav('left')">
+        Open left
+      </fb-button>
+      <fb-button variant="secondary" (pressed)="openSidenav('right')">
+        Open right
+      </fb-button>
+      <span class="ds-result" aria-live="polite">
+        Opened: {{ sidenavOpenCount() }}
+      </span>
+    </div>
+  </section>
+
   <section class="ds-section" aria-labelledby="ds-dlg-heading">
     <h2 id="ds-dlg-heading" class="ds-section__heading">Dialog</h2>
     <p class="ds-section__a11y">
@@ -99,8 +239,8 @@
 
   <footer class="ds-footer">
     <p>
-      Scaffold for the full 15-primitive design system. Remaining primitives
-      land in subsequent Phase 3 batches.
+      Tier-1 primitives shipped. Tier-2 forms (input, select, textarea, switch,
+      checkbox, radio, slider, segmented) land in the next gate.
     </p>
   </footer>
 </main>

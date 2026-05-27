@@ -31,6 +31,11 @@ jobs:
   # carry no //# sourceMappingURL= comment, so browsers will not fetch
   # them even if the artifact is ever published verbatim.
   #
+  # The release name uses the git tag (github.ref_name), which must match
+  # the release value that the Sentry SDK reports at runtime (wired via
+  # window.__FB_RELEASE__ in src/main.ts; the host signalk-server plugin
+  # injects the tag string).
+  #
   # Required GitHub repository secrets (configure in repo Settings then
   # Secrets and variables then Actions):
   #   - SENTRY_AUTH_TOKEN: Sentry auth token with project:releases scope.
@@ -43,24 +48,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: download build artifact
         uses: actions/download-artifact@v4
         with:
           name: public
           path: public/
-      - name: upload sourcemaps to Sentry
+      - name: create Sentry release and upload sourcemaps
+        uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_RELEASE: ${{ github.ref_name }}
-        run: |
-          npx --yes @sentry/cli@3 releases new "$SENTRY_RELEASE"
-          npx --yes @sentry/cli@3 sourcemaps inject public
-          npx --yes @sentry/cli@3 sourcemaps upload \
-            --release "$SENTRY_RELEASE" \
-            public
-          npx --yes @sentry/cli@3 releases finalize "$SENTRY_RELEASE"
+        with:
+          environment: production
+          release: ${{ github.ref_name }}
+          sourcemaps: ./public
       - name: strip .map files from artifact
         run: |
           find public -type f -name '*.map' -delete

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -19,6 +20,7 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
 // ** Freeboard CPA Alarm component **
@@ -48,6 +50,8 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
   @Input() maxResolution?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() layerProperties?: Record<string, any>;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -136,26 +140,26 @@ export class CPAAlarmComponent implements OnInit, OnDestroy, OnChanges {
     if (lpStyle) {
       cs = lpStyle;
     } else {
-      // default style
+      const palette = this.mapTheme.palette();
       cs = new Style({
         image: new Circle({
           radius: 10,
           stroke: new Stroke({
             width: 2,
-            color: 'red',
+            color: palette.cpaAlarm,
             lineDash: [2, 3]
           }),
           fill: new Fill({
-            color: 'rgba(255,0,0,.2)'
+            color: palette.cpaAlarmFill
           })
         }),
         stroke: new Stroke({
           width: 2,
-          color: 'red',
+          color: palette.cpaAlarm,
           lineDash: [2, 3]
         }),
         fill: new Fill({
-          color: 'rgba(255,0,0,.2)'
+          color: palette.cpaAlarmFill
         })
       });
     }

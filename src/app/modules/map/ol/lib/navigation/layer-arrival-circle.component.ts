@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -19,17 +20,8 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { mapifyRadius } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
-
-// Default arrival circle style: shared across instances/renders.
-const DEFAULT_ARRIVAL_STYLE = new Style({
-  fill: new Fill({ color: 'rgba(255, 255, 255, .1)' }),
-  stroke: new Stroke({
-    color: 'rgba(242, 153, 10, 1)',
-    width: 2,
-    lineDash: [5, 5]
-  })
-});
 
 // ** Freeboard Arrival Circle component **
 @Component({
@@ -61,6 +53,8 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
   @Input() layerProperties?: Record<string, any>;
 
   public mapifiedLine: Coordinate[] = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -139,6 +133,14 @@ export class ArrivalCircleComponent implements OnInit, OnDestroy, OnChanges {
     if (this.layerProperties?.['style']) {
       return this.layerProperties['style'] as Style;
     }
-    return DEFAULT_ARRIVAL_STYLE;
+    const palette = this.mapTheme.palette();
+    return new Style({
+      fill: new Fill({ color: palette.arrivalCircleFill }),
+      stroke: new Stroke({
+        color: palette.arrivalCircle,
+        width: 2,
+        lineDash: [5, 5]
+      })
+    });
   }
 }

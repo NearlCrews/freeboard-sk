@@ -9,6 +9,7 @@ import {
   Output,
   SimpleChanges,
   SimpleChange,
+  inject,
   input,
   effect
 } from '@angular/core';
@@ -23,25 +24,8 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
-
-// Default bearing line + marker styles. Static templates: the per-feature
-// label text gets set on the Text via updateLabel(), so the underlying Style
-// instances themselves are safe to share.
-const DEFAULT_BEARING_STYLES: Style[] = [
-  new Style({
-    stroke: new Stroke({ color: 'white', width: 6 })
-  }),
-  new Style({
-    image: new Circle({
-      radius: 5,
-      stroke: new Stroke({ width: 2, color: 'white' }),
-      fill: new Fill({ color: 'rgba(221, 149, 0, 1)' })
-    }),
-    stroke: new Stroke({ color: 'rgba(221, 149, 0, 1)', width: 2 }),
-    text: new Text({ text: '', offsetX: 0, offsetY: -29 })
-  })
-];
 
 // ** Freeboard Bearing line component **
 @Component({
@@ -81,6 +65,8 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
 
   public mapifiedRadius = 0;
   public mapifiedLine: Coordinate[] = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -190,7 +176,21 @@ export class BearingLineComponent implements OnInit, OnDestroy, OnChanges {
     if (this.layerProperties?.['style']) {
       return this.layerProperties['style'] as Style | Style[];
     }
-    return DEFAULT_BEARING_STYLES;
+    const bearingColor = this.mapTheme.palette().bearingLine;
+    return [
+      new Style({
+        stroke: new Stroke({ color: 'white', width: 6 })
+      }),
+      new Style({
+        image: new Circle({
+          radius: 5,
+          stroke: new Stroke({ width: 2, color: 'white' }),
+          fill: new Fill({ color: bearingColor })
+        }),
+        stroke: new Stroke({ color: bearingColor, width: 2 }),
+        text: new Text({ text: '', offsetX: 0, offsetY: -29 })
+      })
+    ];
   }
 
   // ** assess attribute change **

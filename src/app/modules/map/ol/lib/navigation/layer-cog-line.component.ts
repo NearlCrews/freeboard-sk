@@ -9,6 +9,7 @@ import {
   Output,
   SimpleChanges,
   SimpleChange,
+  inject,
   input,
   effect,
   signal
@@ -23,18 +24,13 @@ import { LineString, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 import { getDistance } from 'ol/sphere';
 import { Convert } from 'src/app/lib/convert';
 import { DarkTheme } from '../themes';
 import { DistanceUnitDef } from 'src/app/types';
 import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-select.component';
-
-const LightTheme = {
-  labelText: {
-    color: 'rgba(26, 26, 1, 1)'
-  }
-};
 
 // Shared transparent fill: the OL canvas treats `null` fill as "no fill" and
 // new Fill({ color: 'transparent' }) was being allocated per segment per
@@ -52,7 +48,8 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
   protected layer: Layer | null = null;
   public source!: VectorSource;
   protected features: Feature[] = [];
-  private theme = LightTheme;
+  private readonly mapTheme = inject(MapThemeService);
+  private labelColor = this.mapTheme.palette().mapLabel;
 
   /**
    * This event is triggered after the layer is initialized
@@ -102,7 +99,9 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
     effect(() => {
-      this.theme = this.darkMode() ? DarkTheme : LightTheme;
+      this.labelColor = this.darkMode()
+        ? DarkTheme.labelText.color
+        : this.mapTheme.palette().mapLabel;
       this.updateLabel();
     });
   }
@@ -178,7 +177,7 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
         if (!geometry) {
           return [];
         }
-        const defaultColor = 'rgba(204, 12, 225, 0.7)';
+        const defaultColor = this.mapTheme.palette().cogLine;
 
         const ls = this.lineStyle();
         const stroke = ls
@@ -269,7 +268,7 @@ export class CogLineComponent implements OnInit, OnDestroy, OnChanges {
           : '',
       offsetX: 0,
       offsetY: -10,
-      fill: new Fill({ color: this.theme.labelText.color })
+      fill: new Fill({ color: this.labelColor })
     });
   }
 }

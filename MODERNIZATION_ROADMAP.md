@@ -235,7 +235,7 @@ pass stays open for the UX sprint.
       compares the violation count to `.axe-baseline.json`
       (monotonic-decrease ratchet), and asserts that the 4 hard-fail
       rule IDs stay at zero. Seed mode: `AXE_BASELINE_SEED=1
-    E2E_LOCAL=1 pnpm test:e2e --grep a11y`.
+  E2E_LOCAL=1 pnpm test:e2e --grep a11y`.
 - [x] 4 hard-fail rules wired in `e2e/a11y.spec.ts` `HARD_FAIL_RULES`:
       `target-size`, `keyboard`, `prefers-reduced-motion`,
       `meta-viewport`.
@@ -251,9 +251,11 @@ roadmap-destination budgets are already exceeded by a wide margin so
 the tighter floor stays the active gate. The Playwright AIS-burst
 fixture stays open for the qa-lead sprint.
 
-- [ ] `ais-burst.skstream` fixture gate: 200 AIS targets at 10 Hz for 60
-      s, p95 frame time <= 16 ms (deferred: needs a Playwright trace
-      harness beyond the smoke and a11y specs)
+- [~] `ais-burst.skstream` fixture gate: 200 AIS targets at 10 Hz for 60
+  s, p95 frame time <= 16 ms. Harness shipped (`e2e/ais-burst.spec.ts`,
+  `perf` Playwright project, `e2e-perf` workflow_dispatch CI job).
+  Still deferred: the signalk-server-side fixture plugin that serves
+  `/signalk/v1/test-fixtures/ais-burst/{start,stop}` synthetic deltas.
 - [x] size-limit budgets: 45.43 KB gz initial transfer (Phase 0 floor
       52 KB, roadmap destination 350 KB); 26.36 KB gz main (floor 32 KB,
       destination 250 KB); 19.07 KB gz styles (floor 21 KB); 1.02 MB gz

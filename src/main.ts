@@ -11,11 +11,20 @@ import { AppComponent } from './app/app.component';
 // (the SignalK server plugin can inject __FB_SENTRY_DSN__ at serve time;
 // kiosk-mode and dev-mode skip the load). Lazy-import keeps the ~32 KB
 // Sentry browser SDK out of the eager bundle for users without a DSN.
-const SENTRY_DSN = (window as { __FB_SENTRY_DSN__?: string }).__FB_SENTRY_DSN__;
+// __FB_RELEASE__ ties runtime errors to the CI source-map upload (the
+// tag-build workflow uploads under release == github.ref_name); leaving
+// it unset is harmless but stack traces stay minified.
+const sentryGlobals = window as {
+  __FB_SENTRY_DSN__?: string;
+  __FB_RELEASE__?: string;
+};
+const SENTRY_DSN = sentryGlobals.__FB_SENTRY_DSN__;
+const SENTRY_RELEASE = sentryGlobals.__FB_RELEASE__;
 if (SENTRY_DSN && !isDevMode()) {
   void import('@sentry/browser').then((Sentry) => {
     Sentry.init({
       dsn: SENTRY_DSN,
+      ...(SENTRY_RELEASE ? { release: SENTRY_RELEASE } : {}),
       integrations: [Sentry.browserTracingIntegration()],
       tracesSampleRate: 0.1,
       environment: 'production'

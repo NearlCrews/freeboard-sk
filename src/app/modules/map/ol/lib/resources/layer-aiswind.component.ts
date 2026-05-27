@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   SimpleChanges
 } from '@angular/core';
@@ -13,14 +14,7 @@ import { MapComponent, zoomOffsetLevel } from '../map.component';
 import { AISBaseLayerComponent } from './ais-base.component';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKVessel } from 'src/app/modules/skresources';
-
-// Wind vector styles only vary by apparent vs true; one instance each.
-const TRUE_WIND_STYLE = new Style({
-  stroke: new Stroke({ width: 2, color: 'rgba(128, 128, 0,1)' })
-});
-const APPARENT_WIND_STYLE = new Style({
-  stroke: new Stroke({ width: 2, color: 'rgba(16, 75, 16,1)' })
-});
+import { MapThemeService } from '../theme';
 
 // ** Signal K AIS Vessel Wind vector  **
 @Component({
@@ -31,6 +25,8 @@ const APPARENT_WIND_STYLE = new Style({
 })
 export class AISWindLayerComponent extends AISBaseLayerComponent {
   @Input() vectorApparent = false;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -94,7 +90,15 @@ export class AISWindLayerComponent extends AISBaseLayerComponent {
 
   // build wind vector style
   buildVectorStyle(): Style {
-    return this.vectorApparent ? APPARENT_WIND_STYLE : TRUE_WIND_STYLE;
+    const palette = this.mapTheme.palette();
+    return new Style({
+      stroke: new Stroke({
+        width: 2,
+        color: this.vectorApparent
+          ? palette.aisWindApparent
+          : palette.aisWindTrue
+      })
+    });
   }
 
   // reload all Features from this.targets

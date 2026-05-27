@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -14,6 +15,7 @@ import { LineString, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
+import { MapThemeService } from '../theme';
 
 @Component({
   selector: 'ol-map > racing-start-line',
@@ -27,6 +29,8 @@ export class RacingStartLineLayerComponent
 {
   @Input() startLine?: LineString;
   @Input() racecourseStyles?: Record<string, Style | Style[]>;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override changeDetectorRef: ChangeDetectorRef,
@@ -102,7 +106,7 @@ export class RacingStartLineLayerComponent
     const bgWidth = strokeWidth + 1;
     const bgColor = 'white';
     const ptFill = new Fill({
-      color: stroke?.getColor() ?? '#000'
+      color: stroke?.getColor() ?? this.mapTheme.palette().mapLabel
     });
 
     // background

@@ -1,12 +1,17 @@
 /*
  * Public barrel for design-system primitives.
  *
- * Tier-1 (already shipped):
+ * Tier-1 (shipped):
  *   - FbButtonComponent
  *   - FbDialogComponent + FbDialogService
  *   - FbSheetComponent + FbSheetService
+ *   - FbIconComponent
+ *   - FbFabComponent
+ *   - FbMenuComponent + FbMenuService
+ *   - FbSnackbarComponent + FbSnackbarService
+ *   - FbSidenavComponent + FbSidenavService
  *
- * Tier-2 (this gate):
+ * Tier-2 (shipped):
  *   - FbListPaneComponent
  *   - FbDetailPaneComponent
  *   - FbFilterBarComponent
@@ -35,3 +40,35 @@ export {
   FbFilterBarComponent,
   type FbFilterChip
 } from './filter-bar/filter-bar.component';
+
+export {
+  FbIconComponent,
+  type FbIconFill,
+  type FbIconSize,
+  type FbIconWeight
+} from './icon/icon.component';
+
+export {
+  FbFabComponent,
+  type FbFabPosition,
+  type FbFabVariant
+} from './fab/fab.component';
+
+export { FbMenuComponent, type FbMenuItem } from './menu/menu.component';
+export { FbMenuService } from './menu/menu.service';
+
+export {
+  FbSnackbarComponent,
+  type FbSnackbarKind
+} from './snackbar/snackbar.component';
+export {
+  FbSnackbarService,
+  type FbSnackbarOptions,
+  type FbSnackbarOutcome
+} from './snackbar/snackbar.service';
+
+export {
+  FbSidenavComponent,
+  type FbSidenavSide
+} from './sidenav/sidenav.component';
+export { FbSidenavService } from './sidenav/sidenav.service';

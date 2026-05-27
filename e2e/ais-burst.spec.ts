@@ -3,13 +3,15 @@
 //
 // Opt-in: skipped unless BOTH E2E_LOCAL=1 AND AIS_BURST=1 are set, because
 // it needs a signalk-server with a fixture-feed plugin (see e2e/README.md).
-// CI does not run this spec.
+// The spec lives in the dedicated `perf` Playwright project so it never
+// runs as part of `--project=chromium`. CI invokes it from the `e2e-perf`
+// job (workflow_dispatch only).
 //
 // To run locally:
 //   1. Start signalk-server with `@signalk/freeboard-sk` loaded plus a
 //      fixture plugin that responds to the /signalk/v1/test-fixtures/ais-burst
 //      endpoints with synthetic AIS deltas.
-//   2. `E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=chromium --grep ais-burst`
+//   2. `E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=perf`
 
 import { expect, test } from '@playwright/test';
 

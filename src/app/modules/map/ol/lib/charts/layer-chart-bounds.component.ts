@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   SimpleChanges
 } from '@angular/core';
@@ -13,6 +14,7 @@ import { Polygon, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
+import { MapThemeService } from '../theme';
 import { FBCharts } from 'src/app/types';
 
 // ** Show Chart bounds on map **
@@ -26,6 +28,8 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
   @Input() charts: FBCharts = [];
 
   private boundStyles = ['red', 'magenta', 'blue', 'purple', 'green'];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -76,7 +80,7 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
       const lp = [p0x + (p0x > p1x ? p0x - p1x : p1x - p0x) / 2, p1y];
       f.set('labelPos', lp);
       f.set('boundColor', this.boundStyles[i]);
-      f.setStyle(this.buildStyle);
+      f.setStyle((feature) => this.buildStyle(feature));
       fa.push(f);
       i++;
       i = i === this.boundStyles.length ? 0 : i;
@@ -101,7 +105,7 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
     f.setStyle(
       new Style({
         fill: new Fill({
-          color: 'rgba(255,255,255,0.4)'
+          color: this.mapTheme.palette().chartBoundsBackdrop
         })
       })
     );
@@ -116,7 +120,7 @@ export class ChartBoundsLayerComponent extends FBFeatureLayerComponent {
           width: 2
         }),
         fill: new Fill({
-          color: 'rgba(255,255,255,0.1 )'
+          color: this.mapTheme.palette().chartBoundsFill
         })
       }),
       new Style({

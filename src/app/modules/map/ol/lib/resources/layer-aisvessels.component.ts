@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   SimpleChanges
 } from '@angular/core';
 import { Feature } from 'ol';
 import { Style, RegularShape, Fill, Stroke, Circle, Text } from 'ol/style';
+import { asArray } from 'ol/color';
 import { fromLonLat } from 'ol/proj';
 import { Point, LineString } from 'ol/geom';
 import { Coordinate } from 'ol/coordinate';
@@ -15,6 +17,7 @@ import { AISBaseLayerComponent } from './ais-base.component';
 import { SKVessel } from 'src/app/modules/skresources';
 import { fromLonLatArray } from '../util';
 import { MapImageRegistry } from '../map-image-registry.service';
+import { MapThemeService } from '../theme';
 
 // Reused transparent fill for COG segment markers; new Fill() per segment per
 // render was a measurable allocation churn when many AIS targets had cog lines.
@@ -29,6 +32,8 @@ const COG_SEGMENT_FILL = new Fill({ color: 'transparent' });
 })
 export class AISVesselsLayerComponent extends AISBaseLayerComponent {
   @Input() cogLineLength = 0;
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected override mapComponent: MapComponent,
@@ -315,7 +320,8 @@ export class AISVesselsLayerComponent extends AISBaseLayerComponent {
     const opacity =
       this.okToRenderTarget(id) && this.okToRenderCogLines() ? 0.7 : 0;
     const geometry = feature.getGeometry() as LineString;
-    const color = `rgba(0,0,0, ${opacity})`;
+    const [r, g, b] = asArray(this.mapTheme.palette().aisCogLine);
+    const color = `rgba(${r},${g},${b},${opacity})`;
     const styles: Style[] = [
       new Style({
         stroke: new Stroke({

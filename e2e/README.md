@@ -28,8 +28,9 @@ E2E_LOCAL=1 pnpm test:e2e --project=chromium --grep a11y
 # a11y baseline (re-seed after intentional improvement)
 AXE_BASELINE_SEED=1 E2E_LOCAL=1 pnpm test:e2e --project=chromium --grep a11y
 
-# AIS burst perf gate
-E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=chromium --grep ais-burst
+# AIS burst perf gate (Phase 8). Runs in the dedicated `perf` project so
+# it is excluded from chromium/firefox/webkit runs.
+E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=perf
 ```
 
 `E2E_BASE_URL` overrides the default `http://localhost:3000` if the

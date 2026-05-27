@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
+  inject,
   input,
   Input,
   OnChanges,
@@ -20,6 +21,7 @@ import { LineString } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
+import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
 // ** Freeboard XTE path component **
@@ -54,6 +56,8 @@ export class XTEPathComponent implements OnInit, OnDestroy, OnChanges {
   @Input() layerProperties?: Record<string, any>;
 
   public mapifiedLine: Coordinate[] = [];
+
+  private readonly mapTheme = inject(MapThemeService);
 
   constructor(
     protected changeDetectorRef: ChangeDetectorRef,
@@ -147,7 +151,7 @@ export class XTEPathComponent implements OnInit, OnDestroy, OnChanges {
           lineDash: [5, 5]
         }),
         fill: new Fill({
-          color: 'rgba(255,0,0,.2)'
+          color: this.mapTheme.palette().xtePath
         })
       });
     }
