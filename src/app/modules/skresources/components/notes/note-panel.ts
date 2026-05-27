@@ -131,35 +131,46 @@ export class NotePanel {
   }
 
   // Plugin-source contributions (e.g. signalk-crows-nest from
-  // ActiveCaptain) append a boilerplate trailer to every note's
-  // description text:
+  // ActiveCaptain) currently append a boilerplate trailer to every
+  // note's description text, e.g.
   //   "Data sourced from <X> via the <plugin-name> plugin."
   //   "Something missing or room for improvement? You are encouraged to
   //   contribute."
-  // The user sees the same template on every note; redundant noise.
-  // Strip it from the rendered description and expose the plugin name
-  // as a tiny attribution footer at the bottom of the body, linked to
-  // its npm page (which always exists for published plugins and
-  // forwards to the GitHub repo from there).
-  private static readonly PLUGIN_TRAILER =
-    /\n\s*Data sourced from .+?(?:\nSomething missing or room for improvement\?[\s\S]*)?$/i;
+  // The right home for the attribution is the structured `properties`
+  // dict on the note (properties.source plus optional properties.plugin
+  // or properties.attribution). This panel prefers the structured
+  // fields and falls back to parsing the description text only for
+  // older notes that predate the structured fields.
+  private static readonly TRAILER_MARKER = '\nData sourced from ';
   private static readonly PLUGIN_NAME = /via the (signalk-[\w.-]+) plugin/i;
 
   protected readonly cleanDescription = computed<string>(() => {
     const raw = this._note().description ?? '';
-    return raw.replace(NotePanel.PLUGIN_TRAILER, '').trim();
+    const idx = raw.indexOf(NotePanel.TRAILER_MARKER);
+    return (idx > -1 ? raw.slice(0, idx) : raw).trim();
   });
 
   protected readonly pluginInfo = computed<{
     name: string;
     url: string;
   } | null>(() => {
-    const raw = this._note().description ?? '';
-    const match = raw.match(NotePanel.PLUGIN_NAME);
-    if (!match || !match[1]) {
+    const props = this._note().properties ?? {};
+    const fromProps =
+      typeof props['plugin'] === 'string'
+        ? props['plugin']
+        : typeof props['pluginId'] === 'string'
+          ? props['pluginId']
+          : '';
+    const name = fromProps || this.pluginNameFromDescription();
+    if (!name) {
       return null;
     }
-    const name = match[1];
     return { name, url: `https://www.npmjs.com/package/${name}` };
   });
+
+  private pluginNameFromDescription(): string {
+    const raw = this._note().description ?? '';
+    const match = raw.match(NotePanel.PLUGIN_NAME);
+    return match?.[1] ?? '';
+  }
 }

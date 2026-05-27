@@ -180,7 +180,10 @@ export class FileInputComponent {
       // Set the canvas to the new calculated dimensions
       canvas.width = width;
       canvas.height = height;
-      const ctx = canvas.getContext('2d');
+      // toDataURL below triggers a pixel readback; the hint keeps the
+      // canvas CPU-backed so Chrome does not log a perf warning when a
+      // user uploads an image attachment.
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) return;
 
       ctx.drawImage(img, 0, 0, width, height);

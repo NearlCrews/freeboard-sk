@@ -63,7 +63,11 @@ export async function applyChartNightFilter(blob: Blob): Promise<Blob> {
   }
   try {
     const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    const ctx = canvas.getContext('2d');
+    // willReadFrequently hints Chrome to back the canvas with a CPU
+    // buffer instead of the GPU, since convertToBlob() forces a
+    // readback every tile. Without the hint Chrome logs a Canvas2D
+    // perf warning on every tile when night-mode is on.
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) {
       return blob;
     }

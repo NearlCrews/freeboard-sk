@@ -323,7 +323,10 @@ export class S57Service {
           const canvas = document.createElement('CANVAS') as HTMLCanvasElement;
           canvas.height = icon.height;
           canvas.width = icon.width;
-          const ctx = canvas.getContext('2d');
+          // toDataURL below forces a readback; willReadFrequently hint
+          // keeps the canvas CPU-backed so Chrome does not log a perf
+          // warning on every S57 icon load.
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
           if (!ctx) return;
           ctx.drawImage(bitmap, 0, 0);
           image.src = canvas.toDataURL();
