@@ -10,6 +10,12 @@
   <span fbInfoPanelTitle>{{ _route().name || 'Route' }}</span>
 
   <div fbInfoPanelMeta>
+    @if (!!_route()?.feature?.properties?.['readOnly']) {
+    <span class="pill" aria-label="Read only">
+      <fb-icon name="lock" ariaLabel=""></fb-icon>
+      Read only
+    </span>
+    }
     <span class="pill">
       <fb-icon name="straighten" ariaLabel=""></fb-icon>
       {{ app.formatValueForDisplay(_route().distance, 'm') }}
@@ -41,15 +47,6 @@
         <fb-icon name="info" ariaLabel=""></fb-icon>
         Info
       </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="onPanTo()"
-        matTooltip="Centre Route"
-      >
-        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
-        Centre
-      </fb-button>
       @if (app.data.activeRoute !== id()) {
       <fb-button
         variant="secondary"
@@ -74,25 +71,6 @@
       <fb-button
         variant="secondary"
         size="sm"
-        [disabled]="app.data.activeRoute !== id()"
-        (pressed)="onReverse()"
-        matTooltip="Reverse direction"
-      >
-        <fb-icon name="multiple_stop" ariaLabel=""></fb-icon>
-        Reverse
-      </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="onPoints()"
-        matTooltip="Route points"
-      >
-        <fb-icon name="location_on" ariaLabel=""></fb-icon>
-        Points
-      </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
         (pressed)="onAddNote()"
         matTooltip="Add note here"
       >
@@ -102,46 +80,26 @@
       <fb-button
         variant="secondary"
         size="sm"
-        (pressed)="onNotes()"
-        matTooltip="Show related notes"
+        (pressed)="onPanTo()"
+        matTooltip="Centre Route"
       >
-        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
-        Notes
+        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
+        Centre
       </fb-button>
       <fb-button
-        variant="secondary"
+        variant="danger"
         size="sm"
-        (pressed)="onRelated()"
-        matTooltip="Related items"
+        [disabled]="
+          !!_route()?.feature?.properties?.['readOnly'] ||
+          app.data.activeRoute === id()
+        "
+        (pressed)="onDelete()"
+        matTooltip="Delete Route"
       >
-        <fb-icon name="style" ariaLabel=""></fb-icon>
-        Related
+        <fb-icon name="delete" ariaLabel=""></fb-icon>
+        Delete
       </fb-button>
-      @if (app.featureFlags().resourceGroups) {
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="addToGroup()"
-        matTooltip="Add to Group"
-      >
-        <fb-icon name="category" ariaLabel=""></fb-icon>
-        Group
-      </fb-button>
-      }
     </div>
-    <fb-button
-      variant="danger"
-      size="sm"
-      [disabled]="
-        !!_route()?.feature?.properties?.['readOnly'] ||
-        app.data.activeRoute === id()
-      "
-      (pressed)="onDelete()"
-      matTooltip="Delete Route"
-    >
-      <fb-icon name="delete" ariaLabel=""></fb-icon>
-      Delete
-    </fb-button>
   </div>
 
   <div fbInfoPanelBody>

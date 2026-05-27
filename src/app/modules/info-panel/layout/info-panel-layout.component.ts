@@ -250,20 +250,11 @@ export class FbInfoPanelRelatedDirective {}
       padding-right: var(--space-md);
     }
 
-    /* A standalone fb-button hosting a danger button (typically the
-       Delete action) sits centered at a comfortable width rather than
-       stretching to the full pane. The 200 px max keeps it visually
-       anchored on narrow side panels and from looking lonely on wider
-       ones. :has() reaches through fb-button to the inner button class
-       so consumers do not need to add a wrapper. */
-    .ip-actions ::ng-deep fb-button:has(button.fb-btn--danger) {
-      align-self: center;
-      width: min(100%, 200px);
-    }
-    .ip-actions ::ng-deep fb-button:has(button.fb-btn--danger) button.fb-btn {
-      width: 100%;
-      justify-content: center;
-    }
+    /* Read-only state: when the meta row shows the "Read only" pill, the
+       mutating action buttons (Edit, Add Note, Delete) are also passed
+       disabled by the panel. The disabled appearance comes from
+       fb-button itself (opacity 0.55) so no extra styling needed here.
+       The pill in the meta row is the textual indicator. */
 
     .ip-actions ::ng-deep fb-button {
       min-height: var(--touch-secondary);

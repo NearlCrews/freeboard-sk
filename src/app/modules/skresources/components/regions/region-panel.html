@@ -10,7 +10,12 @@
   <span fbInfoPanelTitle>{{ _region().name || 'Region' }}</span>
 
   <div fbInfoPanelMeta>
-    @if (_region().feature.properties?.['skIcon'] === 'hazard') {
+    @if (!!_region()?.feature?.properties?.['readOnly']) {
+    <span class="pill" aria-label="Read only">
+      <fb-icon name="lock" ariaLabel=""></fb-icon>
+      Read only
+    </span>
+    } @if (_region().feature.properties?.['skIcon'] === 'hazard') {
     <span class="pill warn" aria-label="Hazardous region">Hazardous</span>
     }
   </div>
@@ -39,15 +44,6 @@
       <fb-button
         variant="secondary"
         size="sm"
-        (pressed)="onPanTo()"
-        matTooltip="Centre Region"
-      >
-        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
-        Centre
-      </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
         (pressed)="onAddNote()"
         matTooltip="Add note here"
       >
@@ -57,43 +53,33 @@
       <fb-button
         variant="secondary"
         size="sm"
-        (pressed)="onNotes()"
-        matTooltip="Show related notes"
-      >
-        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
-        Notes
-      </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="onRelated()"
-        matTooltip="Related items"
-      >
-        <fb-icon name="style" ariaLabel=""></fb-icon>
-        Related
-      </fb-button>
-      @if (app.featureFlags().resourceGroups) {
-      <fb-button
-        variant="secondary"
-        size="sm"
+        [disabled]="!app.featureFlags().resourceGroups"
         (pressed)="addToGroup()"
-        matTooltip="Add to Group"
+        [matTooltip]="app.featureFlags().resourceGroups ? 'Add to Group' : 'Groups disabled'"
       >
         <fb-icon name="category" ariaLabel=""></fb-icon>
         Group
       </fb-button>
-      }
+      <fb-button
+        variant="secondary"
+        size="sm"
+        (pressed)="onPanTo()"
+        matTooltip="Centre Region"
+      >
+        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
+        Centre
+      </fb-button>
+      <fb-button
+        variant="danger"
+        size="sm"
+        [disabled]="!!_region()?.feature?.properties?.['readOnly']"
+        (pressed)="onDelete()"
+        matTooltip="Delete Region"
+      >
+        <fb-icon name="delete" ariaLabel=""></fb-icon>
+        Delete
+      </fb-button>
     </div>
-    <fb-button
-      variant="danger"
-      size="sm"
-      [disabled]="!!_region()?.feature?.properties?.['readOnly']"
-      (pressed)="onDelete()"
-      matTooltip="Delete Region"
-    >
-      <fb-icon name="delete" ariaLabel=""></fb-icon>
-      Delete
-    </fb-button>
   </div>
 
   <div fbInfoPanelBody>

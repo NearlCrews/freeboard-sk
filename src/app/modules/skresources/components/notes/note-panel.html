@@ -10,7 +10,12 @@
   <span fbInfoPanelTitle>{{ _note().name || 'Untitled note' }}</span>
 
   <div fbInfoPanelMeta>
-    @if (_note().properties['draft']) {
+    @if (!!_note().properties['readOnly']) {
+    <span class="pill" aria-label="Read only">
+      <fb-icon name="lock" ariaLabel=""></fb-icon>
+      Read only
+    </span>
+    } @if (_note().properties['draft']) {
     <span class="pill draft" aria-label="Draft note">Draft</span>
     } @if (_note().group) {
     <span class="pill group" [style.--pill-color]="groupColor(_note().group)">
@@ -51,22 +56,22 @@
         <fb-icon name="info" ariaLabel=""></fb-icon>
         Info
       </fb-button>
-      @if (_note().url) {
       <fb-button
         variant="secondary"
         size="sm"
+        [disabled]="!_note().url"
         (pressed)="openNoteUrl()"
-        matTooltip="Open linked URL in a new tab"
+        [matTooltip]="_note().url ? 'Open linked URL in a new tab' : 'No link'"
       >
         <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
         Link
       </fb-button>
-      } @if (_note().position) {
       <fb-button
         variant="secondary"
         size="sm"
+        [disabled]="!_note().position"
         (pressed)="onGoto()"
-        matTooltip="Navigate to this position"
+        [matTooltip]="_note().position ? 'Navigate to this position' : 'No position'"
       >
         <fb-icon name="near_me" ariaLabel=""></fb-icon>
         Go to
@@ -74,24 +79,24 @@
       <fb-button
         variant="secondary"
         size="sm"
+        [disabled]="!_note().position"
         (pressed)="onPanTo()"
-        matTooltip="Centre the map on this note"
+        [matTooltip]="_note().position ? 'Centre the map on this note' : 'No position'"
       >
         <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
         Centre
       </fb-button>
-      }
+      <fb-button
+        variant="danger"
+        size="sm"
+        [disabled]="!!_note().properties['readOnly']"
+        (pressed)="onDelete()"
+        matTooltip="Delete note"
+      >
+        <fb-icon name="delete" ariaLabel=""></fb-icon>
+        Delete
+      </fb-button>
     </div>
-    <fb-button
-      variant="danger"
-      size="sm"
-      [disabled]="!!_note().properties['readOnly']"
-      (pressed)="onDelete()"
-      matTooltip="Delete note"
-    >
-      <fb-icon name="delete" ariaLabel=""></fb-icon>
-      Delete
-    </fb-button>
   </div>
 
   <div fbInfoPanelBody>

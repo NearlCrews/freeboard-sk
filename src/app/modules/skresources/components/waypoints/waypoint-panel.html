@@ -10,6 +10,12 @@
   <span fbInfoPanelTitle>{{ _waypoint().name || 'Waypoint' }}</span>
 
   <div fbInfoPanelMeta>
+    @if (!!_waypoint()?.feature?.properties?.['readOnly']) {
+    <span class="pill" aria-label="Read only">
+      <fb-icon name="lock" ariaLabel=""></fb-icon>
+      Read only
+    </span>
+    }
     <span class="pill pos">
       <fb-icon name="place" ariaLabel=""></fb-icon>
       {{ (_waypoint().feature.geometry.coordinates[1] ?? 0) | coords:
@@ -46,15 +52,6 @@
         <fb-icon name="info" ariaLabel=""></fb-icon>
         Info
       </fb-button>
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="onPanTo()"
-        matTooltip="Centre Waypoint"
-      >
-        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
-        Centre
-      </fb-button>
       @if (app.data.activeWaypoint !== id()) {
       <fb-button
         variant="secondary"
@@ -88,46 +85,26 @@
       <fb-button
         variant="secondary"
         size="sm"
-        (pressed)="onNotes()"
-        matTooltip="Show related notes"
+        (pressed)="onPanTo()"
+        matTooltip="Centre Waypoint"
       >
-        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
-        Notes
+        <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
+        Centre
       </fb-button>
       <fb-button
-        variant="secondary"
+        variant="danger"
         size="sm"
-        (pressed)="onRelated()"
-        matTooltip="Related items"
+        [disabled]="
+          !!_waypoint()?.feature?.properties?.['readOnly'] ||
+          app.data.activeWaypoint === id()
+        "
+        (pressed)="onDelete()"
+        matTooltip="Delete Waypoint"
       >
-        <fb-icon name="style" ariaLabel=""></fb-icon>
-        Related
+        <fb-icon name="delete" ariaLabel=""></fb-icon>
+        Delete
       </fb-button>
-      @if (app.featureFlags().resourceGroups) {
-      <fb-button
-        variant="secondary"
-        size="sm"
-        (pressed)="addToGroup()"
-        matTooltip="Add to Group"
-      >
-        <fb-icon name="category" ariaLabel=""></fb-icon>
-        Group
-      </fb-button>
-      }
     </div>
-    <fb-button
-      variant="danger"
-      size="sm"
-      [disabled]="
-        !!_waypoint()?.feature?.properties?.['readOnly'] ||
-        app.data.activeWaypoint === id()
-      "
-      (pressed)="onDelete()"
-      matTooltip="Delete Waypoint"
-    >
-      <fb-icon name="delete" ariaLabel=""></fb-icon>
-      Delete
-    </fb-button>
   </div>
 
   <div fbInfoPanelBody>
