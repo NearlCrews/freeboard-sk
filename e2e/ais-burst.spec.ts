@@ -8,9 +8,9 @@
 // job (workflow_dispatch only).
 //
 // To run locally:
-//   1. Start signalk-server with `@signalk/freeboard-sk` loaded plus a
-//      fixture plugin that responds to the /signalk/v1/test-fixtures/ais-burst
-//      endpoints with synthetic AIS deltas.
+//   1. Start signalk-server with `@signalk/freeboard-sk` loaded plus the
+//      signalk-ais-fixture plugin (sibling repo) which exposes the
+//      synthetic-AIS endpoints under /plugins/signalk-ais-fixture/.
 //   2. `E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=perf`
 
 import { expect, test } from '@playwright/test';
@@ -67,12 +67,12 @@ test.describe('AIS burst perf gate', () => {
     });
 
     const startResponse = await request.post(
-      '/signalk/v1/test-fixtures/ais-burst/start',
+      '/plugins/signalk-ais-fixture/start',
       {
         data: {
           count: BURST_COUNT,
           hz: BURST_HZ,
-          durationSec: BURST_DURATION_SEC
+          durationMs: BURST_DURATION_SEC * 1000
         }
       }
     );
@@ -83,7 +83,7 @@ test.describe('AIS burst perf gate', () => {
 
     await page.waitForTimeout(BURST_DURATION_SEC * 1000);
 
-    await request.post('/signalk/v1/test-fixtures/ais-burst/stop');
+    await request.post('/plugins/signalk-ais-fixture/stop');
 
     await page.evaluate(() => {
       (window as unknown as { __aisBurstStop: boolean }).__aisBurstStop = true;

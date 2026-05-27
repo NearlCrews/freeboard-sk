@@ -70,15 +70,7 @@ interface DialogData {
               <label for="track-name" style="display:block; font-weight:600">
                 Name
               </label>
-              <fb-input
-                name="track-name"
-                type="text"
-                [formField]="tForm.name"
-                [invalid]="
-                  tForm.name().invalid() &&
-                  (tForm.name().dirty() || tForm.name().touched())
-                "
-              ></fb-input>
+              <fb-input type="text" [formField]="tForm.name"></fb-input>
               @if (
                 tForm.name().invalid() &&
                 (tForm.name().dirty() || tForm.name().touched())

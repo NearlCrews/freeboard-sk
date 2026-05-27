@@ -21,6 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 // ** OL & popovers **
@@ -137,6 +138,7 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
     MatButtonModule,
     CoordsPipe,
     MatMenuModule,
+    MatDividerModule,
     FreeboardOpenlayersModule,
     PopoverComponent
   ],

@@ -70,15 +70,7 @@ interface DialogData {
               <label for="route-name" style="display:block; font-weight:600">
                 Name
               </label>
-              <fb-input
-                name="route-name"
-                type="text"
-                [formField]="rForm.name"
-                [invalid]="
-                  rForm.name().invalid() &&
-                  (rForm.name().dirty() || rForm.name().touched())
-                "
-              ></fb-input>
+              <fb-input type="text" [formField]="rForm.name"></fb-input>
               @if (
                 rForm.name().invalid() &&
                 (rForm.name().dirty() || rForm.name().touched())

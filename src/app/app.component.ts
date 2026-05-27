@@ -27,6 +27,7 @@ import {
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import {
   ETADialComponent,
   FileInputComponent,
@@ -131,6 +132,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatDividerModule,
     FbNavListComponent,
     FbProgressBarComponent,
     CommonModule,

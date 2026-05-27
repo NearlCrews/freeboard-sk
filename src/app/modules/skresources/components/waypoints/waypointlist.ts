@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
   FbButtonComponent,
   FbCardComponent,
+  FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
   FbCheckboxComponent,
@@ -57,6 +58,7 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     ScrollingModule,
     FbButtonComponent,
     FbCardComponent,
+    FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
     FbCheckboxComponent,

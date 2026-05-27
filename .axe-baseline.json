@@ -1,5 +1,5 @@
 {
-  "violations": 50,
+  "violations": 0,
   "hardFailRules": [
     "target-size",
     "keyboard",

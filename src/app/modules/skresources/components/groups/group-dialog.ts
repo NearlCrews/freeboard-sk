@@ -105,15 +105,7 @@ interface GroupItem {
                 <label for="group-name" style="display:block; font-weight:600">
                   Name
                 </label>
-                <fb-input
-                  name="group-name"
-                  type="text"
-                  [formField]="gForm.name"
-                  [invalid]="
-                    gForm.name().invalid() &&
-                    (gForm.name().dirty() || gForm.name().touched())
-                  "
-                ></fb-input>
+                <fb-input type="text" [formField]="gForm.name"></fb-input>
                 @if (
                   gForm.name().invalid() &&
                   (gForm.name().dirty() || gForm.name().touched())
@@ -130,10 +122,7 @@ interface GroupItem {
                 >
                   Description
                 </label>
-                <fb-textarea
-                  name="group-description"
-                  [formField]="gForm.description"
-                ></fb-textarea>
+                <fb-textarea [formField]="gForm.description"></fb-textarea>
               </div>
             </div>
           </ng-template>

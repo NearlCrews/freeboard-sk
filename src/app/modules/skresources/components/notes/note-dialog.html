@@ -170,12 +170,7 @@
           <label for="note-name" style="display: block; font-weight: 600">
             Name
           </label>
-          <fb-input
-            name="note-name"
-            type="text"
-            [formField]="noteForm.name"
-            [invalid]="noteForm.name().invalid() && (noteForm.name().dirty() || noteForm.name().touched())"
-          ></fb-input>
+          <fb-input type="text" [formField]="noteForm.name"></fb-input>
           @if(noteForm.name().invalid() && (noteForm.name().dirty() ||
           noteForm.name().touched())) {
           <div style="color: var(--color-error); font-size: 12px">
