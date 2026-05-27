@@ -68,6 +68,9 @@ export type FbIconFill = 0 | 1;
         font-feature-settings: 'liga';
         line-height: 1;
       }
+      /* Icon hosts intrinsically size to the glyph. Touch-target floors are
+         the surrounding control's job (fb-button, fb-list-item, etc.); an
+         icon bigger than its container clips inside flex rows. */
       :host([data-size='sm']) {
         width: 1em;
         height: 1em;
@@ -77,16 +80,16 @@ export type FbIconFill = 0 | 1;
         font-size: 1em;
       }
       :host([data-size='md']) {
-        width: var(--touch-secondary);
-        height: var(--touch-secondary);
+        width: 24px;
+        height: 24px;
         font-size: 24px;
       }
       :host([data-size='md']) .fb-icon__glyph {
         font-size: 24px;
       }
       :host([data-size='lg']) {
-        width: var(--touch-primary);
-        height: var(--touch-primary);
+        width: 32px;
+        height: 32px;
         font-size: 32px;
       }
       :host([data-size='lg']) .fb-icon__glyph {
