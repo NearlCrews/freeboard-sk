@@ -128,4 +128,47 @@ export class NotePanel {
   timeAgo(timestamp: string | number | undefined): string {
     return timeAgoOf(timestamp);
   }
+
+  // Keys we render explicitly elsewhere in the panel chrome (header
+  // pills, action buttons, the named property rows). Anything else in
+  // the properties dict gets dumped into the catch-all "Properties"
+  // section so plugin-specific fields (ActiveCaptain POI types, custom
+  // user metadata, etc.) stay discoverable.
+  private static readonly KNOWN_PROPERTY_KEYS: ReadonlySet<string> = new Set([
+    'draft',
+    'readOnly',
+    'icon',
+    'name',
+    'description',
+    'mimeType',
+    'position',
+    'url',
+    'group',
+    'href'
+  ]);
+
+  protected extraProperties(): readonly { key: string; value: string }[] {
+    const props = this._note().properties ?? {};
+    return Object.keys(props)
+      .filter((k) => !NotePanel.KNOWN_PROPERTY_KEYS.has(k))
+      .map((k) => ({ key: k, value: this.stringify(props[k]) }))
+      .filter((entry) => entry.value.length > 0);
+  }
+
+  private stringify(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value);
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return '';
+    }
+  }
 }

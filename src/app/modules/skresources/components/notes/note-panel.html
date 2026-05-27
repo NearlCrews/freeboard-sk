@@ -145,6 +145,9 @@
       } @if ($any(_note()).timestamp; as ts) {
       <dt>Updated</dt>
       <dd>{{ timeAgo(ts) }}</dd>
+      } @for (entry of extraProperties(); track entry.key) {
+      <dt>{{ entry.key }}</dt>
+      <dd>{{ entry.value }}</dd>
       }
     </dl>
   </div>

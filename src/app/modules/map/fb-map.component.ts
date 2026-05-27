@@ -1515,10 +1515,20 @@ export class FBMapComponent
           const collection = (
             po.type === 'destination' ? 'waypoints' : `${po.type}s`
           ) as SKResourceType;
+          const id = po.resource[0];
+          // openWith shows the cached resource immediately; open() fetches
+          // the latest from the SignalK server so the description,
+          // properties dict, and any plugin-augmented fields (e.g. the
+          // ActiveCaptain POI body) are always current. Show cached first
+          // so the panel opens with zero perceived latency, then refresh
+          // in the background.
           this.infoPanel.openWith(
             collection,
             po.resource as Parameters<typeof this.infoPanel.openWith>[1]
           );
+          if (id) {
+            void this.infoPanel.open(collection, id);
+          }
         }
         return;
       case 'rset':
