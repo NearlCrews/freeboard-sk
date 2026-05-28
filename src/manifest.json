@@ -1,12 +1,12 @@
 {
-  "name": "OpenHelm",
-  "short_name": "OpenHelm",
-  "description": "OpenHelm: a modernized Signal K chart plotter forked from Freeboard-SK.",
+  "name": "Open Binnacle",
+  "short_name": "Open Binnacle",
+  "description": "Open Binnacle: a modernized Signal K chart plotter forked from Freeboard-SK.",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
   "orientation": "any",
-  "scope": "/@signalk/freeboard-sk/",
+  "scope": "/signalk-open-binnacle/",
   "start_url": "./index.html",
   "icons": [
     {

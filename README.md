@@ -1,11 +1,11 @@
-# OpenHelm
+# Open Binnacle
 
 A modernized Signal K chart plotter, forked from
 [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk).
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-> **Beta.** OpenHelm is an actively-evolving modernization fork. It is not
+> **Beta.** Open Binnacle is an actively-evolving modernization fork. It is not
 > aligned with upstream Freeboard-SK and is not certified for safety-of-
 > life navigation. Always carry redundant means of navigation and treat
 > all displays as advisory. The authors and contributors assume no
@@ -14,7 +14,7 @@ A modernized Signal K chart plotter, forked from
 
 ## What it does
 
-OpenHelm is a stateless, multi-station, OpenLayers-based chart plotter for
+Open Binnacle is a stateless, multi-station, OpenLayers-based chart plotter for
 [Signal K](https://signalk.org). It runs in any modern browser and shows
 your vessel against:
 
@@ -125,7 +125,7 @@ panel at the same time and they all show the same vessel.
 - **Stack pinned to current.** Angular 21.2.14, OpenLayers 10.9.0,
   PMTiles 4.4.1, ol-mapbox-style 13.4.1, TypeScript 5.9.3, pnpm 11
   via Corepack, Node 24 LTS. The Signal K API client surface is
-  unchanged, so OpenHelm consumes the same delta stream and resource
+  unchanged, so Open Binnacle consumes the same delta stream and resource
   endpoints as upstream.
 
 See [`MODERNIZATION_ROADMAP.md`](MODERNIZATION_ROADMAP.md) for the
@@ -139,11 +139,11 @@ adoption in playback-dialog, form validation in waypoint-dialog,
 From source against a local Signal K server:
 
 ```bash
-git clone https://github.com/NearlCrews/openhelm.git
-cd openhelm
+git clone https://github.com/NearlCrews/signalk-open-binnacle.git
+cd signalk-open-binnacle
 pnpm install
 pnpm build
-ln -s "$(pwd)" ~/.signalk/node_modules/openhelm
+ln -s "$(pwd)" ~/.signalk/node_modules/signalk-open-binnacle
 ```
 
 Update `~/.signalk/package.json` so the server loads it:
@@ -151,13 +151,13 @@ Update `~/.signalk/package.json` so the server loads it:
 ```json
 {
   "dependencies": {
-    "openhelm": "file:../path/to/openhelm"
+    "signalk-open-binnacle": "file:../path/to/signalk-open-binnacle"
   }
 }
 ```
 
 Then restart Signal K and open
-`http://your-sk-server:3000/openhelm/` in a browser.
+`http://your-sk-server:3000/signalk-open-binnacle/` in a browser.
 
 ## Configuration
 
@@ -190,7 +190,7 @@ pnpm build        # production build to public/
 pnpm test:e2e     # Playwright (needs PI_HOST or a local SK server)
 ```
 
-The Pi-resident dev install symlinks `~/.signalk/node_modules/openhelm`
+The Pi-resident dev install symlinks `~/.signalk/node_modules/signalk-open-binnacle`
 to the repo so `pnpm build` output is picked up on the next Signal K
 restart. The roadmap document explains the autopilot teaming policy,
 the per-gate verification chain, and the Pi memory budget (one heavy
@@ -198,10 +198,10 @@ verification process at a time on an 8 GB Pi 5).
 
 ## Credits
 
-OpenHelm is a fork of [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk).
+Open Binnacle is a fork of [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk).
 The upstream project is the canonical Signal K chart plotter, authored
 and maintained by **Adrian P (panaaj)** with contributions from Robert
-Huitema and the Signal K community. OpenHelm carries that work
+Huitema and the Signal K community. Open Binnacle carries that work
 forward; every line that did not change since the fork remains theirs.
 The upstream repo, project history, and issue tracker are the source
 of truth for the canonical product.
@@ -238,7 +238,7 @@ Apache-2.0. See [LICENSE](LICENSE) for the full text.
 ## Support
 
 - **Bug reports and feature requests:** open an issue at
-  [github.com/NearlCrews/openhelm](https://github.com/NearlCrews/openhelm/issues).
+  [github.com/NearlCrews/signalk-open-binnacle](https://github.com/NearlCrews/signalk-open-binnacle/issues).
 - **Upstream questions** about the canonical Signal K chart plotter
   belong in the
   [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk/issues)

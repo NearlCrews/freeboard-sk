@@ -1,7 +1,7 @@
 {
-  "name": "@signalk/freeboard-sk",
+  "name": "signalk-open-binnacle",
   "version": "2.23.0",
-  "description": "OpenHelm: a modernized Signal K chart plotter forked from Freeboard-SK.",
+  "description": "Open Binnacle: a modernized Signal K chart plotter forked from Freeboard-SK.",
   "keywords": [
     "signalk-webapp",
     "signalk-node-server-plugin",
@@ -9,9 +9,9 @@
   ],
   "signalk": {
     "appIcon": "./assets/icons/icon-72x72.png",
-    "displayName": "OpenHelm"
+    "displayName": "Open Binnacle"
   },
-  "repository": "https://github.com/NearlCrews/freeboard-sk",
+  "repository": "https://github.com/NearlCrews/signalk-open-binnacle",
   "main": "plugin/index.js",
   "signalk-plugin-enabled-by-default": true,
   "packageManager": "pnpm@11.2.2",
@@ -67,7 +67,7 @@
       "name": "robert@42.co.nz"
     },
     {
-      "name": "Nearl Crews (OpenHelm fork maintainer)",
+      "name": "Nearl Crews (Open Binnacle fork maintainer)",
       "email": "nlabadie@gmail.com"
     }
   ],

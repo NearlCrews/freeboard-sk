@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  OpenHelm app icon.
+  Open Binnacle app icon.
 
   Family identity (shared across @NearlCrews Signal K apps and plugins):
   rounded square with a deep-ocean gradient and three stacked stylized
@@ -8,14 +8,17 @@
   in a project-specific colour with a small glyph. The badge is the
   only region that varies between sibling projects.
 
-  This variant's badge: brass-gold (#D4A017) with a six-spoke ship's
-  wheel glyph. Helm metaphor: the chartplotter is the digital steering
-  position of the vessel. Brass-gold is distinct from sibling yellow
-  (weather), orange (NMEA2000 emitter), green (predecessor chat), and
-  violet (OpenRouter companion) badges, keeping the family visually
-  separable at thumbnail size.
+  This variant's badge: brass-gold (#D4A017) with a compass rose. The
+  binnacle is the housing for the ship's compass at the helm: the
+  literal piece of furniture this digital chart plotter replaces.
+  Brass evokes the traditional binnacle's metalwork, and the compass
+  rose inside is the visible north-pointing face mariners actually
+  read. Brass-gold is distinct from sibling yellow (weather), orange
+  (NMEA2000 emitter), green (predecessor chat), and violet (OpenRouter
+  companion) badges, keeping the family visually separable at
+  thumbnail size.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="OpenHelm app icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Open Binnacle app icon">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0E4D6B"/>
@@ -33,24 +36,42 @@
     <path d="M 80,336 q 44,-36 88,0 t 88,0 t 88,0 t 88,0"/>
   </g>
 
-  <!-- Project badge: bottom-right circle (brass-gold for the helm) -->
+  <!-- Project badge: bottom-right circle (brass-gold for the binnacle housing) -->
   <circle cx="388" cy="388" r="84" fill="#D4A017" stroke="#FFFFFF" stroke-width="8"/>
 
   <!--
-    Badge glyph: six-spoke ship's wheel centered in the badge at (388,388).
-    Outer rim circle r=42, inner hub r=8. Six spokes extend from the hub
-    outward, passing through the rim and ending past it as the wheel's
-    handles. Geometry built from 60-degree increments around the centre.
-    All strokes in dark teal #1B3A4B for contrast against the gold badge.
+    Badge glyph: compass rose centered at (388,388). Eight cardinal and
+    inter-cardinal points laid out as paired triangles (filled north-half
+    and stroked south-half pattern). The cardinal arms (N E S W) are
+    longer than the inter-cardinals (NE SE SW NW). Center pivot dot for
+    the compass card axis. All in dark teal #1B3A4B for contrast against
+    the gold badge.
+
+    Geometry: outer radius 48 for cardinals, 30 for inter-cardinals,
+    inner radius 8 (arm width at the pivot).
   -->
-  <g stroke="#1B3A4B" stroke-width="6" stroke-linecap="round" fill="none">
-    <!-- Outer rim ring -->
-    <circle cx="388" cy="388" r="42"/>
-    <!-- Six spokes (handle bars) at 0, 60, 120, 180, 240, 300 degrees -->
-    <line x1="388" y1="335" x2="388" y2="441"/>
-    <line x1="342" y1="361.5" x2="434" y2="414.5"/>
-    <line x1="342" y1="414.5" x2="434" y2="361.5"/>
+  <g fill="#1B3A4B" stroke="none">
+    <!-- North arm -->
+    <polygon points="388,340 380,388 396,388"/>
+    <!-- East arm -->
+    <polygon points="436,388 388,380 388,396"/>
+    <!-- South arm -->
+    <polygon points="388,436 380,388 396,388"/>
+    <!-- West arm -->
+    <polygon points="340,388 388,380 388,396"/>
   </g>
-  <!-- Center hub -->
-  <circle cx="388" cy="388" r="8" fill="#1B3A4B"/>
+  <g fill="#1B3A4B" fill-opacity="0.7" stroke="none">
+    <!-- Inter-cardinal arms (NE, SE, SW, NW). Shorter pointed shapes
+         offset 45 degrees from the cardinals. -->
+    <polygon points="421.2,354.8 384.5,391.5 391.5,391.5"/>
+    <polygon points="421.2,421.2 384.5,384.5 384.5,391.5"/>
+    <polygon points="354.8,421.2 391.5,384.5 391.5,391.5"/>
+    <polygon points="354.8,354.8 391.5,391.5 384.5,391.5"/>
+  </g>
+  <!-- Outer ring (compass card edge) -->
+  <circle cx="388" cy="388" r="50" fill="none" stroke="#1B3A4B" stroke-width="3"/>
+  <!-- Center pivot -->
+  <circle cx="388" cy="388" r="5" fill="#1B3A4B"/>
+  <!-- North marker dot above the N arm (orienting cue) -->
+  <circle cx="388" cy="332" r="4" fill="#1B3A4B"/>
 </svg>

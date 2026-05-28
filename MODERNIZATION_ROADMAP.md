@@ -1,6 +1,6 @@
-# freeboard-sk modernization roadmap
+# Open Binnacle modernization roadmap
 
-Date: 2026-05-24. Owner: Nearl Crews (fork, not aligned with upstream SignalK/freeboard-sk).
+Date: 2026-05-24. Owner: Nearl Crews. Open Binnacle is the rebranded fork of [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk); this roadmap is not aligned with upstream.
 
 Synthesis of a 6-expert team review (framework, map/geo, data, build, UX, quality). Every version below was verified live against the npm registry on 2026-05-24. The build lens owns the version truth-table; if any later PR cites an older version, this document is the corrector.
 
@@ -235,7 +235,7 @@ pass stays open for the UX sprint.
       compares the violation count to `.axe-baseline.json`
       (monotonic-decrease ratchet), and asserts that the 4 hard-fail
       rule IDs stay at zero. Seed mode: `AXE_BASELINE_SEED=1
-  E2E_LOCAL=1 pnpm test:e2e --grep a11y`.
+E2E_LOCAL=1 pnpm test:e2e --grep a11y`.
 - [x] 4 hard-fail rules wired in `e2e/a11y.spec.ts` `HARD_FAIL_RULES`:
       `target-size`, `keyboard`, `prefers-reduced-motion`,
       `meta-viewport`.

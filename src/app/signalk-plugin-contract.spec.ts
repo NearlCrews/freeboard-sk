@@ -1,7 +1,7 @@
 /**
  * Signal K plugin contract pin (Phase 3 simplify, Lens 3).
  *
- * Freeboard-SK ships as a signalk-server plugin AND webapp. The signalk-server
+ * Open Binnacle ships as a signalk-server plugin AND webapp. The signalk-server
  * plugin loader discovers it via npm by reading package.json. Three fields
  * are load-bearing: `main` (the plugin entry), `signalk-plugin-enabled-by-default`
  * (auto-enable on first install), and the `signalk` block (admin UI metadata).
@@ -11,7 +11,7 @@
  *
  * This spec fails fast if any of those drift, so a refactor that removes
  * `main` or renames `prepack` does not silently break the production install
- * path under ~/.signalk/node_modules/@signalk/freeboard-sk.
+ * path under ~/.signalk/node_modules/signalk-open-binnacle.
  */
 
 import { readFileSync } from 'node:fs';
@@ -30,8 +30,8 @@ interface PluginPkg {
 const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as PluginPkg;
 
 describe('signalk plugin contract (package.json)', () => {
-  it('keeps the published name @signalk/freeboard-sk', () => {
-    expect(pkg.name).toBe('@signalk/freeboard-sk');
+  it('keeps the published name signalk-open-binnacle', () => {
+    expect(pkg.name).toBe('signalk-open-binnacle');
   });
 
   it('points `main` at plugin/index.js (server entry)', () => {

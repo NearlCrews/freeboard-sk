@@ -1,4 +1,6 @@
-# freeboard-sk: AI assistant operating rules
+# Open Binnacle: AI assistant operating rules
+
+Open Binnacle is the rebranded fork of [SignalK/freeboard-sk](https://github.com/SignalK/freeboard-sk). User-facing identity (README, manifest, app title, admin-UI displayName, icon) and the npm package name (`signalk-open-binnacle`) have moved to the new brand. The repo directory and the GitHub repo URL still use the legacy `freeboard-sk` identifier until the coordinated rename lands. After moving the directory to `signalk-open-binnacle`, the user must also update `~/.signalk/package.json` to `"signalk-open-binnacle": "file:../path/to/signalk-open-binnacle"`, `rm -rf ~/.signalk/node_modules/@signalk/freeboard-sk`, run `npm install` in `~/.signalk`, and restart the Signal K server.
 
 This file is the source of truth for project-scoped AI assistant rules. User-global memory does not always load reliably across worktrees or fresh clones; rules that came at the cost of redoing work live here.
 
@@ -55,7 +57,7 @@ For each implementation phase (Phase 1 through Phase 8):
 
 ## Branching
 
-- Local `master` is the test target: the running signalk-server loads `@signalk/freeboard-sk` from `file:../src/freeboard-sk` so changes must reach `master` to be tested live.
+- Local `master` is the test target: the running signalk-server loads the project from `file:../src/freeboard-sk` (will become `file:../src/signalk-open-binnacle` after the coordinated directory rename) so changes must reach `master` to be tested live.
 - One narrow branch per upstreamable change so each PR to `SignalK/freeboard-sk` stays single-concern for the upstream maintainer (panaaj).
 - The modernization fork is its own branch family rooted at `chore/phase-0-floor` and onward.
 
