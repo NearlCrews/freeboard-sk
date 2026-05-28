@@ -5,7 +5,9 @@ import {
   DestroyRef,
   OnDestroy,
   OnInit,
+  TemplateRef,
   ViewChild,
+  ViewContainerRef,
   computed,
   effect,
   inject,
@@ -25,10 +27,12 @@ import {
   FbDividerComponent,
   FbFabComponent,
   FbIconComponent,
+  FbMenuService,
+  type FbMenuTemplateContext,
+  type FbMenuTemplateRef,
   FbNavListComponent,
   FbProgressBarComponent
 } from 'src/app/design-system/primitives';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -130,7 +134,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   imports: [
-    MatMenuModule,
     MatSidenavModule,
     MatBadgeModule,
     MatButtonModule,
@@ -184,11 +187,23 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('sideright', { static: false }) sideright?: MatSidenav;
   @ViewChild(FBMapComponent) private fbMap?: FBMapComponent;
 
+  @ViewChild('layersmenuTpl', { static: true })
+  private layersmenuTpl!: TemplateRef<FbMenuTemplateContext>;
+  @ViewChild('settingsmenuTpl', { static: true })
+  private settingsmenuTpl!: TemplateRef<FbMenuTemplateContext>;
+  @ViewChild('editmenuTpl', { static: true })
+  private editmenuTpl!: TemplateRef<FbMenuTemplateContext>;
+  @ViewChild('mainmenuTpl', { static: true })
+  private mainmenuTpl!: TemplateRef<FbMenuTemplateContext>;
+
   // Phase 3 shell services (state and orchestration extracted from this file)
   private readonly shell = inject(AppShellService);
   private readonly menu = inject(MenuController);
   private readonly audio = inject(AudioAlarmService);
   private readonly dialogs = inject(DialogOrchestrator);
+  private readonly fbMenu = inject(FbMenuService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private openMenuRef: FbMenuTemplateRef | null = null;
 
   protected navDataPanel = signal<{
     show: boolean;
@@ -469,6 +484,35 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
   protected openSettings() {
     this.dialogs.openSettings();
+  }
+
+  protected openMainMenu(event: MouseEvent): void {
+    this.openTemplateMenu(event, this.mainmenuTpl, 'Main menu');
+  }
+  protected openLayersMenu(event: MouseEvent): void {
+    this.openTemplateMenu(event, this.layersmenuTpl, 'Resource layers menu');
+  }
+  protected openEditMenu(event: MouseEvent): void {
+    this.openTemplateMenu(event, this.editmenuTpl, 'Draw, measure, or select');
+  }
+  protected openSettingsMenu(event: MouseEvent): void {
+    this.openTemplateMenu(event, this.settingsmenuTpl, 'More actions');
+  }
+
+  private openTemplateMenu(
+    event: MouseEvent,
+    templateRef: TemplateRef<FbMenuTemplateContext>,
+    ariaLabel: string
+  ): void {
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) return;
+    this.openMenuRef?.close();
+    this.openMenuRef = this.fbMenu.openTemplate({
+      trigger: target,
+      templateRef,
+      viewContainerRef: this.viewContainerRef,
+      ariaLabel
+    });
   }
   protected importFile(f: { data: string | ArrayBuffer; name: string }) {
     this.dialogs.importFile(f);

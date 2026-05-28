@@ -83,6 +83,9 @@ export function testForInternet(
     .fetch('https://tile.openstreetmap.org', { signal: signal ?? null })
     .then(() => console.info('Internet connection detected.'))
     .catch((err: unknown) => {
+      if (signal?.aborted) {
+        return;
+      }
       if (err instanceof DOMException && err.name === 'AbortError') {
         return;
       }

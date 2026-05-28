@@ -670,114 +670,119 @@
 </ol-map>
 
 <!-- context menu -->
-<div
-  style="visibility: hidden; position: fixed"
-  [style.left]="contextMenuPosition.x"
-  [style.top]="contextMenuPosition.y"
-  [matMenuTriggerFor]="contextMenu"
-></div>
-<mat-menu #contextMenu="matMenu" (contextmenu)="$event.preventDefault()">
-  <ng-template matMenuContent let-item="item">
-    @if (app.data.vessels.showSelf) {
-      <button
-        mat-menu-item
-        (contextmenu)="$event.preventDefault()"
-        (click)="onContextMenuAction('nav_to', item)"
-      >
-        <fb-icon name="near_me" ariaLabel=""></fb-icon>
-        Navigate to here
-      </button>
-    }
-    @if (course.courseData().position) {
-      <button
-        mat-menu-item
-        (click)="onContextMenuAction('cleardestination', item)"
-      >
-        <fb-icon name="clear_all" ariaLabel=""></fb-icon>
-        @if (app.data.activeRoute) {
-          <span>Clear Active Route</span>
-        } @else {
-          <span>Clear Destination</span>
-        }
-      </button>
-    }
-    @if (app.data.vessels.showSelf || course.courseData().position) {
-      <fb-divider />
-    }
+<ng-template #contextMenuTpl let-item let-close="close">
+  @if (app.data.vessels.showSelf) {
     <button
-      mat-menu-item
-      (click)="onContextMenuAction('add_wpt', item)"
+      type="button"
+      class="fb-menu-item"
+      (contextmenu)="$event.preventDefault()"
+      (click)="onContextMenuAction('nav_to', item); close()"
+    >
+      <fb-icon name="near_me" ariaLabel=""></fb-icon>
+      Navigate to here
+    </button>
+  }
+  @if (course.courseData().position) {
+    <button
+      type="button"
+      class="fb-menu-item"
+      (click)="onContextMenuAction('cleardestination', item); close()"
+    >
+      <fb-icon name="clear_all" ariaLabel=""></fb-icon>
+      @if (app.data.activeRoute) {
+        <span>Clear Active Route</span>
+      } @else {
+        <span>Clear Destination</span>
+      }
+    </button>
+  }
+  @if (app.data.vessels.showSelf || course.courseData().position) {
+    <hr class="fb-menu-divider" />
+  }
+  <button
+    type="button"
+    class="fb-menu-item"
+    (click)="onContextMenuAction('add_wpt', item); close()"
+    (contextmenu)="$event.preventDefault()"
+  >
+    <fb-icon name="add_location" ariaLabel="" class="icon-waypoint"></fb-icon>
+    Add Waypoint here
+  </button>
+
+  @if (mapZoomLevel() >= app.config.resources.notes.minZoom) {
+    <button
+      type="button"
+      class="fb-menu-item"
+      (click)="onContextMenuAction('add_note', item); close()"
       (contextmenu)="$event.preventDefault()"
     >
-      <fb-icon name="add_location" ariaLabel="" class="icon-waypoint"></fb-icon>
-      Add Waypoint here
+      <fb-icon name="local_offer" ariaLabel=""></fb-icon>
+      Add Note here
     </button>
+  }
 
-    @if (mapZoomLevel() >= app.config.resources.notes.minZoom) {
-      <button
-        mat-menu-item
-        (click)="onContextMenuAction('add_note', item)"
-        (contextmenu)="$event.preventDefault()"
-      >
-        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
-        Add Note here
-      </button>
-    }
-
-    <fb-divider />
-    @if (this.app.data.vessels.showSelf) {
-      <button
-        mat-menu-item
-        (contextmenu)="$event.preventDefault()"
-        (click)="onContextMenuAction('bearing_dist', item)"
-      >
-        <fb-icon name="arrow_right_alt" ariaLabel=""></fb-icon>
-        Bearing & Distance
-      </button>
-    }
+  <hr class="fb-menu-divider" />
+  @if (this.app.data.vessels.showSelf) {
     <button
-      mat-menu-item
-      (click)="onContextMenuAction('measure', item)"
+      type="button"
+      class="fb-menu-item"
       (contextmenu)="$event.preventDefault()"
+      (click)="onContextMenuAction('bearing_dist', item); close()"
     >
-      <fb-icon name="straighten" ariaLabel=""></fb-icon>
-      Measure
+      <fb-icon name="arrow_right_alt" ariaLabel=""></fb-icon>
+      Bearing & Distance
     </button>
-    <fb-divider />
+  }
+  <button
+    type="button"
+    class="fb-menu-item"
+    (click)="onContextMenuAction('measure', item); close()"
+    (contextmenu)="$event.preventDefault()"
+  >
+    <fb-icon name="straighten" ariaLabel=""></fb-icon>
+    Measure
+  </button>
+  <hr class="fb-menu-divider" />
 
-    @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
-      <button mat-menu-item (click)="onContextMenuAction('cleartrail', item)">
-        <fb-icon name="clear_all" ariaLabel=""></fb-icon>
-        <span>{{ app.data.serverTrail ? 'Refresh' : 'Clear' }} Trail</span>
-      </button>
-    }
-
+  @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
     <button
-      mat-menu-item
-      (click)="onContextMenuAction('trail2route', item)"
-      (contextmenu)="$event.preventDefault()"
+      type="button"
+      class="fb-menu-item"
+      (click)="onContextMenuAction('cleartrail', item); close()"
     >
-      <fb-icon name="insights" ariaLabel=""></fb-icon>
-      Trail to Route
+      <fb-icon name="clear_all" ariaLabel=""></fb-icon>
+      <span>{{ app.data.serverTrail ? 'Refresh' : 'Clear' }} Trail</span>
     </button>
+  }
 
-    <fb-divider />
+  <button
+    type="button"
+    class="fb-menu-item"
+    (click)="onContextMenuAction('trail2route', item); close()"
+    (contextmenu)="$event.preventDefault()"
+  >
+    <fb-icon name="insights" ariaLabel=""></fb-icon>
+    Trail to Route
+  </button>
+
+  <hr class="fb-menu-divider" />
+  <button
+    type="button"
+    class="fb-menu-item"
+    (click)="onContextMenuAction('anchor', item); close()"
+    (contextmenu)="$event.preventDefault()"
+  >
+    <fb-icon name="anchor" ariaLabel=""></fb-icon>
+    Anchor Watch
+  </button>
+  @if (app.featureFlags().weatherApi) {
     <button
-      mat-menu-item
-      (click)="onContextMenuAction('anchor', item)"
-      (contextmenu)="$event.preventDefault()"
+      type="button"
+      class="fb-menu-item"
+      (click)="onContextMenuAction('weather_forecast', item); close()"
     >
-      <fb-icon name="anchor" ariaLabel=""></fb-icon>
-      Anchor Watch
+      <fb-icon name="air" ariaLabel=""></fb-icon>
+      <span>Weather Forecast</span>
     </button>
-    @if (app.featureFlags().weatherApi) {
-      <button
-        mat-menu-item
-        (click)="onContextMenuAction('weather_forecast', item)"
-      >
-        <fb-icon name="air" ariaLabel=""></fb-icon>
-        <span>Weather Forecast</span>
-      </button>
-    }
-  </ng-template>
-</mat-menu>
+  }
+</ng-template>

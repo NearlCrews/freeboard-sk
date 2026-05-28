@@ -5,7 +5,9 @@ import {
   DestroyRef,
   Input,
   output,
+  TemplateRef,
   ViewChild,
+  ViewContainerRef,
   SimpleChanges,
   signal,
   computed,
@@ -18,12 +20,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
-  FbDividerComponent,
   FbFabComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbMenuService,
+  type FbMenuTemplateContext,
+  type FbMenuTemplateRef
 } from 'src/app/design-system/primitives';
 
 // ** OL & popovers **
@@ -140,8 +143,6 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
     FbIconComponent,
     FbFabComponent,
     CoordsPipe,
-    MatMenuModule,
-    FbDividerComponent,
     FreeboardOpenlayersModule,
     PopoverComponent
   ],
@@ -171,7 +172,8 @@ export class FBMapComponent
   readonly focusVessel = output<string | null>();
   readonly menuItemSelected = output<string>();
 
-  @ViewChild(MatMenuTrigger, { static: true }) contextMenu!: MatMenuTrigger;
+  @ViewChild('contextMenuTpl', { static: true })
+  private contextMenuTpl!: TemplateRef<FbMenuTemplateContext<Position>>;
   @ViewChild('olMap', { static: false }) olMap!: MapComponent;
 
   scaleUnits = input<string>('');
@@ -261,7 +263,8 @@ export class FBMapComponent
     coords: [0, 0],
     xy: null
   };
-  contextMenuPosition = { x: '0px', y: '0px' };
+  private contextMenuPosition = { x: 0, y: 0 };
+  private contextMenuRef: FbMenuTemplateRef | null = null;
 
   private destroyRef = inject(DestroyRef);
 
@@ -278,6 +281,8 @@ export class FBMapComponent
   private settings = inject(SettingsFacade);
   private bottomSheet = inject(MatBottomSheet);
   private infoPanel = inject(InfoPanelFacade);
+  private fbMenu = inject(FbMenuService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   constructor() {
     effect(() => {
@@ -681,8 +686,8 @@ export class FBMapComponent
     // (e.g. drag-recovery, autopan) with no originalEvent.
     const orig = e.originalEvent as PointerEvent | undefined;
     if (!orig) return;
-    this.contextMenuPosition.x = orig.clientX + 'px';
-    this.contextMenuPosition.y = orig.clientY + 'px';
+    this.contextMenuPosition.x = orig.clientX;
+    this.contextMenuPosition.y = orig.clientY;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -738,24 +743,32 @@ export class FBMapComponent
       return;
     }
     e.preventDefault();
-    this.contextMenuPosition.x = e.clientX + 'px';
-    this.contextMenuPosition.y = e.clientY + 'px';
-    this.contextMenu.menuData = { item: this.mouse.coords };
+    this.contextMenuPosition.x = e.clientX;
+    this.contextMenuPosition.y = e.clientY;
     if (this.mapInteract.isMeasuring()) {
       this.parseClickInMeasureMode(this.mouse.xy.lonlat);
     } else if (!this.modifyMode) {
       if (!this.mouse.xy) {
         return;
       }
-      this.contextMenu.openMenu();
-      const backdrop = document.getElementsByClassName(
-        'cdk-overlay-backdrop'
-      )[0];
-      backdrop?.addEventListener('contextmenu', (offEvent) => {
-        offEvent.preventDefault(); // prevent default context menu for overlay
-        this.contextMenu.closeMenu();
-      });
+      this.openContextMenu(this.mouse.coords);
     }
+  }
+
+  private openContextMenu(item: Position): void {
+    this.contextMenuRef?.close();
+    this.contextMenuRef = this.fbMenu.openAt<Position>({
+      position: { ...this.contextMenuPosition },
+      templateRef: this.contextMenuTpl,
+      viewContainerRef: this.viewContainerRef,
+      context: item,
+      ariaLabel: 'Map context menu'
+    });
+    const backdrop = document.getElementsByClassName('cdk-overlay-backdrop')[0];
+    backdrop?.addEventListener('contextmenu', (offEvent) => {
+      offEvent.preventDefault();
+      this.contextMenuRef?.close();
+    });
   }
 
   /** process pointer click event when in measure mode */

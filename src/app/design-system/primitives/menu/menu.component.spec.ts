@@ -1,8 +1,19 @@
-import { Component, signal } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+  inject,
+  signal
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Overlay } from '@angular/cdk/overlay';
-import { FbMenuComponent, type FbMenuItem } from './menu.component';
+import {
+  FbMenuComponent,
+  type FbMenuItem,
+  type FbMenuTemplateContext
+} from './menu.component';
 import { FbMenuService } from './menu.service';
 
 @Component({
@@ -28,6 +39,60 @@ class HostComponent {
   dismissedCount = 0;
   onSelected(id: string): void {
     this.selected.push(id);
+  }
+  onDismissed(): void {
+    this.dismissedCount += 1;
+  }
+}
+
+@Component({
+  standalone: true,
+  imports: [FbMenuComponent],
+  template: `
+    <fb-menu
+      [templateRef]="tplRef"
+      [templateContext]="ctx"
+      (dismissed)="onDismissed()"
+    ></fb-menu>
+    <ng-template #tpl let-data let-close="close">
+      <button
+        type="button"
+        class="fb-menu-item"
+        data-id="alpha"
+        (click)="onClick('alpha-' + data, close)"
+      >
+        Alpha
+      </button>
+      <hr class="fb-menu-divider" />
+      <button
+        type="button"
+        class="fb-menu-item"
+        data-id="beta"
+        (click)="onClick('beta-' + data, close)"
+      >
+        Beta
+      </button>
+    </ng-template>
+  `
+})
+class TemplateHostComponent {
+  @ViewChild('tpl', { static: true })
+  tpl!: TemplateRef<FbMenuTemplateContext<string>>;
+  get tplRef(): TemplateRef<unknown> | null {
+    return this.tpl as TemplateRef<unknown> | null;
+  }
+  picked: string[] = [];
+  closes = 0;
+  dismissedCount = 0;
+  ctx: FbMenuTemplateContext<string> = {
+    $implicit: 'ctxVal',
+    close: () => {
+      this.closes += 1;
+    }
+  };
+  onClick(label: string, close: () => void): void {
+    this.picked.push(label);
+    close();
   }
   onDismissed(): void {
     this.dismissedCount += 1;
@@ -106,6 +171,47 @@ describe('FbMenuComponent', () => {
   });
 });
 
+describe('FbMenuComponent template projection', () => {
+  it('renders projected template with $implicit context and forwards close', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [TemplateHostComponent] });
+    const fixture = TestBed.createComponent(TemplateHostComponent);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const projected = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('button.fb-menu-item')
+    );
+    expect(projected.length).toBe(2);
+    expect(projected[0]!.dataset['id']).toBe('alpha');
+    expect(root.querySelector('hr.fb-menu-divider')).not.toBeNull();
+    expect(
+      root.querySelectorAll('.fb-menu__item').length,
+      'static items[] section must not render in template mode'
+    ).toBe(0);
+
+    projected[1]!.click();
+    expect(fixture.componentInstance.picked).toEqual(['beta-ctxVal']);
+    expect(fixture.componentInstance.closes).toBe(1);
+  });
+
+  it('emits dismissed on Escape while in template mode', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [TemplateHostComponent] });
+    const fixture = TestBed.createComponent(TemplateHostComponent);
+    fixture.detectChanges();
+    const menu = fixture.nativeElement.querySelector('fb-menu') as HTMLElement;
+    menu.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    expect(fixture.componentInstance.dismissedCount).toBe(1);
+  });
+});
+
 describe('FbMenuService', () => {
   it('opens a CDK overlay with a connected position strategy and transparent backdrop', () => {
     const overlayRef = {
@@ -130,7 +236,11 @@ describe('FbMenuService', () => {
     };
     const overlayStub = {
       position: () => ({
-        flexibleConnectedTo: () => positionStrategy
+        flexibleConnectedTo: () => positionStrategy,
+        global: () => ({
+          left: vi.fn().mockReturnThis(),
+          top: vi.fn().mockReturnThis()
+        })
       }),
       scrollStrategies: { reposition: vi.fn().mockReturnValue({}) },
       create: vi.fn().mockReturnValue(overlayRef)
@@ -150,5 +260,65 @@ describe('FbMenuService', () => {
     expect(config.panelClass).toBe('fb-menu-panel');
     expect(positionStrategy.withPositions).toHaveBeenCalledOnce();
     document.body.removeChild(trigger);
+  });
+
+  it('openAt routes through a global position strategy at the given coordinates', () => {
+    const overlayRef = {
+      attach: vi.fn(),
+      detach: vi.fn(),
+      dispose: vi.fn(),
+      hasAttached: vi.fn().mockReturnValue(true),
+      backdropClick: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+      keydownEvents: vi.fn().mockReturnValue({ subscribe: vi.fn() })
+    };
+    overlayRef.attach.mockReturnValue({
+      instance: { dismissed: { subscribe: vi.fn() } },
+      setInput: vi.fn()
+    });
+    const globalStrategy = {
+      left: vi.fn().mockReturnThis(),
+      top: vi.fn().mockReturnThis()
+    };
+    const overlayStub = {
+      position: () => ({
+        flexibleConnectedTo: () => ({
+          withPositions: vi.fn().mockReturnThis(),
+          withFlexibleDimensions: vi.fn().mockReturnThis(),
+          withPush: vi.fn().mockReturnThis()
+        }),
+        global: () => globalStrategy
+      }),
+      scrollStrategies: { reposition: vi.fn().mockReturnValue({}) },
+      create: vi.fn().mockReturnValue(overlayRef)
+    };
+
+    @Component({
+      standalone: true,
+      template: `<ng-template #tpl></ng-template>`
+    })
+    class HostForAt {
+      @ViewChild('tpl', { static: true })
+      tpl!: TemplateRef<FbMenuTemplateContext<string>>;
+      readonly vcr = inject(ViewContainerRef);
+    }
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [HostForAt],
+      providers: [{ provide: Overlay, useValue: overlayStub }, FbMenuService]
+    });
+    const fixture = TestBed.createComponent(HostForAt);
+    fixture.detectChanges();
+    const svc = TestBed.inject(FbMenuService);
+    const host = fixture.componentInstance;
+    svc.openAt<string>({
+      position: { x: 120, y: 240 },
+      templateRef: host.tpl,
+      viewContainerRef: host.vcr,
+      context: 'hello'
+    });
+    expect(globalStrategy.left).toHaveBeenCalledWith('120px');
+    expect(globalStrategy.top).toHaveBeenCalledWith('240px');
+    expect(overlayStub.create).toHaveBeenCalledOnce();
   });
 });

@@ -66,8 +66,17 @@ export {
   type FbFabVariant
 } from './fab/fab.component';
 
-export { FbMenuComponent, type FbMenuItem } from './menu/menu.component';
-export { FbMenuService } from './menu/menu.service';
+export {
+  FbMenuComponent,
+  type FbMenuItem,
+  type FbMenuTemplateContext
+} from './menu/menu.component';
+export {
+  FbMenuService,
+  type FbMenuTemplateOpenConfig,
+  type FbMenuTemplateOpenAtConfig,
+  type FbMenuTemplateRef
+} from './menu/menu.service';
 
 export {
   FbSnackbarComponent,

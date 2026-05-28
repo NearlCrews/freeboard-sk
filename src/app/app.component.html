@@ -5,12 +5,20 @@
 >
   <div class="appframe mat-app-background">
     <!--toolbar button menus-->
-    <mat-menu #layersmenu="matMenu">
-      <button mat-menu-item (click)="displayLeftMenu('routeList', true)">
+    <ng-template #layersmenuTpl let-close="close">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('routeList', true); close()"
+      >
         <fb-icon class="icon-route" svgName="route" ariaLabel=""></fb-icon>
         &nbsp;Routes
       </button>
-      <button mat-menu-item (click)="displayLeftMenu('waypointList', true)">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('waypointList', true); close()"
+      >
         <fb-icon
           class="icon-waypoint"
           name="location_on"
@@ -18,33 +26,60 @@
         ></fb-icon>
         &nbsp;Waypoints
       </button>
-      <button mat-menu-item (click)="displayLeftMenu('noteList', true)">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('noteList', true); close()"
+      >
         <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         &nbsp;Notes
       </button>
-      <button mat-menu-item (click)="displayLeftMenu('regionList', true)">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('regionList', true); close()"
+      >
         <fb-icon name="tab_unselected" ariaLabel=""></fb-icon>
         &nbsp;Regions
       </button>
-      <button mat-menu-item (click)="displayLeftMenu('chartList', true)">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('chartList', true); close()"
+      >
         <fb-icon name="map" ariaLabel=""></fb-icon>
         &nbsp;Charts
       </button>
       @if (app.featureFlags().resourceGroups) {
-        <button mat-menu-item (click)="displayLeftMenu('resourceGroups', true)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="displayLeftMenu('resourceGroups', true); close()"
+        >
           <fb-icon name="category" ariaLabel=""></fb-icon>
           &nbsp;Groups
         </button>
       }
       @if (app.featureFlags().infoLayers) {
-        <button mat-menu-item (click)="displayLeftMenu('infoLayerList', true)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="displayLeftMenu('infoLayerList', true); close()"
+        >
           <fb-icon name="layers" ariaLabel=""></fb-icon>
           &nbsp;Overlays
         </button>
       }
 
-      <fb-divider />
-      <button mat-menu-item>
+      <hr class="fb-menu-divider" />
+      <div
+        class="fb-menu-item"
+        role="menuitem"
+        tabindex="0"
+        (click)="close()"
+        (keydown.enter)="close()"
+        (keydown.space)="close()"
+      >
         <ap-file-input
           accept=".gpx,.json"
           [astext]="true"
@@ -53,69 +88,94 @@
           <fb-icon class="ob" svgName="route-import" ariaLabel=""></fb-icon>
           Import
         </ap-file-input>
-      </button>
-      <button mat-menu-item (click)="exportToGPX()">
+      </div>
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="exportToGPX(); close()"
+      >
         <fb-icon class="ob" svgName="route-export" ariaLabel=""></fb-icon>
         &nbsp;Export
       </button>
 
-      <fb-divider />
+      <hr class="fb-menu-divider" />
       @if (app.featureFlags().resourceTracks) {
-        <button mat-menu-item (click)="displayLeftMenu('trackList', true)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="displayLeftMenu('trackList', true); close()"
+        >
           <fb-icon class="icon-warn" name="show_chart" ariaLabel=""></fb-icon>
           &nbsp;Tracks
         </button>
       }
       @if (app.config.resources.paths.length !== 0) {
-        <div>
-          @for (p of app.config.resources.paths.sort(); track p) {
-            <div>
-              <button
-                mat-menu-item
-                (click)="openExperiment({ choice: p, value: null })"
-              >
-                <fb-icon
-                  class="ob"
-                  svgName="chart-display-settings-iec"
-                  ariaLabel=""
-                ></fb-icon>
-                &nbsp;{{ p }}
-              </button>
-            </div>
-          }
-        </div>
+        @for (p of app.config.resources.paths.sort(); track p) {
+          <button
+            type="button"
+            class="fb-menu-item"
+            (click)="openExperiment({ choice: p, value: null }); close()"
+          >
+            <fb-icon
+              class="ob"
+              svgName="chart-display-settings-iec"
+              ariaLabel=""
+            ></fb-icon>
+            &nbsp;{{ p }}
+          </button>
+        }
       }
-    </mat-menu>
+    </ng-template>
 
-    <mat-menu #settingsmenu="matMenu">
+    <ng-template #settingsmenuTpl let-close="close">
       @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
-        <a mat-menu-item (click)="clearTrail(app.data.serverTrail)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="clearTrail(app.data.serverTrail); close()"
+        >
           <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           <span>{{ app.data.serverTrail ? 'Refresh' : 'Clear' }} Trail</span>
-        </a>
-        <a mat-menu-item (click)="trailToRoute()">
+        </button>
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="trailToRoute(); close()"
+        >
           <fb-icon name="insights" ariaLabel=""></fb-icon>
           <span>Trail to Route</span>
-        </a>
-        <fb-divider />
+        </button>
+        <hr class="fb-menu-divider" />
       }
       @if (course.courseData().position) {
-        <a mat-menu-item (click)="clearDestination()">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="clearDestination(); close()"
+        >
           <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           @if (app.data.activeRoute) {
             <span>Clear Active Route</span>
           } @else {
             <span>Clear Destination</span>
           }
-        </a>
-        <a mat-menu-item (click)="clearCourseData()">
+        </button>
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="clearCourseData(); close()"
+        >
           <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           <span>Clear Course Data</span>
-        </a>
-        <fb-divider />
+        </button>
+        <hr class="fb-menu-divider" />
       }
 
-      <a mat-menu-item (click)="toggleCourseData()">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="toggleCourseData(); close()"
+      >
         <fb-icon
           [name]="
             app.config.ui.showCourseData ? 'visibility_off' : 'compare_arrows'
@@ -126,8 +186,12 @@
           >{{ app.config.ui.showCourseData ? 'Hide' : 'Show' }} Course
           Data</span
         >
-      </a>
-      <a mat-menu-item (click)="toggleAisTargets()">
+      </button>
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="toggleAisTargets(); close()"
+      >
         <fb-icon
           [name]="
             app.config.ui.showAisTargets ? 'visibility_off' : 'directions_boat'
@@ -137,93 +201,137 @@
         <span
           >{{ app.config.ui.showAisTargets ? 'Hide' : 'Show' }} Vessels</span
         >
-      </a>
-      <a mat-menu-item (click)="toggleNotes()">
+      </button>
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="toggleNotes(); close()"
+      >
         <fb-icon
           [name]="app.config.ui.showNotes ? 'visibility_off' : 'local_offer'"
           ariaLabel=""
         ></fb-icon>
         <span>{{ app.config.ui.showNotes ? 'Hide' : 'Show' }} Notes</span>
-      </a>
+      </button>
       @if (app.featureFlags().weatherApi && app.data.vessels.showSelf) {
-        <fb-divider />
-        <a mat-menu-item (click)="showWeather('forecast')">
+        <hr class="fb-menu-divider" />
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="showWeather('forecast'); close()"
+        >
           <fb-icon name="air" ariaLabel=""></fb-icon>
           <span>Weather Forecast</span>
-        </a>
+        </button>
       }
-      <fb-divider />
-      <a mat-menu-item (click)="openSettings()">
+      <hr class="fb-menu-divider" />
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="openSettings(); close()"
+      >
         <fb-icon name="settings" ariaLabel=""></fb-icon>
         <span>Settings</span>
-      </a>
-    </mat-menu>
+      </button>
+    </ng-template>
 
-    <mat-menu #editmenu="matMenu">
-      <a mat-menu-item (click)="mapInteract.startMeasuring('LineString')">
+    <ng-template #editmenuTpl let-close="close">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="mapInteract.startMeasuring('LineString'); close()"
+      >
         <fb-icon name="straighten" ariaLabel=""></fb-icon>
         <span>Measure</span>
-      </a>
-      <a mat-menu-item (click)="mapInteract.startMeasuring('Circle')">
+      </button>
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="mapInteract.startMeasuring('Circle'); close()"
+      >
         <fb-icon name="swap_vertical_circle" ariaLabel=""></fb-icon>
         <span>Measure Radius</span>
-      </a>
-      <!--<a mat-menu-item (click)="mapInteract.startBoxSelection('someMode')">
-        <mat-icon>highlight_alt</mat-icon>
-        <span>Select</span>
-      </a>-->
-      <fb-divider />
-      <a mat-menu-item (click)="drawFeature('route')">
+      </button>
+      <hr class="fb-menu-divider" />
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="drawFeature('route'); close()"
+      >
         <fb-icon class="icon-route" name="draw" ariaLabel=""></fb-icon>
         <span>Draw Route</span>
-      </a>
-      <a mat-menu-item (click)="toggleRouteBuilderConsole(true)">
+      </button>
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="toggleRouteBuilderConsole(true); close()"
+      >
         <fb-icon
           class="icon-route"
           svgName="route-planning"
           ariaLabel=""
         ></fb-icon>
         <span>Build Route</span>
-      </a>
-      <fb-divider />
+      </button>
+      <hr class="fb-menu-divider" />
       @if (app.data.vessels.showSelf) {
         @if (app.data.vessels.active.position; as activePos) {
-          <a mat-menu-item (click)="skres.newWaypointAt(activePos)">
+          <button
+            type="button"
+            class="fb-menu-item"
+            (click)="skres.newWaypointAt(activePos); close()"
+          >
             <fb-icon
               class="icon-waypoint"
               name="add_location"
               ariaLabel=""
             ></fb-icon>
             <span>Add Waypoint at Vessel</span>
-          </a>
+          </button>
         }
       }
-      <a mat-menu-item (click)="drawFeature('waypoint')">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="drawFeature('waypoint'); close()"
+      >
         <fb-icon
           class="icon-waypoint"
           name="add_location_alt"
           ariaLabel=""
         ></fb-icon>
         <span>Drop Waypoint</span>
-      </a>
-      <fb-divider />
+      </button>
+      <hr class="fb-menu-divider" />
       @if (
         this.app.config.map.zoomLevel >= this.app.config.resources.notes.minZoom
       ) {
-        <a mat-menu-item (click)="drawFeature('note')">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="drawFeature('note'); close()"
+        >
           <fb-icon name="local_offer" ariaLabel=""></fb-icon>
           <span>Add Note</span>
-        </a>
+        </button>
       }
-      <a mat-menu-item (click)="drawFeature('region')">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="drawFeature('region'); close()"
+      >
         <fb-icon name="tab_unselected" ariaLabel=""></fb-icon>
         <span>Draw Region</span>
-      </a>
-    </mat-menu>
+      </button>
+    </ng-template>
 
-    <mat-menu #mainmenu="matMenu">
+    <ng-template #mainmenuTpl let-close="close">
       @if (!app.hostDef.params['token'] && app.data.loginRequired) {
-        <a mat-menu-item (click)="showLogin(undefined, false)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="showLogin(undefined, false); close()"
+        >
           <fb-icon
             name="account_circle"
             ariaLabel=""
@@ -234,14 +342,18 @@
             [matBadgeHidden]="app.isLoggedIn()"
           ></fb-icon>
           <span>{{ app.isLoggedIn() ? 'Change User' : 'Login' }}</span>
-        </a>
-        <fb-divider />
+        </button>
+        <hr class="fb-menu-divider" />
       }
       @if (!isInteracting() && app.featureFlags().anchorApi) {
-        <a mat-menu-item (click)="displayLeftMenu('anchorWatch', true)">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="displayLeftMenu('anchorWatch', true); close()"
+        >
           <fb-icon name="anchor" ariaLabel=""></fb-icon>
           <span>Anchor Watch</span>
-        </a>
+        </button>
       }
       @if (
         app.config.experiments &&
@@ -249,7 +361,11 @@
         app.featureFlags().radarApi &&
         radarApi.defaultRadar()
       ) {
-        <a mat-menu-item (click)="toggleRadar()">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="toggleRadar(); close()"
+        >
           @if (app.uiCtrl().radarLayer) {
             <fb-icon
               class="icon-accent"
@@ -260,41 +376,61 @@
             <fb-icon class="ob" svgName="radar-iec" ariaLabel=""></fb-icon>
           }
           <span>Radar Overlay</span>
-        </a>
+        </button>
       }
-      <a mat-menu-item (click)="displayLeftMenu('aisList', true)">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="displayLeftMenu('aisList', true); close()"
+      >
         <fb-icon name="directions_boat" ariaLabel=""></fb-icon>
         <span>Vessels</span>
-      </a>
+      </button>
 
-      <a mat-menu-item (click)="importResourceSet()">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="importResourceSet(); close()"
+      >
         <fb-icon name="upload" ariaLabel=""></fb-icon>
         <span>Resource Sets</span>
-      </a>
+      </button>
 
       @if (features.playbackAPI) {
-        <a mat-menu-item (click)="showPlaybackSettings()">
+        <button
+          type="button"
+          class="fb-menu-item"
+          (click)="showPlaybackSettings(); close()"
+        >
           <fb-icon name="history" ariaLabel=""></fb-icon>
           <span>Playback History</span>
-        </a>
+        </button>
       }
 
-      <fb-divider />
-      <a mat-menu-item (click)="openSettings()">
+      <hr class="fb-menu-divider" />
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="openSettings(); close()"
+      >
         <fb-icon name="settings" ariaLabel=""></fb-icon>
         <span>Settings</span>
-      </a>
-      <fb-divider />
-      <a mat-menu-item (click)="openAbout()">
+      </button>
+      <hr class="fb-menu-divider" />
+      <button type="button" class="fb-menu-item" (click)="openAbout(); close()">
         <fb-icon class="icon-accent" name="info" ariaLabel=""></fb-icon>
         <span>About</span>
-      </a>
+      </button>
 
-      <button mat-menu-item (click)="app.showHelp()">
+      <button
+        type="button"
+        class="fb-menu-item"
+        (click)="app.showHelp(); close()"
+      >
         <fb-icon class="icon-accent" name="help" ariaLabel=""></fb-icon>
         <span>Help</span>
       </button>
-    </mat-menu>
+    </ng-template>
     <!--/toolbar button menus-->
 
     <!-- content -->
@@ -566,7 +702,7 @@
                   [matBadgeHidden]="app.isLoggedIn()"
                   matTooltip="Menu"
                   matTooltipPosition="right"
-                  [matMenuTriggerFor]="mainmenu"
+                  (pressed)="openMainMenu($event)"
                 ></fb-fab>
               </div>
             </div>
@@ -593,7 +729,7 @@
                     [disabled]="isInteracting()"
                     matTooltip="Routes, Waypoints, Notes, etc."
                     matTooltipPosition="right"
-                    [matMenuTriggerFor]="layersmenu"
+                    (pressed)="openLayersMenu($event)"
                   ></fb-fab>
                 </div>
                 <div class="buttonPanelItem">
@@ -604,7 +740,7 @@
                     [disabled]="isInteracting()"
                     matTooltip="Draw / Measure / Select"
                     matTooltipPosition="right"
-                    [matMenuTriggerFor]="editmenu"
+                    (pressed)="openEditMenu($event)"
                   ></fb-fab>
                 </div>
                 <div class="buttonPanelItem">
@@ -671,7 +807,7 @@
                     [disabled]="isInteracting()"
                     matTooltip="More actions"
                     matTooltipPosition="right"
-                    [matMenuTriggerFor]="settingsmenu"
+                    (pressed)="openSettingsMenu($event)"
                   ></fb-fab>
                 </div>
                 @if (mode === 1) {

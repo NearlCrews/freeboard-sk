@@ -4,12 +4,14 @@ import {
   Component,
   ElementRef,
   HostListener,
+  TemplateRef,
   computed,
   inject,
   input,
   output,
   viewChildren
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FbIconComponent } from '../icon/icon.component';
 
 export interface FbMenuItem {
@@ -20,12 +22,30 @@ export interface FbMenuItem {
   readonly destructive?: boolean;
 }
 
+export interface FbMenuTemplateContext<T = unknown> {
+  readonly $implicit: T;
+  readonly close: () => void;
+}
+
 /**
  * Tier-1 Menu primitive. Renders an accessible menu of items with
  * keyboard navigation (arrow up/down move focus, Home/End jump to ends,
  * Enter or Space selects, Escape dismisses). The primitive itself is the
  * presentational content the service portals into a CDK overlay; service
  * owns positioning, backdrop, and focus return.
+ *
+ * Two content modes:
+ *  - Static items: pass an `items` array of `FbMenuItem`. Each item renders
+ *    as a focusable button with optional icon, disabled, and destructive
+ *    styling. Selection emits `itemSelected` with the item id.
+ *  - Projected template: open via `FbMenuService.openTemplate(...)` so the
+ *    consumer can express conditional rows, dividers, embedded components,
+ *    or per-row badges that the typed item shape cannot represent. The
+ *    template context carries `$implicit` (the per-open context object) and
+ *    `close()` (call to dismiss the overlay). Use `class="fb-menu-item"` on
+ *    rows so they pick up the shared focus/hover/disabled styling, and
+ *    `class="fb-menu-divider"` (or `<hr class="fb-menu-divider" />`) for
+ *    grouping rules.
  *
  * A11y posture:
  *  - Host gets `role="menu"`.
@@ -38,26 +58,37 @@ export interface FbMenuItem {
   selector: 'fb-menu',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FbIconComponent],
+  imports: [CommonModule, FbIconComponent],
   template: `
-    @for (item of items(); track item.id; let i = $index) {
-      <button
-        #itemButton
-        type="button"
-        class="fb-menu__item"
-        [class.fb-menu__item--destructive]="item.destructive"
-        [attr.role]="'menuitem'"
-        [attr.aria-disabled]="item.disabled ? 'true' : null"
-        [attr.data-index]="i"
-        [disabled]="item.disabled"
-        tabindex="-1"
-        (click)="onSelect(item)"
-      >
-        @if (item.icon) {
-          <fb-icon class="fb-menu__icon" [name]="item.icon" size="sm"></fb-icon>
-        }
-        <span class="fb-menu__label">{{ item.label }}</span>
-      </button>
+    @if (templateRef(); as tpl) {
+      <ng-container
+        [ngTemplateOutlet]="tpl"
+        [ngTemplateOutletContext]="templateContext()"
+      ></ng-container>
+    } @else {
+      @for (item of items(); track item.id; let i = $index) {
+        <button
+          #itemButton
+          type="button"
+          class="fb-menu__item"
+          [class.fb-menu__item--destructive]="item.destructive"
+          [attr.role]="'menuitem'"
+          [attr.aria-disabled]="item.disabled ? 'true' : null"
+          [attr.data-index]="i"
+          [disabled]="item.disabled"
+          tabindex="-1"
+          (click)="onSelect(item)"
+        >
+          @if (item.icon) {
+            <fb-icon
+              class="fb-menu__icon"
+              [name]="item.icon"
+              size="sm"
+            ></fb-icon>
+          }
+          <span class="fb-menu__label">{{ item.label }}</span>
+        </button>
+      }
     }
   `,
   host: {
@@ -81,7 +112,8 @@ export interface FbMenuItem {
         font-size: var(--font-size-base);
         animation: fb-menu-fade-in 120ms ease-out;
       }
-      .fb-menu__item {
+      .fb-menu__item,
+      :host ::ng-deep .fb-menu-item {
         display: inline-flex;
         align-items: center;
         gap: var(--space-sm);
@@ -92,22 +124,29 @@ export interface FbMenuItem {
         background: transparent;
         color: inherit;
         font: inherit;
+        font-size: var(--font-size-base);
         text-align: left;
         cursor: pointer;
+        box-sizing: border-box;
       }
-      .fb-menu__item:focus-visible {
+      .fb-menu__item:focus-visible,
+      :host ::ng-deep .fb-menu-item:focus-visible {
         outline: 2px solid var(--color-focus-ring);
         outline-offset: -2px;
       }
-      .fb-menu__item:hover:not(:disabled) {
+      .fb-menu__item:hover:not(:disabled),
+      :host ::ng-deep .fb-menu-item:hover:not(:disabled) {
         background: var(--color-surface-raised);
       }
       .fb-menu__item:disabled,
-      .fb-menu__item[aria-disabled='true'] {
+      .fb-menu__item[aria-disabled='true'],
+      :host ::ng-deep .fb-menu-item:disabled,
+      :host ::ng-deep .fb-menu-item[aria-disabled='true'] {
         cursor: not-allowed;
         opacity: 0.55;
       }
-      .fb-menu__item--destructive:not(:disabled) {
+      .fb-menu__item--destructive:not(:disabled),
+      :host ::ng-deep .fb-menu-item--destructive:not(:disabled) {
         color: var(--color-error);
       }
       .fb-menu__icon {
@@ -115,6 +154,13 @@ export interface FbMenuItem {
       }
       .fb-menu__label {
         flex: 1 1 auto;
+      }
+      :host ::ng-deep .fb-menu-divider {
+        display: block;
+        height: 0;
+        margin: var(--space-xs) 0;
+        border: none;
+        border-top: 1px solid var(--color-border);
       }
       @keyframes fb-menu-fade-in {
         from {
@@ -135,8 +181,10 @@ export interface FbMenuItem {
   ]
 })
 export class FbMenuComponent implements AfterViewInit {
-  readonly items = input.required<readonly FbMenuItem[]>();
+  readonly items = input<readonly FbMenuItem[]>([]);
   readonly ariaLabel = input<string>('');
+  readonly templateRef = input<TemplateRef<unknown> | null>(null);
+  readonly templateContext = input<FbMenuTemplateContext | null>(null);
 
   readonly itemSelected = output<string>();
   readonly dismissed = output<void>();
@@ -187,6 +235,10 @@ export class FbMenuComponent implements AfterViewInit {
   }
 
   private moveFocus(key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End'): void {
+    if (this.templateRef()) {
+      this.moveFocusInTemplate(key);
+      return;
+    }
     const enabled = this.enabledIndices();
     if (enabled.length === 0) return;
     const buttons = this.itemButtons();
@@ -214,7 +266,45 @@ export class FbMenuComponent implements AfterViewInit {
     buttons[targetIndex]?.nativeElement.focus();
   }
 
+  private moveFocusInTemplate(
+    key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End'
+  ): void {
+    const candidates = Array.from(
+      this.host.nativeElement.querySelectorAll<HTMLElement>(
+        'button.fb-menu-item, a.fb-menu-item, [role="menuitem"]'
+      )
+    ).filter(
+      (el) =>
+        !el.hasAttribute('disabled') &&
+        el.getAttribute('aria-disabled') !== 'true'
+    );
+    if (candidates.length === 0) return;
+    const active = this.host.nativeElement.ownerDocument?.activeElement;
+    const currentIdx = candidates.findIndex((el) => el === active);
+    let nextIdx: number;
+    if (key === 'Home') {
+      nextIdx = 0;
+    } else if (key === 'End') {
+      nextIdx = candidates.length - 1;
+    } else if (key === 'ArrowDown') {
+      nextIdx = currentIdx === -1 ? 0 : (currentIdx + 1) % candidates.length;
+    } else {
+      nextIdx =
+        currentIdx === -1
+          ? candidates.length - 1
+          : (currentIdx - 1 + candidates.length) % candidates.length;
+    }
+    candidates[nextIdx]?.focus();
+  }
+
   private focusFirstEnabled(): void {
+    if (this.templateRef()) {
+      const first = this.host.nativeElement.querySelector<HTMLElement>(
+        'button.fb-menu-item:not([disabled]):not([aria-disabled="true"]), a.fb-menu-item:not([aria-disabled="true"]), [role="menuitem"]:not([aria-disabled="true"])'
+      );
+      first?.focus();
+      return;
+    }
     const enabled = this.enabledIndices();
     const first = enabled[0];
     if (first === undefined) return;
