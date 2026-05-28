@@ -91,8 +91,12 @@ export class FbStepHeaderActionsDirective {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, FbIconComponent],
   template: `
-    @if (renderHeader()) {
-      <div class="fb-step__row" [attr.data-state]="state()">
+    <div
+      class="fb-step__row"
+      [class.fb-step__row--flat]="!renderHeader()"
+      [attr.data-state]="state()"
+    >
+      @if (renderHeader()) {
         <div class="fb-step__rail">
           <span class="fb-step__circle" [attr.data-state]="state()">
             @if (complete()) {
@@ -113,7 +117,9 @@ export class FbStepHeaderActionsDirective {
             ></span>
           }
         </div>
-        <div class="fb-step__main">
+      }
+      <div class="fb-step__main" [class.fb-step__main--flat]="!renderHeader()">
+        @if (renderHeader()) {
           <div class="fb-step__header-row">
             <button
               #headerBtn
@@ -137,20 +143,18 @@ export class FbStepHeaderActionsDirective {
               </span>
             }
           </div>
-          <div
-            class="fb-step__body"
-            role="tabpanel"
-            [id]="bodyId()"
-            [attr.aria-labelledby]="headerId()"
-            [attr.data-last]="isLast() ? 'true' : null"
-          >
-            <ng-content></ng-content>
-          </div>
+        }
+        <div
+          [class.fb-step__body]="renderHeader()"
+          [attr.role]="renderHeader() ? 'tabpanel' : null"
+          [attr.id]="renderHeader() ? bodyId() : null"
+          [attr.aria-labelledby]="renderHeader() ? headerId() : null"
+          [attr.data-last]="renderHeader() && isLast() ? 'true' : null"
+        >
+          <ng-content></ng-content>
         </div>
       </div>
-    } @else {
-      <ng-content></ng-content>
-    }
+    </div>
   `,
   host: {
     '[attr.hidden]': 'hiddenAttr()'
@@ -169,6 +173,10 @@ export class FbStepHeaderActionsDirective {
         align-items: stretch;
         gap: var(--space-sm);
         min-height: var(--touch-secondary);
+      }
+      .fb-step__row--flat,
+      .fb-step__main--flat {
+        display: contents;
       }
       .fb-step__rail {
         display: flex;
@@ -416,47 +424,47 @@ export class FbStepComponent {
           </div>
         }
       </div>
-      <div
-        class="fb-stepper__body"
-        role="tabpanel"
-        [id]="bodyId()"
-        [attr.aria-labelledby]="activeHeaderId()"
-      >
-        <ng-content></ng-content>
-        @if (activeStepActions(); as actionsTpl) {
-          <div class="fb-stepper__actions fb-stepper__actions--custom">
-            <ng-container *ngTemplateOutlet="actionsTpl"></ng-container>
-          </div>
-        } @else {
-          <div class="fb-stepper__actions">
-            <fb-button
-              variant="ghost"
-              size="md"
-              [disabled]="activeIndex() === 0"
-              (pressed)="back()"
-            >
-              Back
-            </fb-button>
-            <fb-button
-              variant="primary"
-              size="md"
-              [disabled]="!canAdvance()"
-              (pressed)="next()"
-            >
-              {{ isAtLast() ? 'Finish' : 'Next' }}
-            </fb-button>
-          </div>
-        }
-      </div>
-    } @else {
-      <div
-        class="fb-stepper__vlist"
-        role="tablist"
-        aria-orientation="vertical"
-        [attr.aria-label]="ariaLabel() || null"
-      >
-        <ng-content></ng-content>
-      </div>
+    }
+    <div
+      [class.fb-stepper__body]="orientation() === 'horizontal'"
+      [class.fb-stepper__vlist]="orientation() === 'vertical'"
+      [attr.role]="orientation() === 'horizontal' ? 'tabpanel' : 'tablist'"
+      [attr.id]="orientation() === 'horizontal' ? bodyId() : null"
+      [attr.aria-labelledby]="
+        orientation() === 'horizontal' ? activeHeaderId() : null
+      "
+      [attr.aria-orientation]="orientation() === 'vertical' ? 'vertical' : null"
+      [attr.aria-label]="
+        orientation() === 'vertical' ? ariaLabel() || null : null
+      "
+    >
+      <ng-content></ng-content>
+    </div>
+    @if (orientation() === 'horizontal') {
+      @if (activeStepActions(); as actionsTpl) {
+        <div class="fb-stepper__actions fb-stepper__actions--custom">
+          <ng-container *ngTemplateOutlet="actionsTpl"></ng-container>
+        </div>
+      } @else {
+        <div class="fb-stepper__actions">
+          <fb-button
+            variant="ghost"
+            size="md"
+            [disabled]="activeIndex() === 0"
+            (pressed)="back()"
+          >
+            Back
+          </fb-button>
+          <fb-button
+            variant="primary"
+            size="md"
+            [disabled]="!canAdvance()"
+            (pressed)="next()"
+          >
+            {{ isAtLast() ? 'Finish' : 'Next' }}
+          </fb-button>
+        </div>
+      }
     }
   `,
   styles: [
