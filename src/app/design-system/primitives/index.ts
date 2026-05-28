@@ -17,6 +17,7 @@
  *   - FbFilterBarComponent
  *
  * Tier-2 forms (shipped):
+ *   - FbFormFieldComponent
  *   - FbInputComponent
  *   - FbSearchInputComponent
  *   - FbTextareaComponent
@@ -83,6 +84,8 @@ export {
   type FbSidenavSide
 } from './sidenav/sidenav.component';
 export { FbSidenavService } from './sidenav/sidenav.service';
+
+export { FbFormFieldComponent } from './form-field/form-field.component';
 
 export { FbInputComponent, type FbInputType } from './input/input.component';
 

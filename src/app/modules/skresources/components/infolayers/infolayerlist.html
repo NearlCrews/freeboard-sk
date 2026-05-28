@@ -109,34 +109,33 @@
         <fb-card-actions align="start">
           <div style="flex: auto">
             <div style="display: flex">
-              <div style="flex: 1 1 auto">
-                <mat-form-field style="width: 120px">
-                  <mat-hint>Auto Refresh</mat-hint>
-                  <mat-select
-                    [(ngModel)]="r[1].values.refreshInterval"
-                    (selectionChange)="setRefresh(r[0], $event.value)"
+              <div style="flex: 1 1 auto; display: flex; gap: 8px">
+                <fb-form-field
+                  #refreshField
+                  label="Auto Refresh"
+                  [widthPx]="120"
+                >
+                  <fb-select
+                    [name]="refreshField.controlId"
+                    [options]="refreshSelectOptions"
+                    [value]="r[1].values.refreshInterval"
+                    (valueChange)="setRefresh(r[0], $event!)"
+                    ariaLabel="Set refresh interval"
                     matTooltip="Set refresh interval"
                     matTooltipPosition="above"
-                  >
-                    @for(t of refreshOptions; track t[0]) {
-                    <mat-option [value]="t[0]">{{t[1]}}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                &nbsp;
-                <mat-form-field style="width: 105px">
-                  <mat-hint>Opacity</mat-hint>
-                  <mat-select
-                    [(ngModel)]="r[1].values.opacity"
-                    (selectionChange)="setOpacity(r[0], $event.value)"
+                  ></fb-select>
+                </fb-form-field>
+                <fb-form-field #opacityField label="Opacity" [widthPx]="105">
+                  <fb-select
+                    [name]="opacityField.controlId"
+                    [options]="opacitySelectOptions"
+                    [value]="r[1].values.opacity"
+                    (valueChange)="setOpacity(r[0], $event!)"
+                    ariaLabel="Set layer opacity"
                     matTooltip="Set layer opacity"
                     matTooltipPosition="above"
-                  >
-                    @for(t of opacityOptions; track t[0]) {
-                    <mat-option [value]="t[0]">{{t[1]}}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+                  ></fb-select>
+                </fb-form-field>
               </div>
             </div>
             @if(r[1].values.time?.values && r[1].values.time?.values.length > 1

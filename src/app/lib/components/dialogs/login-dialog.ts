@@ -7,7 +7,8 @@ import {
   Component,
   ElementRef,
   Inject,
-  ViewChild
+  ViewChild,
+  signal
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -15,15 +16,15 @@ import {
   MatDialogModule,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 
 import {
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
-  FbIconComponent
+  FbFormFieldComponent,
+  FbIconComponent,
+  FbInputComponent
 } from 'src/app/design-system/primitives';
 
 /********* LoginDialog ****************
@@ -38,14 +39,14 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    FbIconComponent,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
-    FbCardActionsComponent
+    FbCardActionsComponent,
+    FbFormFieldComponent,
+    FbIconComponent,
+    FbInputComponent
   ],
   styles: [],
   template: `
@@ -58,37 +59,30 @@ import {
           <span fbCardSubtitle>{{ data.message }}</span>
         </fb-card-header>
         <fb-card-content>
-          <mat-form-field>
-            <mat-label>User name</mat-label>
-            <input
-              matInput
+          <fb-form-field #userField label="User name" [widthPx]="180">
+            <fb-input
+              #usernameInput
+              [name]="userField.controlId"
               type="text"
-              value=""
-              #username
-              (keyup)="keyUp($event, username, password)"
-              style="width:110px;"
-              (focus)="handleFocus($event)"
-            /> </mat-form-field
-          ><br />
-          <mat-form-field>
-            <mat-label>Password</mat-label>
-            <input
-              matInput
+              [(value)]="username"
+              (keydown.enter)="submit()"
+            ></fb-input>
+          </fb-form-field>
+          <fb-form-field #pwdField label="Password" [widthPx]="180">
+            <fb-input
+              [name]="pwdField.controlId"
               type="password"
-              value=""
-              #password
-              (keyup)="keyUp($event, username, password)"
-              style="width:110px;"
-              (focus)="handleFocus($event)"
-            />
-          </mat-form-field>
+              [(value)]="password"
+              (keydown.enter)="submit()"
+            ></fb-input>
+          </fb-form-field>
         </fb-card-content>
         <fb-card-actions align="end">
           <button
             default
             mat-raised-button
-            [disabled]="username.value.length === 0"
-            (click)="login(username.value, password.value)"
+            [disabled]="username().length === 0"
+            (click)="submit()"
           >
             {{ data.button1Text }}
           </button>
@@ -102,8 +96,11 @@ import {
   `
 })
 export class LoginDialog implements OnInit, AfterViewInit {
-  @ViewChild('username', { static: false })
-  username: ElementRef<HTMLInputElement> | undefined;
+  @ViewChild('usernameInput', { static: false, read: ElementRef })
+  usernameInputRef: ElementRef<HTMLElement> | undefined;
+
+  protected readonly username = signal<string>('');
+  protected readonly password = signal<string>('');
 
   public imgSource = 'assets/img/success.png';
   private result: { cancel: boolean; user: string | null; pwd: string | null } =
@@ -126,28 +123,21 @@ export class LoginDialog implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.username?.nativeElement.focus(), 500);
+    setTimeout(() => {
+      this.usernameInputRef?.nativeElement.querySelector('input')?.focus();
+    }, 500);
   }
 
-  keyUp(e: KeyboardEvent, u: HTMLInputElement, p: HTMLInputElement) {
-    if (e.key === 'Enter') {
-      this.login(u.value, p.value);
-    }
+  protected submit(): void {
+    this.login(this.username(), this.password());
   }
 
-  handleFocus(e: FocusEvent) {
-    const target = e.currentTarget as HTMLInputElement;
-    target.setSelectionRange(0, target.value.length);
-  }
-
-  // ** cancelled login
-  cancel() {
+  protected cancel(): void {
     this.result.cancel = true;
     this.dialogRef.close(this.result);
   }
 
-  //** submit log in
-  login(user = '', password = '') {
+  private login(user: string, password: string): void {
     this.result.cancel = false;
     this.result.user = user;
     this.result.pwd = password;

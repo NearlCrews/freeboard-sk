@@ -11,10 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 
 import {
@@ -22,9 +19,12 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbFormFieldComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  FbSelectComponent,
+  type FbSelectOption
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -62,19 +62,18 @@ import {
     MatTooltipModule,
     MatCheckboxModule,
     MatButtonModule,
-    FormsModule,
-    MatInputModule,
     ScrollingModule,
-    MatSelectModule,
     MatMenuModule,
     MatSliderModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbFormFieldComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbSelectComponent
   ]
 })
 export class InfoLayerListComponent extends ResourceListBase implements OnInit {
@@ -351,26 +350,26 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     }
   }
 
-  protected refreshOptions = new Map([
-    [0, 'Never'],
-    [60000, '1 min'],
-    [60000 * 10, '10 min'],
-    [60000 * 30, '30 min'],
-    [60000 * 60, '1 hr']
-  ]);
+  protected refreshSelectOptions: readonly FbSelectOption<number>[] = [
+    { id: 0, label: 'Never' },
+    { id: 60000, label: '1 min' },
+    { id: 60000 * 10, label: '10 min' },
+    { id: 60000 * 30, label: '30 min' },
+    { id: 60000 * 60, label: '1 hr' }
+  ];
 
-  protected opacityOptions = new Map([
-    [1, '100%'],
-    [0.9, '90%'],
-    [0.8, '80%'],
-    [0.7, '70%'],
-    [0.6, '60%'],
-    [0.5, '50%'],
-    [0.4, '40%'],
-    [0.3, '30%'],
-    [0.2, '20%'],
-    [0.1, '10%']
-  ]);
+  protected opacitySelectOptions: readonly FbSelectOption<number>[] = [
+    { id: 1, label: '100%' },
+    { id: 0.9, label: '90%' },
+    { id: 0.8, label: '80%' },
+    { id: 0.7, label: '70%' },
+    { id: 0.6, label: '60%' },
+    { id: 0.5, label: '50%' },
+    { id: 0.4, label: '40%' },
+    { id: 0.3, label: '30%' },
+    { id: 0.2, label: '20%' },
+    { id: 0.1, label: '10%' }
+  ];
 
   /** Add new layer */
   protected addLayer(type: 'wms' | 'wmts') {
