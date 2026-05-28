@@ -40,8 +40,8 @@ module.exports = (server: FreeboardHelperApp): Plugin => {
 
   // ******** REQUIRED PLUGIN DEFINITION *******
   const plugin: Plugin = {
-    id: 'freeboard-sk',
-    name: 'Freeboard-SK',
+    id: 'signalk-open-binnacle',
+    name: 'Open Binnacle',
     schema: () => CONFIG_SCHEMA,
     uiSchema: () => CONFIG_UISCHEMA,
     start: (options) => {
@@ -100,7 +100,7 @@ module.exports = (server: FreeboardHelperApp): Plugin => {
   };
 
   const initApiEndpoints = (router: IRouter) => {
-    server.debug(`Initialising Freeboard-SK plugin endpoints.......`);
+    server.debug(`Initialising Open Binnacle plugin endpoints.......`);
 
     router.get('/settings', (req: Request, res: Response) => {
       res.status(200).json({

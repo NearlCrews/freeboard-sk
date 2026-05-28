@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -23,6 +22,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
   FbSearchInputComponent
@@ -50,13 +50,13 @@ import { RemarkModule } from 'ngx-remark';
   imports: [
     FbButtonComponent,
     MatTooltipModule,
-    MatCheckboxModule,
     ScrollingModule,
     RemarkModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbSearchInputComponent

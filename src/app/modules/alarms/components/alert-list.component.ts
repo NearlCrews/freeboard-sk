@@ -5,21 +5,24 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   output,
   input,
   inject
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 
 import {
   FbButtonComponent,
   FbCardComponent,
-  FbSwitchComponent
+  FbMenuService,
+  FbSwitchComponent,
+  type FbMenuItem
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { getAlertIcon } from '../../icons';
@@ -34,7 +37,6 @@ import { alertSeverityClass } from './alert-severity';
     MatTooltipModule,
     CommonModule,
     MatIconModule,
-    MatMenuModule,
     FormsModule,
     CdkDrag,
     FbButtonComponent,
@@ -44,12 +46,6 @@ import { alertSeverityClass } from './alert-severity';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./alert-list.component.css'],
   template: `
-    <mat-menu #alarmsmenu="matMenu">
-      <button mat-menu-item (click)="raiseAlarm('mob')">
-        <mat-icon class="ob" svgIcon="alarm-mob"></mat-icon>
-        &nbsp;Overboard!
-      </button>
-    </mat-menu>
     <fb-card variant="outlined">
       <div class="alert-list-main mat-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
@@ -60,7 +56,7 @@ import { alertSeverityClass } from './alert-severity';
                 variant="primary"
                 matTooltip="Raise Alarm"
                 ariaLabel="Raise alarm"
-                [matMenuTriggerFor]="alarmsmenu"
+                (pressed)="openAlarmsMenu($event)"
               >
                 <mat-icon>warning</mat-icon>
                 Raise
@@ -213,6 +209,24 @@ export class AlertListComponent {
 
   protected app = inject(AppFacade);
   protected notiMgr = inject(NotificationManager);
+  private destroyRef = inject(DestroyRef);
+  private menu = inject(FbMenuService);
+
+  private readonly alarmsMenuItems: readonly FbMenuItem[] = [
+    { id: 'mob', label: 'Overboard!' }
+  ];
+
+  protected openAlarmsMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    this.menu
+      .open(trigger, this.alarmsMenuItems)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id) {
+          this.raiseAlarm(id);
+        }
+      });
+  }
 
   constructor() {}
 

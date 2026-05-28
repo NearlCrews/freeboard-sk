@@ -88,14 +88,14 @@
               </div>
             </div>
             <div style="text-align: right">
-              <mat-checkbox
+              <fb-checkbox
                 [checked]="!!r[2]"
                 [disabled]="!!r[2]"
-                (change)="itemSelect($event.checked, r[0])"
+                (checkedChange)="itemSelect($event, r[0])"
                 matTooltip="Display Group Resources"
                 matTooltipPosition="left"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
         </fb-card-content>

@@ -12,8 +12,6 @@ import {
   MAT_DIALOG_DATA,
   MatDialogModule
 } from '@angular/material/dialog';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,6 +19,10 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import {
   FbButtonComponent,
+  FbCheckboxComponent,
+  FbExpansionPanelComponent,
+  FbExpansionPanelDescriptionDirective,
+  FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -36,14 +38,16 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
+    FbCheckboxComponent,
+    FbExpansionPanelComponent,
+    FbExpansionPanelDescriptionDirective,
+    FbExpansionPanelTitleDirective,
     FbIconComponent,
     FbToolbarComponent,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatDividerModule,
-    MatExpansionModule,
-    MatCheckboxModule,
     MatTooltipModule
   ],
   templateUrl: './gpxsave-dialog.html',

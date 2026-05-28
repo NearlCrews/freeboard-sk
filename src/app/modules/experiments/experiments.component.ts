@@ -1,46 +1,37 @@
 /** Experiments Components **
  ********************************/
 
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  output
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
 
 import {
   FbFabComponent,
-  FbIconComponent
+  FbMenuService,
+  type FbMenuItem
 } from 'src/app/design-system/primitives';
 
 /********* ExperimentsComponent ********/
 @Component({
   selector: 'fb-experiments',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatMenuModule, FbIconComponent, FbFabComponent, MatTooltipModule],
+  imports: [FbFabComponent, MatTooltipModule],
   template: `
-    <mat-menu #experimentsmenu="matMenu">
-      <!--
-      <a mat-menu-item (click)="handleSelect('exp_id_here')">
-          <mat-icon>filter_drama</mat-icon>
-          <span>EXP_NAME_HERE</span>			
-      </a>
-      <a mat-menu-item [disabled]="true">
-        <span>None Available</span>
-      </a>
-      -->
-      <a mat-menu-item (click)="handleSelect('debugCapture')">
-        <fb-icon name="adb" ariaLabel=""></fb-icon>
-        <span>Capture Debug Info</span>
-      </a>
-    </mat-menu>
-
     <div>
       <fb-fab
         class="button-toolbar"
         icon="science"
         ariaLabel="Experiments menu"
-        [matMenuTriggerFor]="experimentsmenu"
         matTooltip="Experiments"
         matTooltipPosition="left"
+        (pressed)="openExperimentsMenu($event)"
       ></fb-fab>
     </div>
   `,
@@ -50,7 +41,24 @@ export class ExperimentsComponent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly selected = output<any>();
 
-  //constructor() {}
+  private destroyRef = inject(DestroyRef);
+  private menu = inject(FbMenuService);
+
+  private readonly experimentsMenuItems: readonly FbMenuItem[] = [
+    { id: 'debugCapture', label: 'Capture Debug Info', icon: 'adb' }
+  ];
+
+  protected openExperimentsMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    this.menu
+      .open(trigger, this.experimentsMenuItems)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id) {
+          this.handleSelect(id);
+        }
+      });
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSelect(choice: string, value?: any) {

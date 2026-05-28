@@ -9,9 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatMenuModule } from '@angular/material/menu';
 
 import {
   FbButtonComponent,
@@ -19,11 +17,15 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbCheckboxComponent,
   FbFormFieldComponent,
   FbIconComponent,
+  FbMenuService,
   FbProgressBarComponent,
   FbSearchInputComponent,
   FbSelectComponent,
+  FbSliderComponent,
+  type FbMenuItem,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -43,7 +45,6 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignalKClient } from 'src/lib/signalk-client';
-import { MatSliderModule } from '@angular/material/slider';
 import {
   TimeDef,
   TimeDimension,
@@ -61,19 +62,18 @@ import {
   imports: [
     FbButtonComponent,
     MatTooltipModule,
-    MatCheckboxModule,
     ScrollingModule,
-    MatMenuModule,
-    MatSliderModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbCheckboxComponent,
     FbFormFieldComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbSearchInputComponent,
-    FbSelectComponent
+    FbSelectComponent,
+    FbSliderComponent
   ]
 })
 export class InfoLayerListComponent extends ResourceListBase implements OnInit {
@@ -93,6 +93,12 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
   private fetchedUrls: string[] = [];
 
   private destroyRef = inject(DestroyRef);
+  private menu = inject(FbMenuService);
+
+  private readonly addLayerMenuItems: readonly FbMenuItem[] = [
+    { id: 'wmts', label: 'WMTS' },
+    { id: 'wms', label: 'WMS' }
+  ];
 
   constructor(
     protected app: AppFacade,
@@ -102,6 +108,18 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     private signalk: SignalKClient
   ) {
     super('infolayers', skres);
+  }
+
+  protected openAddLayerMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    this.menu
+      .open(trigger, this.addLayerMenuItems)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id === 'wmts' || id === 'wms') {
+          this.addLayer(id);
+        }
+      });
   }
 
   ngOnInit() {

@@ -3,7 +3,6 @@
 
 import type { OnInit, AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -14,6 +13,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 
 import {
   FbButtonComponent,
+  FbCheckboxComponent,
   FbIconComponent
 } from 'src/app/design-system/primitives';
 
@@ -151,7 +151,7 @@ export class AlertDialog implements OnInit {
   imports: [
     MatDialogModule,
     FbIconComponent,
-    MatCheckboxModule,
+    FbCheckboxComponent,
     FbButtonComponent
   ],
   template: `
@@ -180,9 +180,9 @@ export class AlertDialog implements OnInit {
           @if (data.checkText) {
             <div style="padding-left: 10px;">
               <div style="font-weight: 500;">
-                <mat-checkbox (change)="checked = $event.checked">
+                <fb-checkbox (checkedChange)="checked = $event">
                   {{ data.checkText }}&nbsp;
-                </mat-checkbox>
+                </fb-checkbox>
               </div>
             </div>
           }

@@ -3,10 +3,6 @@
   position: relative;
 }
 
-.mat-expansion-panel-body {
-  padding: 0 12px 6px;
-}
-
 .card-group-title {
   font-weight: bold;
   font-size: 10pt;

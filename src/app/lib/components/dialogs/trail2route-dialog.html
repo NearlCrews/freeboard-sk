@@ -20,24 +20,23 @@
   <mat-dialog-content style="width: 50vw">
     <div style="display: block">
       <div>
-        <mat-slider
-          min="0.000001"
-          max="0.1005"
-          step="0.000001"
-          value="tolerance"
+        <fb-slider
+          [min]="0.000001"
+          [max]="0.1005"
+          [step]="0.000001"
+          [value]="tolerance"
           matTooltip="Set tolerance"
-        >
-          <input matSliderThumb (valueChange)="changeTolerance($event.value)" />
-        </mat-slider>
+          (valueChange)="changeTolerance($event)"
+        ></fb-slider>
         &nbsp;Points: {{pointCount}}
       </div>
       <div>
-        <mat-checkbox
+        <fb-checkbox
           [checked]="incServer"
-          (change)="getServerTrail($event.checked)"
+          (checkedChange)="getServerTrail($event)"
         >
           Include Trail from server
-        </mat-checkbox>
+        </fb-checkbox>
       </div>
     </div>
     <div style="display: flex; border: black 1px solid; height: 40vh">

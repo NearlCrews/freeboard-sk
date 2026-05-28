@@ -12,9 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatMenuModule } from '@angular/material/menu';
 
 import {
   FbButtonComponent,
@@ -22,10 +20,13 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbCheckboxComponent,
   FbIconComponent,
+  FbMenuService,
   FbProgressBarComponent,
   FbSwitchRowComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  type FbMenuItem
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -56,14 +57,13 @@ import { SKChart } from '../../resource-classes';
   imports: [
     FbButtonComponent,
     MatTooltipModule,
-    MatCheckboxModule,
     ScrollingModule,
-    MatMenuModule,
     ChartLayers,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbSwitchRowComponent,
@@ -90,6 +90,25 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
   private skgroups = inject(SKResourceGroupService);
   private mapInteract = inject(FBMapInteractService);
   private destroyRef = inject(DestroyRef);
+  private menu = inject(FbMenuService);
+
+  private readonly addChartMenuItems: readonly FbMenuItem[] = [
+    { id: 'wmts', label: 'WMTS' },
+    { id: 'wms', label: 'WMS' },
+    { id: 'json', label: 'JSON Map Source' }
+  ];
+
+  protected openAddChartMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    this.menu
+      .open(trigger, this.addChartMenuItems)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id === 'wmts' || id === 'wms' || id === 'json') {
+          this.addChartSource(id);
+        }
+      });
+  }
 
   constructor(protected override skres: SKResourceService) {
     super('charts', skres);

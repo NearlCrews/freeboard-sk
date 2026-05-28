@@ -1,6 +1,6 @@
 <div class="ap-file-input" (dragover)="dragOver($event)" (drop)="drop($event)">
   <div id="ctrl" [ngClass]="{ disabled: disabled }">
-    <label mat-menu-item>
+    <label>
       <ng-content></ng-content>
       @if (icon) {
         <span>

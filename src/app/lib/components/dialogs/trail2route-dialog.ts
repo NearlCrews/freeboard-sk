@@ -17,12 +17,12 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   FbButtonComponent,
+  FbCheckboxComponent,
   FbIconComponent,
+  FbSliderComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -40,11 +40,11 @@ import { AppFacade } from 'src/app/app.facade';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
+    FbCheckboxComponent,
     FbIconComponent,
+    FbSliderComponent,
     MatDialogModule,
     MatTooltipModule,
-    MatSliderModule,
-    MatCheckboxModule,
     FbToolbarComponent,
     FreeboardOpenlayersModule
   ],

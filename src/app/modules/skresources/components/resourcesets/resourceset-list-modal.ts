@@ -9,12 +9,12 @@ import {
   signal
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
+  FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent
@@ -38,10 +38,10 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatCheckboxModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
+    FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent
@@ -96,10 +96,10 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             <fb-card-content>
               <div style="display:flex;flex-wrap:no-wrap;">
                 <div style="width:45px;">
-                  <mat-checkbox
+                  <fb-checkbox
                     [checked]="res[2]"
-                    (change)="handleCheck($event.checked, res[0], idx)"
-                  ></mat-checkbox>
+                    (checkedChange)="handleCheck($event, res[0], idx)"
+                  ></fb-checkbox>
                 </div>
                 <div style="flex:1 1 auto;">
                   <div class="key-label">

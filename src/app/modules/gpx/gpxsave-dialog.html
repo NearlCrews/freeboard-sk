@@ -30,83 +30,66 @@
     <!-- Waypoints -->
     @if(resData.waypoints.length !== 0) {
     <div class="card-group">
-      <mat-expansion-panel
-        [expanded]="display.expand.waypoints"
-        (opened)="display.expand.waypoints=true"
-        (closed)="display.expand.waypoints=false"
-      >
-        <mat-expansion-panel-header class="panel-header">
-          <mat-panel-title>
-            <fb-icon name="place" ariaLabel="" class="icon-waypoint"></fb-icon>
-            &nbsp;<b>Waypoints:</b>
-          </mat-panel-title>
-          <mat-panel-description>
-            <div class="panel-description">
-              <mat-checkbox
-                [indeterminate]="display.someWptChecked"
-                [checked]="display.allWaypointsChecked"
-                [disabled]="resData.waypoints.length===0"
-                (change)="checkWpt($event.checked, -1)"
-                (click)="$event.cancelBubble=true"
-                matTooltip="Select all Waypoints"
-                matTooltipPosition="before"
-              ></mat-checkbox>
-            </div>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+      <fb-expansion-panel [(expanded)]="display.expand.waypoints">
+        <span fbExpansionPanelTitle>
+          <fb-icon name="place" ariaLabel="" class="icon-waypoint"></fb-icon>
+          &nbsp;<b>Waypoints:</b>
+        </span>
+        <span fbExpansionPanelDescription>
+          <div class="panel-description">
+            <fb-checkbox
+              [indeterminate]="display.someWptChecked"
+              [checked]="display.allWaypointsChecked"
+              [disabled]="resData.waypoints.length===0"
+              (checkedChange)="checkWpt($event, -1)"
+              (click)="$event.stopPropagation()"
+              matTooltip="Select all Waypoints"
+              matTooltipPosition="before"
+            ></fb-checkbox>
+          </div>
+        </span>
 
         <div class="list-container-scrollable">
           @for(w of resData.waypoints;track w;let i=$index) {
           <div class="item-row">
             <div class="name">{{w.name}}</div>
             <div class="check">
-              <mat-checkbox
+              <fb-checkbox
                 [checked]="selWaypoints[i]"
-                #wval
-                (change)="checkWpt(wval.checked, i)"
+                (checkedChange)="checkWpt($event, i)"
                 matTooltip="Select Waypoint"
                 matTooltipPosition="below"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
           }
         </div>
-      </mat-expansion-panel>
+      </fb-expansion-panel>
     </div>
     }
 
     <!-- Routes -->
     @if(resData.routes.length !== 0) {
     <div class="card-group">
-      <mat-expansion-panel
-        [expanded]="display.expand.routes"
-        (opened)="display.expand.routes=true"
-        (closed)="display.expand.routes=false"
-      >
-        <mat-expansion-panel-header class="panel-header">
-          <mat-panel-title>
-            <fb-icon
-              name="directions"
-              ariaLabel=""
-              class="icon-route"
-            ></fb-icon>
-            &nbsp;<b>Routes:</b>
-          </mat-panel-title>
-          <mat-panel-description>
-            <div class="panel-description">
-              <mat-checkbox
-                [indeterminate]="display.someRteChecked"
-                [checked]="display.allRoutesChecked"
-                [disabled]="resData.routes.length==0"
-                (change)="checkRte($event.checked, -1)"
-                (click)="$event.cancelBubble=true"
-                matTooltip="Select all Routes"
-                matTooltipPosition="before"
-              ></mat-checkbox>
-            </div>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+      <fb-expansion-panel [(expanded)]="display.expand.routes">
+        <span fbExpansionPanelTitle>
+          <fb-icon name="directions" ariaLabel="" class="icon-route"></fb-icon>
+          &nbsp;<b>Routes:</b>
+        </span>
+        <span fbExpansionPanelDescription>
+          <div class="panel-description">
+            <fb-checkbox
+              [indeterminate]="display.someRteChecked"
+              [checked]="display.allRoutesChecked"
+              [disabled]="resData.routes.length==0"
+              (checkedChange)="checkRte($event, -1)"
+              (click)="$event.stopPropagation()"
+              matTooltip="Select all Routes"
+              matTooltipPosition="before"
+            ></fb-checkbox>
+          </div>
+        </span>
 
         <div class="list-container-scrollable">
           @for(r of resData.routes; track r; let i=$index) {
@@ -120,50 +103,43 @@
               {{r.name}}
             </div>
             <div class="check">
-              <mat-checkbox
+              <fb-checkbox
                 matTooltip="Select this Route"
                 matTooltipPosition="below"
                 [checked]="selRoutes[i]"
-                #rval
-                (change)="checkRte(rval.checked, i)"
+                (checkedChange)="checkRte($event, i)"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
           }
         </div>
-      </mat-expansion-panel>
+      </fb-expansion-panel>
     </div>
     }
 
     <!-- Tracks -->
     @if(!app.data.serverTrail && resData.tracks.length !== 0) {
     <div class="card-group">
-      <mat-expansion-panel [expanded]="false">
-        <mat-expansion-panel-header class="panel-header">
-          <mat-panel-title>
-            <fb-icon
-              name="show_chart"
-              ariaLabel=""
-              class="icon-track"
-            ></fb-icon>
-            &nbsp;<b>Tracks:</b>
-          </mat-panel-title>
-          <mat-panel-description>
-            <div class="panel-description">
-              <mat-checkbox
-                [indeterminate]="false"
-                [checked]="display.allTracksChecked"
-                [disabled]="resData.tracks.length==0"
-                (change)="checkTrk($event.checked, -1)"
-                (click)="$event.cancelBubble=true"
-                matTooltip="Vessel Trail to Track"
-                matTooltipPosition="before"
-              >
-              </mat-checkbox>
-            </div>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+      <fb-expansion-panel [expanded]="false">
+        <span fbExpansionPanelTitle>
+          <fb-icon name="show_chart" ariaLabel="" class="icon-track"></fb-icon>
+          &nbsp;<b>Tracks:</b>
+        </span>
+        <span fbExpansionPanelDescription>
+          <div class="panel-description">
+            <fb-checkbox
+              [indeterminate]="false"
+              [checked]="display.allTracksChecked"
+              [disabled]="resData.tracks.length==0"
+              (checkedChange)="checkTrk($event, -1)"
+              (click)="$event.stopPropagation()"
+              matTooltip="Vessel Trail to Track"
+              matTooltipPosition="before"
+            >
+            </fb-checkbox>
+          </div>
+        </span>
         <div class="list-container-scrollable">
           @for(r of resData.tracks; track r; let i=$index) {
           <div class="item-row">
@@ -176,19 +152,18 @@
               Vessel Trail
             </div>
             <div class="check">
-              <mat-checkbox
+              <fb-checkbox
                 matTooltip="Select this Track"
                 matTooltipPosition="below"
                 [checked]="selTracks[i]"
-                #tval
-                (change)="checkTrk(tval.checked, i)"
+                (checkedChange)="checkTrk($event, i)"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
           }
         </div>
-      </mat-expansion-panel>
+      </fb-expansion-panel>
     </div>
     }
   </div>

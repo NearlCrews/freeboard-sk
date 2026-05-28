@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRadioModule } from '@angular/material/radio';
 
@@ -20,6 +19,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
   FbSearchInputComponent
@@ -46,13 +46,13 @@ import {
   imports: [
     FbButtonComponent,
     MatTooltipModule,
-    MatCheckboxModule,
     ScrollingModule,
     MatRadioModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbSearchInputComponent

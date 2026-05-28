@@ -4,13 +4,16 @@ Autopilot Console component
 ***********************************/
 import {
   Component,
+  DestroyRef,
   signal,
   ChangeDetectionStrategy,
+  inject,
   input,
   output,
   effect,
   computed
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,10 +23,11 @@ import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbMenuService,
+  FbSwitchComponent,
+  type FbMenuItem
 } from 'src/app/design-system/primitives';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppFacade } from 'src/app/app.facade';
 import { Convert } from 'src/app/lib/convert';
 import { AutopilotService } from './autopilot.service';
@@ -35,8 +39,7 @@ import { AutopilotService } from './autopilot.service';
     CommonModule,
     DragDropModule,
     FbButtonComponent,
-    MatMenuModule,
-    MatSlideToggleModule,
+    FbSwitchComponent,
     FormsModule,
     FbCardComponent,
     FbCardContentComponent,
@@ -45,30 +48,6 @@ import { AutopilotService } from './autopilot.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./autopilot.component.css'],
   template: `
-    <mat-menu #modemenu="matMenu">
-      @for (i of modeOptions(); track i) {
-        <button mat-menu-item (click)="setMode(i)">
-          <span>{{ i }}</span>
-          @if (i === apData().mode) {
-            <fb-icon name="check" ariaLabel=""></fb-icon>
-          } @else {
-            <fb-icon name="ok" ariaLabel=""></fb-icon>
-          }
-        </button>
-      }
-    </mat-menu>
-    <mat-menu #statemenu="matMenu">
-      @for (i of stateOptions(); track i.name) {
-        <button mat-menu-item (click)="setState(i.name)">
-          <span>{{ i.name }}</span>
-          @if (i.name === apData().state) {
-            <fb-icon name="check" ariaLabel=""></fb-icon>
-          } @else {
-            <fb-icon name="ok" ariaLabel=""></fb-icon>
-          }
-        </button>
-      }
-    </mat-menu>
     <fb-card cdkDragHandle>
       <div
         class="autopilot-console"
@@ -141,12 +120,12 @@ import { AutopilotService } from './autopilot.service';
                     class="button-primary"
                     style="max-width:100px;"
                     variant="primary"
-                    [matMenuTriggerFor]="statemenu"
                     [disabled]="noPilot()"
                     [ngClass]="{
                       'button-warn': apData().enabled,
                       'button-primary': !apData().enabled
                     }"
+                    (pressed)="openStateMenu($event)"
                   >
                     <div
                       style="white-space: pre;text-overflow: ellipsis;overflow: hidden;max-width:90px;"
@@ -154,17 +133,17 @@ import { AutopilotService } from './autopilot.service';
                     ></div>
                   </fb-button>
                 } @else {
-                  <mat-slide-toggle
+                  <fb-switch
                     [checked]="apData().enabled"
                     [disabled]="noPilot()"
-                    (toggleChange)="toggleEngaged()"
-                    [matTooltip]="apData().enabled ? 'Disengage' : 'Engage'"
-                    [attr.aria-label]="
+                    (checkedChange)="toggleEngaged()"
+                    [ariaLabel]="
                       apData().enabled
                         ? 'Disengage autopilot'
                         : 'Engage autopilot'
                     "
-                  ></mat-slide-toggle>
+                    [matTooltip]="apData().enabled ? 'Disengage' : 'Engage'"
+                  ></fb-switch>
                 }
               </div>
 
@@ -173,8 +152,8 @@ import { AutopilotService } from './autopilot.service';
                   <fb-button
                     class="button-secondary"
                     variant="primary"
-                    [matMenuTriggerFor]="modemenu"
                     [disabled]="noPilot() || modeOptions().length === 0"
+                    (pressed)="openModeMenu($event)"
                   >
                     Mode
                   </fb-button>
@@ -318,6 +297,9 @@ export class AutopilotComponent {
   protected stateOptions = signal<{ name: string; engaged: boolean }[]>([]);
   private currentPilot: string | undefined;
 
+  private destroyRef = inject(DestroyRef);
+  private menu = inject(FbMenuService);
+
   apData = input<{
     default?: string;
     mode?: string;
@@ -369,6 +351,40 @@ export class AutopilotComponent {
 
   handleClose() {
     this.close.emit();
+  }
+
+  protected openModeMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    const current = this.apData().mode;
+    const items: readonly FbMenuItem[] = this.modeOptions().map((m) =>
+      m === current ? { id: m, label: m, icon: 'check' } : { id: m, label: m }
+    );
+    this.menu
+      .open(trigger, items)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id) {
+          this.setMode(id);
+        }
+      });
+  }
+
+  protected openStateMenu(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement;
+    const current = this.apData().state;
+    const items: readonly FbMenuItem[] = this.stateOptions().map((s) =>
+      s.name === current
+        ? { id: s.name, label: s.name, icon: 'check' }
+        : { id: s.name, label: s.name }
+    );
+    this.menu
+      .open(trigger, items)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id) {
+          this.setState(id);
+        }
+      });
   }
 
   /** fetch AP options from server */

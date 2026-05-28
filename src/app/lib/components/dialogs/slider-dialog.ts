@@ -9,7 +9,6 @@ import {
   inject
 } from '@angular/core';
 
-import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -21,7 +20,8 @@ import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbSliderComponent
 } from 'src/app/design-system/primitives';
 
 export interface SliderInputDialogResult {
@@ -34,12 +34,12 @@ export interface SliderInputDialogResult {
   selector: 'ap-slider-input-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatSliderModule,
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
     FbButtonComponent,
-    FbIconComponent
+    FbIconComponent,
+    FbSliderComponent
   ],
   template: `
     <div class="_ap-slider-input">
@@ -73,18 +73,14 @@ export interface SliderInputDialogResult {
           <div style="flex: 1 1 auto">{{ data.text }}</div>
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 8px">
-          <mat-slider
+          <fb-slider
             style="width: stretch"
             [min]="this.data.min ?? 1"
             [max]="this.data.max ?? 100"
             [step]="this.data.step ?? 1"
-          >
-            <input
-              matSliderThumb
-              [value]="formattedValue()"
-              (valueChange)="setValue($event)"
-            />
-          </mat-slider>
+            [value]="formattedValue()"
+            (valueChange)="setValue($event)"
+          ></fb-slider>
           <div style="min-width: 48px; text-align: right">
             {{ formattedValue() }}{{ this.data.suffix ?? '%' }}
           </div>

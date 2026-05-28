@@ -40,16 +40,16 @@
           </fb-button>
         </div>
         <div>
-          <mat-checkbox
+          <fb-checkbox
             #selall
             [disabled]="app.config.selections.aisFilterByShipType"
             [checked]="allSel"
             [indeterminate]="someSel"
-            (change)="toggleAll($event.checked)"
-            [matTooltip]="(!selall.checked || someSel) ? 'Select All' : 'Deselect All'"
+            (checkedChange)="toggleAll($event)"
+            [matTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
             matTooltipPosition="below"
           >
-          </mat-checkbox>
+          </fb-checkbox>
         </div>
       </div>
     </fb-card-content>
@@ -95,13 +95,13 @@
             </b>
           </div>
           <div style="text-align: right">
-            <mat-checkbox
+            <fb-checkbox
               [checked]="i.selected"
-              (change)="shipTypeSelect($event.checked, i.id)"
+              (checkedChange)="shipTypeSelect($event, i.id)"
               matTooltip="Show in Map"
               matTooltipPosition="left"
             >
-            </mat-checkbox>
+            </fb-checkbox>
           </div>
         </div>
         }
@@ -131,13 +131,13 @@
               </a>
             </div>
             <div style="text-align: right">
-              <mat-checkbox
+              <fb-checkbox
                 [checked]="r[2]"
-                (change)="itemSelect($event.checked, r[0])"
+                (checkedChange)="itemSelect($event, r[0])"
                 matTooltip="Show in Map"
                 matTooltipPosition="left"
               >
-              </mat-checkbox>
+              </fb-checkbox>
             </div>
           </div>
         </fb-card-content>

@@ -9,7 +9,6 @@ import {
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -18,6 +17,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbCheckboxComponent,
   FbProgressBarComponent,
   FbSwitchRowComponent,
   FbSearchInputComponent
@@ -40,12 +40,12 @@ import { getAisIcon } from 'src/app/modules/icons';
     FbButtonComponent,
     MatTooltipModule,
     MatIconModule,
-    MatCheckboxModule,
     ScrollingModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbCheckboxComponent,
     FbProgressBarComponent,
     FbSwitchRowComponent,
     FbSearchInputComponent

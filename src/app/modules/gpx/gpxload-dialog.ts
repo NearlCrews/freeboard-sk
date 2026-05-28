@@ -10,8 +10,6 @@ import {
   MAT_DIALOG_DATA,
   MatDialogModule
 } from '@angular/material/dialog';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +17,10 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import {
   FbButtonComponent,
+  FbCheckboxComponent,
+  FbExpansionPanelComponent,
+  FbExpansionPanelDescriptionDirective,
+  FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent
@@ -52,6 +54,10 @@ interface GPXDataSummary {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
+    FbCheckboxComponent,
+    FbExpansionPanelComponent,
+    FbExpansionPanelDescriptionDirective,
+    FbExpansionPanelTitleDirective,
     FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent,
@@ -59,8 +65,6 @@ interface GPXDataSummary {
     MatFormFieldModule,
     MatInputModule,
     MatDividerModule,
-    MatExpansionModule,
-    MatCheckboxModule,
     MatTooltipModule
   ],
   templateUrl: './gpxload-dialog.html',
