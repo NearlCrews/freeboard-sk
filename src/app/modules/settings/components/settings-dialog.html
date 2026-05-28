@@ -30,7 +30,10 @@
           <div class="setting-group-title">DISPLAY</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="display-darkmode">
                     Dark Mode setting
@@ -132,7 +135,10 @@
                 </div>
               </div>
               } @if(show.favourites()) {
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <div style="font-style: italic">
                     <br />Select Favourite Apps:
@@ -155,7 +161,10 @@
           <div class="setting-group-title">SOUND</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <fb-checkbox
                     [(checked)]="facade.settings.display.muteSound"
@@ -202,7 +211,10 @@
           <div class="setting-group-title">UNITS &amp; VALUES</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <fieldset>
                     <legend>
@@ -216,7 +228,10 @@
                         Use Server Unit Preferences
                       </fb-checkbox>
                     </legend>
-                    <div class="setting-card-row" style="padding-bottom: 10px">
+                    <div
+                      class="setting-card-row"
+                      style="padding-bottom: var(--space-md)"
+                    >
                       <div class="setting-card-row-item">
                         <label class="setting-label" for="units-distance">
                           Distance units
@@ -291,7 +306,10 @@
                 </div>
               </div>
 
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 @if(options.preferredValues.coords.length !== 0) {
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="units-position-format">
@@ -340,7 +358,10 @@
           <div class="setting-group-title">MAP</div>
           <fb-card>
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="map-labels-min-zoom">
                     Feature label zoom level
@@ -411,7 +432,10 @@
           <div class="setting-group-title">VECTOR CHARTS</div>
           <fb-card>
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="s57-graphics-style">
                     Graphics Style
@@ -463,7 +487,10 @@
                   ></fb-select>
                 </div>
               </div>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="s57-shallow-depth">
                     Shallow depth (m)
@@ -549,7 +576,10 @@
           <div class="setting-group-title">COURSE</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="course-arrival-circle">
                     Arrival Circle (m)
@@ -572,7 +602,10 @@
                 </div>
               </div>
 
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <fb-checkbox
                     [(checked)]="facade.settings.course.autoNextPointOnArrival"
@@ -584,7 +617,10 @@
                 </div>
               </div>
 
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="course-trigger">
                     Notification type to use
@@ -627,11 +663,17 @@
           <div class="setting-group-title">VESSEL</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <fieldset>
                     <legend>Vessel Icon Size</legend>
-                    <div class="setting-card-row" style="padding-bottom: 10px">
+                    <div
+                      class="setting-card-row"
+                      style="padding-bottom: var(--space-md)"
+                    >
                       <div class="setting-card-row-item">
                         <fb-radio-group
                           [value]="facade.settings.vessels.iconScale"
@@ -665,7 +707,10 @@
                       Fixed Location Mode
                     </fb-checkbox>
                   </legend>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <label class="setting-label" for="vessel-fixed-lat">
                         Latitude
@@ -724,7 +769,10 @@
               <div class="setting-card-row-item">
                 <fieldset>
                   <legend>Vessel Lines:</legend>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <fb-checkbox
                       [(checked)]="facade.settings.vessels.windVectors"
                       (checkedChange)="persistModel()"
@@ -741,13 +789,16 @@
                       Display Laylines
                     </fb-checkbox>
                   </div>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <fieldset>
                         <legend>Heading Line</legend>
                         <div
                           class="setting-card-row"
-                          style="padding-bottom: 10px"
+                          style="padding-bottom: var(--space-md)"
                         >
                           <div class="setting-card-row-item">
                             <label
@@ -777,13 +828,16 @@
                       </fieldset>
                     </div>
                   </div>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <fieldset>
                         <legend>COG Line</legend>
                         <div
                           class="setting-card-row"
-                          style="padding-bottom: 10px"
+                          style="padding-bottom: var(--space-md)"
                         >
                           <div class="setting-card-row-item">
                             <label class="setting-label" for="vessel-cog-line">
@@ -823,7 +877,10 @@
                       Display Range Circles
                     </fb-checkbox>
                   </legend>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <label class="setting-label" for="vessel-range-count">
                         Number of Range Circles
@@ -851,7 +908,10 @@
                       ></fb-select>
                     </div>
                   </div>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <fb-checkbox
                         [(checked)]="facade.settings.vessels.rangeCirclesFixed"
@@ -891,7 +951,10 @@
           <br />
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <fieldset>
                   <legend>
                     <fb-checkbox
@@ -902,7 +965,10 @@
                       Display Vessel Track
                     </fb-checkbox>
                   </legend>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <fb-checkbox
                         [disabled]="!facade.settings.vessels.trail"
@@ -927,7 +993,10 @@
                       Length ({{facade.settings.vessels.trailDuration}} hrs)
                     </div>
                   </div>
-                  <div class="setting-card-row" style="padding-bottom: 10px">
+                  <div
+                    class="setting-card-row"
+                    style="padding-bottom: var(--space-md)"
+                  >
                     <div class="setting-card-row-item">
                       <label class="setting-label" for="trail-res-last-hour">
                         Resolution: Last hour
@@ -976,7 +1045,10 @@
           <div class="setting-group-title">OTHER VESSELS</div>
           <fb-card class="setting-card">
             <fb-card-content>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <fb-checkbox
                     [(checked)]="facade.settings.vessels.aisShowTrack"
@@ -1003,7 +1075,10 @@
                   </fb-checkbox>
                 </div>
               </div>
-              <div class="setting-card-row" style="padding-bottom: 10px">
+              <div
+                class="setting-card-row"
+                style="padding-bottom: var(--space-md)"
+              >
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="vessel-ais-stale-age">
                     Mark AIS target inactive after

@@ -1048,8 +1048,10 @@
           </div>
           <!--/map panel-->
 
-          <!-- North Arrow -->
-          <div style="position: absolute; top: 60px; left: 56px; width: 50px">
+          <!-- North arrow. Positioned to the right of the .left buttonPanel
+               column (--touch-primary + 2 * --space-sm = 72px) and below the
+               OL zoom controls (same offset) so it does not overlap either. -->
+          <div class="northArrow">
             <img
               #northArrow
               src="./assets/img/north_arrow.svg"

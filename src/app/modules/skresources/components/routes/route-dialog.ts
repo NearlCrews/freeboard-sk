@@ -73,7 +73,9 @@ interface DialogData {
                 rForm.name().invalid() &&
                 (rForm.name().dirty() || rForm.name().touched())
               ) {
-                <div style="color: var(--color-error); font-size:12px">
+                <div
+                  style="color: var(--color-error); font-size: var(--font-size-xs)"
+                >
                   Please enter a name.
                 </div>
               }

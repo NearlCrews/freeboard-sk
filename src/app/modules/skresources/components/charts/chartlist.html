@@ -14,14 +14,14 @@
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: 7px">Charts</div>
+          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">Charts</div>
         </div>
       </span>
     </fb-card-header>
     <fb-card-content>
       @if(!displayChartLayers) {
       <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: 3px">
+        <div style="flex: 1 1 auto; padding-left: var(--space-xs)">
           <fb-search-input
             label="Filter charts"
             [value]="filterText"
@@ -100,7 +100,13 @@
       } @else {
       <div style="display: flex; width: 100%; font-style: italic">
         <div style="flex: 1 1 auto">Top Layer</div>
-        <div style="text-align: center; font-size: 10pt; font-style: italic">
+        <div
+          style="
+            text-align: center;
+            font-size: var(--font-size-sm);
+            font-style: italic;
+          "
+        >
           (drag to re-order)
         </div>
       </div>

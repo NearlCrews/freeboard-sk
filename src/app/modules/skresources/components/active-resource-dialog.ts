@@ -107,7 +107,7 @@ interface CoordinatesMetaEntry {
         >
           @for (pt of points; track pt; let i = $index) {
             <fb-card cdkDrag [cdkDragDisabled]="readOnly">
-              <fb-card-content style="padding:3px;">
+              <fb-card-content style="padding:var(--space-xs);">
                 <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
 
                 <div

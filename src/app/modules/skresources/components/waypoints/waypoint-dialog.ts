@@ -163,7 +163,7 @@ interface WaypointTypeOption {
                 >
                   <ng-template fbSelectOption let-option>
                     <span
-                      style="display: inline-flex; align-items: center; gap: 8px;"
+                      style="display: inline-flex; align-items: center; gap: var(--space-sm);"
                     >
                       @if (optionIcon(option); as icn) {
                         @if (icn.svgIcon) {
@@ -183,7 +183,7 @@ interface WaypointTypeOption {
                   </ng-template>
                   <span fb-select-trigger>
                     <span
-                      style="display: inline-flex; align-items: center; gap: 8px;"
+                      style="display: inline-flex; align-items: center; gap: var(--space-sm);"
                     >
                       @if (wptIcon().svgIcon) {
                         <fb-icon
@@ -205,11 +205,11 @@ interface WaypointTypeOption {
               @if (iconsForSelection().length !== 0) {
                 <div>
                   <div
-                    style="display:flex;flex-wrap:wrap;padding-bottom:10px;height:40px;"
+                    style="display:flex;flex-wrap:wrap;padding-bottom:var(--space-md);height:40px;"
                   >
                     @for (i of iconsForSelection(); track i) {
                       <div
-                        style="background-color:silver;padding:2px;"
+                        style="background-color:var(--color-border);padding:var(--space-xs);"
                         [ngClass]="{
                           'selected-icon': i.svgIcon === this.wptIcon().svgIcon,
                           'unselected-icon':
@@ -229,7 +229,9 @@ interface WaypointTypeOption {
               }
             </div>
 
-            <div style="font-size: 10pt;display:flex;flex-wrap:wrap">
+            <div
+              style="font-size: var(--font-size-sm);display:flex;flex-wrap:wrap"
+            >
               <div style="display:flex;">
                 @if (wptReadOnly) {
                   <div style="width:45px;font-weight:bold;">Lat:</div>
@@ -254,7 +256,7 @@ interface WaypointTypeOption {
                   </div>
                 }
               </div>
-              <div style="display:flex;padding-left: 5px;">
+              <div style="display:flex;padding-left: var(--space-xs);">
                 @if (wptReadOnly) {
                   <div style="width:45px;font-weight:bold;">Lon:</div>
                   <div

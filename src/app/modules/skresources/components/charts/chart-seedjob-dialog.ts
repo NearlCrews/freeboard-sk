@@ -66,7 +66,7 @@ interface DialogData {
           <div style="flex: 1 1 auto;">{{ data.chart[1].name }}</div>
           @if (data.bbox) {
             <div
-              style="flex: 1 1 auto; border: gray 1px solid;font-size: 10pt;"
+              style="flex: 1 1 auto; border: var(--color-border) 1px solid;font-size: var(--font-size-sm);"
             >
               <div style="text-align:right;">
                 <span

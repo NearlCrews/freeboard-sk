@@ -99,7 +99,7 @@ interface CoursePutResponse {
           <label for="arrivalCircle" style="display:block; font-weight:600">
             Arrival Circle Radius
           </label>
-          <div style="display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:var(--space-sm);">
             <fb-input
               name="arrivalCircle"
               type="number"
@@ -114,7 +114,7 @@ interface CoursePutResponse {
         </div>
 
         <div
-          style="display:flex; align-items:center; gap:8px; padding-right: 10px; padding-top: 8px"
+          style="display:flex; align-items:center; gap:var(--space-sm); padding-right: var(--space-md); padding-top: var(--space-sm)"
         >
           <span>Target Arrival time</span>
           <fb-switch
@@ -128,7 +128,7 @@ interface CoursePutResponse {
           <div>
             <label
               for="arrivalDate"
-              style="display:block; font-weight:600; font-size:12px"
+              style="display:block; font-weight:600; font-size:var(--font-size-xs)"
             >
               Date
             </label>
@@ -142,11 +142,11 @@ interface CoursePutResponse {
             ></fb-datepicker>
           </div>
 
-          <div style="display:flex;flex-wrap:nowrap; gap: 8px;">
+          <div style="display:flex;flex-wrap:nowrap; gap: var(--space-sm);">
             <div style="width: 100px">
               <label
                 for="arrivalHour"
-                style="display:block; font-weight:600; font-size:12px"
+                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
               >
                 Hour
               </label>
@@ -162,7 +162,7 @@ interface CoursePutResponse {
             <div style="width: 100px">
               <label
                 for="arrivalMinutes"
-                style="display:block; font-weight:600; font-size:12px"
+                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
               >
                 Minutes
               </label>
@@ -178,7 +178,7 @@ interface CoursePutResponse {
             <div style="width: 100px">
               <label
                 for="arrivalSeconds"
-                style="display:block; font-weight:600; font-size:12px"
+                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
               >
                 seconds
               </label>

@@ -205,6 +205,16 @@ mat-nav-list {
   height: calc(var(--touch-primary) - var(--space-sm));
 }
 
+/* North arrow sits below the OL zoom controls, in the column directly
+   right of the .left buttonPanel. 50px wide, 70px tall raster. */
+.northArrow {
+  position: absolute;
+  top: calc(var(--touch-primary) + var(--space-sm) * 2);
+  left: calc(var(--touch-primary) + var(--space-sm) * 2);
+  width: 50px;
+  pointer-events: none;
+}
+
 .instrumentPanelToggle {
   display: block;
 }

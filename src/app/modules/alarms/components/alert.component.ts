@@ -75,7 +75,7 @@ const SoundFiles: Record<ALARM_STATE, string> = {
           @if (!alert().canAcknowledge) {
             <fb-progress-bar [value]="progressValue()"></fb-progress-bar>
           }
-          <fb-card style="padding:5px;border-radius:0;">
+          <fb-card style="padding:var(--space-xs);border-radius:0;">
             <fb-card-content>
               <div style="display:flex; width:100%;">
                 <div style="width:35px;">

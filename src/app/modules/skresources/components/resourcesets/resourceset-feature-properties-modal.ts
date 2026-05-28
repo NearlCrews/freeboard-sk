@@ -68,27 +68,29 @@ interface ResourceSetFeatureProperties {
 
       <fb-card>
         <fb-card-content>
-          <div style="padding-bottom: 5px; display: flex">
+          <div style="padding-bottom: var(--space-xs); display: flex">
             <div style="font-weight: bold; vertical-align: top">Name:</div>
-            <div style="padding-left: 10px">{{ properties.name }}</div>
+            <div style="padding-left: var(--space-md)">
+              {{ properties.name }}
+            </div>
           </div>
           <div style="font-weight: bold; vertical-align: top">Description:</div>
           <div style="overflow-y: auto; height: 60px" target="notelink">
             {{ properties.description }}
           </div>
-          <div style="padding-bottom: 5px; display: flex">
+          <div style="padding-bottom: var(--space-xs); display: flex">
             <div style="font-weight: bold; vertical-align: top">
               Resource Set:
             </div>
-            <div style="padding-left: 10px">
+            <div style="padding-left: var(--space-md)">
               {{ properties['resourceset.name'] }}
             </div>
           </div>
-          <div style="padding-bottom: 5px; display: flex">
+          <div style="padding-bottom: var(--space-xs); display: flex">
             <div style="font-weight: bold; vertical-align: top">
               Collection:
             </div>
-            <div style="padding-left: 10px">
+            <div style="padding-left: var(--space-md)">
               {{ properties['resourceset.collection'] }}
             </div>
           </div>

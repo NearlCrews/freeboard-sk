@@ -29,7 +29,7 @@ interface PreferredPathEntry {
   styleUrls: ['./signalk-preferredpaths.component.css'],
   template: `
     <fieldset>
-      <legend style="font-size: 10pt;">{{ title }}</legend>
+      <legend style="font-size: var(--font-size-sm);">{{ title }}</legend>
       <div>
         @for (item of pathChoicesArray; track item[0]) {
           <div class="sk-details">
@@ -38,7 +38,7 @@ interface PreferredPathEntry {
             </div>
             <div>
               @for (path of item[1].available; track path) {
-                <div style="margin: 5px 0 5px 0;">
+                <div style="margin: var(--space-xs) 0 var(--space-xs) 0;">
                   <mat-radio-button
                     #pathopt
                     [name]="item[0]"

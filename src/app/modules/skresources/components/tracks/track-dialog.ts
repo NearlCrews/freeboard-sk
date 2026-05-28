@@ -63,7 +63,7 @@ interface DialogData {
 
       <mat-dialog-content>
         <div>
-          <div style="padding-left: 10px;">
+          <div style="padding-left: var(--space-md);">
             <div>
               <label for="track-name" style="display:block; font-weight:600">
                 Name
@@ -73,7 +73,9 @@ interface DialogData {
                 tForm.name().invalid() &&
                 (tForm.name().dirty() || tForm.name().touched())
               ) {
-                <div style="color: var(--color-error); font-size:12px">
+                <div
+                  style="color: var(--color-error); font-size: var(--font-size-xs)"
+                >
                   Please enter a name.
                 </div>
               }

@@ -58,7 +58,9 @@
 
       <div>
         <div style="display: flex; flex-wrap: wrap">
-          <div style="flex: 1 1 auto; padding: 5px; font-size: smaller">
+          <div
+            style="flex: 1 1 auto; padding: var(--space-xs); font-size: smaller"
+          >
             <div>
               <span style="font-weight: bold">Name:</span> {{source.name}}
             </div>
@@ -68,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div style="text-align: center; padding-top: 15px">
+        <div style="text-align: center; padding-top: var(--space-lg)">
           <fb-button
             variant="primary"
             [disabled]="!targetPath || !source.name"
@@ -81,7 +83,11 @@
           </fb-button>
           <br />&nbsp; @if(targetPath && source.name) {
           <div
-            style="padding: 10px; border: gray 1px dashed; font-style: italic"
+            style="
+              padding: var(--space-md);
+              border: gray 1px dashed;
+              font-style: italic;
+            "
           >
             Note: Data will not be validated when uploaded to server!
           </div>

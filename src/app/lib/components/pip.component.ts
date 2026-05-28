@@ -23,11 +23,11 @@ interface PiPVideoElement extends HTMLVideoElement {
   imports: [FbFabComponent, MatTooltipModule],
   template: `
     <div
-      style="border: gray 1px solid;border-radius: var(--radius-md);display:none;"
+      style="border: var(--color-border) 1px solid;border-radius: var(--radius-md);display:none;"
     >
       <video #vid [src]="vidUrl" [muted]="muted" autoplay></video>
     </div>
-    <div style="padding-left: 5px;">
+    <div style="padding-left: var(--space-xs);">
       <fb-fab
         variant="secondary"
         icon="videocam"

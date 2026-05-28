@@ -501,13 +501,25 @@
         ariaLabel="Glyph"
       >
         <ng-template fbSelectOption let-option>
-          <span style="display: inline-flex; align-items: center; gap: 8px">
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: var(--space-sm);
+            "
+          >
             <fb-icon [name]="iconNameFor(option)" size="sm"></fb-icon>
             {{ option.label }}
           </span>
         </ng-template>
         <span fb-select-trigger>
-          <span style="display: inline-flex; align-items: center; gap: 8px">
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: var(--space-sm);
+            "
+          >
             <fb-icon
               [name]="glyphValue() ?? 'help_outline'"
               size="sm"

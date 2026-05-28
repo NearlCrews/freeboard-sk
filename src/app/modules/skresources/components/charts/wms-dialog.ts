@@ -57,7 +57,7 @@ import { NodeTreeSelect } from './node-tree-select';
         <label for="wms-host" style="display:block; font-weight:600">
           WMS host.
         </label>
-        <div style="display:flex; gap:6px; align-items:center">
+        <div style="display:flex; gap:var(--space-sm); align-items:center">
           <fb-input
             name="wms-host"
             type="text"
@@ -75,11 +75,15 @@ import { NodeTreeSelect } from './node-tree-select';
             <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
           </fb-button>
         </div>
-        <div style="font-size: 12px; color: var(--color-text-muted)">
+        <div
+          style="font-size: var(--font-size-xs); color: var(--color-text-muted)"
+        >
           Enter url of the WMS host.
         </div>
         @if (!hostUrl) {
-          <div style="color: var(--color-error); font-size:12px">
+          <div
+            style="color: var(--color-error); font-size: var(--font-size-xs)"
+          >
             WMS host is required!
           </div>
         }

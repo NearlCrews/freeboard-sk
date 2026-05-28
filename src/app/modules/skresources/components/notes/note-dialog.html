@@ -65,14 +65,14 @@
         <p class="draft-watermark">Draft</p>
         }
         <div style="display: flex; flex-direction: column">
-          <div style="padding-bottom: 5px; display: flex">
+          <div style="padding-bottom: var(--space-xs); display: flex">
             <div style="font-weight: bold; vertical-align: top">Name:</div>
-            <div style="padding-left: 10px">{{data.note.name}}</div>
+            <div style="padding-left: var(--space-md)">{{data.note.name}}</div>
           </div>
           @if(data.note.group) {
-          <div style="padding-bottom: 5px; display: flex">
+          <div style="padding-bottom: var(--space-xs); display: flex">
             <div style="font-weight: bold; vertical-align: top">Group:</div>
-            <div style="padding-left: 10px; flex: 1 1 auto">
+            <div style="padding-left: var(--space-md); flex: 1 1 auto">
               {{data.note.group}}
             </div>
             @if(data.note.group && app.config.resources.notes.groupNameEdit) {
@@ -90,7 +90,9 @@
             }
           </div>
           }
-          <div style="flex: 1 1 auto; padding: 5px 0 5px 0">
+          <div
+            style="flex: 1 1 auto; padding: var(--space-xs) 0 var(--space-xs) 0"
+          >
             <div style="font-weight: bold; vertical-align: top">
               Description:
             </div>
@@ -148,7 +150,11 @@
           @if(data.note.position; as pos) {
           <div
             class="nosmall block"
-            style="flex: 1; font-size: 10pt; padding: 0 0 0 10px"
+            style="
+              flex: 1;
+              font-size: var(--font-size-sm);
+              padding: 0 0 0 var(--space-md);
+            "
           >
             <span style="font-weight: bold">Lat:</span>&nbsp; {{pos.latitude |
             coords : app.config.units.positionFormat : true}}
@@ -176,7 +182,9 @@
           <fb-input type="text" [formField]="noteForm.name"></fb-input>
           @if(noteForm.name().invalid() && (noteForm.name().dirty() ||
           noteForm.name().touched())) {
-          <div style="color: var(--color-error); font-size: 12px">
+          <div
+            style="color: var(--color-error); font-size: var(--font-size-xs)"
+          >
             Please enter a title for the note
           </div>
           }
@@ -228,7 +236,7 @@
           ></fb-input>
         </div>
         <div style="display: flex">
-          <div style="padding-left: 10px; min-width: 80px">
+          <div style="padding-left: var(--space-md); min-width: 80px">
             <label for="note-icon" style="display: block; font-weight: 600">
               Icon
             </label>
@@ -260,7 +268,7 @@
               </span>
             </fb-select>
           </div>
-          <div style="padding-left: 10px">
+          <div style="padding-left: var(--space-md)">
             <label for="note-mime" style="display: block; font-weight: 600">
               Format
             </label>
@@ -271,7 +279,7 @@
             ></fb-select>
           </div>
           @if(data.position && data.note.position; as pos) {
-          <div style="font-size: 10pt">
+          <div style="font-size: var(--font-size-sm)">
             <div style="display: flex">
               <div style="width: 45px; font-weight: bold">Lat:</div>
               <div style="flex: 1 1 auto">{{pos.latitude}}</div>
@@ -287,7 +295,7 @@
     </div>
   </mat-dialog-content>
   <mat-dialog-actions align="right">
-    <div style="display: flex; align-items: center; gap: 8px">
+    <div style="display: flex; align-items: center; gap: var(--space-sm)">
       <span>Draft:</span>
       <fb-switch
         ariaLabel="Draft"

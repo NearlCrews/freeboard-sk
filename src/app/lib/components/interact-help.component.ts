@@ -27,17 +27,17 @@ import {
       @if (showHelpPanel()) {
         <div class="mat-app-background measurePanel">
           <div>
-            <span style="font-weight: bold; padding: 5px">
+            <span style="font-weight: bold; padding: var(--space-xs)">
               <fb-icon [name]="mode.iconName" ariaLabel=""></fb-icon>
               {{ mode.iconText }}
             </span>
             @if (mode.description.length !== 0) {
-              <div style="padding: 5px">
+              <div style="padding: var(--space-xs)">
                 {{ mode.description }}
               </div>
             }
             @if (mode.steps.length !== 0) {
-              <div style="padding: 5px">
+              <div style="padding: var(--space-xs)">
                 <ol
                   style="
                 margin-block-start: 0.2em;

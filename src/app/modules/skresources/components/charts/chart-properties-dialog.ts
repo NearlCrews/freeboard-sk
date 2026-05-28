@@ -82,7 +82,9 @@ import { NodeListSelect } from './node-list-select';
                 ariaLabel="Chart name"
               ></fb-input>
               @if (!data.name) {
-                <div style="color: var(--color-error); font-size:12px">
+                <div
+                  style="color: var(--color-error); font-size: var(--font-size-xs)"
+                >
                   Please enter a name.
                 </div>
               }

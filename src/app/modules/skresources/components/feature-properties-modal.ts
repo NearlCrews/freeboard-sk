@@ -108,13 +108,15 @@ import {
         }
       </mat-horizontal-stepper>
 
-      <div style="text-align:center;font-size:10pt;font-family:roboto;">
+      <div
+        style="text-align:center;font-size:var(--font-size-sm);font-family:roboto;"
+      >
         @for (c of data; track c; let i = $index) {
           <fb-icon
             name="fiber_manual_record"
             ariaLabel=""
             [style.color]="currentPage - 1 === i ? 'blue' : 'gray'"
-            style="font-size:8pt;width:12px;"
+            style="font-size:var(--font-size-xs);width:12px;"
           ></fb-icon>
         }
       </div>

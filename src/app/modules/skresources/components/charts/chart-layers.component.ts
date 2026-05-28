@@ -75,12 +75,12 @@ import { SKResourceService } from '../../resources.service';
       <fb-card style="border-radius: unset;">
         <fb-card-content>
           <div
-            style="display:flex; font-style:italic; border-top:gray 1px solid;"
+            style="display:flex; font-style:italic; border-top:var(--color-border) 1px solid;"
           >
             <div style="flex: 1 1 auto; ">Base Layer</div>
             <div
               style="text-align:center;
-                font-size: 10pt;font-style:italic;"
+                font-size: var(--font-size-sm);font-style:italic;"
             >
               (e.g. World Map)
             </div>

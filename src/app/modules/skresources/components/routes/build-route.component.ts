@@ -146,7 +146,7 @@ interface BuildRoutePoint {
           </div>
         </div>
 
-        <div style="text-align:center;padding: 5px;">
+        <div style="text-align:center;padding: var(--space-xs);">
           <fb-button
             variant="primary"
             [disabled]="rtepts.length < 2"

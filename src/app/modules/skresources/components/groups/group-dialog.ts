@@ -100,7 +100,7 @@ interface GroupItem {
           (activeIdChange)="onTabChange($event)"
         >
           <ng-template fbTabPanel fbTabPanelId="details">
-            <div style="padding-top: 10px;">
+            <div style="padding-top: var(--space-md);">
               <div>
                 <label for="group-name" style="display:block; font-weight:600">
                   Name
@@ -110,7 +110,9 @@ interface GroupItem {
                   gForm.name().invalid() &&
                   (gForm.name().dirty() || gForm.name().touched())
                 ) {
-                  <div style="color: var(--color-error); font-size:12px">
+                  <div
+                    style="color: var(--color-error); font-size: var(--font-size-xs)"
+                  >
                     Please enter a name.
                   </div>
                 }

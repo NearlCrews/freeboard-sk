@@ -96,7 +96,7 @@ export class MsgBox implements OnInit {
       </div>
       <mat-dialog-content>
         <div style="display:flex;">
-          <div style="padding-left: 10px;">
+          <div style="padding-left: var(--space-md);">
             @for (line of msglines; track line) {
               <div>
                 <div>{{ line }}&nbsp;</div>
@@ -168,7 +168,7 @@ export class AlertDialog implements OnInit {
       </div>
       <mat-dialog-content style="overflow:unset">
         <div style="display:flex;">
-          <div style="padding-left: 10px;">
+          <div style="padding-left: var(--space-md);">
             @for (line of msglines; track line) {
               <div>
                 <div>{{ line }}&nbsp;</div>
@@ -178,7 +178,7 @@ export class AlertDialog implements OnInit {
         </div>
         <div style="display:flex;">
           @if (data.checkText) {
-            <div style="padding-left: 10px;">
+            <div style="padding-left: var(--space-md);">
               <div style="font-weight: 500;">
                 <fb-checkbox (checkedChange)="checked = $event">
                   {{ data.checkText }}&nbsp;
@@ -321,7 +321,9 @@ export class MessageBarComponent {
             </mat-step>
           }
         </mat-horizontal-stepper>
-        <div style="text-align:center;font-size:10pt;font-family:roboto;">
+        <div
+          style="text-align:center;font-size:var(--font-size-sm);font-family:roboto;"
+        >
           @for (c of data.content; track c; let i = $index) {
             <fb-icon
               name="fiber_manual_record"
@@ -330,7 +332,7 @@ export class MessageBarComponent {
                 'step-current': currentPage - 1 === i,
                 'step-other': currentPage - 1 !== i
               }"
-              style="font-size:8pt;width:12px;"
+              style="font-size:var(--font-size-xs);width:12px;"
             ></fb-icon>
           }
         </div>

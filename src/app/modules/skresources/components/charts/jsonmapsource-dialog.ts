@@ -90,7 +90,7 @@ interface TileJson {
         <label for="json-mapsource-host" style="display:block; font-weight:600">
           Map Server host.
         </label>
-        <div style="display:flex; gap:6px; align-items:center">
+        <div style="display:flex; gap:var(--space-sm); align-items:center">
           <fb-input
             name="json-mapsource-host"
             type="text"
@@ -108,11 +108,15 @@ interface TileJson {
             <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
           </fb-button>
         </div>
-        <div style="font-size:12px; color: var(--color-text-muted)">
+        <div
+          style="font-size:var(--font-size-xs); color: var(--color-text-muted)"
+        >
           Enter url of the Map Server.
         </div>
         @if (!hostUrl) {
-          <div style="color: var(--color-error); font-size:12px">
+          <div
+            style="color: var(--color-error); font-size: var(--font-size-xs)"
+          >
             Map server host url is required!
           </div>
         }
