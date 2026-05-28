@@ -460,20 +460,21 @@
                     ariaLabel="Close instruments panel"
                     (pressed)="sideright.toggle()"
                   >
-                    <mat-icon>arrow_forward</mat-icon>
+                    <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
                   </fb-button>
                   &nbsp;&nbsp;&nbsp;&nbsp;
                   @if (app.config.display.plugins.instruments) {
-                    <a
-                      mat-icon-button
-                      [href]="instUrl()"
-                      (click)="sideright.toggle()"
-                      target="_blank"
+                    <fb-button
+                      variant="ghost"
+                      ariaLabel="Open instruments in a new window"
+                      (pressed)="
+                        openInstrumentsInNewWindow(); sideright.toggle()
+                      "
                       matTooltip="Open Instruments in window."
                       matTooltipPosition="right"
                     >
-                      <mat-icon>open_in_new</mat-icon>
-                    </a>
+                      <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
+                    </fb-button>
                   }
                   &nbsp;&nbsp;
                   <fb-button
@@ -833,7 +834,10 @@
               @if (stream.watchDogAlarm()) {
                 <div class="statusBarItem">
                   <mat-icon
-                    style="background-color: red; color: white"
+                    style="
+                      background-color: var(--color-error);
+                      color: var(--color-on-primary);
+                    "
                     matTooltip="No server messages!"
                     matTooltipPosition="below"
                     >signal_wifi_statusbar_connected_no_internet_4
@@ -1076,7 +1080,7 @@
             }
             <div class="alarmPanel">
               @for (n of notiMgr.alerts(); track n[0]) {
-                <span style="margin-bottom: 5px">
+                <span style="margin-bottom: var(--space-xs)">
                   <fb-alert
                     [audioStatus]="audioStatus()"
                     [alert]="n[1]"

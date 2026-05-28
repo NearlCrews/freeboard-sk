@@ -36,22 +36,44 @@ export type FbButtonSize = 'sm' | 'md' | 'lg';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button
-      type="button"
-      [class]="classes()"
-      [attr.aria-label]="ariaLabel() || null"
-      [attr.aria-disabled]="isInteractionBlocked() || null"
-      [attr.aria-busy]="loading() || null"
-      [attr.data-variant]="variant()"
-      [attr.data-size]="size()"
-      [disabled]="disabled()"
-      (click)="onClick($event)"
-    >
-      @if (loading()) {
-        <span class="fb-btn__spinner" aria-hidden="true"></span>
-      }
-      <span class="fb-btn__label"><ng-content></ng-content></span>
-    </button>
+    @if (href()) {
+      <a
+        [class]="classes()"
+        [attr.href]="disabled() ? null : href()"
+        [attr.target]="target() || null"
+        [attr.rel]="target() === '_blank' ? 'noopener noreferrer' : null"
+        [attr.role]="'button'"
+        [attr.aria-label]="ariaLabel() || null"
+        [attr.aria-disabled]="isInteractionBlocked() || null"
+        [attr.aria-busy]="loading() || null"
+        [attr.data-variant]="variant()"
+        [attr.data-size]="size()"
+        [attr.tabindex]="disabled() ? -1 : 0"
+        (click)="onClick($event)"
+      >
+        @if (loading()) {
+          <span class="fb-btn__spinner" aria-hidden="true"></span>
+        }
+        <span class="fb-btn__label"><ng-content></ng-content></span>
+      </a>
+    } @else {
+      <button
+        type="button"
+        [class]="classes()"
+        [attr.aria-label]="ariaLabel() || null"
+        [attr.aria-disabled]="isInteractionBlocked() || null"
+        [attr.aria-busy]="loading() || null"
+        [attr.data-variant]="variant()"
+        [attr.data-size]="size()"
+        [disabled]="disabled()"
+        (click)="onClick($event)"
+      >
+        @if (loading()) {
+          <span class="fb-btn__spinner" aria-hidden="true"></span>
+        }
+        <span class="fb-btn__label"><ng-content></ng-content></span>
+      </button>
+    }
   `,
   styles: [
     `
@@ -188,6 +210,8 @@ export class FbButtonComponent {
   readonly disabled = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly ariaLabel = input<string>('');
+  readonly href = input<string>('');
+  readonly target = input<string>('');
 
   readonly pressed = output<MouseEvent>();
 

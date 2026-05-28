@@ -2,7 +2,6 @@
  ****************************/
 
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -26,12 +25,7 @@ import {
 @Component({
   selector: 'ap-about-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    MatDialogModule,
-    FbIconComponent,
-    FbButtonComponent,
-    MatButtonModule
-  ],
+  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
   template: `
     <div>
       <h1 mat-dialog-title>
@@ -54,9 +48,9 @@ import {
       </mat-dialog-content>
       <mat-dialog-actions align="center">
         @if (data.url) {
-          <a mat-button [href]="data.url" target="_blank" rel="noopener"
-            >Visit Website</a
-          >
+          <fb-button variant="ghost" [href]="data.url" target="_blank">
+            Visit Website
+          </fb-button>
           &nbsp;
         }
         <fb-button variant="primary" (pressed)="dialogRef.close(false)">

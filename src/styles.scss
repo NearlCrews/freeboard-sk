@@ -46,15 +46,14 @@ b {
   animation-iteration-count: infinite;
 }
 
-/* Scale bar sits to the right of the OL zoom controls, which themselves
-   sit to the right of the leftTop button panel. Math:
-     left = leftTop panel extent (--touch-primary + 2 * --space-sm)
-          + zoom control extent (--touch-primary + --space-md)
-          + outer gap (--space-sm). */
+/* Scale bar sits in the bottom-left of the chart, clear of the .left
+   buttonPanel column (--touch-primary plus gutters). bottom offset
+   leaves room for the lat/lon status readout so the legend does not
+   overlap the chart-info bar. */
 .ol-scale-bar {
-  bottom: unset;
-  top: var(--space-sm);
-  left: calc(var(--touch-primary) * 2 + var(--space-sm) * 3 + var(--space-md));
+  top: unset;
+  bottom: var(--space-xl);
+  left: calc(var(--touch-primary) + var(--space-sm) * 2);
   background-color: transparent;
   font-family: var(--font-family-sans);
 }

@@ -445,6 +445,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.shell.toggleFullscreen();
   }
 
+  // Used by the instruments side-panel "open in new window" button.
+  // Bypasses the SafeResourceUrl-wrapped instUrl signal because
+  // window.open wants the raw string and the URL is already same-
+  // origin (formatInstrumentsUrl is server-relative).
+  protected openInstrumentsInNewWindow(): void {
+    const url = this.formatInstrumentsUrl();
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   // ********* AUDIO (delegated to AudioAlarmService) ****************
 
   protected enableAudio() {
