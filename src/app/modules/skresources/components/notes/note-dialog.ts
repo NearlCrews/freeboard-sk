@@ -15,7 +15,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -66,7 +65,6 @@ interface DialogData {
     FormsModule,
     FormField,
     MatDialogModule,
-    MatIconModule,
     MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,

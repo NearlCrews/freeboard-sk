@@ -33,9 +33,12 @@
   <fb-toolbar style="background-color: transparent">
     <span fbToolbarLeading>
       @if(!data.editable) {
-      <mat-icon [class]="icon.class ?? ''" [svgIcon]="icon.svgIcon ?? ''"
-        >{{icon.name}}</mat-icon
-      >
+      <fb-icon
+        [class]="icon.class ?? ''"
+        [svgName]="icon.svgIcon ?? ''"
+        [name]="icon.name ?? ''"
+        ariaLabel=""
+      ></fb-icon>
       }
     </span>
     <span fbToolbarTitle>
@@ -239,17 +242,20 @@
               <ng-template fbSelectOption let-option>
                 <span [matTooltip]="option.label">
                   @if (option.id) {
-                  <mat-icon [svgIcon]="asString(option.id)"></mat-icon>
+                  <fb-icon
+                    [svgName]="asString(option.id)"
+                    ariaLabel=""
+                  ></fb-icon>
                   } @else {
-                  <mat-icon>{{ option.label }}</mat-icon>
+                  <fb-icon [name]="option.label" ariaLabel=""></fb-icon>
                   }
                 </span>
               </ng-template>
               <span fb-select-trigger>
                 @if (icon.svgIcon?.length) {
-                <mat-icon [svgIcon]="icon.svgIcon ?? ''"></mat-icon>
+                <fb-icon [svgName]="icon.svgIcon ?? ''" ariaLabel=""></fb-icon>
                 } @else {
-                <mat-icon>{{ icon.name }}</mat-icon>
+                <fb-icon [name]="icon.name" ariaLabel=""></fb-icon>
                 }
               </span>
             </fb-select>

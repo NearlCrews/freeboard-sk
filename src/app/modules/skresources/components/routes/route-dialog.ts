@@ -9,7 +9,6 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -36,7 +35,6 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
@@ -48,7 +46,7 @@ interface DialogData {
     <div class="_ap-route">
       <fb-toolbar style="background-color: transparent">
         <div fbToolbarLeading>
-          <mat-icon class="icon-route" svgIcon="route"></mat-icon>
+          <fb-icon class="icon-route" svgName="route" ariaLabel=""></fb-icon>
         </div>
         <span fbToolbarTitle>Route Details</span>
         <div fbToolbarActions style="width: 50px; text-align: right;">

@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
@@ -39,7 +38,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatInputModule,
-    MatIconModule,
     MatDialogModule,
     MatTooltipModule,
     FbButtonComponent,
@@ -52,11 +50,12 @@ import {
       <div style="display:flex;">
         <div style="padding: 15px 0 0 10px;">
           @if (this.data.icon) {
-            <mat-icon
-              [svgIcon]="this.data.icon.svgIcon"
+            <fb-icon
+              [svgName]="this.data.icon.svgIcon ?? ''"
+              [name]="this.data.icon.name ?? ''"
               [class]="this.data.icon.class"
-              >{{ this.data.icon.name }}</mat-icon
-            >
+              ariaLabel=""
+            ></fb-icon>
           }
         </div>
         <div style="flex: 1 1 auto;">

@@ -15,7 +15,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CountryFlagComponent } from 'src/app/lib/components/country-flags.component';
 import { AppFacade } from 'src/app/app.facade';
 
-import { FbButtonComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 /*********** Popover ***************
 title: string -  title text,
@@ -28,6 +31,7 @@ measure: boolean= measure mode;
   imports: [
     CommonModule,
     FbButtonComponent,
+    FbIconComponent,
     MatTooltipModule,
     MatIconModule,
     CountryFlagComponent
@@ -56,9 +60,12 @@ measure: boolean= measure mode;
             </mat-icon>
           }
           @if (icon; as ic) {
-            <mat-icon [class]="ic.class ?? ''" [svgIcon]="ic.svgIcon ?? ''">{{
-              ic.name
-            }}</mat-icon>
+            <fb-icon
+              [class]="ic.class ?? ''"
+              [svgName]="ic.svgIcon ?? ''"
+              [name]="ic.name ?? ''"
+              ariaLabel=""
+            ></fb-icon>
           }
           &nbsp;{{ title }}
         </div>

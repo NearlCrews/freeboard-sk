@@ -42,7 +42,7 @@ export type FbFabPosition =
       [disabled]="disabled()"
       (click)="onClick($event)"
     >
-      <fb-icon [name]="icon()" size="md"></fb-icon>
+      <fb-icon [name]="icon()" [svgName]="svgName()" size="md"></fb-icon>
     </button>
   `,
   styles: [
@@ -138,7 +138,8 @@ export type FbFabPosition =
   }
 })
 export class FbFabComponent {
-  readonly icon = input.required<string>();
+  readonly icon = input<string>('');
+  readonly svgName = input<string>('');
   readonly ariaLabel = input.required<string>();
   readonly variant = input<FbFabVariant>('primary');
   readonly position = input<FbFabPosition>('static');

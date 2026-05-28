@@ -5,16 +5,16 @@ import {
   input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FbIconComponent } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
 
 @Component({
   selector: 'radar-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, MatButtonModule, MatTooltipModule, FbIconComponent],
   template: `
     <button
       [ngClass]="{
@@ -30,9 +30,13 @@ import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
       aria-label="Toggle radar overlay"
     >
       @if (app.uiCtrl().radarLayer) {
-        <mat-icon class="ob" svgIcon="chart-radar-overlay-iec"></mat-icon>
+        <fb-icon
+          class="ob"
+          svgName="chart-radar-overlay-iec"
+          ariaLabel=""
+        ></fb-icon>
       } @else {
-        <mat-icon class="ob" svgIcon="radar-iec"></mat-icon>
+        <fb-icon class="ob" svgName="radar-iec" ariaLabel=""></fb-icon>
       }
     </button>
   `,

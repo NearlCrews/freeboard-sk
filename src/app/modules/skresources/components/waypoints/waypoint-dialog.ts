@@ -26,6 +26,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
+  FbIconComponent,
   FbSelectComponent,
   FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective,
@@ -87,6 +88,7 @@ interface WaypointTypeOption {
     MatInputModule,
     MatIconModule,
     FbButtonComponent,
+    FbIconComponent,
     MatCheckboxModule,
     MatDialogModule,
     CoordsPipe,
@@ -165,10 +167,11 @@ interface WaypointTypeOption {
                     >
                       @if (optionIcon(option); as icn) {
                         @if (icn.svgIcon) {
-                          <mat-icon
-                            [svgIcon]="icn.svgIcon"
+                          <fb-icon
+                            [svgName]="icn.svgIcon"
                             [class]="icn.class ?? ''"
-                          ></mat-icon>
+                            ariaLabel=""
+                          ></fb-icon>
                         } @else {
                           <mat-icon [class]="icn.class ?? ''">{{
                             icn.name
@@ -183,10 +186,11 @@ interface WaypointTypeOption {
                       style="display: inline-flex; align-items: center; gap: 8px;"
                     >
                       @if (wptIcon().svgIcon) {
-                        <mat-icon
-                          [svgIcon]="wptIcon().svgIcon"
+                        <fb-icon
+                          [svgName]="wptIcon().svgIcon"
                           [class]="wptIcon().class ?? ''"
-                        ></mat-icon>
+                          ariaLabel=""
+                        ></fb-icon>
                       } @else {
                         <mat-icon [class]="wptIcon().class ?? ''">{{
                           wptIcon().name
@@ -213,10 +217,11 @@ interface WaypointTypeOption {
                         }"
                         (click)="handleIconSelected(i.svgIcon)"
                       >
-                        <mat-icon
-                          [svgIcon]="i.svgIcon"
+                        <fb-icon
+                          [svgName]="i.svgIcon"
                           [matTooltip]="i.svgIcon"
-                        ></mat-icon>
+                          ariaLabel=""
+                        ></fb-icon>
                       </div>
                     }
                   </div>

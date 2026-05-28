@@ -3,7 +3,7 @@
     @if (icon; as ic) { @if (!ic.svgIcon) {
     <mat-icon [class]="ic.class ?? ''">{{ ic.name }}</mat-icon>
     } @else {
-    <mat-icon [svgIcon]="ic.svgIcon"></mat-icon>
+    <fb-icon [svgName]="ic.svgIcon" ariaLabel=""></fb-icon>
     } }
   </span>
 

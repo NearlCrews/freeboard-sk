@@ -10,7 +10,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatBottomSheetModule,
@@ -61,7 +60,6 @@ interface CoursePutResponse {
   imports: [
     FormsModule,
     MatBottomSheetModule,
-    MatIconModule,
     MatTooltipModule,
     FbButtonComponent,
     FbDatepickerComponent,
@@ -75,7 +73,7 @@ interface CoursePutResponse {
     <div class="_ap-course">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading>
-          <mat-icon class="ob" svgIcon="navigation-route"></mat-icon>
+          <fb-icon class="ob" svgName="navigation-route" ariaLabel=""></fb-icon>
         </span>
         <span fbToolbarTitle>
           {{ data.title }}

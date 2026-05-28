@@ -7,7 +7,7 @@
     <!--toolbar button menus-->
     <mat-menu #layersmenu="matMenu">
       <button mat-menu-item (click)="displayLeftMenu('routeList', true)">
-        <mat-icon class="icon-route" svgIcon="route"></mat-icon>
+        <fb-icon class="icon-route" svgName="route" ariaLabel=""></fb-icon>
         &nbsp;Routes
       </button>
       <button mat-menu-item (click)="displayLeftMenu('waypointList', true)">
@@ -46,12 +46,12 @@
           [astext]="true"
           (chosen)="importFile($event)"
         >
-          <mat-icon class="ob" svgIcon="route-import"></mat-icon>
+          <fb-icon class="ob" svgName="route-import" ariaLabel=""></fb-icon>
           Import
         </ap-file-input>
       </button>
       <button mat-menu-item (click)="exportToGPX()">
-        <mat-icon class="ob" svgIcon="route-export"></mat-icon>
+        <fb-icon class="ob" svgName="route-export" ariaLabel=""></fb-icon>
         &nbsp;Export
       </button>
 
@@ -70,10 +70,11 @@
                 mat-menu-item
                 (click)="openExperiment({ choice: p, value: null })"
               >
-                <mat-icon
+                <fb-icon
                   class="ob"
-                  svgIcon="chart-display-settings-iec"
-                ></mat-icon>
+                  svgName="chart-display-settings-iec"
+                  ariaLabel=""
+                ></fb-icon>
                 &nbsp;{{ p }}
               </button>
             </div>
@@ -166,7 +167,11 @@
         <span>Draw Route</span>
       </a>
       <a mat-menu-item (click)="toggleRouteBuilderConsole(true)">
-        <mat-icon class="icon-route" svgIcon="route-planning"></mat-icon>
+        <fb-icon
+          class="icon-route"
+          svgName="route-planning"
+          ariaLabel=""
+        ></fb-icon>
         <span>Build Route</span>
       </a>
       <fb-divider />
@@ -230,7 +235,7 @@
           @if (app.uiCtrl().radarLayer) {
             <mat-icon class="icon-accent">check_box</mat-icon>
           } @else {
-            <mat-icon class="ob" svgIcon="radar-iec"></mat-icon>
+            <fb-icon class="ob" svgName="radar-iec" ariaLabel=""></fb-icon>
           }
           <span>Radar Overlay</span>
         </a>
@@ -546,19 +551,17 @@
             @if (app.uiConfig().toolbarButtons) {
               <div class="buttonPanel left">
                 <div class="buttonPanelItem">
-                  <button
+                  <fb-fab
                     class="button-warn"
-                    mat-mini-fab
+                    svgName="alert-list"
+                    ariaLabel="Alarms"
                     matTooltip="Alarms"
                     matTooltipPosition="left"
                     [matBadge]="notiMgr.alerts().length"
                     matBadgeOverlap="true"
                     [matBadgeHidden]="notiMgr.alerts().length === 0"
-                    (click)="toggleAlertList(true)"
-                    aria-label="Alarms"
-                  >
-                    <mat-icon class="ob" svgIcon="alert-list"></mat-icon>
-                  </button>
+                    (pressed)="toggleAlertList(true)"
+                  ></fb-fab>
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
@@ -583,44 +586,42 @@
                   ></fb-fab>
                 </div>
                 <div class="buttonPanelItem">
-                  <button
-                    mat-mini-fab
+                  <fb-fab
                     [ngClass]="{
                       'button-primary': !app.uiConfig().mapNorthUp,
                       'button-toolbar': app.uiConfig().mapNorthUp
                     }"
-                    (click)="toggleNorthUp()"
+                    [svgName]="
+                      app.uiConfig().mapNorthUp
+                        ? 'heading-n-up'
+                        : 'heading-h-up'
+                    "
+                    [ariaLabel]="
+                      app.uiConfig().mapNorthUp
+                        ? 'Show Heading Up'
+                        : 'Show North Up'
+                    "
                     [matTooltip]="
                       app.uiConfig().mapNorthUp
                         ? 'Show Heading Up'
                         : 'Show North Up'
                     "
                     matTooltipPosition="right"
-                    [attr.aria-label]="
-                      app.uiConfig().mapNorthUp
-                        ? 'Show Heading Up'
-                        : 'Show North Up'
-                    "
-                  >
-                    <mat-icon
-                      class="ob"
-                      [svgIcon]="
-                        app.uiConfig().mapNorthUp
-                          ? 'heading-n-up'
-                          : 'heading-h-up'
-                      "
-                    >
-                    </mat-icon>
-                  </button>
+                    (pressed)="toggleNorthUp()"
+                  ></fb-fab>
                 </div>
                 <div class="buttonPanelItem">
-                  <button
-                    mat-mini-fab
+                  <fb-fab
                     [ngClass]="{
                       'button-primary': app.uiConfig().mapMove,
                       'button-toolbar': !app.uiConfig().mapMove
                     }"
-                    (click)="toggleMoveMap()"
+                    svgName="cent-iec"
+                    [ariaLabel]="
+                      app.uiConfig().mapMove
+                        ? 'Turn off Follow Vessel'
+                        : 'Follow Vessel'
+                    "
                     [disabled]="!app.data.vessels.showSelf"
                     [matTooltip]="
                       app.uiConfig().mapMove
@@ -628,14 +629,8 @@
                         : 'Follow Vessel'
                     "
                     matTooltipPosition="right"
-                    [attr.aria-label]="
-                      app.uiConfig().mapMove
-                        ? 'Turn off Follow Vessel'
-                        : 'Follow Vessel'
-                    "
-                  >
-                    <mat-icon class="ob" svgIcon="cent-iec"></mat-icon>
-                  </button>
+                    (pressed)="toggleMoveMap()"
+                  ></fb-fab>
                 </div>
                 @if (!app.uiConfig().mapMove) {
                   <div class="buttonPanelItem">
@@ -985,24 +980,19 @@
                   app.config.display.fab !== 'autopilot'
                 ) {
                   <div class="buttonPanelItem">
-                    <button
-                      mat-mini-fab
+                    <fb-fab
                       [ngClass]="{
                         'button-primary':
                           app.data.vessels.self.autopilot.enabled,
                         'button-toolbar':
                           !app.data.vessels.self.autopilot.enabled
                       }"
+                      svgName="command-autopilot"
+                      ariaLabel="Autopilot"
                       matTooltip="Autopilot"
                       matTooltipPosition="before"
-                      (click)="toggleAutopilotConsole(true)"
-                      aria-label="Autopilot"
-                    >
-                      <mat-icon
-                        class="ob"
-                        svgIcon="command-autopilot"
-                      ></mat-icon>
-                    </button>
+                      (pressed)="toggleAutopilotConsole(true)"
+                    ></fb-fab>
                     <br />&nbsp;<br />
                   </div>
                 }
@@ -1121,10 +1111,11 @@
                         matTooltip="Course Settings"
                         (pressed)="openCourseSettings()"
                       >
-                        <mat-icon
+                        <fb-icon
                           class="ob"
-                          svgIcon="navigation-route"
-                        ></mat-icon>
+                          svgName="navigation-route"
+                          ariaLabel=""
+                        ></fb-icon>
                       </fb-button>
                       <br />
                       <fb-button

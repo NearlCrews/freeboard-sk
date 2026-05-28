@@ -18,6 +18,7 @@ import {
   FbCardContentComponent,
   FbCardActionsComponent,
   FbCheckboxComponent,
+  FbIconComponent,
   FbProgressBarComponent,
   FbSwitchRowComponent,
   FbSearchInputComponent
@@ -46,6 +47,7 @@ import { getAisIcon } from 'src/app/modules/icons';
     FbCardContentComponent,
     FbCardActionsComponent,
     FbCheckboxComponent,
+    FbIconComponent,
     FbProgressBarComponent,
     FbSwitchRowComponent,
     FbSearchInputComponent

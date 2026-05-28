@@ -5,15 +5,15 @@ import {
   input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FbIconComponent } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 
 @Component({
   selector: 'autopilot-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, MatButtonModule, MatTooltipModule, FbIconComponent],
   template: `
     <button
       [ngClass]="{
@@ -30,7 +30,7 @@ import { AppFacade } from 'src/app/app.facade';
       matTooltipPosition="above"
       aria-label="Toggle autopilot console"
     >
-      <mat-icon class="ob" svgIcon="command-autopilot"></mat-icon>
+      <fb-icon class="ob" svgName="command-autopilot" ariaLabel=""></fb-icon>
     </button>
   `,
   styles: []

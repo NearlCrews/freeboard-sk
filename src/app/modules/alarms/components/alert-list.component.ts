@@ -20,6 +20,7 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
 import {
   FbButtonComponent,
   FbCardComponent,
+  FbIconComponent,
   FbMenuService,
   FbSwitchComponent,
   type FbMenuItem
@@ -41,6 +42,7 @@ import { alertSeverityClass } from './alert-severity';
     CdkDrag,
     FbButtonComponent,
     FbCardComponent,
+    FbIconComponent,
     FbSwitchComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,7 +83,11 @@ import { alertSeverityClass } from './alert-severity';
               ariaLabel="Silence all alerts"
               (pressed)="silenceAll()"
             >
-              <mat-icon class="ob" svgIcon="sound-off-fill"></mat-icon>
+              <fb-icon
+                class="ob"
+                svgName="sound-off-fill"
+                ariaLabel=""
+              ></fb-icon>
             </fb-button>
             &nbsp; &nbsp;
             <div>
@@ -115,11 +121,12 @@ import { alertSeverityClass } from './alert-severity';
                     (click)="notiMgr.showAlertInfo(item[1].path)"
                     [attr.aria-label]="'Show details for ' + item[1].message"
                   >
-                    <mat-icon
+                    <fb-icon
                       [class]="item[1].icon.class"
-                      [svgIcon]="item[1].icon.svgIcon"
-                      >{{ item[1].icon.name }}</mat-icon
-                    >
+                      [svgName]="item[1].icon.svgIcon ?? ''"
+                      [name]="item[1].icon.name ?? ''"
+                      ariaLabel=""
+                    ></fb-icon>
                   </button>
                   <button
                     type="button"
@@ -151,14 +158,15 @@ import { alertSeverityClass } from './alert-severity';
                         [disabled]="item[1].acknowledged || item[1].silenced"
                         (pressed)="muteAlert(item[1].path)"
                       >
-                        <mat-icon
+                        <fb-icon
                           [class]="item[1].acknowledged ? '' : 'ob'"
-                          [svgIcon]="
+                          [svgName]="
                             item[1].silenced
                               ? 'sound-off-fill'
                               : 'sound-high-fill'
                           "
-                        ></mat-icon>
+                          ariaLabel=""
+                        ></fb-icon>
                       </fb-button>
                       &nbsp;
                     }

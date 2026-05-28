@@ -1,5 +1,8 @@
 import type { OnInit, OnChanges } from '@angular/core';
-import { FbButtonComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 import {
   Component,
   Input,
@@ -42,6 +45,7 @@ interface GroupChip {
   styleUrls: ['./notes.scss'],
   imports: [
     FbButtonComponent,
+    FbIconComponent,
     CommonModule,
     MatTooltipModule,
     MatIconModule,

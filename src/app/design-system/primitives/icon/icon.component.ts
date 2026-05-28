@@ -1,9 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
   computed,
+  effect,
+  inject,
   input
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatIconRegistry } from '@angular/material/icon';
 
 export type FbIconSize = 'sm' | 'md' | 'lg';
 export type FbIconWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700;
@@ -12,31 +19,38 @@ export type FbIconFill = 0 | 1;
 /**
  * Tier-1 Icon primitive.
  *
- * Renders a single Material Symbols / Material Icons glyph. The
- * `.material-icons` font face ships with the app (subset under
- * font_resources/material/), and we drive optional axis values for weight
- * and fill via `font-variation-settings` so consumers can match emphasis
- * without swapping icon variants.
+ * Renders either a Material Symbols ligature (via the `name` input) or
+ * a registered SVG asset (via the `svgName` input). When `svgName` is
+ * set it takes precedence and the SVG is inlined into the host so it
+ * inherits `currentColor`. The SVG registry is shared with
+ * `MatIconRegistry` (configured at app startup in `AppFacade.initAppIcons`)
+ * so this primitive reuses the existing registration without a parallel
+ * service.
  *
  * A11y posture:
  *  - When `ariaLabel` is provided, the host element gets `role="img"` and
  *    the label, so screen readers announce the icon as an image with the
  *    given name.
  *  - When `ariaLabel` is absent, the host element is `aria-hidden="true"`
- *    so screen readers skip what is purely decorative. The glyph name in
- *    the ligature text is irrelevant for AT.
+ *    so screen readers skip what is purely decorative.
  *
- * Sizing maps to touch-target tokens so an icon used in isolation as a
- * tap target hits the 44 px / 56 px floors. `sm` keeps the glyph at the
- * surrounding line-height (`1em`) for inline use inside copy.
+ * Sizing via the `size` input maps to fixed-size hosts (24px md, 32px lg,
+ * or 1em sm for inline use inside copy). The internal glyph / SVG fills
+ * the host.
  */
 @Component({
   selector: 'fb-icon',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span class="fb-icon__glyph material-icons" aria-hidden="true">{{
-    name()
-  }}</span>`,
+  template: `
+    @if (svgName()) {
+      <span class="fb-icon__svg" aria-hidden="true"></span>
+    } @else {
+      <span class="fb-icon__glyph material-icons" aria-hidden="true">{{
+        name()
+      }}</span>
+    }
+  `,
   host: {
     '[attr.role]': 'roleAttr()',
     '[attr.aria-label]': 'ariaLabelAttr()',
@@ -66,6 +80,18 @@ export type FbIconFill = 0 | 1;
         -moz-osx-font-smoothing: grayscale;
         font-feature-settings: 'liga';
         line-height: 1;
+      }
+      .fb-icon__svg {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+      }
+      .fb-icon__svg ::ng-deep svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
       }
       /* Icon hosts intrinsically size to the glyph. Touch-target floors are
          the surrounding control's job (fb-button, fb-list-item, etc.); an
@@ -98,7 +124,8 @@ export type FbIconFill = 0 | 1;
   ]
 })
 export class FbIconComponent {
-  readonly name = input.required<string>();
+  readonly name = input<string>('');
+  readonly svgName = input<string>('');
   readonly size = input<FbIconSize>('md');
   readonly ariaLabel = input<string>('');
   readonly weight = input<FbIconWeight>(400);
@@ -113,4 +140,52 @@ export class FbIconComponent {
   readonly variationSettings = computed(
     () => `'FILL' ${this.fill()}, 'wght' ${this.weight()}`
   );
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly registry = inject(MatIconRegistry);
+
+  constructor() {
+    let initialized = false;
+    afterNextRender(() => {
+      initialized = true;
+      this.renderSvg();
+    });
+    effect(() => {
+      this.svgName();
+      if (initialized) {
+        this.renderSvg();
+      }
+    });
+  }
+
+  private renderSvg(): void {
+    const id = this.svgName();
+    const slot =
+      this.host.nativeElement.querySelector<HTMLElement>('.fb-icon__svg');
+    if (!slot) {
+      return;
+    }
+    slot.replaceChildren();
+    if (!id) {
+      return;
+    }
+    this.registry
+      .getNamedSvgIcon(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (svg) => {
+          if (this.svgName() !== id) {
+            return;
+          }
+          slot.replaceChildren(svg.cloneNode(true));
+        },
+        error: () => {
+          // Registered svgIcon names that fail to resolve (unregistered
+          // id, asset 404) leave the slot empty rather than crashing the
+          // host. AppFacade.initAppIcons logs the registration failures
+          // at startup.
+        }
+      });
+  }
 }

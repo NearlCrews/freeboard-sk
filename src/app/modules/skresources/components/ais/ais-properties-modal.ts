@@ -16,6 +16,7 @@ import {
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -41,13 +42,17 @@ interface AISDisplay {
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent
   ],
   template: `
     <div class="_ap-ais">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading>
-          <mat-icon [svgIcon]="getShipIcon(data.target.type?.id)"></mat-icon>
+          <fb-icon
+            [svgName]="getShipIcon(data.target.type?.id)"
+            ariaLabel=""
+          ></fb-icon>
         </span>
         <span fbToolbarTitle>
           {{ data.title }}

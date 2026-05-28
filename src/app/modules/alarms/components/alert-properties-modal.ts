@@ -10,7 +10,6 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbButtonComponent,
@@ -35,7 +34,6 @@ import { alertSeverityClass } from './alert-severity';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
@@ -47,12 +45,12 @@ import { alertSeverityClass } from './alert-severity';
     <div class="_ap-alert">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading>
-          <mat-icon
+          <fb-icon
             [class]="data.alert.icon.class"
-            [svgIcon]="data.alert.icon.svgIcon"
-          >
-            {{ data.alert.icon.name }}</mat-icon
-          >
+            [svgName]="data.alert.icon.svgIcon ?? ''"
+            [name]="data.alert.icon.name ?? ''"
+            ariaLabel=""
+          ></fb-icon>
         </span>
         <h2
           fbToolbarTitle

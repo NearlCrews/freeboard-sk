@@ -24,6 +24,7 @@ import {
   FbButtonComponent,
   FbDividerComponent,
   FbFabComponent,
+  FbIconComponent,
   FbNavListComponent,
   FbProgressBarComponent
 } from 'src/app/design-system/primitives';
@@ -138,6 +139,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     FbButtonComponent,
     FbDividerComponent,
     FbFabComponent,
+    FbIconComponent,
     FbNavListComponent,
     FbProgressBarComponent,
     CommonModule,

@@ -13,6 +13,7 @@ import { RemarkModule } from 'ngx-remark';
 
 import {
   FbButtonComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -32,6 +33,7 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
+    FbIconComponent,
     MatDialogModule,
     MatIconModule,
     MatTooltipModule,

@@ -10,7 +10,6 @@ import {
   OnDestroy
 } from '@angular/core';
 
-import { MatIconModule } from '@angular/material/icon';
 import { TimerButtonComponent } from './timer-button.component';
 
 import {
@@ -59,7 +58,6 @@ const SoundFiles: Record<ALARM_STATE, string> = {
 @Component({
   selector: 'fb-alert',
   imports: [
-    MatIconModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
@@ -81,11 +79,12 @@ const SoundFiles: Record<ALARM_STATE, string> = {
             <fb-card-content>
               <div style="display:flex; width:100%;">
                 <div style="width:35px;">
-                  <mat-icon
+                  <fb-icon
                     [class]="this.alert().icon.class"
-                    [svgIcon]="this.alert().icon.svgIcon"
-                    >{{ this.alert().icon.name }}</mat-icon
-                  >
+                    [svgName]="this.alert().icon.svgIcon ?? ''"
+                    [name]="this.alert().icon.name ?? ''"
+                    ariaLabel=""
+                  ></fb-icon>
                 </div>
                 <div
                   [class]="severityClass()"
@@ -110,14 +109,15 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                       (pressed)="muteAlarm()"
                       [disabled]="alert().silenced"
                     >
-                      <mat-icon
+                      <fb-icon
                         class="ob"
-                        [svgIcon]="
+                        [svgName]="
                           alert().silenced
                             ? 'sound-off-fill'
                             : 'sound-unavailable-fill'
                         "
-                      ></mat-icon>
+                        ariaLabel=""
+                      ></fb-icon>
                       {{ alert().silenced ? 'MUTED' : 'MUTE' }}
                     </fb-button>
                   </div>

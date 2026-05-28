@@ -112,11 +112,11 @@
     >
       <header class="card-head">
         @if (r[1].properties['skIcon']) {
-        <mat-icon
+        <fb-icon
           class="card-icon"
-          [svgIcon]="'sk-' + r[1].properties['skIcon']"
-          aria-hidden="true"
-        ></mat-icon>
+          [svgName]="'sk-' + r[1].properties['skIcon']"
+          ariaLabel=""
+        ></fb-icon>
         } @else {
         <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
         }

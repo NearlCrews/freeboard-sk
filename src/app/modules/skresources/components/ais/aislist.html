@@ -84,7 +84,7 @@
         @for (i of shipTypes; track i.id) {
         <div style="display: flex">
           <div style="width: 35px">
-            <mat-icon [svgIcon]="i.icon"></mat-icon>
+            <fb-icon [svgName]="i.icon" ariaLabel=""></fb-icon>
           </div>
           <div style="flex: 1 1 auto; padding-left: 7px">
             <b>
@@ -123,7 +123,10 @@
                 matTooltip="Vessel Properties"
                 matTooltipPosition="right"
               >
-                <mat-icon [svgIcon]="getShipIcon(r[1].type?.id )"></mat-icon>
+                <fb-icon
+                  [svgName]="getShipIcon(r[1].type?.id )"
+                  ariaLabel=""
+                ></fb-icon>
                 <b
                   >{{(r[1].name) ? r[1].name : (r[1].mmsi) ? r[1].mmsi :
                   'Vessel-' + i}}</b
