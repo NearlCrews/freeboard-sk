@@ -704,7 +704,7 @@
       </button>
     }
     @if (app.data.vessels.showSelf || course.courseData().position) {
-      <mat-divider></mat-divider>
+      <fb-divider />
     }
     <button
       mat-menu-item
@@ -726,7 +726,7 @@
       </button>
     }
 
-    <mat-divider></mat-divider>
+    <fb-divider />
     @if (this.app.data.vessels.showSelf) {
       <button
         mat-menu-item
@@ -745,7 +745,7 @@
       <mat-icon>straighten</mat-icon>
       Measure
     </button>
-    <mat-divider></mat-divider>
+    <fb-divider />
 
     @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
       <button mat-menu-item (click)="onContextMenuAction('cleartrail', item)">
@@ -763,7 +763,7 @@
       Trail to Route
     </button>
 
-    <mat-divider></mat-divider>
+    <fb-divider />
     <button
       mat-menu-item
       (click)="onContextMenuAction('anchor', item)"

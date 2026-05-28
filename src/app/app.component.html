@@ -39,7 +39,7 @@
         </button>
       }
 
-      <mat-divider></mat-divider>
+      <fb-divider />
       <button mat-menu-item>
         <ap-file-input
           accept=".gpx,.json"
@@ -55,7 +55,7 @@
         &nbsp;Export
       </button>
 
-      <mat-divider></mat-divider>
+      <fb-divider />
       @if (app.featureFlags().resourceTracks) {
         <button mat-menu-item (click)="displayLeftMenu('trackList', true)">
           <mat-icon class="icon-warn">show_chart</mat-icon>
@@ -92,7 +92,7 @@
           <mat-icon>insights</mat-icon>
           <span>Trail to Route</span>
         </a>
-        <mat-divider></mat-divider>
+        <fb-divider />
       }
       @if (course.courseData().position) {
         <a mat-menu-item (click)="clearDestination()">
@@ -107,7 +107,7 @@
           <mat-icon>clear_all</mat-icon>
           <span>Clear Course Data</span>
         </a>
-        <mat-divider></mat-divider>
+        <fb-divider />
       }
 
       <a mat-menu-item (click)="toggleCourseData()">
@@ -134,13 +134,13 @@
         <span>{{ app.config.ui.showNotes ? 'Hide' : 'Show' }} Notes</span>
       </a>
       @if (app.featureFlags().weatherApi && app.data.vessels.showSelf) {
-        <mat-divider></mat-divider>
+        <fb-divider />
         <a mat-menu-item (click)="showWeather('forecast')">
           <mat-icon>air</mat-icon>
           <span>Weather Forecast</span>
         </a>
       }
-      <mat-divider></mat-divider>
+      <fb-divider />
       <a mat-menu-item (click)="openSettings()">
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
@@ -160,7 +160,7 @@
         <mat-icon>highlight_alt</mat-icon>
         <span>Select</span>
       </a>-->
-      <mat-divider></mat-divider>
+      <fb-divider />
       <a mat-menu-item (click)="drawFeature('route')">
         <mat-icon class="icon-route">draw</mat-icon>
         <span>Draw Route</span>
@@ -169,7 +169,7 @@
         <mat-icon class="icon-route" svgIcon="route-planning"></mat-icon>
         <span>Build Route</span>
       </a>
-      <mat-divider></mat-divider>
+      <fb-divider />
       @if (app.data.vessels.showSelf) {
         @if (app.data.vessels.active.position; as activePos) {
           <a mat-menu-item (click)="skres.newWaypointAt(activePos)">
@@ -182,7 +182,7 @@
         <mat-icon class="icon-waypoint">add_location_alt</mat-icon>
         <span>Drop Waypoint</span>
       </a>
-      <mat-divider></mat-divider>
+      <fb-divider />
       @if (
         this.app.config.map.zoomLevel >= this.app.config.resources.notes.minZoom
       ) {
@@ -212,7 +212,7 @@
           </mat-icon>
           <span>{{ app.isLoggedIn() ? 'Change User' : 'Login' }}</span>
         </a>
-        <mat-divider></mat-divider>
+        <fb-divider />
       }
       @if (!isInteracting() && app.featureFlags().anchorApi) {
         <a mat-menu-item (click)="displayLeftMenu('anchorWatch', true)">
@@ -252,12 +252,12 @@
         </a>
       }
 
-      <mat-divider></mat-divider>
+      <fb-divider />
       <a mat-menu-item (click)="openSettings()">
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
       </a>
-      <mat-divider></mat-divider>
+      <fb-divider />
       <a mat-menu-item (click)="openAbout()">
         <mat-icon class="icon-accent">info</mat-icon>
         <span>About</span>
@@ -468,7 +468,7 @@
                     <mat-icon>arrow_forward_ios</mat-icon>
                   </a>
                 </div>
-                <mat-divider></mat-divider>
+                <fb-divider />
               </fb-nav-list>
               <div
                 style="

@@ -21,13 +21,13 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
+  FbDividerComponent,
   FbNavListComponent,
   FbProgressBarComponent
 } from 'src/app/design-system/primitives';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 import {
   ETADialComponent,
   FileInputComponent,
@@ -133,7 +133,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatDividerModule,
+    FbDividerComponent,
     FbNavListComponent,
     FbProgressBarComponent,
     CommonModule,
