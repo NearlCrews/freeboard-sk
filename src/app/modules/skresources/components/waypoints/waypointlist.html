@@ -21,39 +21,13 @@
     </fb-card-header>
     <fb-card-content>
       <div style="display: flex">
-        <div
-          style="
-            flex: 1 1 auto;
-            padding-left: 3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-          "
-        >
-          <div style="width: 180px">
-            <label
-              for="wpt-filter"
-              style="display: block; font-size: 11px; font-weight: 600"
-            >
-              Type to filter list
-            </label>
-            <fb-input
-              name="wpt-filter"
-              type="text"
-              [value]="filterText"
-              (valueChange)="filterKeyUp($event)"
-            ></fb-input>
-          </div>
-          @if(filterText) {
-          <fb-button
-            variant="ghost"
-            size="sm"
-            ariaLabel="Clear filter"
-            (pressed)="filterKeyUp('')"
-          >
-            <fb-icon name="close" ariaLabel=""></fb-icon>
-          </fb-button>
-          }
+        <div style="flex: 1 1 auto; padding-left: 3px">
+          <fb-search-input
+            label="Filter waypoints"
+            [value]="filterText"
+            (valueChange)="filterKeyUp($event)"
+            [widthPx]="180"
+          />
         </div>
         <div>
           <fb-button

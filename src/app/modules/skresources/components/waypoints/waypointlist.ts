@@ -15,7 +15,6 @@ import { CommonModule } from '@angular/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -27,8 +26,8 @@ import {
   FbCardActionsComponent,
   FbCheckboxComponent,
   FbIconComponent,
-  FbInputComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbSearchInputComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -54,7 +53,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     CommonModule,
     MatTooltipModule,
     MatIconModule,
-    FormsModule,
     ScrollingModule,
     FbButtonComponent,
     FbCardComponent,
@@ -63,8 +61,8 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     FbCardActionsComponent,
     FbCheckboxComponent,
     FbIconComponent,
-    FbInputComponent,
-    FbProgressBarComponent
+    FbProgressBarComponent,
+    FbSearchInputComponent
   ]
 })
 export class WaypointListComponent
