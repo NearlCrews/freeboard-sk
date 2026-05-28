@@ -4,7 +4,6 @@ import {
   inject,
   input
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FbIconComponent } from 'src/app/design-system/primitives';
@@ -14,14 +13,9 @@ import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
 @Component({
   selector: 'radar-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatButtonModule, MatTooltipModule, FbIconComponent],
+  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
   template: `
     <button
-      [ngClass]="{
-        'button-primary': radarApi.defaultRadar() && app.uiCtrl().radarLayer,
-        'button-toolbar':
-          !app.featureFlags().radarApi || !app.uiCtrl().radarLayer
-      }"
       mat-fab
       [disabled]="!active()"
       (click)="handleClick()"

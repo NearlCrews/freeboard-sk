@@ -29,7 +29,7 @@ interface PiPVideoElement extends HTMLVideoElement {
     </div>
     <div style="padding-left: 5px;">
       <fb-fab
-        class="button-toolbar"
+        variant="secondary"
         icon="videocam"
         ariaLabel="Show Video"
         [style.display]="src ? 'block' : 'none'"

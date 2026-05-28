@@ -26,7 +26,7 @@ import {
   template: `
     <div>
       <fb-fab
-        class="button-toolbar"
+        variant="secondary"
         icon="science"
         ariaLabel="Experiments menu"
         matTooltip="Experiments"

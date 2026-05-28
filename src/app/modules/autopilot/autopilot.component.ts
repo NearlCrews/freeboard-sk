@@ -117,14 +117,9 @@ import { AutopilotService } from './autopilot.service';
               <div style="width:50%;">
                 @if (stateOptions().length > 2) {
                   <fb-button
-                    class="button-primary"
                     style="max-width:100px;"
-                    variant="primary"
+                    [variant]="apData().enabled ? 'danger' : 'primary'"
                     [disabled]="noPilot()"
-                    [ngClass]="{
-                      'button-warn': apData().enabled,
-                      'button-primary': !apData().enabled
-                    }"
                     (pressed)="openStateMenu($event)"
                   >
                     <div
@@ -150,7 +145,6 @@ import { AutopilotService } from './autopilot.service';
               <div>
                 @if (modeOptions().length !== 0) {
                   <fb-button
-                    class="button-secondary"
                     variant="primary"
                     [disabled]="noPilot() || modeOptions().length === 0"
                     (pressed)="openModeMenu($event)"
@@ -165,7 +159,6 @@ import { AutopilotService } from './autopilot.service';
               <div class="button-bar-thin">
                 <div style="width:50%;">
                   <fb-button
-                    class="button-secondary"
                     variant="primary"
                     ariaLabel="Dodge port 10 degrees"
                     [disabled]="
@@ -176,7 +169,6 @@ import { AutopilotService } from './autopilot.service';
                     &lt;&lt;</fb-button
                   >&nbsp;
                   <fb-button
-                    class="button-toolbar"
                     variant="primary"
                     ariaLabel="Dodge port 1 degree"
                     [disabled]="
@@ -190,7 +182,6 @@ import { AutopilotService } from './autopilot.service';
 
                 <div>
                   <fb-button
-                    class="button-toolbar"
                     variant="primary"
                     ariaLabel="Dodge starboard 1 degree"
                     [disabled]="
@@ -201,7 +192,6 @@ import { AutopilotService } from './autopilot.service';
                     &gt;</fb-button
                   >&nbsp;
                   <fb-button
-                    class="button-secondary"
                     variant="primary"
                     ariaLabel="Dodge starboard 10 degrees"
                     [disabled]="
@@ -217,7 +207,6 @@ import { AutopilotService } from './autopilot.service';
               <div class="button-bar-thin">
                 <div style="width:50%;">
                   <fb-button
-                    class="button-secondary"
                     variant="primary"
                     ariaLabel="Decrease target by 10"
                     [disabled]="
@@ -228,7 +217,6 @@ import { AutopilotService } from './autopilot.service';
                     -10</fb-button
                   >&nbsp;
                   <fb-button
-                    class="button-toolbar"
                     variant="primary"
                     ariaLabel="Decrease target by 1"
                     [disabled]="
@@ -242,7 +230,6 @@ import { AutopilotService } from './autopilot.service';
 
                 <div>
                   <fb-button
-                    class="button-toolbar"
                     variant="primary"
                     ariaLabel="Increase target by 1"
                     [disabled]="
@@ -253,7 +240,6 @@ import { AutopilotService } from './autopilot.service';
                     +1</fb-button
                   >&nbsp;
                   <fb-button
-                    class="button-secondary"
                     variant="primary"
                     ariaLabel="Increase target by 10"
                     [disabled]="
@@ -271,12 +257,8 @@ import { AutopilotService } from './autopilot.service';
               <div style="text-align:center;width:100%;">
                 @if (dodgeAction()) {
                   <fb-button
-                    [ngClass]="{
-                      'button-accent': apData().mode === 'dodge',
-                      'button-toolbar': apData().mode !== 'dodge'
-                    }"
+                    [variant]="apData().mode === 'dodge' ? 'primary' : 'ghost'"
                     [disabled]="noPilot()"
-                    variant="primary"
                     (pressed)="toggleDodge()"
                   >
                     Dodge

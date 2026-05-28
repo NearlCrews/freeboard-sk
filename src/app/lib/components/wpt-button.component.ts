@@ -17,7 +17,6 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
   imports: [FbIconComponent, MatButtonModule, MatTooltipModule],
   template: `
     <button
-      class="button-toolbar"
       mat-fab
       [disabled]="!active()"
       (click)="dropWaypoint()"

@@ -534,7 +534,6 @@
             <div class="leftTop buttonPanel">
               <div class="buttonPanelItem">
                 <fb-fab
-                  class="button-secondary"
                   variant="secondary"
                   icon="menu"
                   ariaLabel="Menu"
@@ -565,7 +564,7 @@
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
-                    class="button-accent"
+                    variant="primary"
                     icon="layers"
                     ariaLabel="Resource layers"
                     [disabled]="isInteracting()"
@@ -576,7 +575,7 @@
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
-                    class="button-toolbar"
+                    variant="secondary"
                     icon="edit"
                     ariaLabel="Draw, measure, or select"
                     [disabled]="isInteracting()"
@@ -587,10 +586,9 @@
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
-                    [ngClass]="{
-                      'button-primary': !app.uiConfig().mapNorthUp,
-                      'button-toolbar': app.uiConfig().mapNorthUp
-                    }"
+                    [variant]="
+                      app.uiConfig().mapNorthUp ? 'secondary' : 'primary'
+                    "
                     [svgName]="
                       app.uiConfig().mapNorthUp
                         ? 'heading-n-up'
@@ -612,10 +610,7 @@
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
-                    [ngClass]="{
-                      'button-primary': app.uiConfig().mapMove,
-                      'button-toolbar': !app.uiConfig().mapMove
-                    }"
+                    [variant]="app.uiConfig().mapMove ? 'primary' : 'secondary'"
                     svgName="cent-iec"
                     [ariaLabel]="
                       app.uiConfig().mapMove
@@ -635,7 +630,7 @@
                 @if (!app.uiConfig().mapMove) {
                   <div class="buttonPanelItem">
                     <fb-fab
-                      class="button-toolbar"
+                      variant="secondary"
                       icon="center_focus_strong"
                       ariaLabel="Center Vessel"
                       (pressed)="centerVessel()"
@@ -647,7 +642,7 @@
                 }
                 <div class="buttonPanelItem">
                   <fb-fab
-                    class="button-toolbar"
+                    variant="secondary"
                     icon="more_horiz"
                     ariaLabel="More actions"
                     [disabled]="isInteracting()"
@@ -830,7 +825,6 @@
             <div class="rightTop buttonPanel">
               <div class="buttonPanelItem">
                 <fb-fab
-                  class="button-secondary"
                   variant="secondary"
                   [icon]="
                     app.uiConfig().toolbarButtons ? 'apps' : 'apps_outage'
@@ -860,7 +854,7 @@
                     !app.data.vessels.activeId
                   ) {
                     <fb-fab
-                      class="button-toolbar"
+                      variant="secondary"
                       icon="av_timer"
                       ariaLabel="Instruments"
                       (pressed)="sideright?.toggle()"
@@ -875,7 +869,7 @@
                 @if (audioStatus() !== 'running') {
                   <div class="buttonPanelItem">
                     <fb-fab
-                      class="button-toolbar"
+                      variant="secondary"
                       icon="volume_off"
                       ariaLabel="Enable Web Audio"
                       matTooltip="Web Audio off! Click to enable."
@@ -900,10 +894,9 @@
                           ? 'Exit Fullscreen'
                           : 'Go Fullscreen'
                       "
-                      [ngClass]="{
-                        'button-primary': displayFullscreen().active,
-                        'button-toolbar': !displayFullscreen().active
-                      }"
+                      [variant]="
+                        displayFullscreen().active ? 'primary' : 'secondary'
+                      "
                       (pressed)="toggleFullscreen()"
                       [matTooltip]="
                         displayFullscreen().active
@@ -921,10 +914,9 @@
                   <fb-fab
                     icon="zoom_in_map"
                     ariaLabel="Constrain map zoom"
-                    [ngClass]="{
-                      'button-primary': app.uiConfig().mapConstrainZoom,
-                      'button-toolbar': !app.uiConfig().mapConstrainZoom
-                    }"
+                    [variant]="
+                      app.uiConfig().mapConstrainZoom ? 'primary' : 'secondary'
+                    "
                     (pressed)="toggleConstrainMapZoom()"
                     matTooltip="Constrain map zoom."
                     matTooltipPosition="before"
@@ -937,10 +929,9 @@
                   <fb-fab
                     [icon]="true ? 'invert_colors' : 'invert_colors_off'"
                     ariaLabel="Invert feature text color"
-                    [ngClass]="{
-                      'button-primary': app.uiConfig().invertColor,
-                      'button-toolbar': !app.uiConfig().invertColor
-                    }"
+                    [variant]="
+                      app.uiConfig().invertColor ? 'primary' : 'secondary'
+                    "
                     (pressed)="invertFeatureLabelColor()"
                     matTooltip="Invert feature text color."
                     matTooltipPosition="before"
@@ -981,12 +972,11 @@
                 ) {
                   <div class="buttonPanelItem">
                     <fb-fab
-                      [ngClass]="{
-                        'button-primary':
-                          app.data.vessels.self.autopilot.enabled,
-                        'button-toolbar':
-                          !app.data.vessels.self.autopilot.enabled
-                      }"
+                      [variant]="
+                        app.data.vessels.self.autopilot.enabled
+                          ? 'primary'
+                          : 'secondary'
+                      "
                       svgName="command-autopilot"
                       ariaLabel="Autopilot"
                       matTooltip="Autopilot"

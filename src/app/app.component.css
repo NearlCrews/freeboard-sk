@@ -64,14 +64,15 @@ mat-nav-list {
   border-radius: var(--radius-xl);
 }
 
-/* Button panel column hosts fb-fab (56px touch-primary) plus 2px outer
-   gutter and a small breath margin so the round buttons do not clip
-   against the chart edge. */
+/* Button panel column hosts fb-fab (--touch-primary, 56px) plus an
+   --space-xs gutter on each side so the round buttons do not clip
+   against the chart edge. .left and .right strips start below the
+   top-row panel so the columns do not collide. */
 .buttonPanel {
-  width: 64px;
+  width: calc(var(--touch-primary) + var(--space-sm));
   z-index: 4800;
   position: absolute;
-  padding: 5px 4px 2px 4px;
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-xs);
   overflow: auto;
   scrollbar-width: none;
 }
@@ -79,31 +80,31 @@ mat-nav-list {
 .buttonPanel.rightTop {
   right: 0px;
   top: 0px;
-  padding: 9px 4px 10px 4px;
+  padding: var(--space-sm) var(--space-xs);
 }
 
 .buttonPanel.leftTop {
   left: 0px;
   top: 0px;
-  padding: 9px 4px 10px 4px;
+  padding: var(--space-sm) var(--space-xs);
 }
 
 .buttonPanel.left {
-  top: 72px;
+  top: calc(var(--touch-primary) + var(--space-sm) * 2);
   left: 0px;
   bottom: 0px;
 }
 
 .buttonPanel.right {
-  top: 72px;
+  top: calc(var(--touch-primary) + var(--space-sm) * 2);
   right: 0px;
-  bottom: 80px;
+  bottom: calc(var(--space-2xl) * 2 + var(--space-lg));
 }
 
 .buttonPanel .buttonPanelItem {
   text-align: center;
-  height: 64px;
-  padding: 4px 0 4px 0;
+  height: calc(var(--touch-primary) + var(--space-sm));
+  padding: var(--space-xs) 0;
 }
 
 .mapButton {
@@ -192,14 +193,16 @@ mat-nav-list {
   background-color: rgba(250, 250, 250, 0.7);
 }
 
+/* OpenLayers zoom control sits to the right of the leftTop button panel
+   (--touch-primary fb-fab + 2 * --space-sm gutters). */
 .ol-zoom {
   position: fixed;
-  top: 10px;
-  left: 100px;
-  color: rgb(30, 30, 30);
-  font-family: roboto;
+  top: var(--space-sm);
+  left: calc(var(--touch-primary) + var(--space-sm) * 2);
+  color: var(--color-text);
+  font-family: var(--font-family-sans);
   background-color: transparent;
-  height: 45px;
+  height: calc(var(--touch-primary) - var(--space-sm));
 }
 
 .instrumentPanelToggle {

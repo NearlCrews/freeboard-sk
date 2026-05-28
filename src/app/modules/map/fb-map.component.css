@@ -23,12 +23,12 @@
 
 .ol-zoom {
   position: fixed;
-  top: 10px;
-  left: 60px;
-  color: rgb(30, 30, 30);
-  font-family: roboto;
+  top: var(--space-sm);
+  left: calc(var(--touch-primary) + var(--space-sm) * 2);
+  color: var(--color-text);
+  font-family: var(--font-family-sans);
   background-color: transparent;
-  height: 45px;
+  height: calc(var(--touch-primary) - var(--space-sm));
 }
 
 ::ng-deep .ol-dragbox {
