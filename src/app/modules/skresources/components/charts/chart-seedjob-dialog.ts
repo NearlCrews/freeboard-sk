@@ -45,7 +45,7 @@ interface DialogData {
   ],
   template: `
     <div class="_ap-chartjob">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="download" ariaLabel=""></fb-icon
         ></span>
@@ -63,41 +63,41 @@ interface DialogData {
       </fb-toolbar>
       <mat-dialog-content>
         <div>
-          <div style="flex: 1 1 auto;">{{ data.chart[1].name }}</div>
+          <div class="flex-auto">{{ data.chart[1].name }}</div>
           @if (data.bbox) {
             <div
               style="flex: 1 1 auto; border: var(--color-border) 1px solid;font-size: var(--font-size-sm);"
             >
-              <div style="text-align:right;">
+              <div class="text-right">
                 <span
-                  style="flex: 1 1 auto;"
+                  class="flex-auto"
                   [innerText]="data.bbox[1][1] | coords: 'HDd' : true"
                 >
                 </span
                 ><br />
                 <span
-                  style="flex: 1 1 auto;"
+                  class="flex-auto"
                   [innerText]="data.bbox[1][0] | coords: 'HDd'"
                 >
                 </span>
               </div>
               <div>
                 <span
-                  style="flex: 1 1 auto;"
+                  class="flex-auto"
                   [innerText]="data.bbox[0][1] | coords: 'HDd' : true"
                 >
                 </span
                 ><br />
                 <span
-                  style="flex: 1 1 auto;"
+                  class="flex-auto"
                   [innerText]="data.bbox[0][0] | coords: 'HDd'"
                 >
                 </span>
               </div>
             </div>
           }
-          <div style="flex: 1 1 auto;">
-            <label for="chart-seed-zoom" style="display:block; font-weight:600">
+          <div class="flex-auto">
+            <label for="chart-seed-zoom" class="block font-semibold">
               Max. Zoom Level
             </label>
             <fb-select

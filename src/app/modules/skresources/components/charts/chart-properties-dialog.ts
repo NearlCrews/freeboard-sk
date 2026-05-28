@@ -52,7 +52,7 @@ import { NodeListSelect } from './node-list-select';
   ],
   template: `
     <div class="_ap-chartinfo">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon [name]="isLocal(data.url)" ariaLabel=""></fb-icon
         ></span>
@@ -69,10 +69,10 @@ import { NodeListSelect } from './node-list-select';
         </span>
       </fb-toolbar>
       <mat-dialog-content>
-        <div style="display:flex;flex-direction: column;">
-          <div style="display:flex;">
+        <div class="flex flex-col">
+          <div class="flex">
             <div class="key-label">Name:</div>
-            <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
               <fb-input
                 name="chart-name"
                 type="text"
@@ -82,17 +82,13 @@ import { NodeListSelect } from './node-list-select';
                 ariaLabel="Chart name"
               ></fb-input>
               @if (!data.name) {
-                <div
-                  style="color: var(--color-error); font-size: var(--font-size-xs)"
-                >
-                  Please enter a name.
-                </div>
+                <div class="error-xs">Please enter a name.</div>
               }
             </div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Description:</div>
-            <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
               <fb-input
                 name="chart-description"
                 type="text"
@@ -102,20 +98,20 @@ import { NodeListSelect } from './node-list-select';
               ></fb-input>
             </div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Scale:</div>
-            <div style="flex: 1 1 auto;">{{ data.scale }}</div>
+            <div class="flex-auto">{{ data.scale }}</div>
           </div>
           @if (data.defaultOpacity) {
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Opacity:</div>
-              <div style="flex: 1 1 auto;">{{ data.defaultOpacity }}</div>
+              <div class="flex-auto">{{ data.defaultOpacity }}</div>
             </div>
           }
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Zoom:</div>
-            <div style="flex: 1 1 auto;">
-              <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
+              <div class="flex-auto">
                 <u><i>Min: </i></u>
                 {{ data.minZoom }},
                 <u><i>Max: </i></u>
@@ -124,34 +120,34 @@ import { NodeListSelect } from './node-list-select';
             </div>
           </div>
           @if (data.bounds; as bounds) {
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Bounds:</div>
               <div
                 style="flex: 1 1 auto; border: var(--color-border) 1px solid;
                                   max-width: 220px;font-size: var(--font-size-sm);"
               >
-                <div style="text-align:right;">
+                <div class="text-right">
                   <span
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="bounds[3] ?? 0 | coords: 'HDd' : true"
                   >
                   </span
                   ><br />
                   <span
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="bounds[2] ?? 0 | coords: 'HDd'"
                   >
                   </span>
                 </div>
                 <div>
                   <span
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="bounds[1] ?? 0 | coords: 'HDd' : true"
                   >
                   </span
                   ><br />
                   <span
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="bounds[0] ?? 0 | coords: 'HDd'"
                   >
                   </span>
@@ -159,24 +155,24 @@ import { NodeListSelect } from './node-list-select';
               </div>
             </div>
           }
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Format:</div>
-            <div style="flex: 1 1 auto;">{{ data.format }}</div>
+            <div class="flex-auto">{{ data.format }}</div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Type:</div>
-            <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
               {{ data.type }}
             </div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">URL:</div>
             <div style="flex: 1 1 auto;overflow-x: auto;">
               {{ data.url }}
             </div>
           </div>
           @if (data.style) {
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Style:</div>
               <div style="flex: 1 1 auto;overflow-x: auto;">
                 {{ data.style }}
@@ -184,7 +180,7 @@ import { NodeListSelect } from './node-list-select';
             </div>
           }
           @if (data.source) {
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Source:</div>
               <div style="flex: 1 1 auto;overflow-x: auto;">
                 {{ data.source }}
@@ -196,14 +192,14 @@ import { NodeListSelect } from './node-list-select';
           ) {
             <div style="">
               <div class="key-label">Layers:</div>
-              <div style="flex: 1 1 auto;">
+              <div class="flex-auto">
                 @if (capabilitiesResource.isLoading()) {
                   <fb-progress-bar indeterminate></fb-progress-bar>
                 } @else {
                   @if (layerErrorText.length) {
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div class="key-label"></div>
-                      <div style="flex: 1 1 auto;">
+                      <div class="flex-auto">
                         {{ data.layers }}
                       </div>
                     </div>
@@ -227,9 +223,9 @@ import { NodeListSelect } from './node-list-select';
               </div>
             </div>
           } @else if (data.layers.length) {
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Layers:</div>
-              <div style="flex: 1 1 auto;">
+              <div class="flex-auto">
                 {{ data.layers }}
               </div>
             </div>

@@ -139,6 +139,52 @@ html {
     color: mat.get-theme-color($light-theme, primary);
   }
 
+  /* Project layout utilities
+     Token-aware spacing helpers and recurring layout shapes extracted from
+     repeated inline style attributes. Tailwind covers the generic layout
+     utilities (flex, flex-auto, text-right, bg-transparent, etc.); these
+     wire the design-token scale and the project-specific list rows. */
+  .pb-xs {
+    padding-bottom: var(--space-xs);
+  }
+  .pb-md {
+    padding-bottom: var(--space-md);
+  }
+  .pt-sm {
+    padding-top: var(--space-sm);
+  }
+  .pl-xs {
+    padding-left: var(--space-xs);
+  }
+  .pl-md {
+    padding-left: var(--space-md);
+  }
+  .error-xs {
+    color: var(--color-error);
+    font-size: var(--font-size-xs);
+  }
+  .list-divider {
+    border-bottom: silver 1px outset;
+    border-radius: unset !important;
+  }
+  fb-toolbar.bg-transparent {
+    background: transparent !important;
+  }
+  .bold-top {
+    font-weight: bold;
+    vertical-align: top;
+  }
+  .w-50 {
+    width: 50px;
+  }
+  .list-name-col {
+    flex: 1 1 auto;
+    width: 215px;
+  }
+  .flex-2 {
+    flex: 2;
+  }
+
   //@media (prefers-color-scheme: dark) {
   .dark-theme {
     @include mat.all-component-colors($dark-theme);

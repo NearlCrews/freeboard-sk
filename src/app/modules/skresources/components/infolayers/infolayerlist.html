@@ -3,7 +3,7 @@
     <fb-card-header>
       <span fbCardTitle>
         <div class="title-block">
-          <div style="width: 50px">
+          <div class="w-50">
             <fb-button
               variant="ghost"
               (pressed)="close()"
@@ -14,15 +14,13 @@
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">
-            Overlays
-          </div>
+          <div class="flex-auto pt-sm">Overlays</div>
         </div>
       </span>
     </fb-card-header>
     <fb-card-content>
-      <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: var(--space-xs)">
+      <div class="flex">
+        <div class="flex-auto pl-xs">
           <fb-search-input
             label="Filter info layers"
             [value]="filterText"
@@ -77,10 +75,10 @@
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="48">
       <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
-        style="border-bottom: silver 1px outset; border-radius: unset"
+        class="list-divider"
       >
         <fb-card-content>
-          <div style="display: flex">
+          <div class="flex">
             <div
               style="
                 flex: 1 1 auto;
@@ -96,7 +94,7 @@
             >
               <b>{{(r[1].name)}}</b>
             </div>
-            <div style="text-align: right">
+            <div class="text-right">
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
@@ -109,7 +107,7 @@
         </fb-card-content>
         <fb-card-actions align="start">
           <div style="flex: auto">
-            <div style="display: flex">
+            <div class="flex">
               <div style="flex: 1 1 auto; display: flex; gap: var(--space-sm)">
                 <fb-form-field
                   #refreshField
@@ -141,9 +139,9 @@
             </div>
             @if(r[1].values.time?.values && r[1].values.time?.values.length > 1
             && r[2]) {
-            <div style="display: flex">
+            <div class="flex">
               <fb-slider
-                style="flex: 2"
+                class="flex-2"
                 [disabled]="!r[2]"
                 [min]="0"
                 [max]="r[1].values.time?.values.length-1"
@@ -152,22 +150,22 @@
                 (valueChange)="handleSliderChange(r,$event); timeLabel.innerText = formatDateTime(r[1].values.time, $event)"
               ></fb-slider>
             </div>
-            <div style="display: flex" #timeLabel></div>
+            <div class="flex" #timeLabel></div>
             }
             <!--@if(r[1].values.time?.interval && r[2]) {
-            <div style="display: flex">
+            <div class="flex">
               <fb-slider
-                style="flex: 2"
+                class="flex-2"
                 [disabled]="!r[2]"
                 [min]="0"
                 [max]="maxIndexFrominterval(r[1].values?.time)"
                 (valueChange)="handleSliderChange(r,$event); timeLabel.innerText = formatDateTime(r[1].values.time, $event)"
               ></fb-slider>
             </div>
-            <div style="display: flex" #timeLabel></div>
+            <div class="flex" #timeLabel></div>
           }-->
-            <div style="display: flex">
-              <div style="flex: 2">
+            <div class="flex">
+              <div class="flex-2">
                 <fb-button
                   variant="ghost"
                   (pressed)="itemDelete(r[0])"

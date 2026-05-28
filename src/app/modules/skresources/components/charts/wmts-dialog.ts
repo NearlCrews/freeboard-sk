@@ -35,7 +35,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
   ],
   template: `
     <div class="_ap-wmts">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="public" ariaLabel=""></fb-icon
         ></span>
@@ -52,10 +52,8 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
         </span>
       </fb-toolbar>
       <mat-dialog-content>
-        <label for="wmts-host" style="display:block; font-weight:600">
-          WMTS host.
-        </label>
-        <div style="display:flex; gap:var(--space-sm); align-items:center">
+        <label for="wmts-host" class="block font-semibold"> WMTS host. </label>
+        <div class="flex items-center" style="gap: var(--space-sm)">
           <fb-input
             name="wmts-host"
             type="text"
@@ -79,11 +77,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
           Enter url of the WMTS host.
         </div>
         @if (!hostUrl) {
-          <div
-            style="color: var(--color-error); font-size: var(--font-size-xs)"
-          >
-            WMTS host is required!
-          </div>
+          <div class="error-xs">WMTS host is required!</div>
         }
 
         @if (isFetching) {

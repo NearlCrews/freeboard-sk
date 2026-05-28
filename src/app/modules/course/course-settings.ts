@@ -71,7 +71,7 @@ interface CoursePutResponse {
   ],
   template: `
     <div class="_ap-course">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading>
           <fb-icon class="ob" svgName="navigation-route" ariaLabel=""></fb-icon>
         </span>
@@ -96,7 +96,7 @@ interface CoursePutResponse {
         <legend>Arrival</legend>
 
         <div>
-          <label for="arrivalCircle" style="display:block; font-weight:600">
+          <label for="arrivalCircle" class="block font-semibold">
             Arrival Circle Radius
           </label>
           <div style="display:flex; align-items:center; gap:var(--space-sm);">
@@ -128,7 +128,8 @@ interface CoursePutResponse {
           <div>
             <label
               for="arrivalDate"
-              style="display:block; font-weight:600; font-size:var(--font-size-xs)"
+              class="block font-semibold"
+              style="font-size: var(--font-size-xs)"
             >
               Date
             </label>
@@ -146,7 +147,8 @@ interface CoursePutResponse {
             <div style="width: 100px">
               <label
                 for="arrivalHour"
-                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
+                class="block font-semibold"
+                style="font-size: var(--font-size-xs)"
               >
                 Hour
               </label>
@@ -162,7 +164,8 @@ interface CoursePutResponse {
             <div style="width: 100px">
               <label
                 for="arrivalMinutes"
-                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
+                class="block font-semibold"
+                style="font-size: var(--font-size-xs)"
               >
                 Minutes
               </label>
@@ -178,7 +181,8 @@ interface CoursePutResponse {
             <div style="width: 100px">
               <label
                 for="arrivalSeconds"
-                style="display:block; font-weight:600; font-size:var(--font-size-xs)"
+                class="block font-semibold"
+                style="font-size: var(--font-size-xs)"
               >
                 seconds
               </label>

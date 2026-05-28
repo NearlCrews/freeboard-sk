@@ -95,8 +95,8 @@ export class MsgBox implements OnInit {
         </h1>
       </div>
       <mat-dialog-content>
-        <div style="display:flex;">
-          <div style="padding-left: var(--space-md);">
+        <div class="flex">
+          <div class="pl-md">
             @for (line of msglines; track line) {
               <div>
                 <div>{{ line }}&nbsp;</div>
@@ -167,8 +167,8 @@ export class AlertDialog implements OnInit {
         </h1>
       </div>
       <mat-dialog-content style="overflow:unset">
-        <div style="display:flex;">
-          <div style="padding-left: var(--space-md);">
+        <div class="flex">
+          <div class="pl-md">
             @for (line of msglines; track line) {
               <div>
                 <div>{{ line }}&nbsp;</div>
@@ -176,9 +176,9 @@ export class AlertDialog implements OnInit {
             }
           </div>
         </div>
-        <div style="display:flex;">
+        <div class="flex">
           @if (data.checkText) {
-            <div style="padding-left: var(--space-md);">
+            <div class="pl-md">
               <div style="font-weight: 500;">
                 <fb-checkbox (checkedChange)="checked = $event">
                   {{ data.checkText }}&nbsp;
@@ -285,7 +285,7 @@ export class MessageBarComponent {
               <div style="text-align:center;">
                 <h3>{{ c.title }}</h3>
               </div>
-              <div style="display:flex;">
+              <div class="flex">
                 <div style="min-width:50px;text-align:left;padding-top: 15%;">
                   @if (i !== 0 && data.content.length > 1) {
                     <fb-button
@@ -301,7 +301,7 @@ export class MessageBarComponent {
                     </fb-button>
                   }
                 </div>
-                <div style="flex: 1 1 auto;" [innerHTML]="c.message"></div>
+                <div class="flex-auto" [innerHTML]="c.message"></div>
                 <div style="min-width:50px;text-align:right;padding-top: 15%;">
                   @if (i !== data.content.length - 1) {
                     <fb-button

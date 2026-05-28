@@ -3,7 +3,7 @@
     <fb-card-header>
       <span fbCardTitle>
         <div class="title-block">
-          <div style="width: 50px">
+          <div class="w-50">
             <fb-button
               variant="ghost"
               (pressed)="close()"
@@ -13,15 +13,13 @@
               <mat-icon>arrow_back</mat-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">
-            Vessels
-          </div>
+          <div class="flex-auto pt-sm">Vessels</div>
         </div>
       </span>
     </fb-card-header>
     <fb-card-content>
-      <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: var(--space-xs)">
+      <div class="flex">
+        <div class="flex-auto pl-xs">
           <fb-search-input
             label="Filter AIS"
             [value]="filterText"
@@ -84,7 +82,7 @@
     <fb-card>
       <fb-card-content>
         @for (i of shipTypes; track i.id) {
-        <div style="display: flex">
+        <div class="flex">
           <div style="width: 35px">
             <fb-icon [svgName]="i.icon" ariaLabel=""></fb-icon>
           </div>
@@ -96,7 +94,7 @@
               </span>
             </b>
           </div>
-          <div style="text-align: right">
+          <div class="text-right">
             <fb-checkbox
               [checked]="i.selected"
               (checkedChange)="shipTypeSelect($event, i.id)"
@@ -114,10 +112,10 @@
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="48">
       <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
-        style="border-bottom: silver 1px outset; border-radius: unset"
+        class="list-divider"
       >
         <fb-card-content>
-          <div style="display: flex">
+          <div class="flex">
             <div style="flex: 1 1 auto; padding-left: var(--space-sm)">
               <a
                 style="cursor: pointer"
@@ -135,7 +133,7 @@
                 >
               </a>
             </div>
-            <div style="text-align: right">
+            <div class="text-right">
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
@@ -147,8 +145,8 @@
           </div>
         </fb-card-content>
         <fb-card-actions align="start">
-          <div style="display: flex">
-            <div style="flex: 1 1 auto">
+          <div class="flex">
+            <div class="flex-auto">
               @if(r[0] !== focusId()) {
               <fb-button
                 variant="ghost"

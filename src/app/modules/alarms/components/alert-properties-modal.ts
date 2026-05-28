@@ -43,7 +43,7 @@ import { alertSeverityClass } from './alert-severity';
   ],
   template: `
     <div class="_ap-alert">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading>
           <fb-icon
             [class]="data.alert.icon.class"
@@ -74,10 +74,10 @@ import { alertSeverityClass } from './alert-severity';
 
       <fb-card>
         <fb-card-content>
-          <div style="display:flex;flex-direction: column;">
+          <div class="flex flex-col">
             @if (data.alert.canAcknowledge && !data.alert.acknowledged) {
-              <div style="display:flex;">
-                <div style="flex: 1 1 auto;">
+              <div class="flex">
+                <div class="flex-auto">
                   <fb-button
                     variant="danger"
                     (pressed)="notiMgr.acknowledge(data.alert.path)"
@@ -87,23 +87,23 @@ import { alertSeverityClass } from './alert-severity';
                 </div>
               </div>
             }
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Message:</div>
-              <div style="flex: 1 1 auto;">{{ data.alert.message }}</div>
+              <div class="flex-auto">{{ data.alert.message }}</div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Type:</div>
-              <div style="flex: 1 1 auto;">{{ data.alert.type }}</div>
+              <div class="flex-auto">{{ data.alert.type }}</div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Priority:</div>
-              <div style="flex: 1 1 auto;" [class]="severityClass()">
+              <div class="flex-auto" [class]="severityClass()">
                 {{ data.alert.priority }}
               </div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Raised at:</div>
-              <div style="flex: 1 1 auto;">{{ raisedAt }}</div>
+              <div class="flex-auto">{{ raisedAt }}</div>
             </div>
             @if (hasProperties) {
               <fb-button variant="secondary" (pressed)="toggleProperties()">

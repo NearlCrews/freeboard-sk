@@ -3,7 +3,7 @@
     <fb-card-header>
       <span fbCardTitle>
         <div class="title-block">
-          <div style="width: 50px">
+          <div class="w-50">
             <fb-button
               variant="ghost"
               (pressed)="close()"
@@ -14,14 +14,14 @@
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">Charts</div>
+          <div class="flex-auto pt-sm">Charts</div>
         </div>
       </span>
     </fb-card-header>
     <fb-card-content>
       @if(!displayChartLayers) {
-      <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: var(--space-xs)">
+      <div class="flex">
+        <div class="flex-auto pl-xs">
           <fb-search-input
             label="Filter charts"
             [value]="filterText"
@@ -99,7 +99,7 @@
       </fb-button>
       } @else {
       <div style="display: flex; width: 100%; font-style: italic">
-        <div style="flex: 1 1 auto">Top Layer</div>
+        <div class="flex-auto">Top Layer</div>
         <div
           style="
             text-align: center;
@@ -122,11 +122,11 @@
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="80">
       <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
-        style="border-bottom: silver 1px outset; border-radius: unset"
+        class="list-divider"
       >
         <fb-card-content>
-          <div style="display: flex">
-            <div style="flex: 1 1 auto; width: 215px">
+          <div class="flex">
+            <div class="list-name-col">
               <div
                 style="
                   text-overflow: ellipsis;
@@ -147,7 +147,7 @@
                 {{r[1].description}}
               </div>
             </div>
-            <div style="text-align: right">
+            <div class="text-right">
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
@@ -159,9 +159,9 @@
           </div>
         </fb-card-content>
         <fb-card-actions align="start">
-          <div style="display: flex">
+          <div class="flex">
             @if(r[1].source && r[1].source === 'resources-provider') {
-            <div style="width: 100%; text-align: right">
+            <div class="w-full text-right">
               <fb-button
                 variant="ghost"
                 (pressed)="itemDelete(r[0])"
@@ -173,7 +173,7 @@
               </fb-button>
             </div>
             }
-            <div style="width: 100%; text-align: right">
+            <div class="w-full text-right">
               <fb-button
                 variant="ghost"
                 (pressed)="itemProperties(r[0])"
@@ -184,7 +184,7 @@
                 <fb-icon name="info" ariaLabel=""></fb-icon>
               </fb-button>
             </div>
-            <div style="width: 100%; text-align: right">
+            <div class="w-full text-right">
               <fb-button
                 variant="ghost"
                 [disabled]="!r[2]"
@@ -197,7 +197,7 @@
               </fb-button>
             </div>
             @if(r[1].proxy) {
-            <div style="width: 100%; text-align: right">
+            <div class="w-full text-right">
               <fb-button
                 variant="ghost"
                 (pressed)="selectCacheArea(r[0])"
@@ -209,7 +209,7 @@
               </fb-button>
             </div>
             } @if(app.featureFlags().resourceGroups) { &nbsp;
-            <div style="width: 100%; text-align: right">
+            <div class="w-full text-right">
               <fb-button
                 variant="ghost"
                 (pressed)="itemAddToGroup(r[0])"

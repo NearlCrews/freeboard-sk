@@ -49,7 +49,7 @@ interface ResourceSetFeatureProperties {
   ],
   template: `
     <div class="_ap-resource-set-feature">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarTitle>
           {{ title }}
         </span>
@@ -68,29 +68,25 @@ interface ResourceSetFeatureProperties {
 
       <fb-card>
         <fb-card-content>
-          <div style="padding-bottom: var(--space-xs); display: flex">
-            <div style="font-weight: bold; vertical-align: top">Name:</div>
-            <div style="padding-left: var(--space-md)">
+          <div class="flex pb-xs">
+            <div class="bold-top">Name:</div>
+            <div class="pl-md">
               {{ properties.name }}
             </div>
           </div>
-          <div style="font-weight: bold; vertical-align: top">Description:</div>
+          <div class="bold-top">Description:</div>
           <div style="overflow-y: auto; height: 60px" target="notelink">
             {{ properties.description }}
           </div>
-          <div style="padding-bottom: var(--space-xs); display: flex">
-            <div style="font-weight: bold; vertical-align: top">
-              Resource Set:
-            </div>
-            <div style="padding-left: var(--space-md)">
+          <div class="flex pb-xs">
+            <div class="bold-top">Resource Set:</div>
+            <div class="pl-md">
               {{ properties['resourceset.name'] }}
             </div>
           </div>
-          <div style="padding-bottom: var(--space-xs); display: flex">
-            <div style="font-weight: bold; vertical-align: top">
-              Collection:
-            </div>
-            <div style="padding-left: var(--space-md)">
+          <div class="flex pb-xs">
+            <div class="bold-top">Collection:</div>
+            <div class="pl-md">
               {{ properties['resourceset.collection'] }}
             </div>
           </div>

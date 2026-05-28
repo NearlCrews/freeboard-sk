@@ -3,7 +3,7 @@
     <fb-card-header>
       <span fbCardTitle>
         <div class="title-block">
-          <div style="width: 50px">
+          <div class="w-50">
             <fb-button
               variant="ghost"
               size="sm"
@@ -15,9 +15,7 @@
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">
-            Anchor Watch
-          </div>
+          <div class="flex-auto pt-sm">Anchor Watch</div>
         </div>
       </span>
     </fb-card-header>
@@ -62,7 +60,7 @@
           <span>DROP</span>
         </div>
         <div [style.display]="raised ? 'flex' : 'none'">
-          <div style="flex: 2">
+          <div class="flex-2">
             <fb-checkbox
               (checkedChange)="onDefaultRadiusChecked($event)"
               [checked]="useDefaultRadius"
@@ -114,7 +112,7 @@
             </fb-checkbox>
           </div>
 
-          <div style="flex: 2">
+          <div class="flex-2">
             <fb-button
               variant="primary"
               (pressed)="setManualAnchor()"
@@ -187,7 +185,7 @@
               <br />
               <b>Adjust Radius:</b>
             </div>
-            <div style="display: flex">
+            <div class="flex">
               <div>
                 <fb-slider
                   [disabled]="disableRaiseDrop"

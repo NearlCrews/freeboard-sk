@@ -26,7 +26,7 @@ import {
   ],
   template: `
     <div class="_ap-infolayer">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="layers" ariaLabel=""></fb-icon
         ></span>
@@ -42,25 +42,25 @@ import {
         </span>
       </fb-toolbar>
       <mat-dialog-content>
-        <div style="display:flex;flex-direction: column;">
-          <div style="display:flex;">
+        <div class="flex flex-col">
+          <div class="flex">
             <div class="key-label">Name:</div>
-            <div style="flex: 1 1 auto;">{{ data.name }}</div>
+            <div class="flex-auto">{{ data.name }}</div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Description:</div>
-            <div style="flex: 1 1 auto;">{{ data.description }}</div>
+            <div class="flex-auto">{{ data.description }}</div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Type:</div>
-            <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
               {{ data.values.sourceType }}
             </div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Zoom:</div>
-            <div style="flex: 1 1 auto;">
-              <div style="flex: 1 1 auto;">
+            <div class="flex-auto">
+              <div class="flex-auto">
                 <u><i>Min: </i></u>
                 {{ data.values.minZoom }},
                 <u><i>Max: </i></u>
@@ -68,11 +68,11 @@ import {
               </div>
             </div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">Layers:</div>
-            <div style="flex: 1 1 auto;">{{ data.values.layers }}</div>
+            <div class="flex-auto">{{ data.values.layers }}</div>
           </div>
-          <div style="display:flex;">
+          <div class="flex">
             <div class="key-label">URL:</div>
             <div style="flex: 1 1 auto;overflow-x: auto;">
               {{ data.values.url }}

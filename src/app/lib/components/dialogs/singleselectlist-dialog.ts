@@ -47,7 +47,7 @@ import {
   ],
   template: `
     <div class="_ap-singlesellist">
-      <div style="display:flex;">
+      <div class="flex">
         <div style="padding: var(--space-lg) 0 0 var(--space-md);">
           @if (this.data.icon) {
             <fb-icon
@@ -58,7 +58,7 @@ import {
             ></fb-icon>
           }
         </div>
-        <div style="flex: 1 1 auto;">
+        <div class="flex-auto">
           <h1 mat-dialog-title>{{ data.title ?? 'Select Item' }}</h1>
         </div>
         <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">

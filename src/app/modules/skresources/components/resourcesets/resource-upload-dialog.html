@@ -1,5 +1,5 @@
 <div class="resourceload-dialog">
-  <fb-toolbar style="background-color: transparent">
+  <fb-toolbar class="bg-transparent">
     <span fbToolbarLeading
       ><fb-icon name="category" ariaLabel=""></fb-icon
     ></span>
@@ -20,7 +20,7 @@
     @if(!display.notValid) {
     <div class="card-group">
       <div>
-        <label for="respaths" style="display: block; font-weight: 600">
+        <label for="respaths" class="block font-semibold">
           Select Destination Path
         </label>
         <fb-select
@@ -61,11 +61,9 @@
           <div
             style="flex: 1 1 auto; padding: var(--space-xs); font-size: smaller"
           >
+            <div><span class="font-bold">Name:</span> {{source.name}}</div>
             <div>
-              <span style="font-weight: bold">Name:</span> {{source.name}}
-            </div>
-            <div>
-              <span style="font-weight: bold">Type:</span>
+              <span class="font-bold">Type:</span>
               {{source.type}}
             </div>
           </div>

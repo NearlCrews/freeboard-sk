@@ -38,7 +38,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
   ],
   template: `
     <div class="_ap-aircraft">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading>
           <fb-icon name="airplanemode_active" ariaLabel=""></fb-icon>
         </span>
@@ -60,22 +60,22 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
 
       <fb-card>
         <fb-card-content>
-          <div style="display:flex;flex-direction: column;">
-            <div style="display:flex;">
+          <div class="flex flex-col">
+            <div class="flex">
               <div class="key-label">Name:</div>
-              <div style="flex: 1 1 auto;">{{ data.target.name }}</div>
+              <div class="flex-auto">{{ data.target.name }}</div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">MMSI:</div>
-              <div style="flex: 1 1 auto;">{{ data.target.mmsi }}</div>
+              <div class="flex-auto">{{ data.target.mmsi }}</div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Call sign VHF:</div>
-              <div style="flex: 1 1 auto;">{{ data.target.callsignVhf }}</div>
+              <div class="flex-auto">{{ data.target.callsignVhf }}</div>
             </div>
-            <div style="display:flex;">
+            <div class="flex">
               <div class="key-label">Call sign HF:</div>
-              <div style="flex: 1 1 auto;">{{ data.target.callsignHf }}</div>
+              <div class="flex-auto">{{ data.target.callsignHf }}</div>
             </div>
             <fb-button variant="secondary" (pressed)="toggleProperties()">
               <span>Show {{ showProperties ? 'Less' : 'More' }}</span>

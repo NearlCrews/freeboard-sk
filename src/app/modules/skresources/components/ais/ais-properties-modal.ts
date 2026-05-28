@@ -47,7 +47,7 @@ interface AISDisplay {
   ],
   template: `
     <div class="_ap-ais">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading>
           <fb-icon
             [svgName]="getShipIcon(data.target.type?.id)"
@@ -96,103 +96,103 @@ interface AISDisplay {
           }
         </fb-card-header>
         <fb-card-content>
-          <div style="display:flex;flex-direction: column;">
+          <div class="flex flex-col">
             @if (data.target.type?.name) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Type:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ data.target.type?.name }}
                 </div>
               </div>
             }
             @if (data.target.flag) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Flag:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ data.target.flag }}
                 </div>
               </div>
             }
             @if (data.target.port) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Port:</div>
-                <div style="flex: 1 1 auto;">{{ data.target.port }}</div>
+                <div class="flex-auto">{{ data.target.port }}</div>
               </div>
             }
             @if (data.target.registrations?.['imo']) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">IMO:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ data.target.registrations?.['imo'] }}
                 </div>
               </div>
             }
             @if (data.target.callsignVhf) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Call sign VHF:</div>
-                <div style="flex: 1 1 auto;">{{ data.target.callsignVhf }}</div>
+                <div class="flex-auto">{{ data.target.callsignVhf }}</div>
               </div>
             }
             @if (data.target.callsignHf) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Call sign HF:</div>
-                <div style="flex: 1 1 auto;">{{ data.target.callsignHf }}</div>
+                <div class="flex-auto">{{ data.target.callsignHf }}</div>
               </div>
             }
             @if (
               data.target.design['length']?.overall &&
               data.target.design['beam']
             ) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Dimensions:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ display.length }} x
                   {{ display.beam }}
                 </div>
               </div>
             }
             @if (data.target.design['draft']?.current) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Draft:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ display.draftCurrent }}
                 </div>
               </div>
             }
             @if (data.target.design['draft']?.maximum) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Draft (max):</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ display.draftMax }}
                 </div>
               </div>
             }
             @if (data.target.design['airHeight']) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Height:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ display.airHeight }}
                 </div>
               </div>
             }
             @if (data.target.state) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">State:</div>
-                <div style="flex: 1 1 auto;">{{ data.target.state }}</div>
+                <div class="flex-auto">{{ data.target.state }}</div>
               </div>
             }
             @if (data.target.destination?.name; as destName) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">Destination:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ destName }}
                 </div>
               </div>
             }
             @if (data.target.destination?.eta; as destEta) {
-              <div style="display:flex;">
+              <div class="flex">
                 <div class="key-label">ETA:</div>
-                <div style="flex: 1 1 auto;">
+                <div class="flex-auto">
                   {{ destEta.toLocaleString() }}
                 </div>
               </div>

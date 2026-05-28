@@ -42,7 +42,7 @@ import {
         </h1>
       </div>
       <mat-dialog-content>
-        <div style="display:flex;">
+        <div class="flex">
           <div>
             <div>
               <fb-form-field #contextField label="Context" [widthPx]="180">

@@ -44,7 +44,7 @@ interface DialogData {
   ],
   template: `
     <div class="_ap-track">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="show_chart" ariaLabel="" class="icon-track"></fb-icon
         ></span>
@@ -63,28 +63,19 @@ interface DialogData {
 
       <mat-dialog-content>
         <div>
-          <div style="padding-left: var(--space-md);">
+          <div class="pl-md">
             <div>
-              <label for="track-name" style="display:block; font-weight:600">
-                Name
-              </label>
+              <label for="track-name" class="block font-semibold"> Name </label>
               <fb-input type="text" [formField]="tForm.name"></fb-input>
               @if (
                 tForm.name().invalid() &&
                 (tForm.name().dirty() || tForm.name().touched())
               ) {
-                <div
-                  style="color: var(--color-error); font-size: var(--font-size-xs)"
-                >
-                  Please enter a name.
-                </div>
+                <div class="error-xs">Please enter a name.</div>
               }
             </div>
             <div>
-              <label
-                for="track-description"
-                style="display:block; font-weight:600"
-              >
+              <label for="track-description" class="block font-semibold">
                 Description
               </label>
               <fb-textarea

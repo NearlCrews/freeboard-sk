@@ -15,7 +15,6 @@ import {
   model,
   output,
   signal,
-  untracked,
   viewChild,
   viewChildren
 } from '@angular/core';
@@ -307,20 +306,15 @@ export class FbStepComponent {
     return 'future';
   });
 
-  readonly hiddenAttr = signal<'' | null>('');
+  readonly hiddenAttr = computed<'' | null>(() =>
+    this.renderHeader() || this.active() ? null : ''
+  );
 
   /** Internal viewchild handle so the parent can roll focus across headers. */
   readonly headerBtnRef = viewChild<ElementRef<HTMLButtonElement>>('headerBtn');
 
-  /**
-   * Apply the active flag. In horizontal mode the parent uses `hidden` to
-   * suppress inactive bodies; in vertical mode (renderHeader = true) every
-   * body stays visible.
-   */
   setActive(active: boolean): void {
     this.active.set(active);
-    const renderHeader = untracked(() => this.renderHeader());
-    this.hiddenAttr.set(renderHeader || active ? null : '');
   }
 
   setVerticalChrome(opts: {
@@ -336,7 +330,6 @@ export class FbStepComponent {
     this.headerId.set(opts.headerId);
     this.bodyId.set(opts.bodyId);
     this.renderHeader.set(true);
-    this.hiddenAttr.set(null);
   }
 }
 

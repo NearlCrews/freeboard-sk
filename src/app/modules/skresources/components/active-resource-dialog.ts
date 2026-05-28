@@ -50,9 +50,9 @@ interface CoordinatesMetaEntry {
     CdkDropList
   ],
   template: `
-    <div class="_ap-dest" style="display:flex;flex-direction:column;">
+    <div class="_ap-dest" class="flex flex-col">
       <div>
-        <fb-toolbar style="background-color: transparent">
+        <fb-toolbar class="bg-transparent">
           <span fbToolbarLeading>
             @if (!data.noButtons) {
               @if (showClearButton()) {
@@ -111,7 +111,7 @@ interface CoordinatesMetaEntry {
                 <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
 
                 <div
-                  style="display:flex;"
+                  class="flex"
                   [style.cursor]="
                     points.length > 1 && selIndex() !== -1
                       ? 'pointer'
@@ -138,8 +138,8 @@ interface CoordinatesMetaEntry {
                       }
                     }
                   </div>
-                  <div style="flex: 1 1 auto;">
-                    <div style="display:flex;">
+                  <div class="flex-auto">
+                    <div class="flex">
                       <div class="key-label"></div>
                       <div
                         style="flex: 1 1 auto;font-weight:bold;"
@@ -148,16 +148,16 @@ interface CoordinatesMetaEntry {
                     </div>
 
                     @if (pointMeta[i]?.description) {
-                      <div style="display:flex;">
+                      <div class="flex">
                         <div class="key-label">Desc:</div>
                         <div
-                          style="flex: 1 1 auto;"
+                          class="flex-auto"
                           [innerText]="pointMeta[i]?.description ?? ''"
                         ></div>
                       </div>
                     }
 
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div class="key-label"></div>
                       <div style="flex: 1 1 auto;font-style:italic">
                         <span [innerText]="legs[i]?.bearing ?? ''"></span>

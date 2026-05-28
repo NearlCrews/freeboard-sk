@@ -74,14 +74,14 @@ interface GroupItem {
   ],
   template: `
     <div class="_ap-group">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <div fbToolbarLeading>
           <mat-icon class="icon-region">category</mat-icon>
         </div>
         <span fbToolbarTitle>
           {{ this.data.addMode ? 'New Group' : 'Group Information' }}
         </span>
-        <div fbToolbarActions style="width: 50px; text-align: right;">
+        <div fbToolbarActions class="w-50 text-right">
           <fb-button
             variant="ghost"
             size="sm"
@@ -102,7 +102,7 @@ interface GroupItem {
           <ng-template fbTabPanel fbTabPanelId="details">
             <div style="padding-top: var(--space-md);">
               <div>
-                <label for="group-name" style="display:block; font-weight:600">
+                <label for="group-name" class="block font-semibold">
                   Name
                 </label>
                 <fb-input type="text" [formField]="gForm.name"></fb-input>
@@ -110,18 +110,11 @@ interface GroupItem {
                   gForm.name().invalid() &&
                   (gForm.name().dirty() || gForm.name().touched())
                 ) {
-                  <div
-                    style="color: var(--color-error); font-size: var(--font-size-xs)"
-                  >
-                    Please enter a name.
-                  </div>
+                  <div class="error-xs">Please enter a name.</div>
                 }
               </div>
               <div>
-                <label
-                  for="group-description"
-                  style="display:block; font-weight:600"
-                >
+                <label for="group-description" class="block font-semibold">
                   Description
                 </label>
                 <fb-textarea [formField]="gForm.description"></fb-textarea>
@@ -140,7 +133,7 @@ interface GroupItem {
               <fb-list>
                 @for (i of gItem.routes; track i.id) {
                   <fb-list-item>
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
                       >
@@ -174,7 +167,7 @@ interface GroupItem {
               <fb-list>
                 @for (i of gItem.waypoints; track i.id) {
                   <fb-list-item>
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
                       >
@@ -208,7 +201,7 @@ interface GroupItem {
               <fb-list>
                 @for (i of gItem.regions; track i.id) {
                   <fb-list-item>
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
                       >
@@ -235,7 +228,7 @@ interface GroupItem {
               <fb-list>
                 @for (i of gItem.charts; track i.id) {
                   <fb-list-item>
-                    <div style="display:flex;">
+                    <div class="flex">
                       <div
                         style="flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;whitespace: pre;"
                       >

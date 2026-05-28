@@ -70,7 +70,7 @@ interface TileJson {
   ],
   template: `
     <div class="_ap-mapbox">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="public" ariaLabel=""></fb-icon
         ></span>
@@ -87,10 +87,10 @@ interface TileJson {
         </span>
       </fb-toolbar>
       <mat-dialog-content>
-        <label for="json-mapsource-host" style="display:block; font-weight:600">
+        <label for="json-mapsource-host" class="block font-semibold">
           Map Server host.
         </label>
-        <div style="display:flex; gap:var(--space-sm); align-items:center">
+        <div class="flex items-center" style="gap: var(--space-sm)">
           <fb-input
             name="json-mapsource-host"
             type="text"
@@ -114,11 +114,7 @@ interface TileJson {
           Enter url of the Map Server.
         </div>
         @if (!hostUrl) {
-          <div
-            style="color: var(--color-error); font-size: var(--font-size-xs)"
-          >
-            Map server host url is required!
-          </div>
+          <div class="error-xs">Map server host url is required!</div>
         }
         @if (isFetching) {
           <fb-progress-bar indeterminate></fb-progress-bar>

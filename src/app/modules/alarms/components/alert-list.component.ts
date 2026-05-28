@@ -73,7 +73,7 @@ import { alertSeverityClass } from './alert-severity';
           >
             Alert List
           </h2>
-          <div style="display:flex">
+          <div class="flex">
             <fb-button
               variant="ghost"
               matTooltip="Silence All"

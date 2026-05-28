@@ -46,7 +46,7 @@ import { SKResourceService } from '../../resources.service';
                   <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
 
                   <div
-                    style="display:flex;"
+                    class="flex"
                     [style.cursor]="i > 0 ? 'pointer' : 'initial'"
                   >
                     <div style="width:35px;">

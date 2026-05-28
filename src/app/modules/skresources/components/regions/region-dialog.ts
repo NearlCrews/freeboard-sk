@@ -46,7 +46,7 @@ interface DialogData {
   ],
   template: `
     <div class="_ap-region">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <div fbToolbarLeading>
           <fb-icon
             name="tab_unselected"
@@ -55,7 +55,7 @@ interface DialogData {
           ></fb-icon>
         </div>
         <span fbToolbarTitle>Region Details</span>
-        <div fbToolbarActions style="width: 50px; text-align: right;">
+        <div fbToolbarActions class="w-50 text-right">
           <fb-button
             variant="ghost"
             size="sm"
@@ -68,10 +68,10 @@ interface DialogData {
       </fb-toolbar>
 
       <mat-dialog-content>
-        <div style="display: flex">
-          <div style="flex: 1 1 auto">
+        <div class="flex">
+          <div class="flex-auto">
             <div>
-              <label for="region-name" style="display:block; font-weight:600">
+              <label for="region-name" class="block font-semibold">
                 Name
               </label>
               <fb-input type="text" [formField]="rForm.name"></fb-input>
@@ -79,18 +79,11 @@ interface DialogData {
                 rForm.name().invalid() &&
                 (rForm.name().dirty() || rForm.name().touched())
               ) {
-                <div
-                  style="color: var(--color-error); font-size: var(--font-size-xs)"
-                >
-                  Please enter a name.
-                </div>
+                <div class="error-xs">Please enter a name.</div>
               }
             </div>
             <div>
-              <label
-                for="region-description"
-                style="display:block; font-weight:600"
-              >
+              <label for="region-description" class="block font-semibold">
                 Description
               </label>
               <fb-textarea

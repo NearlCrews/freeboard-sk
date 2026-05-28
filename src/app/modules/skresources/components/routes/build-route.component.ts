@@ -84,7 +84,7 @@ interface BuildRoutePoint {
         </div>
 
         <div class="content">
-          <div style="display:flex;">
+          <div class="flex">
             <div class="wptlist-container">Waypoints</div>
             <div class="wptlist-container">Route</div>
           </div>

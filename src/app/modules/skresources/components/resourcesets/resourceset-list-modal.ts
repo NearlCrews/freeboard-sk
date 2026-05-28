@@ -48,7 +48,7 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   ],
   template: `
     <div class="_ap-resource-set">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading>
           <fb-button
             variant="ghost"

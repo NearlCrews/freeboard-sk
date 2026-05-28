@@ -36,7 +36,7 @@ import {
   ],
   template: `
     <div class="_ap-feature">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading
           ><fb-icon name="info" ariaLabel=""></fb-icon
         ></span>
@@ -57,7 +57,7 @@ import {
       <mat-horizontal-stepper [linear]="false" #stepper>
         @for (feature of display; track feature; let i = $index) {
           <mat-step>
-            <div style="display:flex;">
+            <div class="flex">
               @if (data.length > 1) {
                 <div style="min-width:50px;text-align:left;padding-top: 15%;">
                   @if (i !== 0) {
@@ -75,10 +75,10 @@ import {
                   }
                 </div>
               }
-              <div style="flex: 1 1 auto;">
+              <div class="flex-auto">
                 <fb-card>
                   <fb-card-content>
-                    <div style="display:flex;flex-direction: column;">
+                    <div class="flex flex-col">
                       <signalk-details-list
                         [details]="feature"
                       ></signalk-details-list>

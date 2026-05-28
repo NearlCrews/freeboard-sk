@@ -101,12 +101,12 @@ interface WaypointTypeOption {
   ],
   template: `
     <div class="_ap-waypoint">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <div fbToolbarLeading>
           <mat-icon class="icon-waypoint">{{ dialogIcon }}</mat-icon>
         </div>
         <span fbToolbarTitle>{{ data.title }}</span>
-        <div fbToolbarActions style="width: 50px; text-align: right;">
+        <div fbToolbarActions class="w-50 text-right">
           <fb-button
             variant="ghost"
             ariaLabel="Close"
@@ -117,8 +117,8 @@ interface WaypointTypeOption {
         </div>
       </fb-toolbar>
       <mat-dialog-content>
-        <div style="display: flex">
-          <div style="flex: 1 1 auto">
+        <div class="flex">
+          <div class="flex-auto">
             <div>
               <mat-form-field floatLabel="always" style="width:100%;">
                 <mat-label>Name</mat-label>
@@ -147,10 +147,7 @@ interface WaypointTypeOption {
             <!-- select icon type / category-->
             <div style="display:flex;flex-wrap:wrap;">
               <div style="min-width: 220px;">
-                <label
-                  for="waypoint-type"
-                  style="display: block; font-weight: 600;"
-                >
+                <label for="waypoint-type" class="block font-semibold">
                   Type
                 </label>
                 <fb-select
@@ -232,17 +229,17 @@ interface WaypointTypeOption {
             <div
               style="font-size: var(--font-size-sm);display:flex;flex-wrap:wrap"
             >
-              <div style="display:flex;">
+              <div class="flex">
                 @if (wptReadOnly) {
                   <div style="width:45px;font-weight:bold;">Lat:</div>
                   <div
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="
                       wptLat | coords: app.config.units.positionFormat : true
                     "
                   ></div>
                 } @else {
-                  <div style="flex: 1 1 auto;">
+                  <div class="flex-auto">
                     <mat-form-field floatLabel="always">
                       <mat-label>Latitude</mat-label>
                       <input matInput type="number" [formField]="wptForm.lat" />
@@ -260,13 +257,13 @@ interface WaypointTypeOption {
                 @if (wptReadOnly) {
                   <div style="width:45px;font-weight:bold;">Lon:</div>
                   <div
-                    style="flex: 1 1 auto;"
+                    class="flex-auto"
                     [innerText]="
                       wptLon | coords: app.config.units.positionFormat
                     "
                   ></div>
                 } @else {
-                  <div style="flex: 1 1 auto;">
+                  <div class="flex-auto">
                     <mat-form-field floatLabel="always">
                       <mat-label>Longitude</mat-label>
                       <input matInput type="number" [formField]="wptForm.lon" />

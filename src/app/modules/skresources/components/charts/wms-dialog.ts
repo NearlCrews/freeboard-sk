@@ -37,7 +37,7 @@ import { NodeTreeSelect } from './node-tree-select';
   ],
   template: `
     <div class="_ap-wms">
-      <fb-toolbar style="background-color: transparent">
+      <fb-toolbar class="bg-transparent">
         <span fbToolbarLeading class="dialog-icon"
           ><fb-icon name="public" ariaLabel=""></fb-icon
         ></span>
@@ -54,10 +54,8 @@ import { NodeTreeSelect } from './node-tree-select';
         </span>
       </fb-toolbar>
       <mat-dialog-content>
-        <label for="wms-host" style="display:block; font-weight:600">
-          WMS host.
-        </label>
-        <div style="display:flex; gap:var(--space-sm); align-items:center">
+        <label for="wms-host" class="block font-semibold"> WMS host. </label>
+        <div class="flex items-center" style="gap: var(--space-sm)">
           <fb-input
             name="wms-host"
             type="text"
@@ -81,11 +79,7 @@ import { NodeTreeSelect } from './node-tree-select';
           Enter url of the WMS host.
         </div>
         @if (!hostUrl) {
-          <div
-            style="color: var(--color-error); font-size: var(--font-size-xs)"
-          >
-            WMS host is required!
-          </div>
+          <div class="error-xs">WMS host is required!</div>
         }
 
         @if (isFetching) {

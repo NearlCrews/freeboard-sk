@@ -3,7 +3,7 @@
     <fb-card-header>
       <span fbCardTitle>
         <div class="title-block">
-          <div style="width: 50px">
+          <div class="w-50">
             <fb-button
               variant="ghost"
               size="sm"
@@ -15,15 +15,13 @@
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
-          <div style="flex: 1 1 auto; padding-top: var(--space-sm)">
-            Waypoints
-          </div>
+          <div class="flex-auto pt-sm">Waypoints</div>
         </div>
       </span>
     </fb-card-header>
     <fb-card-content>
-      <div style="display: flex">
-        <div style="flex: 1 1 auto; padding-left: var(--space-xs)">
+      <div class="flex">
+        <div class="flex-auto pl-xs">
           <fb-search-input
             label="Filter waypoints"
             [value]="filterText"
@@ -66,11 +64,11 @@
     <cdk-virtual-scroll-viewport class="vscroller" itemSize="90">
       <fb-card
         *cdkVirtualFor="let r of filteredList(); let i= index;"
-        style="border-bottom: silver 1px outset; border-radius: unset"
+        class="list-divider"
       >
         <fb-card-content>
-          <div style="display: flex; padding-left: var(--space-xs)">
-            <div style="flex: 1 1 auto; width: 215px">
+          <div class="flex pl-xs">
+            <div class="list-name-col">
               <div
                 style="
                   text-overflow: ellipsis;
@@ -86,7 +84,7 @@
                 <b>{{(r[1].name) ? r[1].name : 'Wpt-' + r[0].slice(-6)}}</b>
               </div>
             </div>
-            <div style="text-align: right">
+            <div class="text-right">
               <fb-checkbox
                 [disabled]="r[0] === activeWaypoint() || disableRefresh"
                 [checked]="r[2]"
@@ -99,7 +97,7 @@
           </div>
         </fb-card-content>
         <fb-card-actions align="start">
-          <div style="display: flex">
+          <div class="flex">
             <div>
               <fb-button
                 variant="ghost"
