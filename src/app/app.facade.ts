@@ -6,7 +6,13 @@
  * forward path: each new consumer should `inject(SettingsStore)` etc., and
  * the shim will be deleted once all sites migrate.
  * ************************************/
-import { effect, inject, Injectable, isDevMode } from '@angular/core';
+import {
+  DestroyRef,
+  effect,
+  inject,
+  Injectable,
+  isDevMode
+} from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -232,6 +238,11 @@ export class AppFacade extends InfoService {
       });
     }
 
+    // Cancel the in-flight reachability probe on facade destroy so the
+    // onOffline callback does not fire showAlert -> MatDialog.open after
+    // the injector tears down (NG0205 in TestBed).
+    const probeAbort = new AbortController();
+    inject(DestroyRef).onDestroy(() => probeAbort.abort());
     testForInternet(() => {
       const mapsel = this.config.selections.charts;
       if (
@@ -245,7 +256,7 @@ export class AppFacade extends InfoService {
               `
         );
       }
-    });
+    }, probeAbort.signal);
 
     this.loadConfig();
     this.parseLocalConfig();

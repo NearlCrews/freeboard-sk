@@ -69,12 +69,23 @@ export function isTopWindow(): boolean {
  * Ping a known tile server to detect Internet reachability. Calls onOffline
  * when the request fails so the caller can decide whether to surface a
  * user-visible alert (gated on kiosk mode and chart selection).
+ *
+ * Accepts an optional AbortSignal so the caller can cancel the pending
+ * fetch on its own teardown. In tests this prevents the onOffline
+ * callback from firing showAlert -> MatDialog.open after TestBed has
+ * destroyed the root injector (NG0205).
  */
-export function testForInternet(onOffline: () => void): void {
+export function testForInternet(
+  onOffline: () => void,
+  signal?: AbortSignal
+): void {
   window
-    .fetch('https://tile.openstreetmap.org')
+    .fetch('https://tile.openstreetmap.org', { signal: signal ?? null })
     .then(() => console.info('Internet connection detected.'))
-    .catch(() => {
+    .catch((err: unknown) => {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
       console.warn('No Internet connection detected!');
       onOffline();
     });
