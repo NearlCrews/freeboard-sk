@@ -96,7 +96,9 @@ describe('FbSnackbarComponent', () => {
   it('renders the action button and emits actionInvoked on click', () => {
     host.actionLabel.set('Undo');
     fixture.detectChanges();
-    const action = snackbar().querySelector('.fb-snackbar__action')!;
+    const action = snackbar().querySelector<HTMLButtonElement>(
+      '.fb-snackbar__action'
+    )!;
     expect(action.textContent?.trim()).toBe('Undo');
     action.click();
     expect(host.actionCount).toBe(1);

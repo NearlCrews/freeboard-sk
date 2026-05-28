@@ -318,6 +318,46 @@
     </div>
   </section>
 
+  <section class="ds-section" aria-labelledby="ds-search-input-heading">
+    <h2 id="ds-search-input-heading" class="ds-section__heading">
+      Search input
+    </h2>
+    <p class="ds-section__a11y">
+      A11y: visible top-label is associated to the inner
+      <code>&lt;input type="search"&gt;</code> via <code>for=</code>. The
+      trailing clear button renders only when the value is non-empty, has
+      <code>aria-label="Clear &lt;label&gt;"</code>, and meets the 44 px
+      touch-target floor via <code>--touch-secondary</code>.
+      <code>ariaLabel</code> falls back to the visible label when omitted.
+    </p>
+    <h3 class="ds-grid__title">States</h3>
+    <div class="ds-grid">
+      <fb-search-input [(value)]="searchInputDefault"></fb-search-input>
+      <fb-search-input [(value)]="searchInputPrefilled"></fb-search-input>
+      <fb-search-input
+        [(value)]="searchInputDisabled"
+        [disabled]="true"
+      ></fb-search-input>
+      <span class="ds-result" aria-live="polite">
+        Default: {{ searchInputDefault() || '(empty)' }} | Prefilled:
+        {{ searchInputPrefilled() || '(empty)' }}
+      </span>
+    </div>
+
+    <h3 class="ds-grid__title">Fixed width</h3>
+    <div class="ds-grid">
+      <fb-search-input
+        label="Filter routes"
+        placeholder="Route name"
+        [widthPx]="180"
+        [(value)]="searchInputCustomWidth"
+      ></fb-search-input>
+      <span class="ds-result" aria-live="polite">
+        Value: {{ searchInputCustomWidth() || '(empty)' }}
+      </span>
+    </div>
+  </section>
+
   <section class="ds-section" aria-labelledby="ds-textarea-heading">
     <h2 id="ds-textarea-heading" class="ds-section__heading">Textarea</h2>
     <p class="ds-section__a11y">

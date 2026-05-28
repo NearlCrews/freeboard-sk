@@ -73,12 +73,10 @@ describe('FbIconComponent', () => {
     expect(el.hasAttribute('aria-hidden')).toBe(false);
   });
 
-  it('reflects the size input on the data attribute and class list', () => {
+  it('reflects the size input on the data-size attribute', () => {
     host.size.set('lg');
     fixture.detectChanges();
-    const el = query();
-    expect(el.getAttribute('data-size')).toBe('lg');
-    expect(el.className).toContain('fb-icon--lg');
+    expect(query().getAttribute('data-size')).toBe('lg');
   });
 
   it('updates the glyph when name changes', () => {

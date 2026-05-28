@@ -23,7 +23,8 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbSearchInputComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -72,7 +73,8 @@ import {
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
-    FbProgressBarComponent
+    FbProgressBarComponent,
+    FbSearchInputComponent
   ]
 })
 export class InfoLayerListComponent extends ResourceListBase implements OnInit {

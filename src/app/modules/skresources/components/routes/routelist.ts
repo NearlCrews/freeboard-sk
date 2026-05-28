@@ -16,8 +16,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -26,7 +24,8 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbSearchInputComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -53,15 +52,14 @@ import { RemarkModule } from 'ngx-remark';
     MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
-    FormsModule,
-    MatInputModule,
     ScrollingModule,
     RemarkModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
-    FbProgressBarComponent
+    FbProgressBarComponent,
+    FbSearchInputComponent
   ]
 })
 export class RouteListComponent

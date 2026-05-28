@@ -20,21 +20,12 @@
     <fb-card-content>
       <div style="display: flex">
         <div style="flex: 1 1 auto; padding-left: 3px">
-          <mat-form-field floatLabel="always" style="width: 180px">
-            <mat-label>Type to filter list</mat-label>
-            <input
-              #ftext
-              type="text"
-              matInput
-              [(ngModel)]="filterText"
-              (keyup)="filterKeyUp(ftext.value)"
-            />
-            @if(filterText) {
-            <button matSuffix mat-icon-button (click)="filterKeyUp('')">
-              <mat-icon>close</mat-icon>
-            </button>
-            }
-          </mat-form-field>
+          <fb-search-input
+            label="Filter routes"
+            [value]="filterText"
+            (valueChange)="filterKeyUp($event)"
+            [widthPx]="180"
+          />
         </div>
         <div>
           <button

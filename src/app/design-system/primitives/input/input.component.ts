@@ -75,6 +75,12 @@ export type FbInputType = 'text' | 'number' | 'email' | 'password' | 'search';
       .fb-input::placeholder {
         color: var(--color-text-muted);
       }
+      /* Hide WebKit/Blink native search clear control. Consumers that wrap
+         type="search" (fb-search-input) provide their own clear button. */
+      .fb-input[type='search']::-webkit-search-cancel-button,
+      .fb-input[type='search']::-webkit-search-decoration {
+        appearance: none;
+      }
       .fb-input:focus-visible {
         outline: none;
         border-color: var(--color-focus-ring);

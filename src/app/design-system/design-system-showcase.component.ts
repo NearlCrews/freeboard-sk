@@ -19,6 +19,7 @@ import { FbSnackbarService } from './primitives/snackbar/snackbar.service';
 import { FbSidenavComponent } from './primitives/sidenav/sidenav.component';
 import { FbSidenavService } from './primitives/sidenav/sidenav.service';
 import { FbInputComponent } from './primitives/input/input.component';
+import { FbSearchInputComponent } from './primitives/search-input/search-input.component';
 import { FbTextareaComponent } from './primitives/textarea/textarea.component';
 import {
   FbSelectComponent,
@@ -197,6 +198,7 @@ export class FbDemoSidenavBodyComponent {
     FbIconComponent,
     FbFabComponent,
     FbInputComponent,
+    FbSearchInputComponent,
     FbTextareaComponent,
     FbSelectComponent,
     FbSelectOptionTemplateDirective,
@@ -261,6 +263,10 @@ export class DesignSystemShowcaseComponent {
 
   readonly inputValue = signal<string>('');
   readonly numericInputValue = signal<number | null>(null);
+  readonly searchInputDefault = signal<string>('');
+  readonly searchInputPrefilled = signal<string>('anchor');
+  readonly searchInputDisabled = signal<string>('');
+  readonly searchInputCustomWidth = signal<string>('');
   readonly textareaValue = signal<string>('');
   readonly selectOptions: readonly FbSelectOption[] = [
     { id: 'light', label: 'Light' },

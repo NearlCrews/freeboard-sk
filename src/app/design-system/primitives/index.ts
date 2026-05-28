@@ -18,6 +18,7 @@
  *
  * Tier-2 forms (shipped):
  *   - FbInputComponent
+ *   - FbSearchInputComponent
  *   - FbTextareaComponent
  *   - FbSelectComponent
  *   - FbCheckboxComponent
@@ -84,6 +85,8 @@ export {
 export { FbSidenavService } from './sidenav/sidenav.service';
 
 export { FbInputComponent, type FbInputType } from './input/input.component';
+
+export { FbSearchInputComponent } from './search-input/search-input.component';
 
 export { FbTextareaComponent } from './textarea/textarea.component';
 

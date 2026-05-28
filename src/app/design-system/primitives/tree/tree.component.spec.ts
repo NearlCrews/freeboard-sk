@@ -115,7 +115,7 @@ function dispatchKey(target: HTMLElement, key: string): void {
 }
 
 function toggleInputIn(row: HTMLElement, checked: boolean): void {
-  const input = row.querySelector('input[type="checkbox"]')!;
+  const input = row.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
   input.checked = checked;
   input.dispatchEvent(new Event('change', { bubbles: true }));
 }
@@ -153,7 +153,9 @@ describe('FbTreeComponent', () => {
   });
 
   it('expands a parent when its chevron is clicked', () => {
-    const chevron = rows()[0]!.querySelector('.fb-tree__chevron-btn')!;
+    const chevron = rows()[0]!.querySelector<HTMLButtonElement>(
+      '.fb-tree__chevron-btn'
+    )!;
     chevron.click();
     fixture.detectChanges();
     expect(rows()[0]!.getAttribute('aria-expanded')).toBe('true');
