@@ -6,7 +6,13 @@ import {
   model
 } from '@angular/core';
 
-export type FbInputType = 'text' | 'number' | 'email' | 'password' | 'search';
+export type FbInputType =
+  | 'text'
+  | 'number'
+  | 'email'
+  | 'password'
+  | 'search'
+  | 'color';
 
 /**
  * Tier-2 form Input primitive.

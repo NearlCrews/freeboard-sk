@@ -7,14 +7,15 @@ import {
   linkedSignal,
   output
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { AppFacade } from 'src/app/app.facade';
 import { SettingsStore } from 'src/app/stores';
+import {
+  FbInputComponent,
+  FbSelectComponent,
+  FbSelectOptionTemplateDirective,
+  FbSelectTriggerDirective,
+  type FbSelectOption
+} from 'src/app/design-system/primitives';
 
 export interface LineStyleDef {
   fill: { color: string };
@@ -37,123 +38,92 @@ export type LineStyleDash = 'none' | 'short' | 'medium' | 'long' | 'alt';
   selector: 'linestyle-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatInputModule,
-    MatSelectModule
+    FbInputComponent,
+    FbSelectComponent,
+    FbSelectOptionTemplateDirective,
+    FbSelectTriggerDirective
   ],
   template: `
-    <div style="display:flex">
-      <mat-form-field style="width:100px;">
-        <mat-label>Color</mat-label>
-        <input
-          mat-input
-          matNativeControl
+    <div style="display:flex; gap: var(--space-sm);">
+      <div style="width: 100px;">
+        <fb-input
+          name="linestyle-color"
           type="color"
-          [(ngModel)]="_color"
-          (change)="
-            onSelectChange({ key: 'color', value: $event.srcElement.value })
-          "
-        />
-      </mat-form-field>
-      <mat-form-field style="width: 110px">
-        <mat-label>Weight</mat-label>
-        <mat-select
-          [(ngModel)]="_weight"
-          (selectionChange)="
-            onSelectChange({ key: 'weight', value: $event.value })
-          "
+          ariaLabel="Line color"
+          [value]="_color()"
+          (valueChange)="onColorChange($event)"
+        ></fb-input>
+      </div>
+      <div style="width: 110px;">
+        <fb-select
+          name="linestyle-weight"
+          ariaLabel="Line weight"
+          [options]="weightOptions"
+          [(value)]="_weight"
+          (valueChange)="onSelectChange({ key: 'weight', value: $event })"
         >
-          <mat-select-trigger>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <svg
-                width="48"
-                height="10"
-                style="vertical-align: middle; margin-right: 6px"
-              >
-                <line
-                  x1="0"
-                  y1="5"
-                  x2="48"
-                  y2="5"
-                  stroke="currentColor"
-                  stroke-array="none"
-                  [attr.stroke-width]="_weight()"
-                />
-              </svg>
-            </div>
-          </mat-select-trigger>
-          @for (weight of line.weights; track weight) {
-            <mat-option [value]="weight">
-              <svg
-                width="48"
-                height="10"
-                style="vertical-align: middle; margin-right: 6px"
-              >
-                <line
-                  x1="0"
-                  y1="5"
-                  x2="48"
-                  y2="5"
-                  stroke="currentColor"
-                  stroke-array="none"
-                  [attr.stroke-width]="weight"
-                />
-              </svg>
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field style="width: 110px">
-        <mat-label>Style</mat-label>
-        <mat-select
-          [(ngModel)]="_dash"
-          (selectionChange)="
-            onSelectChange({ key: 'dash', value: $event.value })
-          "
+          <div fb-select-trigger style="display: flex; align-items: center;">
+            <svg width="48" height="10" style="vertical-align: middle;">
+              <line
+                x1="0"
+                y1="5"
+                x2="48"
+                y2="5"
+                stroke="currentColor"
+                [attr.stroke-width]="_weight()"
+              />
+            </svg>
+          </div>
+          <ng-template fbSelectOption let-opt>
+            <svg width="48" height="10" style="vertical-align: middle;">
+              <line
+                x1="0"
+                y1="5"
+                x2="48"
+                y2="5"
+                stroke="currentColor"
+                [attr.stroke-width]="opt.id"
+              />
+            </svg>
+          </ng-template>
+        </fb-select>
+      </div>
+      <div style="width: 110px;">
+        <fb-select
+          name="linestyle-dash"
+          ariaLabel="Line style"
+          [options]="dashOptions"
+          [(value)]="_dash"
+          (valueChange)="onSelectChange({ key: 'dash', value: $event })"
         >
-          <mat-select-trigger>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <svg
-                width="48"
-                height="10"
-                style="vertical-align: middle; margin-right: 6px"
-              >
-                <line
-                  x1="0"
-                  y1="5"
-                  x2="48"
-                  y2="5"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  [attr.stroke-dasharray]="line.dashArrays.get(_dash())"
-                />
-              </svg>
-            </div>
-          </mat-select-trigger>
-          @for (dash of line.dashArrays; track dash[0]) {
-            <mat-option [value]="dash[0]">
-              <svg
-                width="48"
-                height="10"
-                style="vertical-align: middle; margin-right: 6px"
-              >
-                <line
-                  x1="0"
-                  y1="5"
-                  x2="48"
-                  y2="5"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  [attr.stroke-dasharray]="dash[1]"
-                />
-              </svg>
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+          <div fb-select-trigger style="display: flex; align-items: center;">
+            <svg width="48" height="10" style="vertical-align: middle;">
+              <line
+                x1="0"
+                y1="5"
+                x2="48"
+                y2="5"
+                stroke="currentColor"
+                stroke-width="2"
+                [attr.stroke-dasharray]="line.dashArrays.get(_dash() ?? 'none')"
+              />
+            </svg>
+          </div>
+          <ng-template fbSelectOption let-opt>
+            <svg width="48" height="10" style="vertical-align: middle;">
+              <line
+                x1="0"
+                y1="5"
+                x2="48"
+                y2="5"
+                stroke="currentColor"
+                stroke-width="2"
+                [attr.stroke-dasharray]="line.dashArrays.get(opt.id)"
+              />
+            </svg>
+          </ng-template>
+        </fb-select>
+      </div>
     </div>
   `,
   styles: []
@@ -164,17 +134,14 @@ export class LineStyleSelectComponent implements OnInit {
   weight = input<number>(1);
 
   _color = linkedSignal(() => this.color());
-  _dash = linkedSignal(() => this.dash());
-  _weight = linkedSignal(() => this.weight());
+  _dash = linkedSignal<LineStyleDash | null>(() => this.dash());
+  _weight = linkedSignal<number | null>(() => this.weight());
 
   selectionChange = output<{
     lineStyle: LineStyleDef;
     config: LineStyleConfig;
   }>();
 
-  // Phase 3 Batch 3: line-style helpers now live on SettingsStore. AppFacade
-  // injection kept for back-compat consumers in this module; remove once all
-  // sites read the store directly.
   app = inject<AppFacade>(AppFacade);
   private settings = inject(SettingsStore);
 
@@ -183,26 +150,49 @@ export class LineStyleSelectComponent implements OnInit {
     weights: [1, 2, 3, 4, 5]
   };
 
+  protected readonly weightOptions: readonly FbSelectOption<number>[] = [
+    { id: 1, label: '1 px' },
+    { id: 2, label: '2 px' },
+    { id: 3, label: '3 px' },
+    { id: 4, label: '4 px' },
+    { id: 5, label: '5 px' }
+  ];
+
+  protected readonly dashOptions: readonly FbSelectOption<string>[] = [
+    { id: 'none', label: 'Solid' },
+    { id: 'short', label: 'Short dashes' },
+    { id: 'medium', label: 'Medium dashes' },
+    { id: 'long', label: 'Long dashes' },
+    { id: 'alt', label: 'Alternating' }
+  ];
+
   constructor() {}
 
   ngOnInit() {}
 
-  onSelectChange(opt: { key: string; value: any }) {
-    const d = this.settings.formatLineDashArray(this._dash());
+  onColorChange(value: string): void {
+    this._color.set(value);
+    this.onSelectChange({ key: 'color', value });
+  }
+
+  onSelectChange(_opt: { key: string; value: unknown }): void {
+    const dashKey = (this._dash() ?? 'none') as LineStyleDash;
+    const d = this.settings.formatLineDashArray(dashKey);
+    const weightValue = this._weight() ?? 1;
 
     this.selectionChange.emit({
       lineStyle: {
         fill: { color: this._color() },
         stroke: {
           color: this._color(),
-          width: this._weight(),
+          width: weightValue,
           lineDash: d
         }
       },
       config: {
         color: this._color(),
-        weight: this._weight(),
-        dash: this._dash()
+        weight: weightValue,
+        dash: dashKey
       }
     });
   }
