@@ -14,7 +14,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 
 import {
@@ -37,7 +36,6 @@ import { alertSeverityClass } from './alert-severity';
   imports: [
     MatTooltipModule,
     CommonModule,
-    MatIconModule,
     FormsModule,
     CdkDrag,
     FbButtonComponent,
@@ -54,13 +52,12 @@ import { alertSeverityClass } from './alert-severity';
           @if (app.featureFlags().notificationApi) {
             <div>
               <fb-button
-                class="button-warn"
-                variant="primary"
+                variant="danger"
                 matTooltip="Raise Alarm"
                 ariaLabel="Raise alarm"
                 (pressed)="openAlarmsMenu($event)"
               >
-                <mat-icon>warning</mat-icon>
+                <fb-icon name="warning" ariaLabel=""></fb-icon>
                 Raise
               </fb-button>
             </div>
@@ -105,7 +102,7 @@ import { alertSeverityClass } from './alert-severity';
               ariaLabel="Close alert list"
               (pressed)="handleClose()"
             >
-              <mat-icon>close</mat-icon>
+              <fb-icon name="close" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
         </div>
@@ -183,7 +180,7 @@ import { alertSeverityClass } from './alert-severity';
                           [disabled]="item[1].acknowledged"
                           (pressed)="ackAlert(item[1].path)"
                         >
-                          <mat-icon>check</mat-icon>
+                          <fb-icon name="check" ariaLabel=""></fb-icon>
                         </fb-button>
                       } @else {
                         @if (item[1].canCancel) {
@@ -195,7 +192,7 @@ import { alertSeverityClass } from './alert-severity';
                             [disabled]="!item[1].acknowledged"
                             (pressed)="clearAlert(item[1].path)"
                           >
-                            <mat-icon>close</mat-icon>
+                            <fb-icon name="close" ariaLabel=""></fb-icon>
                           </fb-button>
                         }
                       }

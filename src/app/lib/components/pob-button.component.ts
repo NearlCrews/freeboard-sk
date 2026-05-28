@@ -1,24 +1,21 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import { FbFabComponent } from 'src/app/design-system/primitives';
 import { NotificationManager } from 'src/app/modules';
 
 @Component({
   selector: 'pob-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
+  imports: [MatTooltipModule, FbFabComponent],
   template: `
-    <button
-      class="button-warn"
-      mat-fab
-      (click)="raiseAlarm()"
+    <fb-fab
+      variant="danger"
+      svgName="alarm-mob"
+      ariaLabel="Raise person overboard alarm"
       matTooltip="Raise POB Alarm"
       matTooltipPosition="above"
-      aria-label="Raise person overboard alarm"
-    >
-      <fb-icon class="ob" svgName="alarm-mob" ariaLabel=""></fb-icon>
-    </button>
+      (pressed)="raiseAlarm()"
+    ></fb-fab>
   `,
   styles: []
 })

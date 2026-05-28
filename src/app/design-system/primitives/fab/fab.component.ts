@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FbIconComponent } from '../icon/icon.component';
 
-export type FbFabVariant = 'primary' | 'secondary';
+export type FbFabVariant = 'primary' | 'secondary' | 'danger';
 export type FbFabPosition =
   | 'static'
   | 'bottom-right'
@@ -106,6 +106,14 @@ export type FbFabPosition =
       }
       .fb-fab--secondary:hover:not(:disabled) {
         background: color-mix(in oklch, var(--color-surface-raised) 90%, black);
+      }
+      .fb-fab--danger {
+        background: var(--color-error);
+        color: var(--color-on-primary);
+        border-color: var(--color-error);
+      }
+      .fb-fab--danger:hover:not(:disabled) {
+        background: color-mix(in oklch, var(--color-error) 88%, black);
       }
       :host([data-position='bottom-right']) {
         right: var(--space-xl);

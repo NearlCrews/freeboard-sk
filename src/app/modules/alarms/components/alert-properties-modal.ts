@@ -79,8 +79,7 @@ import { alertSeverityClass } from './alert-severity';
               <div style="display:flex;">
                 <div style="flex: 1 1 auto;">
                   <fb-button
-                    variant="primary"
-                    class="button-warn"
+                    variant="danger"
                     (pressed)="notiMgr.acknowledge(data.alert.path)"
                   >
                     <fb-icon name="check" ariaLabel=""></fb-icon> Acknowledge

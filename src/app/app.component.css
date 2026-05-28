@@ -64,11 +64,14 @@ mat-nav-list {
   border-radius: var(--radius-xl);
 }
 
+/* Button panel column hosts fb-fab (56px touch-primary) plus 2px outer
+   gutter and a small breath margin so the round buttons do not clip
+   against the chart edge. */
 .buttonPanel {
-  width: 50px;
+  width: 64px;
   z-index: 4800;
   position: absolute;
-  padding: 5px 2px 2px 2px;
+  padding: 5px 4px 2px 4px;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -76,31 +79,31 @@ mat-nav-list {
 .buttonPanel.rightTop {
   right: 0px;
   top: 0px;
-  padding: 9px 2px 10px 2px;
+  padding: 9px 4px 10px 4px;
 }
 
 .buttonPanel.leftTop {
   left: 0px;
   top: 0px;
-  padding: 9px 2px 10px 2px;
+  padding: 9px 4px 10px 4px;
 }
 
 .buttonPanel.left {
-  top: 60px;
+  top: 72px;
   left: 0px;
   bottom: 0px;
 }
 
 .buttonPanel.right {
-  top: 60px;
+  top: 72px;
   right: 0px;
   bottom: 80px;
 }
 
 .buttonPanel .buttonPanelItem {
   text-align: center;
-  height: 48px;
-  padding: 5px 0 5px 0;
+  height: 64px;
+  padding: 4px 0 4px 0;
 }
 
 .mapButton {

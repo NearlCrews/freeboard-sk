@@ -8,7 +8,6 @@ import {
   computed,
   signal
 } from '@angular/core';
-import { form, FormField, required } from '@angular/forms/signals';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -16,28 +15,24 @@ import {
 } from '@angular/material/dialog';
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbDatepickerComponent,
+  FbFormFieldComponent,
+  FbIconComponent,
+  FbSelectComponent,
+  type FbSelectOption
 } from 'src/app/design-system/primitives';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'ap-playbackdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormField,
     MatDialogModule,
-    FbIconComponent,
     FbButtonComponent,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatDatepickerModule
+    FbDatepickerComponent,
+    FbFormFieldComponent,
+    FbIconComponent,
+    FbSelectComponent
   ],
-  providers: [provideNativeDateAdapter()],
   template: `
     <div class="_ap-playback">
       <div>
@@ -50,64 +45,59 @@ import { provideNativeDateAdapter } from '@angular/material/core';
         <div style="display:flex;">
           <div>
             <div>
-              <mat-form-field>
-                <mat-label>Context</mat-label>
-                <mat-select [formField]="playbackForm.context">
-                  @for (i of ['self', 'all']; track i) {
-                    <mat-option [value]="i">{{ i }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <fb-form-field #contextField label="Context" [widthPx]="180">
+                <fb-select
+                  [name]="contextField.controlId"
+                  [options]="contextOptions"
+                  [(value)]="context"
+                  ariaLabel="Context"
+                ></fb-select>
+              </fb-form-field>
             </div>
             <div>
-              <mat-form-field floatLabel="always">
-                <mat-label>Start date</mat-label>
-                <input
-                  matInput
+              <fb-form-field
+                #dateField
+                label="Start date"
+                hint="MM/DD/YYYY"
+                [widthPx]="180"
+              >
+                <fb-datepicker
+                  [(value)]="startDate"
                   [max]="maxDate"
-                  [matDatepicker]="picker"
-                  [formField]="playbackForm.startDate"
-                />
-                <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="picker"
-                ></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+                  ariaLabel="Start date"
+                ></fb-datepicker>
+              </fb-form-field>
             </div>
             <div style="font-size:10pt;">
               <b>Start Time:</b><br />
-              <mat-form-field style="width:100px;">
-                <mat-label>Hour</mat-label>
-                <mat-select [formField]="playbackForm.startTimeHr">
-                  @for (i of hrValues(); track i) {
-                    <mat-option [value]="i">{{ i }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <fb-form-field #hourField label="Hour" [widthPx]="100">
+                <fb-select
+                  [name]="hourField.controlId"
+                  [options]="hourOptions"
+                  [(value)]="startTimeHr"
+                  ariaLabel="Start hour"
+                ></fb-select>
+              </fb-form-field>
               <b>: </b>
-              <mat-form-field style="width:100px;">
-                <mat-label>Minutes</mat-label>
-                <mat-select [formField]="playbackForm.startTimeMin">
-                  @for (i of minValues(); track i) {
-                    <mat-option [value]="i">{{ i }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <fb-form-field #minField label="Minutes" [widthPx]="100">
+                <fb-select
+                  [name]="minField.controlId"
+                  [options]="minuteOptions"
+                  [(value)]="startTimeMin"
+                  ariaLabel="Start minute"
+                ></fb-select>
+              </fb-form-field>
             </div>
             <div>
-              <mat-form-field
-                style="width:150px;"
-                matTooltip="Advance stream the selected number of seconds for every second of playback"
-              >
-                <mat-label>Playback Rate</mat-label>
-                <mat-select [formField]="playbackForm.playbackRate">
-                  @for (i of rateValues(); track i) {
-                    <mat-option [value]="i">{{ i }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <fb-form-field #rateField label="Playback Rate" [widthPx]="150">
+                <fb-select
+                  matTooltip="Advance stream the selected number of seconds for every second of playback"
+                  [name]="rateField.controlId"
+                  [options]="rateOptions"
+                  [(value)]="playbackRate"
+                  ariaLabel="Playback rate"
+                ></fb-select>
+              </fb-form-field>
             </div>
           </div>
         </div>
@@ -139,28 +129,40 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   ]
 })
 export class PlaybackDialog {
-  public hour: number | undefined;
-  public minute: number | undefined;
-  protected playbackModel = signal<{
-    context: string;
-    startTimeHr: string;
-    startTimeMin: string;
-    startDate: Date | null;
-    playbackRate: number;
-  }>({
-    context: 'all',
-    startTimeHr: '00',
-    startTimeMin: '00',
-    startDate: null,
-    playbackRate: 1
-  });
-  protected playbackForm = form(this.playbackModel, (p) => {
-    required(p.startDate, { message: 'Please select a start date.' });
-  });
-  protected submitDisabled = computed(
-    () => this.playbackModel().startDate === null
-  );
+  protected readonly context = signal<string | null>('all');
+  protected readonly startTimeHr = signal<string | null>('00');
+  protected readonly startTimeMin = signal<string | null>('00');
+  protected readonly startDate = signal<Date | null>(null);
+  protected readonly playbackRate = signal<number | null>(1);
+
+  protected readonly submitDisabled = computed(() => this.startDate() === null);
+
   public maxDate = new Date();
+
+  protected readonly contextOptions: readonly FbSelectOption<string>[] = [
+    { id: 'self', label: 'self' },
+    { id: 'all', label: 'all' }
+  ];
+
+  protected readonly hourOptions: readonly FbSelectOption<string>[] =
+    Array.from({ length: 24 }, (_, i) => {
+      const label = ('00' + i).slice(-2);
+      return { id: label, label };
+    });
+
+  protected readonly minuteOptions: readonly FbSelectOption<string>[] =
+    Array.from({ length: 59 }, (_, i) => {
+      const label = ('00' + i).slice(-2);
+      return { id: label, label };
+    });
+
+  protected readonly rateOptions: readonly FbSelectOption<number>[] = [
+    { id: 0.5, label: '0.5' },
+    { id: 1, label: '1' },
+    { id: 2, label: '2' },
+    { id: 5, label: '5' },
+    { id: 10, label: '10' }
+  ];
 
   constructor(
     public dialogRef: MatDialogRef<PlaybackDialog>,
@@ -171,16 +173,18 @@ export class PlaybackDialog {
   submit(cancel = false) {
     let q = {};
     let ts = '';
-    const v = this.playbackModel();
-    if (!cancel && v.startDate) {
-      v.startDate.setHours(parseInt(v.startTimeHr));
-      v.startDate.setMinutes(parseInt(v.startTimeMin));
-      ts = v.startDate.toISOString();
+    const start = this.startDate();
+    if (!cancel && start) {
+      const hr = parseInt(this.startTimeHr() ?? '0', 10);
+      const min = parseInt(this.startTimeMin() ?? '0', 10);
+      start.setHours(hr);
+      start.setMinutes(min);
+      ts = start.toISOString();
       ts = ts.slice(0, ts.indexOf('.')) + 'Z';
       q = {
-        subscribe: v.context,
+        subscribe: this.context(),
         startTime: ts,
-        playbackRate: v.playbackRate
+        playbackRate: this.playbackRate()
       };
     }
     this.dialogRef.close({
@@ -188,25 +192,5 @@ export class PlaybackDialog {
       query: q,
       startTime: ts
     });
-  }
-
-  hrValues() {
-    const v = [];
-    for (let i = 0; i < 24; i++) {
-      v.push(('00' + i).slice(-2));
-    }
-    return v;
-  }
-
-  minValues() {
-    const v = [];
-    for (let i = 0; i < 59; i++) {
-      v.push(('00' + i).slice(-2));
-    }
-    return v;
-  }
-
-  rateValues() {
-    return [0.5, 1, 2, 5, 10];
   }
 }
