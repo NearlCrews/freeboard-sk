@@ -17,12 +17,14 @@ import {
 } from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
-import { FbToolbarComponent } from 'src/app/design-system/primitives';
+import {
+  FbIconComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
 import { SimplifyAP } from 'src/lib/simplify-ts';
@@ -37,7 +39,7 @@ import { AppFacade } from 'src/app/app.facade';
   selector: 'ap-trail2routedialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     MatDialogModule,
     MatTooltipModule,

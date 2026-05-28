@@ -17,13 +17,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -36,7 +36,6 @@ import { AppFacade } from 'src/app/app.facade';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatIconModule,
     MatButtonModule,
     MatExpansionModule,
     MatCheckboxModule,
@@ -45,6 +44,7 @@ import { AppFacade } from 'src/app/app.facade';
     MatInputModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent
   ],
   templateUrl: './geojson-dialog.html',

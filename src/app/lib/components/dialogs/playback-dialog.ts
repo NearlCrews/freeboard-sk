@@ -14,8 +14,9 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -28,7 +29,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   imports: [
     FormField,
     MatDialogModule,
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -40,7 +41,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
     <div class="_ap-playback">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon>history</mat-icon>&nbsp; &nbsp;&nbsp;History Playback
+          <fb-icon name="history" ariaLabel=""></fb-icon>&nbsp;
+          &nbsp;&nbsp;History Playback
         </h1>
       </div>
       <mat-dialog-content>

@@ -9,8 +9,9 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 interface PiPVideoElement extends HTMLVideoElement {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +21,7 @@ interface PiPVideoElement extends HTMLVideoElement {
 //** Picture in Picture video component **
 @Component({
   selector: 'pip-video',
-  imports: [MatButtonModule, MatTooltipModule, MatIconModule],
+  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
   template: `
     <div
       style="border: gray 1px solid;border-radius: var(--radius-md);display:none;"
@@ -37,7 +38,7 @@ interface PiPVideoElement extends HTMLVideoElement {
         [disabled]="pipMode"
         (click)="initPiP()"
       >
-        <mat-icon>videocam</mat-icon>
+        <fb-icon name="videocam" ariaLabel=""></fb-icon>
       </button>
       <!--<button mat-mini-fab [style.display]="pipMode ? 'block' : 'none'"
                 matTooltip="Mute Audio"

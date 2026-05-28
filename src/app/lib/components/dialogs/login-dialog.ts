@@ -16,14 +16,14 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import {
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
-  FbCardActionsComponent
+  FbCardActionsComponent,
+  FbIconComponent
 } from 'src/app/design-system/primitives';
 
 /********* LoginDialog ****************
@@ -38,7 +38,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
@@ -52,7 +52,9 @@ import {
     <mat-dialog-content>
       <fb-card>
         <fb-card-header>
-          <span fbCardTitle> <mat-icon>account_circle</mat-icon> Sign-In </span>
+          <span fbCardTitle>
+            <fb-icon name="account_circle" ariaLabel=""></fb-icon> Sign-In
+          </span>
           <span fbCardSubtitle>{{ data.message }}</span>
         </fb-card-header>
         <fb-card-content>

@@ -9,7 +9,7 @@
         [disabled]="!display.saveRoutesOK && !display.saveWaypointsOK && !display.saveTracksOK"
         (click)="save()"
       >
-        <mat-icon>save</mat-icon>&nbsp;Save&nbsp;
+        <fb-icon name="save" ariaLabel=""></fb-icon>&nbsp;Save&nbsp;
       </button>
     </div>
     <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
@@ -21,7 +21,7 @@
         aria-label="Close export dialog"
         (click)="this.dialogRef.close(-1);"
       >
-        <mat-icon>close</mat-icon>
+        <fb-icon name="close" ariaLabel=""></fb-icon>
       </button>
     </div>
   </fb-toolbar>
@@ -37,7 +37,7 @@
       >
         <mat-expansion-panel-header class="panel-header">
           <mat-panel-title>
-            <mat-icon class="icon-waypoint">place</mat-icon>
+            <fb-icon name="place" ariaLabel="" class="icon-waypoint"></fb-icon>
             &nbsp;<b>Waypoints:</b>
           </mat-panel-title>
           <mat-panel-description>
@@ -86,7 +86,11 @@
       >
         <mat-expansion-panel-header class="panel-header">
           <mat-panel-title>
-            <mat-icon class="icon-route">directions</mat-icon>
+            <fb-icon
+              name="directions"
+              ariaLabel=""
+              class="icon-route"
+            ></fb-icon>
             &nbsp;<b>Routes:</b>
           </mat-panel-title>
           <mat-panel-description>
@@ -108,7 +112,11 @@
           @for(r of resData.routes; track r; let i=$index) {
           <div class="item-row">
             <div class="name">
-              <mat-icon class="icon-route">directions</mat-icon>
+              <fb-icon
+                name="directions"
+                ariaLabel=""
+                class="icon-route"
+              ></fb-icon>
               {{r.name}}
             </div>
             <div class="check">
@@ -134,7 +142,11 @@
       <mat-expansion-panel [expanded]="false">
         <mat-expansion-panel-header class="panel-header">
           <mat-panel-title>
-            <mat-icon class="icon-track">show_chart</mat-icon>
+            <fb-icon
+              name="show_chart"
+              ariaLabel=""
+              class="icon-track"
+            ></fb-icon>
             &nbsp;<b>Tracks:</b>
           </mat-panel-title>
           <mat-panel-description>
@@ -156,7 +168,11 @@
           @for(r of resData.tracks; track r; let i=$index) {
           <div class="item-row">
             <div class="name">
-              <mat-icon class="icon-track">directions_boat</mat-icon>
+              <fb-icon
+                name="directions_boat"
+                ariaLabel=""
+                class="icon-track"
+              ></fb-icon>
               Vessel Trail
             </div>
             <div class="check">

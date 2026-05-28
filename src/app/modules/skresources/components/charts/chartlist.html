@@ -17,7 +17,7 @@
               matTooltip="Close Chart List"
               matTooltipPosition="right"
             >
-              <mat-icon>arrow_back</mat-icon>
+              <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Charts</div>
@@ -42,7 +42,7 @@
             matTooltip="Reload Charts"
             matTooltipPosition="below"
           >
-            <mat-icon>refresh</mat-icon>
+            <fb-icon name="refresh" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div>
@@ -65,7 +65,7 @@
         </div>
         <div>
           <button mat-icon-button (click)="showChartLayers(false)">
-            <mat-icon>close</mat-icon>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
           </button>
         </div>
       </div>
@@ -89,7 +89,7 @@
         matTooltip="Re-order Charts"
         matTooltipPosition="above"
       >
-        <mat-icon>import_export</mat-icon>
+        <fb-icon name="import_export" ariaLabel=""></fb-icon>
         Re-order
       </button>
 
@@ -99,7 +99,7 @@
         matTooltipPosition="above"
         [matMenuTriggerFor]="addchartmenu"
       >
-        <mat-icon>add</mat-icon>
+        <fb-icon name="add" ariaLabel=""></fb-icon>
       </button>
       } @else {
       <div style="display: flex; width: 100%; font-style: italic">
@@ -132,7 +132,7 @@
                   white-space: pre;
                 "
               >
-                <mat-icon>{{isLocal(r[1].url)}}</mat-icon>
+                <fb-icon [name]="isLocal(r[1].url)" ariaLabel=""></fb-icon>
                 &nbsp;<b>{{r[1].name}}</b>
               </div>
               <div
@@ -166,7 +166,7 @@
                 matTooltip="Remove Chart"
                 matTooltipPosition="above"
               >
-                <mat-icon>delete</mat-icon>
+                <fb-icon name="delete" ariaLabel=""></fb-icon>
               </button>
             </div>
             }
@@ -177,7 +177,7 @@
                 matTooltip="Chart Properties"
                 matTooltipPosition="above"
               >
-                <mat-icon>info</mat-icon>
+                <fb-icon name="info" ariaLabel=""></fb-icon>
               </button>
             </div>
             <div style="width: 100%; text-align: right">
@@ -188,7 +188,7 @@
                 matTooltip="Set Opacity"
                 matTooltipPosition="above"
               >
-                <mat-icon>opacity</mat-icon>
+                <fb-icon name="opacity" ariaLabel=""></fb-icon>
               </button>
             </div>
             @if(r[1].proxy) {
@@ -199,7 +199,7 @@
                 matTooltip="Cache Tiles"
                 matTooltipPosition="above"
               >
-                <mat-icon>download</mat-icon>
+                <fb-icon name="download" ariaLabel=""></fb-icon>
               </button>
             </div>
             } @if(app.featureFlags().resourceGroups) { &nbsp;
@@ -210,7 +210,7 @@
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
               >
-                <mat-icon>category</mat-icon>
+                <fb-icon name="category" ariaLabel=""></fb-icon>
               </button>
             </div>
             }

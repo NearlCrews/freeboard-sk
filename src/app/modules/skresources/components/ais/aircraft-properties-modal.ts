@@ -11,12 +11,12 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -29,10 +29,10 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatButtonModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent,
     SignalKDetailsComponent
   ],
@@ -40,7 +40,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
     <div class="_ap-aircraft">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading>
-          <mat-icon> airplanemode_active</mat-icon>
+          <fb-icon name="airplanemode_active" ariaLabel=""></fb-icon>
         </span>
         <span fbToolbarTitle>
           {{ data.title }}
@@ -52,7 +52,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
             matTooltip="Close"
             matTooltipPosition="below"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </button>
         </span>
       </fb-toolbar>
@@ -78,9 +78,14 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
             </div>
             <button mat-stroked-button (click)="toggleProperties()">
               <span>Show {{ showProperties ? 'Less' : 'More' }}</span>
-              <mat-icon>{{
-                showProperties ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
-              }}</mat-icon>
+              <fb-icon
+                [name]="
+                  showProperties
+                    ? 'keyboard_arrow_down'
+                    : 'keyboard_arrow_right'
+                "
+                ariaLabel=""
+              ></fb-icon>
             </button>
             @if (showProperties) {
               <signalk-details-list

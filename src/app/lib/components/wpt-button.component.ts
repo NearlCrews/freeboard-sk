@@ -4,16 +4,17 @@ import {
   inject,
   input
 } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SKResourceService } from 'src/app/modules';
 import type { Position } from 'src/app/types';
 
+import { FbIconComponent } from 'src/app/design-system/primitives';
+
 @Component({
   selector: 'wpt-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [FbIconComponent, MatButtonModule, MatTooltipModule],
   template: `
     <button
       class="button-toolbar"
@@ -24,7 +25,7 @@ import type { Position } from 'src/app/types';
       matTooltipPosition="above"
       aria-label="Drop waypoint at vessel position"
     >
-      <mat-icon>add_location</mat-icon>
+      <fb-icon name="add_location" ariaLabel=""></fb-icon>
     </button>
   `,
   styles: []

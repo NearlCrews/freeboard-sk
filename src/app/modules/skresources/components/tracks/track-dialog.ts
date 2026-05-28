@@ -9,7 +9,6 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -36,7 +35,6 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
@@ -48,8 +46,8 @@ interface DialogData {
     <div class="_ap-track">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon class="icon-track">show_chart</mat-icon></span
-        >
+          ><fb-icon name="show_chart" ariaLabel="" class="icon-track"></fb-icon
+        ></span>
         <span fbToolbarTitle>Track Details</span>
         <span fbToolbarActions>
           <fb-button

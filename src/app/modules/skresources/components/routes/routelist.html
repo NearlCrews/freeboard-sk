@@ -10,7 +10,7 @@
               matTooltip="Close Route List"
               matTooltipPosition="right"
             >
-              <mat-icon>arrow_back</mat-icon>
+              <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Routes</div>
@@ -35,7 +35,7 @@
             matTooltip="Reload Routes"
             matTooltipPosition="below"
           >
-            <mat-icon>refresh</mat-icon>
+            <fb-icon name="refresh" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div>
@@ -120,7 +120,7 @@
                 matTooltip="Delete Route"
                 matTooltipPosition="above"
               >
-                <mat-icon>delete</mat-icon>
+                <fb-icon name="delete" ariaLabel=""></fb-icon>
               </button>
               <button
                 mat-icon-button
@@ -128,7 +128,7 @@
                 matTooltip="Route notes"
                 matTooltipPosition="above"
               >
-                <mat-icon>local_offer</mat-icon>
+                <fb-icon name="local_offer" ariaLabel=""></fb-icon>
               </button>
               <button
                 mat-icon-button
@@ -137,7 +137,7 @@
                 matTooltip="Route points"
                 matTooltipPosition="above"
               >
-                <mat-icon>flag</mat-icon>
+                <fb-icon name="flag" ariaLabel=""></fb-icon>
               </button>
               @if(r[0] !== activeRoute()) {
               <button
@@ -147,7 +147,7 @@
                 matTooltip="Start"
                 matTooltipPosition="above"
               >
-                <mat-icon>near_me</mat-icon>
+                <fb-icon name="near_me" ariaLabel=""></fb-icon>
               </button>
               } @else {
               <button
@@ -157,7 +157,7 @@
                 matTooltip="Clear Active Route"
                 matTooltipPosition="above"
               >
-                <mat-icon>clear_all</mat-icon>
+                <fb-icon name="clear_all" ariaLabel=""></fb-icon>
               </button>
               }
             </div>
@@ -169,7 +169,7 @@
                 matTooltip="Edit Route Properties"
                 matTooltipPosition="above"
               >
-                <mat-icon>edit</mat-icon>
+                <fb-icon name="edit" ariaLabel=""></fb-icon>
               </button>
             </div>
             @if(app.featureFlags().resourceGroups) { &nbsp;
@@ -181,7 +181,7 @@
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
               >
-                <mat-icon>category</mat-icon>
+                <fb-icon name="category" ariaLabel=""></fb-icon>
               </button>
             </div>
             }

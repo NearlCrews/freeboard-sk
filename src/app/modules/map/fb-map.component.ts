@@ -18,11 +18,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { FbDividerComponent } from 'src/app/design-system/primitives';
+import {
+  FbDividerComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 // ** OL & popovers **
 import { PopoverComponent } from './popovers';
@@ -135,7 +137,7 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
   selector: 'fb-map',
   imports: [
     MatTooltipModule,
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     CoordsPipe,
     MatMenuModule,

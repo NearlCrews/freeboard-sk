@@ -5,19 +5,21 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
 
-import { FbToolbarComponent } from 'src/app/design-system/primitives';
+import {
+  FbIconComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'ap-infolayerproperties',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     MatDialogModule,
     FbToolbarComponent
@@ -26,12 +28,12 @@ import { FbToolbarComponent } from 'src/app/design-system/primitives';
     <div class="_ap-infolayer">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon>layers</mat-icon></span
-        >
+          ><fb-icon name="layers" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle>Overlay Properties</span>
         <span fbToolbarActions>
           <button mat-icon-button (click)="dialogRef.close()">
-            <mat-icon>close</mat-icon>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
           </button>
         </span>
       </fb-toolbar>

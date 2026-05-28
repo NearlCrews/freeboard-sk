@@ -13,9 +13,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 
-import { FbCardComponent } from 'src/app/design-system/primitives';
+import {
+  FbCardComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import {
   CdkDragDrop,
@@ -41,7 +43,7 @@ interface BuildRoutePoint {
     CdkDrag,
     CdkDropList,
     MatButtonModule,
-    MatIconModule,
+    FbIconComponent,
     FormsModule,
     FbCardComponent
   ],
@@ -57,7 +59,7 @@ interface BuildRoutePoint {
               matTooltip="Refresh Waypoint list"
               (click)="getWaypoints()"
             >
-              <mat-icon>refresh</mat-icon>
+              <fb-icon name="refresh" ariaLabel=""></fb-icon>
             </button>
           </div>
           <div
@@ -71,7 +73,7 @@ interface BuildRoutePoint {
           </div>
           <div>
             <button mat-icon-button (click)="handleClose()">
-              <mat-icon>close</mat-icon>
+              <fb-icon name="close" ariaLabel=""></fb-icon>
             </button>
           </div>
         </div>
@@ -96,7 +98,7 @@ interface BuildRoutePoint {
                 @for (item of wpts(); track item) {
                   <div class="wpt-box" cdkDrag>
                     <div style="width:40px;">
-                      <mat-icon>room</mat-icon>
+                      <fb-icon name="room" ariaLabel=""></fb-icon>
                     </div>
                     <div class="wpt-text" [matTooltip]="item.name">
                       {{ item.name }}
@@ -118,14 +120,14 @@ interface BuildRoutePoint {
                 @for (item of rtepts; track item; let idx = $index) {
                   <div class="wpt-box" mat-background cdkDrag>
                     <div style="width:40px;">
-                      <mat-icon>room</mat-icon>
+                      <fb-icon name="room" ariaLabel=""></fb-icon>
                     </div>
                     <div class="wpt-text" [matTooltip]="item.name">
                       {{ item.name }}
                     </div>
                     <div style="width:40px;">
                       <button mat-icon-button (click)="deleteFromRoute(idx)">
-                        <mat-icon>delete</mat-icon>
+                        <fb-icon name="delete" ariaLabel=""></fb-icon>
                       </button>
                     </div>
                   </div>
@@ -141,7 +143,7 @@ interface BuildRoutePoint {
             [disabled]="rtepts.length < 2"
             (click)="doSave()"
           >
-            <mat-icon>save</mat-icon>&nbsp;Save
+            <fb-icon name="save" ariaLabel=""></fb-icon>&nbsp;Save
           </button>
         </div>
       </div>

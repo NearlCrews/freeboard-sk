@@ -1,8 +1,8 @@
 <div class="geojsonload-dialog">
   <fb-toolbar style="background-color: transparent">
     <span fbToolbarLeading class="dialog-icon"
-      ><mat-icon aria-hidden="true">public</mat-icon></span
-    >
+      ><fb-icon name="public" ariaLabel=""></fb-icon
+    ></span>
     <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
       Load GeoJSON
     </h2>
@@ -12,7 +12,7 @@
         aria-label="Cancel GeoJSON load"
         (click)="this.dialogRef.close(-1);"
       >
-        <mat-icon>close</mat-icon>
+        <fb-icon name="close" ariaLabel=""></fb-icon>
       </button>
     </span>
   </fb-toolbar>
@@ -28,7 +28,7 @@
     </div>
     <div mat-dialog-actions align="center">
       <button mat-raised-button (click)="app.showHelp('geojson')">
-        <mat-icon>help</mat-icon>
+        <fb-icon name="help" ariaLabel=""></fb-icon>
         Help
       </button>
     </div>
@@ -55,10 +55,14 @@
               &nbsp;
             </div>
             <div class="pnlArrow">
-              <mat-icon>arrow_forward</mat-icon>
+              <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
             </div>
             <div class="pnlSKType">
-              <mat-icon class="icon-waypoint">place</mat-icon>
+              <fb-icon
+                name="place"
+                ariaLabel=""
+                class="icon-waypoint"
+              ></fb-icon>
               <b>Waypoints:</b>
               &nbsp;({{geoData?.waypoints.length}})
             </div>
@@ -79,10 +83,14 @@
               &nbsp;
             </div>
             <div class="pnlArrow">
-              <mat-icon>arrow_forward</mat-icon>
+              <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
             </div>
             <div class="pnlSKType">
-              <mat-icon class="icon-route">directions</mat-icon>
+              <fb-icon
+                name="directions"
+                ariaLabel=""
+                class="icon-route"
+              ></fb-icon>
               <b>Routes:</b>
               &nbsp;({{geoData?.routes.length}})
             </div>
@@ -103,10 +111,14 @@
               &nbsp;
             </div>
             <div class="pnlArrow">
-              <mat-icon>arrow_forward</mat-icon>
+              <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
             </div>
             <div class="pnlSKType">
-              <mat-icon class="icon-track">show_chart</mat-icon>
+              <fb-icon
+                name="show_chart"
+                ariaLabel=""
+                class="icon-track"
+              ></fb-icon>
               <b>Tracks:</b>
               &nbsp;({{geoData?.tracks.length}})
             </div>
@@ -127,10 +139,10 @@
               &nbsp;
             </div>
             <div class="pnlArrow">
-              <mat-icon>arrow_forward</mat-icon>
+              <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
             </div>
             <div class="pnlSKType">
-              <mat-icon>tab_unselected</mat-icon>
+              <fb-icon name="tab_unselected" ariaLabel=""></fb-icon>
               <b>Regions:</b>
               &nbsp;({{geoData?.regions.length}})
             </div>
@@ -147,7 +159,7 @@
         matTooltipPosition="below"
         (click)="load()"
       >
-        <mat-icon>file_upload</mat-icon>
+        <fb-icon name="file_upload" ariaLabel=""></fb-icon>
         &nbsp;Load
       </button>
     </div>

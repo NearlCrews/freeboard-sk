@@ -9,7 +9,6 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { SignalKDetailsComponent } from '../components/signalk-details.component';
@@ -18,6 +17,7 @@ import { Feature } from 'geojson';
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 
@@ -26,10 +26,10 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatButtonModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent,
     SignalKDetailsComponent,
     MatStepperModule
@@ -37,7 +37,9 @@ import {
   template: `
     <div class="_ap-feature">
       <fb-toolbar style="background-color: transparent">
-        <span fbToolbarLeading><mat-icon>info</mat-icon></span>
+        <span fbToolbarLeading
+          ><fb-icon name="info" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle> Feature Properties </span>
         <span fbToolbarActions>
           <button
@@ -46,7 +48,7 @@ import {
             matTooltip="Close"
             matTooltipPosition="below"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </button>
         </span>
       </fb-toolbar>
@@ -63,7 +65,10 @@ import {
                       (click)="currentPage = currentPage - 1"
                       matStepperPrevious
                     >
-                      <mat-icon>keyboard_arrow_left</mat-icon>
+                      <fb-icon
+                        name="keyboard_arrow_left"
+                        ariaLabel=""
+                      ></fb-icon>
                     </button>
                   }
                 </div>
@@ -87,7 +92,10 @@ import {
                       (click)="currentPage = currentPage + 1"
                       matStepperNext
                     >
-                      <mat-icon>keyboard_arrow_right</mat-icon>
+                      <fb-icon
+                        name="keyboard_arrow_right"
+                        ariaLabel=""
+                      ></fb-icon>
                     </button>
                   }
                 </div>
@@ -99,12 +107,12 @@ import {
 
       <div style="text-align:center;font-size:10pt;font-family:roboto;">
         @for (c of data; track c; let i = $index) {
-          <mat-icon
+          <fb-icon
+            name="fiber_manual_record"
+            ariaLabel=""
             [style.color]="currentPage - 1 === i ? 'blue' : 'gray'"
             style="font-size:8pt;width:12px;"
-          >
-            fiber_manual_record
-          </mat-icon>
+          ></fb-icon>
         }
       </div>
     </div>

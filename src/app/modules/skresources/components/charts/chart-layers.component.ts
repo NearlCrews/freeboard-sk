@@ -6,14 +6,14 @@ import {
   inject
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import {
   FbCardComponent,
-  FbCardContentComponent
+  FbCardContentComponent,
+  FbIconComponent
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -26,10 +26,10 @@ import { SKResourceService } from '../../resources.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     DragDropModule,
     FbCardComponent,
-    FbCardContentComponent
+    FbCardContentComponent,
+    FbIconComponent
   ],
   template: `
     <div class="_ap-chartlayers">
@@ -50,7 +50,10 @@ import { SKResourceService } from '../../resources.service';
                     [style.cursor]="i > 0 ? 'pointer' : 'initial'"
                   >
                     <div style="width:35px;">
-                      <mat-icon color="">{{ isLocal(ch[1].url) }}</mat-icon>
+                      <fb-icon
+                        [name]="isLocal(ch[1].url)"
+                        ariaLabel=""
+                      ></fb-icon>
                     </div>
                     <div
                       style="flex: 1 1 auto;text-overflow: ellipsis;
@@ -59,7 +62,7 @@ import { SKResourceService } from '../../resources.service';
                       {{ ch[1].name }}
                     </div>
                     <div cdkDragHandle matTooltip="Drag to re-order charts">
-                      <mat-icon>drag_indicator</mat-icon>
+                      <fb-icon name="drag_indicator" ariaLabel=""></fb-icon>
                     </div>
                   </div>
                 </fb-card-content>

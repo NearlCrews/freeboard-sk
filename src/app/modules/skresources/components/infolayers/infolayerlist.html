@@ -14,7 +14,7 @@
               matTooltip="Close InfoLayer List"
               matTooltipPosition="right"
             >
-              <mat-icon>arrow_back</mat-icon>
+              <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Overlays</div>
@@ -38,7 +38,7 @@
             matTooltip="Reload Layers"
             matTooltipPosition="below"
           >
-            <mat-icon>refresh</mat-icon>
+            <fb-icon name="refresh" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div>
@@ -61,7 +61,7 @@
         matTooltipPosition="above"
         [matMenuTriggerFor]="addlayermenu"
       >
-        <mat-icon>add</mat-icon>
+        <fb-icon name="add" ariaLabel=""></fb-icon>
       </button>
       <small
         >Map layers containing dynamic information to overlay on charts.</small
@@ -184,7 +184,11 @@
                   matTooltip="Delete Layer"
                   matTooltipPosition="above"
                 >
-                  <mat-icon class="icon-warn">delete</mat-icon>
+                  <fb-icon
+                    name="delete"
+                    ariaLabel=""
+                    class="icon-warn"
+                  ></fb-icon>
                 </button>
               </div>
               <div style="flex: 2; text-align: right; padding-right: 10px">
@@ -194,7 +198,7 @@
                   matTooltip="Layer Properties"
                   matTooltipPosition="above"
                 >
-                  <mat-icon>info</mat-icon>
+                  <fb-icon name="info" ariaLabel=""></fb-icon>
                 </button>
               </div>
             </div>

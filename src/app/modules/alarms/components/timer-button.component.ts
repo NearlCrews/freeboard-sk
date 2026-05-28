@@ -13,11 +13,12 @@ import {
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'timer-button',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [``],
   template: `
@@ -26,7 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
         &nbsp;
         <button mat-raised-button (click)="action()">
           @if (icon) {
-            <mat-icon>{{ icon }}</mat-icon>
+            <fb-icon [name]="icon" ariaLabel=""></fb-icon>
           }
           {{ cancelledLabel }}
         </button>

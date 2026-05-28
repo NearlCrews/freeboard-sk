@@ -10,26 +10,28 @@ import {
 
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
 import { Position } from 'src/app/types';
 import { GeoUtils } from '../geoutils';
 
-import { FbToolbarComponent } from 'src/app/design-system/primitives';
+import {
+  FbIconComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 // ********* Measurements Component ********
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-measurements',
-  imports: [MatIconModule, MatButtonModule, MatTooltip, FbToolbarComponent],
+  imports: [FbIconComponent, MatButtonModule, MatTooltip, FbToolbarComponent],
   template: `
     <div class="_ap_measurements">
       <fb-toolbar>
         <div class="_ap_row">
           <div class="_ap_row">
             <div class="icon-label">
-              <mat-icon>straighten</mat-icon>
+              <fb-icon name="straighten" ariaLabel=""></fb-icon>
             </div>
             <div class="value">{{ totalDistance }}<br /></div>
           </div>
@@ -37,7 +39,7 @@ import { FbToolbarComponent } from 'src/app/design-system/primitives';
             <div class="_ap_row">
               <div class="_ap_row">
                 <div style="font-size: 12pt;">
-                  <mat-icon>square_foot</mat-icon><br />
+                  <fb-icon name="square_foot" ariaLabel=""></fb-icon><br />
                   {{
                     this.coords.length < 2
                       ? '-'
@@ -61,7 +63,7 @@ import { FbToolbarComponent } from 'src/app/design-system/primitives';
               mat-icon-button
               (click)="close()"
             >
-              <mat-icon>close</mat-icon>
+              <fb-icon name="close" ariaLabel=""></fb-icon>
             </button>
           </div>
         </div>

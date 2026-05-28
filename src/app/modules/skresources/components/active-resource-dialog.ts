@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatBottomSheetRef,
@@ -17,6 +16,7 @@ import {
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
@@ -41,10 +41,10 @@ interface CoordinatesMetaEntry {
   imports: [
     CommonModule,
     MatTooltipModule,
-    MatIconModule,
     MatButtonModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent,
     CdkDrag,
     CdkDropList
@@ -61,7 +61,7 @@ interface CoordinatesMetaEntry {
                   (click)="deactivate()"
                   [matTooltip]="clearButtonText"
                 >
-                  <mat-icon>clear_all</mat-icon>
+                  <fb-icon name="clear_all" ariaLabel=""></fb-icon>
                   Clear
                 </button>
               } @else {
@@ -70,7 +70,7 @@ interface CoordinatesMetaEntry {
                   (click)="startAt()"
                   matTooltip="Start at nearest point."
                 >
-                  <mat-icon>near_me</mat-icon>
+                  <fb-icon name="near_me" ariaLabel=""></fb-icon>
                   Start
                 </button>
               }
@@ -89,7 +89,7 @@ interface CoordinatesMetaEntry {
               matTooltip="Close"
               matTooltipPosition="below"
             >
-              <mat-icon>keyboard_arrow_down</mat-icon>
+              <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
             </button>
           </span>
         </fb-toolbar>
@@ -119,7 +119,11 @@ interface CoordinatesMetaEntry {
                 >
                   <div style="width:35px;">
                     @if (selIndex() === i) {
-                      <mat-icon class="icon-warn"> flag </mat-icon>
+                      <fb-icon
+                        name="flag"
+                        ariaLabel=""
+                        class="icon-warn"
+                      ></fb-icon>
                     } @else {
                       @if (!data.noButtons) {
                         <button
@@ -127,7 +131,7 @@ interface CoordinatesMetaEntry {
                           matTooltip="Go to"
                           (click)="startAt(i)"
                         >
-                          <mat-icon> near_me </mat-icon>
+                          <fb-icon name="near_me" ariaLabel=""></fb-icon>
                         </button>
                       }
                     }
@@ -166,7 +170,7 @@ interface CoordinatesMetaEntry {
                       matTooltip="Drag to re-order points"
                       style="cursor:grab"
                     >
-                      <mat-icon>drag_indicator</mat-icon>
+                      <fb-icon name="drag_indicator" ariaLabel=""></fb-icon>
                     </div>
                   }
                 </div>

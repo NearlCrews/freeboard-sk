@@ -15,12 +15,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
 import {
+  FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -52,10 +52,10 @@ interface GPXDataSummary {
   selector: 'gpxload-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,

@@ -17,12 +17,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { FbToolbarComponent } from 'src/app/design-system/primitives';
+import {
+  FbIconComponent,
+  FbToolbarComponent
+} from 'src/app/design-system/primitives';
 
 import { GPXSaveFacade } from './gpxsave-dialog.facade';
 import { AppFacade } from 'src/app/app.facade';
@@ -34,9 +36,9 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   selector: 'gpxsave-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FbIconComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatIconModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,

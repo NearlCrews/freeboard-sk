@@ -9,13 +9,13 @@ import {
   signal
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -38,11 +38,11 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatButtonModule,
     MatCheckboxModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent
   ],
@@ -59,7 +59,7 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             matTooltipPosition="below"
             (click)="clearSelections()"
           >
-            <mat-icon>clear_all</mat-icon>
+            <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           </button>
 
           <button
@@ -68,7 +68,7 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             matTooltipPosition="below"
             (click)="getItems(true)"
           >
-            <mat-icon>refresh</mat-icon>
+            <fb-icon name="refresh" ariaLabel=""></fb-icon>
           </button>
         </span>
         <span fbToolbarTitle>
@@ -81,7 +81,7 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             matTooltip="Close"
             matTooltipPosition="below"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </button>
         </span>
       </fb-toolbar>

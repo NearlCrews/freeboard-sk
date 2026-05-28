@@ -8,24 +8,26 @@ import {
 
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
 import { FBMapInteractService } from 'src/app/modules/map/fbmap-interact.service';
 import { Measurements } from './measurements.component';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 // ********* Interaction Help Component ********
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-interact-help',
-  imports: [MatIconModule, MatButtonModule, MatTooltip, Measurements],
+  imports: [FbIconComponent, MatButtonModule, MatTooltip, Measurements],
   template: `
     <div class="mat-app-background _ap_interact_help">
       @if (showHelpPanel()) {
         <div class="mat-app-background measurePanel">
           <div>
             <span style="font-weight: bold; padding: 5px">
-              <mat-icon>{{ mode.iconName }}</mat-icon> {{ mode.iconText }}
+              <fb-icon [name]="mode.iconName" ariaLabel=""></fb-icon>
+              {{ mode.iconText }}
             </span>
             @if (mode.description.length !== 0) {
               <div style="padding: 5px">
@@ -62,7 +64,7 @@ import { Measurements } from './measurements.component';
               "
               matTooltipPosition="left"
             >
-              <mat-icon class="icon-warn">close</mat-icon>
+              <fb-icon name="close" ariaLabel="" class="icon-warn"></fb-icon>
               {{ mapInteract.isModifying() ? 'FINISH' : 'CANCEL' }}
             </a>
           </div>

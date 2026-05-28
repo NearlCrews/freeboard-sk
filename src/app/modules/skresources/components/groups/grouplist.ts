@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -21,6 +20,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbIconComponent,
   FbProgressBarComponent,
   FbSearchInputComponent
 } from 'src/app/design-system/primitives';
@@ -45,7 +45,6 @@ import {
   styleUrls: ['../resourcelist.css'],
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
     ScrollingModule,
@@ -54,6 +53,7 @@ import {
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbIconComponent,
     FbProgressBarComponent,
     FbSearchInputComponent
   ]

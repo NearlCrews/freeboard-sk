@@ -5,7 +5,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbButtonComponent,
@@ -25,7 +24,6 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
@@ -39,8 +37,8 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
     <div class="_ap-wmts">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon>public</mat-icon></span
-        >
+          ><fb-icon name="public" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle>Add WMTS Source</span>
         <span fbToolbarActions>
           <fb-button

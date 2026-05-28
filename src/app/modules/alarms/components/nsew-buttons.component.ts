@@ -10,11 +10,12 @@ import {
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'nsew-buttons',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
@@ -36,7 +37,7 @@ import { MatIconModule } from '@angular/material/icon';
         <div class="btnDiv"></div>
         <div class="btnDiv">
           <button mat-mini-fab [disabled]="disabled" (click)="action(0)">
-            <mat-icon>arrow_upward</mat-icon>
+            <fb-icon name="arrow_upward" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div class="btnDiv"></div>
@@ -45,13 +46,13 @@ import { MatIconModule } from '@angular/material/icon';
       <div class="btnRow">
         <div class="btnDiv">
           <button mat-mini-fab [disabled]="disabled" (click)="action(270)">
-            <mat-icon>arrow_back</mat-icon>
+            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div class="btnDiv"></div>
         <div class="btnDiv">
           <button mat-mini-fab [disabled]="disabled" (click)="action(90)">
-            <mat-icon>arrow_forward</mat-icon>
+            <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
           </button>
         </div>
       </div>
@@ -60,7 +61,7 @@ import { MatIconModule } from '@angular/material/icon';
         <div class="btnDiv"></div>
         <div class="btnDiv">
           <button mat-mini-fab [disabled]="disabled" (click)="action(180)">
-            <mat-icon>arrow_downward</mat-icon>
+            <fb-icon name="arrow_downward" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div class="btnDiv"></div>

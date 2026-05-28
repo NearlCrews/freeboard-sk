@@ -75,7 +75,7 @@
           [disabled]="mapZoomLevel() <= app.MAP_ZOOM_EXTENT.min"
           matTooltip="Zoom out"
         >
-          <mat-icon>remove</mat-icon>
+          <fb-icon name="remove" ariaLabel=""></fb-icon>
         </button>
         &nbsp;
         <button
@@ -85,7 +85,7 @@
           [disabled]="mapZoomLevel() >= app.MAP_ZOOM_EXTENT.max"
           matTooltip="Zoom in"
         >
-          <mat-icon>add</mat-icon>
+          <fb-icon name="add" ariaLabel=""></fb-icon>
         </button>
       </div>
     </ol-content>
@@ -686,7 +686,7 @@
         (contextmenu)="$event.preventDefault()"
         (click)="onContextMenuAction('nav_to', item)"
       >
-        <mat-icon>near_me</mat-icon>
+        <fb-icon name="near_me" ariaLabel=""></fb-icon>
         Navigate to here
       </button>
     }
@@ -695,7 +695,7 @@
         mat-menu-item
         (click)="onContextMenuAction('cleardestination', item)"
       >
-        <mat-icon>clear_all</mat-icon>
+        <fb-icon name="clear_all" ariaLabel=""></fb-icon>
         @if (app.data.activeRoute) {
           <span>Clear Active Route</span>
         } @else {
@@ -711,7 +711,7 @@
       (click)="onContextMenuAction('add_wpt', item)"
       (contextmenu)="$event.preventDefault()"
     >
-      <mat-icon class="icon-waypoint">add_location</mat-icon>
+      <fb-icon name="add_location" ariaLabel="" class="icon-waypoint"></fb-icon>
       Add Waypoint here
     </button>
 
@@ -721,7 +721,7 @@
         (click)="onContextMenuAction('add_note', item)"
         (contextmenu)="$event.preventDefault()"
       >
-        <mat-icon>local_offer</mat-icon>
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         Add Note here
       </button>
     }
@@ -733,7 +733,7 @@
         (contextmenu)="$event.preventDefault()"
         (click)="onContextMenuAction('bearing_dist', item)"
       >
-        <mat-icon>arrow_right_alt</mat-icon>
+        <fb-icon name="arrow_right_alt" ariaLabel=""></fb-icon>
         Bearing & Distance
       </button>
     }
@@ -742,14 +742,14 @@
       (click)="onContextMenuAction('measure', item)"
       (contextmenu)="$event.preventDefault()"
     >
-      <mat-icon>straighten</mat-icon>
+      <fb-icon name="straighten" ariaLabel=""></fb-icon>
       Measure
     </button>
     <fb-divider />
 
     @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
       <button mat-menu-item (click)="onContextMenuAction('cleartrail', item)">
-        <mat-icon>clear_all</mat-icon>
+        <fb-icon name="clear_all" ariaLabel=""></fb-icon>
         <span>{{ app.data.serverTrail ? 'Refresh' : 'Clear' }} Trail</span>
       </button>
     }
@@ -759,7 +759,7 @@
       (click)="onContextMenuAction('trail2route', item)"
       (contextmenu)="$event.preventDefault()"
     >
-      <mat-icon>insights</mat-icon>
+      <fb-icon name="insights" ariaLabel=""></fb-icon>
       Trail to Route
     </button>
 
@@ -769,7 +769,7 @@
       (click)="onContextMenuAction('anchor', item)"
       (contextmenu)="$event.preventDefault()"
     >
-      <mat-icon>anchor</mat-icon>
+      <fb-icon name="anchor" ariaLabel=""></fb-icon>
       Anchor Watch
     </button>
     @if (app.featureFlags().weatherApi) {
@@ -777,7 +777,7 @@
         mat-menu-item
         (click)="onContextMenuAction('weather_forecast', item)"
       >
-        <mat-icon>air</mat-icon>
+        <fb-icon name="air" ariaLabel=""></fb-icon>
         <span>Weather Forecast</span>
       </button>
     }

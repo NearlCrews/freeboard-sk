@@ -5,7 +5,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbButtonComponent,
@@ -28,7 +27,6 @@ import { NodeTreeSelect } from './node-tree-select';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
@@ -41,8 +39,8 @@ import { NodeTreeSelect } from './node-tree-select';
     <div class="_ap-wms">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon>public</mat-icon></span
-        >
+          ><fb-icon name="public" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle>Add WMS Source</span>
         <span fbToolbarActions>
           <fb-button

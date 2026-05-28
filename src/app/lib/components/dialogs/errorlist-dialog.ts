@@ -9,10 +9,10 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbIconComponent,
   FbListComponent,
   FbListItemComponent
 } from 'src/app/design-system/primitives';
@@ -28,7 +28,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatIconModule,
+    FbIconComponent,
     MatButtonModule,
     FbListComponent,
     FbListItemComponent
@@ -37,7 +37,11 @@ import {
     <div class="_ap-errlist">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon style="color: var(--safety-alert-warn);">warning</mat-icon>
+          <fb-icon
+            name="warning"
+            ariaLabel=""
+            style="color: var(--safety-alert-warn);"
+          ></fb-icon>
           &nbsp;{{ data.errorList?.length }} Errors Encountered
         </h1>
       </div>

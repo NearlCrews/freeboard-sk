@@ -16,11 +16,11 @@ import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbCardComponent,
-  FbCardContentComponent
+  FbCardContentComponent,
+  FbIconComponent
 } from 'src/app/design-system/primitives';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -35,12 +35,12 @@ import { AutopilotService } from './autopilot.service';
     CommonModule,
     DragDropModule,
     MatButtonModule,
-    MatIconModule,
     MatMenuModule,
     MatSlideToggleModule,
     FormsModule,
     FbCardComponent,
-    FbCardContentComponent
+    FbCardContentComponent,
+    FbIconComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./autopilot.component.css'],
@@ -50,9 +50,9 @@ import { AutopilotService } from './autopilot.service';
         <button mat-menu-item (click)="setMode(i)">
           <span>{{ i }}</span>
           @if (i === apData().mode) {
-            <mat-icon>check</mat-icon>
+            <fb-icon name="check" ariaLabel=""></fb-icon>
           } @else {
-            <mat-icon>ok</mat-icon>
+            <fb-icon name="ok" ariaLabel=""></fb-icon>
           }
         </button>
       }
@@ -62,9 +62,9 @@ import { AutopilotService } from './autopilot.service';
         <button mat-menu-item (click)="setState(i.name)">
           <span>{{ i.name }}</span>
           @if (i.name === apData().state) {
-            <mat-icon>check</mat-icon>
+            <fb-icon name="check" ariaLabel=""></fb-icon>
           } @else {
-            <mat-icon>ok</mat-icon>
+            <fb-icon name="ok" ariaLabel=""></fb-icon>
           }
         </button>
       }
@@ -84,7 +84,7 @@ import { AutopilotService } from './autopilot.service';
               aria-label="Close autopilot console"
               (click)="handleClose()"
             >
-              <mat-icon>close</mat-icon>
+              <fb-icon name="close" ariaLabel=""></fb-icon>
             </button>
           </div>
         </div>

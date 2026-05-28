@@ -5,8 +5,9 @@ import {
   inject
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { PwaService } from '../services/pwa.service';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 /**
  * Renders a single status strip across the top of the app:
@@ -22,16 +23,16 @@ import { PwaService } from '../services/pwa.service';
 @Component({
   selector: 'fb-offline-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, FbIconComponent],
   template: `
     @if (mode() === 'offline') {
       <div class="fb-offline-banner fb-offline-banner--offline">
-        <mat-icon aria-hidden="true">cloud_off</mat-icon>
+        <fb-icon name="cloud_off" ariaLabel=""></fb-icon>
         <span>Offline. Data may be stale.</span>
       </div>
     } @else if (mode() === 'update') {
       <div class="fb-offline-banner fb-offline-banner--update">
-        <mat-icon aria-hidden="true">system_update_alt</mat-icon>
+        <fb-icon name="system_update_alt" ariaLabel=""></fb-icon>
         <span>A new version is ready.</span>
         <button mat-button (click)="reload()">Reload</button>
       </div>

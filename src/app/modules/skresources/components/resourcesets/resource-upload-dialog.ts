@@ -12,7 +12,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -40,7 +39,6 @@ import { AppFacade } from 'src/app/app.facade';
   imports: [
     FormsModule,
     MatTooltipModule,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,

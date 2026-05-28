@@ -10,7 +10,7 @@
         [disabled]="!display.loadRoutesOK && !display.loadWaypointsOK && !display.loadTracksOK"
         (click)="load()"
       >
-        <mat-icon>file_upload</mat-icon>
+        <fb-icon name="file_upload" ariaLabel=""></fb-icon>
         &nbsp;Load
       </button>
       }
@@ -25,7 +25,7 @@
         [disabled]="app.sIsFetching()"
         (click)="this.dialogRef.close(-1);"
       >
-        <mat-icon>close</mat-icon>
+        <fb-icon name="close" ariaLabel=""></fb-icon>
       </button>
     </div>
   </fb-toolbar>
@@ -77,7 +77,7 @@
       >
         <mat-expansion-panel-header style="padding: 0 12px">
           <mat-panel-title>
-            <mat-icon class="icon-waypoint">place</mat-icon>
+            <fb-icon name="place" ariaLabel="" class="icon-waypoint"></fb-icon>
             &nbsp;&nbsp;
             <b>Waypoints:</b>
           </mat-panel-title>
@@ -133,7 +133,11 @@
       >
         <mat-expansion-panel-header style="padding: 0 12px">
           <mat-panel-title>
-            <mat-icon class="icon-route">directions</mat-icon>
+            <fb-icon
+              name="directions"
+              ariaLabel=""
+              class="icon-route"
+            ></fb-icon>
             &nbsp;&nbsp;
             <b>Routes:</b>
           </mat-panel-title>
@@ -188,7 +192,11 @@
       >
         <mat-expansion-panel-header style="padding: 0 12px">
           <mat-panel-title>
-            <mat-icon class="icon-track">show_chart</mat-icon>
+            <fb-icon
+              name="show_chart"
+              ariaLabel=""
+              class="icon-track"
+            ></fb-icon>
             &nbsp;&nbsp;
             <b>Tracks:</b>
           </mat-panel-title>

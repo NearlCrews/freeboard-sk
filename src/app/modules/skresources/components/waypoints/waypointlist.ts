@@ -14,7 +14,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -52,7 +51,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
   imports: [
     CommonModule,
     MatTooltipModule,
-    MatIconModule,
     ScrollingModule,
     FbButtonComponent,
     FbCardComponent,

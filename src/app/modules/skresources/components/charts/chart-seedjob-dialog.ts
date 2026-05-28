@@ -13,7 +13,6 @@ import {
 } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { FBChart, Position } from 'src/app/types';
@@ -36,7 +35,6 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatDialogModule,
     FormsModule,
     FbButtonComponent,
@@ -49,8 +47,8 @@ interface DialogData {
     <div class="_ap-chartjob">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon>download</mat-icon></span
-        >
+          ><fb-icon name="download" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle>Chart Seed job</span>
         <span fbToolbarActions>
           <fb-button

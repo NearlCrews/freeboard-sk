@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -23,6 +22,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbIconComponent,
   FbSearchInputComponent
 } from 'src/app/design-system/primitives';
 
@@ -45,7 +45,6 @@ import { RemarkModule } from 'ngx-remark';
   styleUrls: ['../resourcelist.css'],
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
     ScrollingModule,
@@ -54,6 +53,7 @@ import { RemarkModule } from 'ngx-remark';
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbIconComponent,
     FbSearchInputComponent
   ]
 })

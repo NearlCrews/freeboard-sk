@@ -4,13 +4,13 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   FbCardComponent,
   FbCardContentComponent,
+  FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
 import {
@@ -40,11 +40,11 @@ interface ResourceSetFeatureProperties {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatButtonModule,
     MatCheckboxModule,
     FbCardComponent,
     FbCardContentComponent,
+    FbIconComponent,
     FbToolbarComponent
   ],
   template: `
@@ -60,7 +60,7 @@ interface ResourceSetFeatureProperties {
             matTooltip="Close"
             matTooltipPosition="left"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </button>
         </span>
       </fb-toolbar>

@@ -8,7 +8,8 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 /********* AboutDialog ****************
     data: {
@@ -22,10 +23,12 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'ap-about-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatIconModule, MatButtonModule],
+  imports: [MatDialogModule, FbIconComponent, MatButtonModule],
   template: `
     <div>
-      <h1 mat-dialog-title><mat-icon>info</mat-icon>&nbsp;About</h1>
+      <h1 mat-dialog-title>
+        <fb-icon name="info" ariaLabel=""></fb-icon>&nbsp;About
+      </h1>
       <mat-dialog-content>
         <div class="about-row">
           <div class="item"><img [src]="data.logo" /></div>

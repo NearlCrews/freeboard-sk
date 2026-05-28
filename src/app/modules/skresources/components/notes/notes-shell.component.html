@@ -7,7 +7,7 @@
       matTooltipPosition="right"
       aria-label="Close notes"
     >
-      <mat-icon>arrow_back</mat-icon>
+      <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
     </button>
     <h1 class="notes-shell__title">Notes</h1>
     <div class="notes-shell__top-actions">
@@ -18,7 +18,7 @@
         matTooltipPosition="below"
         aria-label="Reload notes"
       >
-        <mat-icon>refresh</mat-icon>
+        <fb-icon name="refresh" ariaLabel=""></fb-icon>
       </button>
       <button
         mat-icon-button
@@ -30,9 +30,10 @@
         [attr.aria-pressed]="showNotesOnMap()"
         aria-label="Show notes on map"
       >
-        <mat-icon>{{
-          showNotesOnMap() ? 'visibility' : 'visibility_off'
-        }}</mat-icon>
+        <fb-icon
+          [name]="showNotesOnMap() ? 'visibility' : 'visibility_off'"
+          ariaLabel=""
+        ></fb-icon>
       </button>
     </div>
   </header>
@@ -131,7 +132,7 @@
               (click)="onEdit()"
               matTooltip="Edit note"
             >
-              <mat-icon>edit</mat-icon>
+              <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
             </button>
             <button
@@ -141,7 +142,7 @@
               (click)="onDelete()"
               matTooltip="Delete note"
             >
-              <mat-icon>delete</mat-icon>
+              <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete
             </button>
           </ng-template>

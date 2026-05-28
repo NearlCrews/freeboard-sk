@@ -13,7 +13,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbButtonComponent,
@@ -41,7 +40,6 @@ import { NodeListSelect } from './node-list-select';
   imports: [
     FormsModule,
     MatTooltipModule,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
@@ -56,8 +54,8 @@ import { NodeListSelect } from './node-list-select';
     <div class="_ap-chartinfo">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading class="dialog-icon"
-          ><mat-icon>{{ isLocal(data.url) }}</mat-icon></span
-        >
+          ><fb-icon [name]="isLocal(data.url)" ariaLabel=""></fb-icon
+        ></span>
         <span fbToolbarTitle>Chart Properties</span>
         <span fbToolbarActions>
           <fb-button

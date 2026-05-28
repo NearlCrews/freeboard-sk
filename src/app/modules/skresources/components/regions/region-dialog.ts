@@ -9,7 +9,6 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -37,7 +36,6 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatIconModule,
     MatDialogModule,
     FbButtonComponent,
     FbCheckboxComponent,
@@ -50,7 +48,11 @@ interface DialogData {
     <div class="_ap-region">
       <fb-toolbar style="background-color: transparent">
         <div fbToolbarLeading>
-          <mat-icon class="icon-region">tab_unselected</mat-icon>
+          <fb-icon
+            name="tab_unselected"
+            ariaLabel=""
+            class="icon-region"
+          ></fb-icon>
         </div>
         <span fbToolbarTitle>Region Details</span>
         <div fbToolbarActions style="width: 50px; text-align: right;">

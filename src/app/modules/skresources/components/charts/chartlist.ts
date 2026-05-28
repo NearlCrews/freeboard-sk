@@ -12,7 +12,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -23,6 +22,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbIconComponent,
   FbProgressBarComponent,
   FbSwitchRowComponent,
   FbSearchInputComponent
@@ -55,7 +55,6 @@ import { SKChart } from '../../resource-classes';
   styleUrls: ['../resourcelist.css'],
   imports: [
     MatTooltipModule,
-    MatIconModule,
     MatCheckboxModule,
     MatButtonModule,
     ScrollingModule,
@@ -65,6 +64,7 @@ import { SKChart } from '../../resource-classes';
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbIconComponent,
     FbProgressBarComponent,
     FbSwitchRowComponent,
     FbSearchInputComponent

@@ -4,15 +4,16 @@
 import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 /********* ExperimentsComponent ********/
 @Component({
   selector: 'fb-experiments',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatMenuModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [MatMenuModule, FbIconComponent, MatButtonModule, MatTooltipModule],
   template: `
     <mat-menu #experimentsmenu="matMenu">
       <!--
@@ -25,7 +26,7 @@ import { MatMenuModule } from '@angular/material/menu';
       </a>
       -->
       <a mat-menu-item (click)="handleSelect('debugCapture')">
-        <mat-icon>adb</mat-icon>
+        <fb-icon name="adb" ariaLabel=""></fb-icon>
         <span>Capture Debug Info</span>
       </a>
     </mat-menu>
@@ -39,7 +40,7 @@ import { MatMenuModule } from '@angular/material/menu';
         matTooltipPosition="left"
         aria-label="Experiments menu"
       >
-        <mat-icon>science</mat-icon>
+        <fb-icon name="science" ariaLabel=""></fb-icon>
       </button>
     </div>
   `,

@@ -7,7 +7,7 @@
       matTooltipPosition="right"
       aria-label="Close resources"
     >
-      <mat-icon>arrow_back</mat-icon>
+      <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
     </button>
     <h1 class="resources-shell__title">Resources</h1>
     <div class="resources-shell__top-actions">
@@ -18,7 +18,7 @@
         matTooltipPosition="below"
         aria-label="Reload resources"
       >
-        <mat-icon>refresh</mat-icon>
+        <fb-icon name="refresh" ariaLabel=""></fb-icon>
       </button>
     </div>
   </header>
@@ -32,9 +32,11 @@
       >
         <ng-template #fbListPaneItem let-item>
           <span class="nav-item" [class.is-active]="item.id === activeNav()">
-            <mat-icon class="nav-item__icon" aria-hidden="true">{{
-              item.icon
-            }}</mat-icon>
+            <fb-icon
+              [name]="item.icon"
+              ariaLabel=""
+              class="nav-item__icon"
+            ></fb-icon>
             <span class="nav-item__label">{{ item.label }}</span>
             <span class="nav-item__count">{{ item.count }}</span>
           </span>
@@ -58,9 +60,11 @@
         <ng-template #fbListPaneItem let-item>
           <article class="row" [attr.data-kind]="item.kind">
             <header class="row__head">
-              <mat-icon class="row__icon" aria-hidden="true">{{
-                kindIcon(item.kind)
-              }}</mat-icon>
+              <fb-icon
+                [name]="kindIcon(item.kind)"
+                ariaLabel=""
+                class="row__icon"
+              ></fb-icon>
               <h2 class="row__title">{{ item.label }}</h2>
               @if (isRouteRow(item)) {
                 @if (routeDistance(item.entry[1]); as dist) {
@@ -126,7 +130,7 @@
                   (click)="onDeactivateRoute()"
                   matTooltip="Clear active route"
                 >
-                  <mat-icon>cancel</mat-icon>
+                  <fb-icon name="cancel" ariaLabel=""></fb-icon>
                   Deactivate
                 </button>
               } @else {
@@ -135,13 +139,13 @@
                   (click)="onActivateRoute()"
                   matTooltip="Activate route"
                 >
-                  <mat-icon>navigation</mat-icon>
+                  <fb-icon name="navigation" ariaLabel=""></fb-icon>
                   Activate
                 </button>
               }
             }
             <button mat-stroked-button (click)="onEdit()" matTooltip="Edit">
-              <mat-icon>edit</mat-icon>
+              <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
             </button>
             <button
@@ -150,7 +154,7 @@
               (click)="onDelete()"
               matTooltip="Delete"
             >
-              <mat-icon>delete</mat-icon>
+              <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete
             </button>
           </ng-template>

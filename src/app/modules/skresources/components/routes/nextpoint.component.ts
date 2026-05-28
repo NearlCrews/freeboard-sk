@@ -5,12 +5,13 @@ import {
   input
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'route-nextpoint',
-  imports: [MatButtonModule, MatTooltipModule, MatIconModule],
+  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -27,7 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             [disabled]="!circular() && index() === 0"
             (click)="changeIndex(-1)"
           >
-            <mat-icon>skip_previous</mat-icon>
+            <fb-icon name="skip_previous" ariaLabel=""></fb-icon>
           </button>
         </div>
         <div style="flex: auto">
@@ -39,7 +40,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             [disabled]="!circular() && index() >= total() - 1"
             (click)="changeIndex(1)"
           >
-            <mat-icon>skip_next</mat-icon>
+            <fb-icon name="skip_next" ariaLabel=""></fb-icon>
           </button>
         </div>
       </div>

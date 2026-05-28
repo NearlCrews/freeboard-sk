@@ -10,9 +10,10 @@ import {
   MatDialogModule,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
+
+import { FbIconComponent } from 'src/app/design-system/primitives';
 
 /*********** MsgBox ***************
 	data: {
@@ -78,12 +79,16 @@ export class MsgBox implements OnInit {
 ***********************************/
 @Component({
   selector: 'ap-alertdialog',
-  imports: [MatDialogModule, MatIconModule, MatButtonModule],
+  imports: [MatDialogModule, FbIconComponent, MatButtonModule],
   template: `
     <div class="_ap-alert">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon style="color: var(--safety-alert-warn);">warning</mat-icon>
+          <fb-icon
+            name="warning"
+            ariaLabel=""
+            style="color: var(--safety-alert-warn);"
+          ></fb-icon>
           &nbsp;{{ data.title }}
         </h1>
       </div>
@@ -141,12 +146,21 @@ export class AlertDialog implements OnInit {
 ***********************************/
 @Component({
   selector: 'ap-confirmdialog',
-  imports: [MatDialogModule, MatIconModule, MatCheckboxModule, MatButtonModule],
+  imports: [
+    MatDialogModule,
+    FbIconComponent,
+    MatCheckboxModule,
+    MatButtonModule
+  ],
   template: `
     <div class="_ap-confirm">
       <div>
         <h1 mat-dialog-title>
-          <mat-icon style="color: var(--color-accent);">help</mat-icon>
+          <fb-icon
+            name="help"
+            ariaLabel=""
+            style="color: var(--color-accent);"
+          ></fb-icon>
           &nbsp;{{ data.title }}
         </h1>
       </div>
@@ -220,10 +234,10 @@ export class ConfirmDialog implements OnInit {
 ***************************************/
 @Component({
   selector: 'message-bar',
-  imports: [MatIconModule],
+  imports: [FbIconComponent],
   template: `
     <div class="message-bar">
-      <mat-icon>message</mat-icon>&nbsp;&nbsp;
+      <fb-icon name="message" ariaLabel=""></fb-icon>&nbsp;&nbsp;
       {{ data.message }}
     </div>
     @if (data.sound) {
@@ -254,7 +268,12 @@ export class MessageBarComponent {
 ***************************************/
 @Component({
   selector: 'ap-welcome-dialog',
-  imports: [MatDialogModule, MatStepperModule, MatIconModule, MatButtonModule],
+  imports: [
+    MatDialogModule,
+    MatStepperModule,
+    FbIconComponent,
+    MatButtonModule
+  ],
   template: `
     <mat-dialog-content>
       <div class="welcome">
@@ -273,7 +292,10 @@ export class MessageBarComponent {
                       (click)="currentPage = currentPage - 1"
                       matStepperPrevious
                     >
-                      <mat-icon>keyboard_arrow_left</mat-icon>
+                      <fb-icon
+                        name="keyboard_arrow_left"
+                        ariaLabel=""
+                      ></fb-icon>
                     </button>
                   }
                 </div>
@@ -286,7 +308,10 @@ export class MessageBarComponent {
                       (click)="currentPage = currentPage + 1"
                       matStepperNext
                     >
-                      <mat-icon>keyboard_arrow_right</mat-icon>
+                      <fb-icon
+                        name="keyboard_arrow_right"
+                        ariaLabel=""
+                      ></fb-icon>
                     </button>
                   }
                 </div>
@@ -296,15 +321,15 @@ export class MessageBarComponent {
         </mat-horizontal-stepper>
         <div style="text-align:center;font-size:10pt;font-family:roboto;">
           @for (c of data.content; track c; let i = $index) {
-            <mat-icon
+            <fb-icon
+              name="fiber_manual_record"
+              ariaLabel=""
               [class]="{
                 'step-current': currentPage - 1 === i,
                 'step-other': currentPage - 1 !== i
               }"
               style="font-size:8pt;width:12px;"
-            >
-              fiber_manual_record
-            </mat-icon>
+            ></fb-icon>
           }
         </div>
         <div style="text-align:center;">
