@@ -1,7 +1,7 @@
 {
-  "name": "Freeboard-SK",
-  "short_name": "Freeboard",
-  "description": "Signal K Chartplotter",
+  "name": "OpenHelm",
+  "short_name": "OpenHelm",
+  "description": "OpenHelm: a modernized Signal K chart plotter forked from Freeboard-SK.",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",

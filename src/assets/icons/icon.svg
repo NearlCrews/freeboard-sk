@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OpenHelm app icon.
+
+  Family identity (shared across @NearlCrews Signal K apps and plugins):
+  rounded square with a deep-ocean gradient and three stacked stylized
+  wave lines. Per-project differentiation: a bottom-right circle badge
+  in a project-specific colour with a small glyph. The badge is the
+  only region that varies between sibling projects.
+
+  This variant's badge: brass-gold (#D4A017) with a six-spoke ship's
+  wheel glyph. Helm metaphor: the chartplotter is the digital steering
+  position of the vessel. Brass-gold is distinct from sibling yellow
+  (weather), orange (NMEA2000 emitter), green (predecessor chat), and
+  violet (OpenRouter companion) badges, keeping the family visually
+  separable at thumbnail size.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="OpenHelm app icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0E4D6B"/>
+      <stop offset="1" stop-color="#1A8DAB"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded-square background, deep-ocean gradient -->
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Family motif: three stacked wave lines centered in the canvas -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" opacity="0.94">
+    <path d="M 80,176 q 44,-36 88,0 t 88,0 t 88,0 t 88,0"/>
+    <path d="M 80,256 q 44,-36 88,0 t 88,0 t 88,0 t 88,0"/>
+    <path d="M 80,336 q 44,-36 88,0 t 88,0 t 88,0 t 88,0"/>
+  </g>
+
+  <!-- Project badge: bottom-right circle (brass-gold for the helm) -->
+  <circle cx="388" cy="388" r="84" fill="#D4A017" stroke="#FFFFFF" stroke-width="8"/>
+
+  <!--
+    Badge glyph: six-spoke ship's wheel centered in the badge at (388,388).
+    Outer rim circle r=42, inner hub r=8. Six spokes extend from the hub
+    outward, passing through the rim and ending past it as the wheel's
+    handles. Geometry built from 60-degree increments around the centre.
+    All strokes in dark teal #1B3A4B for contrast against the gold badge.
+  -->
+  <g stroke="#1B3A4B" stroke-width="6" stroke-linecap="round" fill="none">
+    <!-- Outer rim ring -->
+    <circle cx="388" cy="388" r="42"/>
+    <!-- Six spokes (handle bars) at 0, 60, 120, 180, 240, 300 degrees -->
+    <line x1="388" y1="335" x2="388" y2="441"/>
+    <line x1="342" y1="361.5" x2="434" y2="414.5"/>
+    <line x1="342" y1="414.5" x2="434" y2="361.5"/>
+  </g>
+  <!-- Center hub -->
+  <circle cx="388" cy="388" r="8" fill="#1B3A4B"/>
+</svg>

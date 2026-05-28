@@ -1,7 +1,7 @@
 {
   "name": "@signalk/freeboard-sk",
   "version": "2.23.0",
-  "description": "Openlayers chart plotter implementation for Signal K",
+  "description": "OpenHelm: a modernized Signal K chart plotter forked from Freeboard-SK.",
   "keywords": [
     "signalk-webapp",
     "signalk-node-server-plugin",
@@ -9,9 +9,9 @@
   ],
   "signalk": {
     "appIcon": "./assets/icons/icon-72x72.png",
-    "displayName": "Freeboard-SK"
+    "displayName": "OpenHelm"
   },
-  "repository": "https://github.com/SignalK/freeboard-sk",
+  "repository": "https://github.com/NearlCrews/freeboard-sk",
   "main": "plugin/index.js",
   "signalk-plugin-enabled-by-default": true,
   "packageManager": "pnpm@11.2.2",
@@ -58,16 +58,20 @@
     "commit-msg": "pnpm exec commitlint --edit \"$1\"",
     "pre-push": "pnpm typecheck && pnpm cruise"
   },
-  "author": "AdrianP",
+  "author": "AdrianP (original Freeboard-SK author)",
   "contributors": [
     {
       "name": "panaaj@hotmail.com"
     },
     {
       "name": "robert@42.co.nz"
+    },
+    {
+      "name": "Nearl Crews (OpenHelm fork maintainer)",
+      "email": "nlabadie@gmail.com"
     }
   ],
-  "license": "Apache-v2",
+  "license": "Apache-2.0",
   "dependencies": {
     "@angular/service-worker": "21.2.14",
     "@sentry/browser": "9.0.0",
