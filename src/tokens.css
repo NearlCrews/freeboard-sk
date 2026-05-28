@@ -47,6 +47,14 @@
   --color-warning: oklch(80% 0.15 75);
   --color-error: oklch(60% 0.2 25);
 
+  /* Resource icon colors: drive the .icon-* classes used by route, waypoint,
+     region, track, and warn glyphs in lists and on the chart. Non-safety
+     coded so they re-theme; the chart-side safety glyphs use --safety-*. */
+  --color-icon-region: oklch(50% 0.2 320);
+  --color-icon-route: oklch(55% 0.18 145);
+  --color-icon-waypoint: oklch(70% 0.18 60);
+  --color-icon-track: oklch(60% 0.2 25);
+
   /* Focus ring */
   --color-focus-ring: oklch(60% 0.18 250);
 }
@@ -70,6 +78,12 @@
   --color-success: oklch(70% 0.16 145);
   --color-warning: oklch(82% 0.15 75);
   --color-error: oklch(65% 0.2 25);
+
+  /* Resource icon colors brightened so they pop against dark surfaces. */
+  --color-icon-region: oklch(65% 0.22 320);
+  --color-icon-route: oklch(70% 0.2 145);
+  --color-icon-waypoint: oklch(78% 0.18 60);
+  --color-icon-track: oklch(70% 0.22 25);
 
   --color-focus-ring: oklch(75% 0.18 250);
 }
@@ -97,6 +111,15 @@
   --color-success: oklch(55% 0.18 25);
   --color-warning: oklch(60% 0.2 25);
   --color-error: oklch(65% 0.22 25);
+
+  /* Resource icon colors stay saturated red/orange on night-red so route,
+     waypoint, region, track, and warn glyphs remain visible per IEC 62288 /
+     IMO MSC.302(87). Background is already dark red, so saturation reads
+     fine without leaking blue/green into scotopic vision. */
+  --color-icon-region: oklch(55% 0.2 25);
+  --color-icon-route: oklch(60% 0.2 25);
+  --color-icon-waypoint: oklch(65% 0.22 35);
+  --color-icon-track: oklch(70% 0.24 25);
 
   --color-focus-ring: oklch(55% 0.2 25);
 }

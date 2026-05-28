@@ -11,30 +11,34 @@
         &nbsp;Routes
       </button>
       <button mat-menu-item (click)="displayLeftMenu('waypointList', true)">
-        <mat-icon class="icon-waypoint">location_on</mat-icon>
+        <fb-icon
+          class="icon-waypoint"
+          name="location_on"
+          ariaLabel=""
+        ></fb-icon>
         &nbsp;Waypoints
       </button>
       <button mat-menu-item (click)="displayLeftMenu('noteList', true)">
-        <mat-icon>local_offer</mat-icon>
+        <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         &nbsp;Notes
       </button>
       <button mat-menu-item (click)="displayLeftMenu('regionList', true)">
-        <mat-icon>tab_unselected</mat-icon>
+        <fb-icon name="tab_unselected" ariaLabel=""></fb-icon>
         &nbsp;Regions
       </button>
       <button mat-menu-item (click)="displayLeftMenu('chartList', true)">
-        <mat-icon>map</mat-icon>
+        <fb-icon name="map" ariaLabel=""></fb-icon>
         &nbsp;Charts
       </button>
       @if (app.featureFlags().resourceGroups) {
         <button mat-menu-item (click)="displayLeftMenu('resourceGroups', true)">
-          <mat-icon>category</mat-icon>
+          <fb-icon name="category" ariaLabel=""></fb-icon>
           &nbsp;Groups
         </button>
       }
       @if (app.featureFlags().infoLayers) {
         <button mat-menu-item (click)="displayLeftMenu('infoLayerList', true)">
-          <mat-icon>layers</mat-icon>
+          <fb-icon name="layers" ariaLabel=""></fb-icon>
           &nbsp;Overlays
         </button>
       }
@@ -58,7 +62,7 @@
       <fb-divider />
       @if (app.featureFlags().resourceTracks) {
         <button mat-menu-item (click)="displayLeftMenu('trackList', true)">
-          <mat-icon class="icon-warn">show_chart</mat-icon>
+          <fb-icon class="icon-warn" name="show_chart" ariaLabel=""></fb-icon>
           &nbsp;Tracks
         </button>
       }
@@ -86,18 +90,18 @@
     <mat-menu #settingsmenu="matMenu">
       @if (app.config.vessels.trail && app.selfTrail().length !== 0) {
         <a mat-menu-item (click)="clearTrail(app.data.serverTrail)">
-          <mat-icon>clear_all</mat-icon>
+          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           <span>{{ app.data.serverTrail ? 'Refresh' : 'Clear' }} Trail</span>
         </a>
         <a mat-menu-item (click)="trailToRoute()">
-          <mat-icon>insights</mat-icon>
+          <fb-icon name="insights" ariaLabel=""></fb-icon>
           <span>Trail to Route</span>
         </a>
         <fb-divider />
       }
       @if (course.courseData().position) {
         <a mat-menu-item (click)="clearDestination()">
-          <mat-icon>clear_all</mat-icon>
+          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           @if (app.data.activeRoute) {
             <span>Clear Active Route</span>
           } @else {
@@ -105,56 +109,63 @@
           }
         </a>
         <a mat-menu-item (click)="clearCourseData()">
-          <mat-icon>clear_all</mat-icon>
+          <fb-icon name="clear_all" ariaLabel=""></fb-icon>
           <span>Clear Course Data</span>
         </a>
         <fb-divider />
       }
 
       <a mat-menu-item (click)="toggleCourseData()">
-        <mat-icon>{{
-          app.config.ui.showCourseData ? 'visibility_off' : 'compare_arrows'
-        }}</mat-icon>
+        <fb-icon
+          [name]="
+            app.config.ui.showCourseData ? 'visibility_off' : 'compare_arrows'
+          "
+          ariaLabel=""
+        ></fb-icon>
         <span
           >{{ app.config.ui.showCourseData ? 'Hide' : 'Show' }} Course
           Data</span
         >
       </a>
       <a mat-menu-item (click)="toggleAisTargets()">
-        <mat-icon>{{
-          app.config.ui.showAisTargets ? 'visibility_off' : 'directions_boat'
-        }}</mat-icon>
+        <fb-icon
+          [name]="
+            app.config.ui.showAisTargets ? 'visibility_off' : 'directions_boat'
+          "
+          ariaLabel=""
+        ></fb-icon>
         <span
           >{{ app.config.ui.showAisTargets ? 'Hide' : 'Show' }} Vessels</span
         >
       </a>
       <a mat-menu-item (click)="toggleNotes()">
-        <mat-icon>{{
-          app.config.ui.showNotes ? 'visibility_off' : 'local_offer'
-        }}</mat-icon>
+        <fb-icon
+          [name]="app.config.ui.showNotes ? 'visibility_off' : 'local_offer'"
+          ariaLabel=""
+        ></fb-icon>
         <span>{{ app.config.ui.showNotes ? 'Hide' : 'Show' }} Notes</span>
       </a>
       @if (app.featureFlags().weatherApi && app.data.vessels.showSelf) {
         <fb-divider />
         <a mat-menu-item (click)="showWeather('forecast')">
-          <mat-icon>air</mat-icon>
+          <fb-icon name="air" ariaLabel=""></fb-icon>
           <span>Weather Forecast</span>
         </a>
       }
       <fb-divider />
       <a mat-menu-item (click)="openSettings()">
-        <mat-icon>settings</mat-icon>
+        <fb-icon name="settings" ariaLabel=""></fb-icon>
         <span>Settings</span>
       </a>
     </mat-menu>
 
     <mat-menu #editmenu="matMenu">
       <a mat-menu-item (click)="mapInteract.startMeasuring('LineString')">
-        <mat-icon>straighten</mat-icon>
+        <fb-icon name="straighten" ariaLabel=""></fb-icon>
         <span>Measure</span>
       </a>
       <a mat-menu-item (click)="mapInteract.startMeasuring('Circle')">
-        <mat-icon>swap_vertical_circle</mat-icon>
+        <fb-icon name="swap_vertical_circle" ariaLabel=""></fb-icon>
         <span>Measure Radius</span>
       </a>
       <!--<a mat-menu-item (click)="mapInteract.startBoxSelection('someMode')">
@@ -163,7 +174,7 @@
       </a>-->
       <fb-divider />
       <a mat-menu-item (click)="drawFeature('route')">
-        <mat-icon class="icon-route">draw</mat-icon>
+        <fb-icon class="icon-route" name="draw" ariaLabel=""></fb-icon>
         <span>Draw Route</span>
       </a>
       <a mat-menu-item (click)="toggleRouteBuilderConsole(true)">
@@ -178,13 +189,21 @@
       @if (app.data.vessels.showSelf) {
         @if (app.data.vessels.active.position; as activePos) {
           <a mat-menu-item (click)="skres.newWaypointAt(activePos)">
-            <mat-icon class="icon-waypoint">add_location</mat-icon>
+            <fb-icon
+              class="icon-waypoint"
+              name="add_location"
+              ariaLabel=""
+            ></fb-icon>
             <span>Add Waypoint at Vessel</span>
           </a>
         }
       }
       <a mat-menu-item (click)="drawFeature('waypoint')">
-        <mat-icon class="icon-waypoint">add_location_alt</mat-icon>
+        <fb-icon
+          class="icon-waypoint"
+          name="add_location_alt"
+          ariaLabel=""
+        ></fb-icon>
         <span>Drop Waypoint</span>
       </a>
       <fb-divider />
@@ -192,12 +211,12 @@
         this.app.config.map.zoomLevel >= this.app.config.resources.notes.minZoom
       ) {
         <a mat-menu-item (click)="drawFeature('note')">
-          <mat-icon>local_offer</mat-icon>
+          <fb-icon name="local_offer" ariaLabel=""></fb-icon>
           <span>Add Note</span>
         </a>
       }
       <a mat-menu-item (click)="drawFeature('region')">
-        <mat-icon>tab_unselected</mat-icon>
+        <fb-icon name="tab_unselected" ariaLabel=""></fb-icon>
         <span>Draw Region</span>
       </a>
     </mat-menu>
@@ -205,23 +224,22 @@
     <mat-menu #mainmenu="matMenu">
       @if (!app.hostDef.params['token'] && app.data.loginRequired) {
         <a mat-menu-item (click)="showLogin(undefined, false)">
-          <mat-icon
+          <fb-icon
+            name="account_circle"
+            ariaLabel=""
             matBadge="!"
             matBadgeOverlap="true"
             matBadgeSize="medium"
             matBadgePosition="below after"
             [matBadgeHidden]="app.isLoggedIn()"
-            aria-hidden="false"
-          >
-            account_circle
-          </mat-icon>
+          ></fb-icon>
           <span>{{ app.isLoggedIn() ? 'Change User' : 'Login' }}</span>
         </a>
         <fb-divider />
       }
       @if (!isInteracting() && app.featureFlags().anchorApi) {
         <a mat-menu-item (click)="displayLeftMenu('anchorWatch', true)">
-          <mat-icon>anchor</mat-icon>
+          <fb-icon name="anchor" ariaLabel=""></fb-icon>
           <span>Anchor Watch</span>
         </a>
       }
@@ -233,7 +251,11 @@
       ) {
         <a mat-menu-item (click)="toggleRadar()">
           @if (app.uiCtrl().radarLayer) {
-            <mat-icon class="icon-accent">check_box</mat-icon>
+            <fb-icon
+              class="icon-accent"
+              name="check_box"
+              ariaLabel=""
+            ></fb-icon>
           } @else {
             <fb-icon class="ob" svgName="radar-iec" ariaLabel=""></fb-icon>
           }
@@ -241,35 +263,35 @@
         </a>
       }
       <a mat-menu-item (click)="displayLeftMenu('aisList', true)">
-        <mat-icon>directions_boat</mat-icon>
+        <fb-icon name="directions_boat" ariaLabel=""></fb-icon>
         <span>Vessels</span>
       </a>
 
       <a mat-menu-item (click)="importResourceSet()">
-        <mat-icon>upload</mat-icon>
+        <fb-icon name="upload" ariaLabel=""></fb-icon>
         <span>Resource Sets</span>
       </a>
 
       @if (features.playbackAPI) {
         <a mat-menu-item (click)="showPlaybackSettings()">
-          <mat-icon>history</mat-icon>
+          <fb-icon name="history" ariaLabel=""></fb-icon>
           <span>Playback History</span>
         </a>
       }
 
       <fb-divider />
       <a mat-menu-item (click)="openSettings()">
-        <mat-icon>settings</mat-icon>
+        <fb-icon name="settings" ariaLabel=""></fb-icon>
         <span>Settings</span>
       </a>
       <fb-divider />
       <a mat-menu-item (click)="openAbout()">
-        <mat-icon class="icon-accent">info</mat-icon>
+        <fb-icon class="icon-accent" name="info" ariaLabel=""></fb-icon>
         <span>About</span>
       </a>
 
       <button mat-menu-item (click)="app.showHelp()">
-        <mat-icon class="icon-accent">help</mat-icon>
+        <fb-icon class="icon-accent" name="help" ariaLabel=""></fb-icon>
         <span>Help</span>
       </button>
     </mat-menu>
