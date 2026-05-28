@@ -68,7 +68,7 @@ import {
                 ></fb-datepicker>
               </fb-form-field>
             </div>
-            <div style="font-size:10pt;">
+            <div style="font-size:var(--font-size-sm);">
               <b>Start Time:</b><br />
               <fb-form-field #hourField label="Hour" [widthPx]="100">
                 <fb-select

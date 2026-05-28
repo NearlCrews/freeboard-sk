@@ -69,12 +69,12 @@ import { AutopilotService } from './autopilot.service';
         </div>
         <fb-card-content>
           <div class="content">
-            <div style="height: 45px;color:whitesmoke;">
+            <div style="height: 45px;color:var(--color-text-inverse);">
               Autopilot<br />
               {{ apData().default ?? '' }}
             </div>
             <div class="lcd">
-              <div style="padding: 5px 0;display: flex;">
+              <div style="padding: var(--space-xs) 0;display: flex;">
                 <div class="dial-text-title">
                   @if (apData().default) {
                     <span>Target</span>
@@ -95,7 +95,7 @@ import { AutopilotService } from './autopilot.service';
                 </div>
               </div>
 
-              <div style="padding: 10px 0;display: flex;">
+              <div style="padding: var(--space-md) 0;display: flex;">
                 <div class="dial-text-title">
                   @if (apData().default || apData().state === 'off-line') {
                     <span>{{ apData().state }}</span>

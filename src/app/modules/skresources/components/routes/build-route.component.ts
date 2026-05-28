@@ -65,7 +65,7 @@ interface BuildRoutePoint {
           </div>
           <div
             style="flex: 1 1 auto;
-            font-size: 14pt;
+            font-size: var(--font-size-lg);
             line-height: 2.5em;
             text-align: center;
             cursor: grab;"

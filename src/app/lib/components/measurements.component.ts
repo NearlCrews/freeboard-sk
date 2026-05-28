@@ -38,7 +38,7 @@ import {
           @if (!totalOnly) {
             <div class="_ap_row">
               <div class="_ap_row">
-                <div style="font-size: 12pt;">
+                <div style="font-size: var(--font-size-base);">
                   <fb-icon name="square_foot" ariaLabel=""></fb-icon><br />
                   {{
                     this.coords.length < 2

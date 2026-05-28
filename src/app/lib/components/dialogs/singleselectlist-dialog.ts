@@ -48,7 +48,7 @@ import {
   template: `
     <div class="_ap-singlesellist">
       <div style="display:flex;">
-        <div style="padding: 15px 0 0 10px;">
+        <div style="padding: var(--space-lg) 0 0 var(--space-md);">
           @if (this.data.icon) {
             <fb-icon
               [svgName]="this.data.icon.svgIcon ?? ''"
@@ -61,7 +61,7 @@ import {
         <div style="flex: 1 1 auto;">
           <h1 mat-dialog-title>{{ data.title ?? 'Select Item' }}</h1>
         </div>
-        <div style="width:50px;padding: 15px 0 0 10px;">
+        <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">
           <fb-button
             #btncancel
             variant="ghost"
@@ -73,7 +73,7 @@ import {
         </div>
       </div>
 
-      <mat-dialog-content style="padding-top: 5px;">
+      <mat-dialog-content style="padding-top: var(--space-xs);">
         <fb-list>
           @for (i of this.data.items; track i.id) {
             <fb-list-item interactive (activated)="handleClose(i)">

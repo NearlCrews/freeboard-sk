@@ -42,7 +42,7 @@ export interface SliderInputDialogResult {
   template: `
     <div class="_ap-slider-input">
       <div style="display:flex;">
-        <div style="padding: 15px 0 0 10px;">
+        <div style="padding: var(--space-lg) 0 0 var(--space-md);">
           @if (this.data.icon) {
             <fb-icon
               [svgName]="this.data.icon.svgIcon ?? ''"
@@ -55,7 +55,7 @@ export interface SliderInputDialogResult {
         <div style="flex: 1 1 auto;">
           <h1 mat-dialog-title>{{ data.title ?? '' }}</h1>
         </div>
-        <div style="width:50px;padding: 15px 0 0 10px;">
+        <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">
           <fb-button
             #btncancel
             variant="ghost"
@@ -67,11 +67,15 @@ export interface SliderInputDialogResult {
         </div>
       </div>
 
-      <mat-dialog-content style="padding-top: 5px;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px">
+      <mat-dialog-content style="padding-top: var(--space-xs);">
+        <div
+          style="display: flex; align-items: center; margin-bottom: var(--space-sm)"
+        >
           <div style="flex: 1 1 auto">{{ data.text }}</div>
         </div>
-        <div style="display: flex; align-items: center; margin-bottom: 8px">
+        <div
+          style="display: flex; align-items: center; margin-bottom: var(--space-sm)"
+        >
           <fb-slider
             style="width: stretch"
             [min]="this.data.min ?? 1"

@@ -127,8 +127,8 @@ import { NodeListSelect } from './node-list-select';
             <div style="display:flex;">
               <div class="key-label">Bounds:</div>
               <div
-                style="flex: 1 1 auto; border: gray 1px solid;
-                                  max-width: 220px;font-size: 10pt;"
+                style="flex: 1 1 auto; border: var(--color-border) 1px solid;
+                                  max-width: 220px;font-size: var(--font-size-sm);"
               >
                 <div style="text-align:right;">
                   <span
