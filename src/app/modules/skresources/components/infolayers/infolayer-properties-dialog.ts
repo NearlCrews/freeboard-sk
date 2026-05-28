@@ -5,11 +5,11 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
 
 import {
+  FbButtonComponent,
   FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -20,7 +20,7 @@ import {
   imports: [
     MatTooltipModule,
     FbIconComponent,
-    MatButtonModule,
+    FbButtonComponent,
     MatDialogModule,
     FbToolbarComponent
   ],
@@ -32,9 +32,13 @@ import {
         ></span>
         <span fbToolbarTitle>Overlay Properties</span>
         <span fbToolbarActions>
-          <button mat-icon-button (click)="dialogRef.close()">
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="dialogRef.close()"
+          >
             <fb-icon name="close" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
       <mat-dialog-content>

@@ -12,29 +12,30 @@ import {
   OnDestroy
 } from '@angular/core';
 
-import { MatButtonModule } from '@angular/material/button';
-
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'timer-button',
-  imports: [MatButtonModule, FbIconComponent],
+  imports: [FbButtonComponent, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [``],
   template: `
     <div>
       @if (cancelled()) {
         &nbsp;
-        <button mat-raised-button (click)="action()">
+        <fb-button variant="primary" (pressed)="action()">
           @if (icon) {
             <fb-icon [name]="icon" ariaLabel=""></fb-icon>
           }
           {{ cancelledLabel }}
-        </button>
+        </fb-button>
       } @else {
-        <button mat-button [disabled]="disabled" (click)="cancel()">
+        <fb-button variant="ghost" [disabled]="disabled" (pressed)="cancel()">
           {{ label }} {{ timeLeft() }} secs
-        </button>
+        </fb-button>
       }
     </div>
   `

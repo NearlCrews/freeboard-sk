@@ -4,15 +4,15 @@
       >local_offer</mat-icon
     >
     <span fbToolbarTitle class="toolbar-title">{{ relatedBy }} Notes</span>
-    <button
+    <fb-button
+      variant="ghost"
       fbToolbarActions
-      mat-icon-button
-      (click)="dialogRef.close({ result: false })"
+      (pressed)="dialogRef.close({ result: false })"
       matTooltip="Close"
-      aria-label="Close"
+      ariaLabel="Close"
     >
       <mat-icon>close</mat-icon>
-    </button>
+    </fb-button>
   </fb-toolbar>
 
   <mat-dialog-content class="related-content">
@@ -65,33 +65,33 @@
 
         <div class="related-card-actions">
           @if (n[1].url) {
-          <button
-            mat-icon-button
-            (click)="openNoteUrl(n[1].url)"
+          <fb-button
+            variant="ghost"
+            (pressed)="openNoteUrl(n[1].url)"
             matTooltip="Open linked URL in a new tab"
-            aria-label="Open link"
+            ariaLabel="Open link"
           >
             <mat-icon>open_in_new</mat-icon>
-          </button>
+          </fb-button>
           } @if (!n[1].properties['readOnly']) {
-          <button
-            mat-icon-button
+          <fb-button
+            variant="ghost"
             [disabled]="data.readOnly"
-            (click)="editNote(n[0])"
+            (pressed)="editNote(n[0])"
             matTooltip="Edit note"
-            aria-label="Edit"
+            ariaLabel="Edit"
           >
             <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
+          </fb-button>
+          <fb-button
+            variant="ghost"
             [disabled]="data.readOnly"
-            (click)="deleteNote(n[0])"
+            (pressed)="deleteNote(n[0])"
             matTooltip="Delete note"
-            aria-label="Delete"
+            ariaLabel="Delete"
           >
             <mat-icon>delete</mat-icon>
-          </button>
+          </fb-button>
           }
         </div>
       </article>
@@ -100,9 +100,13 @@
   </mat-dialog-content>
 
   <mat-dialog-actions class="related-actions" align="end">
-    <button mat-flat-button [disabled]="data.readOnly" (click)="addNote()">
+    <fb-button
+      variant="primary"
+      [disabled]="data.readOnly"
+      (pressed)="addNote()"
+    >
       <mat-icon>add</mat-icon>
       Add note
-    </button>
+    </fb-button>
   </mat-dialog-actions>
 </div>

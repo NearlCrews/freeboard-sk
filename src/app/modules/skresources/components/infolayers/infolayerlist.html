@@ -8,14 +8,15 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close InfoLayer List"
               matTooltipPosition="right"
+              ariaLabel="Close InfoLayer List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Overlays</div>
         </div>
@@ -32,14 +33,15 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
-            (click)="initItems()"
+          <fb-button
+            variant="ghost"
+            (pressed)="initItems()"
             matTooltip="Reload Layers"
             matTooltipPosition="below"
+            ariaLabel="Reload Layers"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
         <div>
           <mat-checkbox
@@ -55,14 +57,15 @@
       </div>
     </fb-card-content>
     <fb-card-actions align="start">
-      <button
-        mat-icon-button
+      <fb-button
+        variant="ghost"
         matTooltip="Add Layer"
         matTooltipPosition="above"
         [matMenuTriggerFor]="addlayermenu"
+        ariaLabel="Add Layer"
       >
         <fb-icon name="add" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
       <small
         >Map layers containing dynamic information to overlay on charts.</small
       >
@@ -177,28 +180,30 @@
           }-->
             <div style="display: flex">
               <div style="flex: 2">
-                <button
-                  mat-icon-button
-                  (click)="itemDelete(r[0])"
+                <fb-button
+                  variant="ghost"
+                  (pressed)="itemDelete(r[0])"
                   matTooltip="Delete Layer"
                   matTooltipPosition="above"
+                  ariaLabel="Delete Layer"
                 >
                   <fb-icon
                     name="delete"
                     ariaLabel=""
                     class="icon-warn"
                   ></fb-icon>
-                </button>
+                </fb-button>
               </div>
               <div style="flex: 2; text-align: right; padding-right: 10px">
-                <button
-                  mat-icon-button
-                  (click)="itemProperties(r[0])"
+                <fb-button
+                  variant="ghost"
+                  (pressed)="itemProperties(r[0])"
                   matTooltip="Layer Properties"
                   matTooltipPosition="above"
+                  ariaLabel="Layer Properties"
                 >
                   <fb-icon name="info" ariaLabel=""></fb-icon>
-                </button>
+                </fb-button>
               </div>
             </div>
           </div>

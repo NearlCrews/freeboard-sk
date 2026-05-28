@@ -7,13 +7,13 @@
       Load GeoJSON
     </h2>
     <span fbToolbarActions>
-      <button
-        mat-icon-button
-        aria-label="Cancel GeoJSON load"
-        (click)="this.dialogRef.close(-1);"
+      <fb-button
+        variant="ghost"
+        ariaLabel="Cancel GeoJSON load"
+        (pressed)="this.dialogRef.close(-1);"
       >
         <fb-icon name="close" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
     </span>
   </fb-toolbar>
 
@@ -27,10 +27,10 @@
       ><br />
     </div>
     <div mat-dialog-actions align="center">
-      <button mat-raised-button (click)="app.showHelp('geojson')">
+      <fb-button variant="primary" (pressed)="app.showHelp('geojson')">
         <fb-icon name="help" ariaLabel=""></fb-icon>
         Help
-      </button>
+      </fb-button>
     </div>
   </div>
   } @else {
@@ -153,15 +153,15 @@
     }
 
     <div mat-dialog-actions align="center">
-      <button
-        mat-raised-button
+      <fb-button
+        variant="primary"
         matTooltip="Load features"
         matTooltipPosition="below"
-        (click)="load()"
+        (pressed)="load()"
       >
         <fb-icon name="file_upload" ariaLabel=""></fb-icon>
         &nbsp;Load
-      </button>
+      </fb-button>
     </div>
   </div>
   }

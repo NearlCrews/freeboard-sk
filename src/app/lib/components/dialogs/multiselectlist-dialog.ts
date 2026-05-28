@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -22,6 +21,8 @@ import {
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
+  FbButtonComponent,
+  FbIconComponent,
   FbSelectionListComponent,
   type FbSelectionListOption
 } from 'src/app/design-system/primitives';
@@ -39,8 +40,9 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
+    FbButtonComponent,
+    FbIconComponent,
     FbSelectionListComponent
   ],
   template: `
@@ -59,14 +61,14 @@ import {
           <h1 mat-dialog-title>{{ this.data.title ?? 'Select Items' }}</h1>
         </div>
         <div style="width:50px;padding: 15px 0 0 10px;">
-          <button
+          <fb-button
             #btncancel
-            mat-icon-button
-            aria-label="Cancel selection"
-            (click)="handleClose()"
+            variant="ghost"
+            ariaLabel="Cancel selection"
+            (pressed)="handleClose()"
           >
-            <mat-icon>close</mat-icon>
-          </button>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
       </div>
 
@@ -78,13 +80,13 @@ import {
         ></fb-selection-list>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
-        <button
-          mat-raised-button
+        <fb-button
+          variant="primary"
           [disabled]="selectedIds().length === 0"
-          (click)="handleSubmit()"
+          (pressed)="handleSubmit()"
         >
           OK
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,
@@ -98,7 +100,7 @@ import {
 })
 export class MultiSelectListDialog implements OnInit {
   @ViewChild('btncancel', { static: false })
-  btncancel: ElementRef<HTMLButtonElement> | undefined;
+  btncancel: ElementRef<HTMLElement> | undefined;
 
   protected selectedIds = signal<readonly string[]>([]);
   protected options = computed<readonly FbSelectionListOption[]>(() =>

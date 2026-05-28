@@ -9,13 +9,11 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 
-import { MatButtonModule } from '@angular/material/button';
-
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import { FbFabComponent } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'nsew-buttons',
-  imports: [MatButtonModule, FbIconComponent],
+  imports: [FbFabComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
@@ -36,33 +34,45 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
       <div class="btnRow">
         <div class="btnDiv"></div>
         <div class="btnDiv">
-          <button mat-mini-fab [disabled]="disabled" (click)="action(0)">
-            <fb-icon name="arrow_upward" ariaLabel=""></fb-icon>
-          </button>
+          <fb-fab
+            icon="arrow_upward"
+            ariaLabel="North"
+            [disabled]="disabled"
+            (pressed)="action(0)"
+          ></fb-fab>
         </div>
         <div class="btnDiv"></div>
       </div>
 
       <div class="btnRow">
         <div class="btnDiv">
-          <button mat-mini-fab [disabled]="disabled" (click)="action(270)">
-            <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-          </button>
+          <fb-fab
+            icon="arrow_back"
+            ariaLabel="West"
+            [disabled]="disabled"
+            (pressed)="action(270)"
+          ></fb-fab>
         </div>
         <div class="btnDiv"></div>
         <div class="btnDiv">
-          <button mat-mini-fab [disabled]="disabled" (click)="action(90)">
-            <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
-          </button>
+          <fb-fab
+            icon="arrow_forward"
+            ariaLabel="East"
+            [disabled]="disabled"
+            (pressed)="action(90)"
+          ></fb-fab>
         </div>
       </div>
 
       <div class="btnRow">
         <div class="btnDiv"></div>
         <div class="btnDiv">
-          <button mat-mini-fab [disabled]="disabled" (click)="action(180)">
-            <fb-icon name="arrow_downward" ariaLabel=""></fb-icon>
-          </button>
+          <fb-fab
+            icon="arrow_downward"
+            ariaLabel="South"
+            [disabled]="disabled"
+            (pressed)="action(180)"
+          ></fb-fab>
         </div>
         <div class="btnDiv"></div>
       </div>

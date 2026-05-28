@@ -9,9 +9,9 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbButtonComponent,
   FbIconComponent,
   FbListComponent,
   FbListItemComponent
@@ -29,7 +29,7 @@ import {
   imports: [
     MatDialogModule,
     FbIconComponent,
-    MatButtonModule,
+    FbButtonComponent,
     FbListComponent,
     FbListItemComponent
   ],
@@ -56,9 +56,9 @@ import {
         </fb-list>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
-        <button mat-raised-button (click)="dialogRef.close(true)">
+        <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,

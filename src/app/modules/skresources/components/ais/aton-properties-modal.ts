@@ -11,9 +11,9 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
@@ -30,7 +30,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatButtonModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
@@ -47,14 +47,15 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
           {{ data.title }}
         </span>
         <span fbToolbarActions>
-          <button
-            mat-icon-button
-            (click)="modalRef.dismiss()"
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
 
@@ -73,7 +74,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
               <div class="key-label">Type:</div>
               <div style="flex: 1 1 auto;">{{ data.target.type.name }}</div>
             </div>
-            <button mat-stroked-button (click)="toggleProperties()">
+            <fb-button variant="secondary" (pressed)="toggleProperties()">
               <span>Show {{ showProperties ? 'Less' : 'More' }}</span>
               <fb-icon
                 [name]="
@@ -83,7 +84,7 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
                 "
                 ariaLabel=""
               ></fb-icon>
-            </button>
+            </fb-button>
             @if (showProperties) {
               <signalk-details-list
                 [details]="properties"

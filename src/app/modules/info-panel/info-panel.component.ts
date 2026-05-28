@@ -1,9 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InfoPanelFacade } from './info-panel.facade';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 const RESOURCE_LABEL: Record<string, string> = {
   notes: 'Note',
@@ -32,14 +34,14 @@ const KIND_LABEL: Record<string, string> = {
     <div class="info-panel">
       <header class="info-bar">
         <span class="info-bar-label">{{ label() }}</span>
-        <button
-          mat-icon-button
-          (click)="close()"
+        <fb-button
+          variant="ghost"
+          ariaLabel="Close panel"
+          (pressed)="close()"
           matTooltip="Close panel"
-          aria-label="Close panel"
         >
           <fb-icon name="close" ariaLabel=""></fb-icon>
-        </button>
+        </fb-button>
       </header>
       <div class="info-body">
         <ng-content></ng-content>
@@ -92,14 +94,13 @@ const KIND_LABEL: Record<string, string> = {
       overflow: hidden;
     }
 
-    /* WCAG 2.5.5 secondary touch-target floor (44px). Material's
-       mat-icon-button defaults to 40px. */
-    .info-bar button[mat-icon-button] {
+    /* WCAG 2.5.5 secondary touch-target floor (44px). */
+    .info-bar fb-button {
       min-width: var(--touch-secondary);
       min-height: var(--touch-secondary);
     }
   `,
-  imports: [FbIconComponent, MatButtonModule, MatTooltipModule]
+  imports: [FbIconComponent, FbButtonComponent, MatTooltipModule]
 })
 export class InfoPanelComponent {
   protected infoPanel = inject(InfoPanelFacade);

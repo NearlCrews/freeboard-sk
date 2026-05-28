@@ -15,9 +15,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent
@@ -34,7 +34,7 @@ import { AutopilotService } from './autopilot.service';
     MatTooltipModule,
     CommonModule,
     DragDropModule,
-    MatButtonModule,
+    FbButtonComponent,
     MatMenuModule,
     MatSlideToggleModule,
     FormsModule,
@@ -137,10 +137,10 @@ import { AutopilotService } from './autopilot.service';
             <div class="button-bar">
               <div style="width:50%;">
                 @if (stateOptions().length > 2) {
-                  <button
+                  <fb-button
                     class="button-primary"
                     style="max-width:100px;"
-                    mat-raised-button
+                    variant="primary"
                     [matMenuTriggerFor]="statemenu"
                     [disabled]="noPilot()"
                     [ngClass]="{
@@ -152,7 +152,7 @@ import { AutopilotService } from './autopilot.service';
                       style="white-space: pre;text-overflow: ellipsis;overflow: hidden;max-width:90px;"
                       [innerText]="formatLabel(apData().state)"
                     ></div>
-                  </button>
+                  </fb-button>
                 } @else {
                   <mat-slide-toggle
                     [checked]="apData().enabled"
@@ -170,14 +170,14 @@ import { AutopilotService } from './autopilot.service';
 
               <div>
                 @if (modeOptions().length !== 0) {
-                  <button
+                  <fb-button
                     class="button-secondary"
-                    mat-raised-button
+                    variant="primary"
                     [matMenuTriggerFor]="modemenu"
                     [disabled]="noPilot() || modeOptions().length === 0"
                   >
                     Mode
-                  </button>
+                  </fb-button>
                 }
               </div>
             </div>
@@ -185,101 +185,105 @@ import { AutopilotService } from './autopilot.service';
             @if (apData().mode === 'dodge') {
               <div class="button-bar-thin">
                 <div style="width:50%;">
-                  <button
+                  <fb-button
                     class="button-secondary"
-                    mat-mini-fab
-                    aria-label="Dodge port 10 degrees"
+                    variant="primary"
+                    ariaLabel="Dodge port 10 degrees"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="dodgeAdjust(-10)"
+                    (pressed)="dodgeAdjust(-10)"
                   >
-                    &lt;&lt;</button
+                    &lt;&lt;</fb-button
                   >&nbsp;
-                  <button
+                  <fb-button
                     class="button-toolbar"
-                    mat-mini-fab
-                    aria-label="Dodge port 1 degree"
+                    variant="primary"
+                    ariaLabel="Dodge port 1 degree"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="dodgeAdjust(-1)"
+                    (pressed)="dodgeAdjust(-1)"
                   >
                     &lt;
-                  </button>
+                  </fb-button>
                 </div>
 
                 <div>
-                  <button
+                  <fb-button
                     class="button-toolbar"
-                    mat-mini-fab
-                    aria-label="Dodge starboard 1 degree"
+                    variant="primary"
+                    ariaLabel="Dodge starboard 1 degree"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="dodgeAdjust(1)"
+                    (pressed)="dodgeAdjust(1)"
                   >
-                    &gt;</button
+                    &gt;</fb-button
                   >&nbsp;
-                  <button
+                  <fb-button
                     class="button-secondary"
-                    mat-mini-fab
-                    aria-label="Dodge starboard 10 degrees"
+                    variant="primary"
+                    ariaLabel="Dodge starboard 10 degrees"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="dodgeAdjust(10)"
+                    (pressed)="dodgeAdjust(10)"
                   >
                     &gt;&gt;
-                  </button>
+                  </fb-button>
                 </div>
               </div>
             } @else {
               <div class="button-bar-thin">
                 <div style="width:50%;">
-                  <button
+                  <fb-button
                     class="button-secondary"
-                    mat-mini-fab
+                    variant="primary"
+                    ariaLabel="Decrease target by 10"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="targetAdjust(-10)"
+                    (pressed)="targetAdjust(-10)"
                   >
-                    -10</button
+                    -10</fb-button
                   >&nbsp;
-                  <button
+                  <fb-button
                     class="button-toolbar"
-                    mat-mini-fab
+                    variant="primary"
+                    ariaLabel="Decrease target by 1"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="targetAdjust(-1)"
+                    (pressed)="targetAdjust(-1)"
                   >
                     -1
-                  </button>
+                  </fb-button>
                 </div>
 
                 <div>
-                  <button
+                  <fb-button
                     class="button-toolbar"
-                    mat-mini-fab
+                    variant="primary"
+                    ariaLabel="Increase target by 1"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="targetAdjust(1)"
+                    (pressed)="targetAdjust(1)"
                   >
-                    +1</button
+                    +1</fb-button
                   >&nbsp;
-                  <button
+                  <fb-button
                     class="button-secondary"
-                    mat-mini-fab
+                    variant="primary"
+                    ariaLabel="Increase target by 10"
                     [disabled]="
                       !apData().default || apData().state === 'off-line'
                     "
-                    (click)="targetAdjust(10)"
+                    (pressed)="targetAdjust(10)"
                   >
                     +10
-                  </button>
+                  </fb-button>
                 </div>
               </div>
             }
@@ -287,17 +291,17 @@ import { AutopilotService } from './autopilot.service';
             <div class="button-bar-thin">
               <div style="text-align:center;width:100%;">
                 @if (dodgeAction()) {
-                  <button
+                  <fb-button
                     [ngClass]="{
                       'button-accent': apData().mode === 'dodge',
                       'button-toolbar': apData().mode !== 'dodge'
                     }"
                     [disabled]="noPilot()"
-                    mat-raised-button
-                    (click)="toggleDodge()"
+                    variant="primary"
+                    (pressed)="toggleDodge()"
                   >
                     Dodge
-                  </button>
+                  </fb-button>
                 }
               </div>
             </div>

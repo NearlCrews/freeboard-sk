@@ -9,12 +9,12 @@ import {
 } from '@angular/core';
 
 import { MatTooltip } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { AppFacade } from 'src/app/app.facade';
 import { Position } from 'src/app/types';
 import { GeoUtils } from '../geoutils';
 
 import {
+  FbButtonComponent,
   FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -24,7 +24,7 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-measurements',
-  imports: [FbIconComponent, MatButtonModule, MatTooltip, FbToolbarComponent],
+  imports: [FbIconComponent, FbButtonComponent, MatTooltip, FbToolbarComponent],
   template: `
     <div class="_ap_measurements">
       <fb-toolbar>
@@ -56,15 +56,15 @@ import {
             </div>
           }
           <div>
-            <button
+            <fb-button
               matTooltip="Cancel"
               matTooltipPosition="below"
-              aria-label="Cancel measurement"
-              mat-icon-button
-              (click)="close()"
+              ariaLabel="Cancel measurement"
+              variant="ghost"
+              (pressed)="close()"
             >
               <fb-icon name="close" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
         </div>
       </fb-toolbar>

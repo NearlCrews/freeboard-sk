@@ -10,10 +10,10 @@ import {
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
@@ -37,9 +37,9 @@ import { RemarkModule } from 'ngx-remark';
   templateUrl: './tracklist.html',
   styleUrls: ['../resourcelist.css'],
   imports: [
+    FbButtonComponent,
     MatTooltipModule,
     MatCheckboxModule,
-    MatButtonModule,
     ScrollingModule,
     RemarkModule,
     FbCardComponent,

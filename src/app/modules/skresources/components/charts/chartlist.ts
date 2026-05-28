@@ -13,11 +13,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatMenuModule } from '@angular/material/menu';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
@@ -54,9 +54,9 @@ import { SKChart } from '../../resource-classes';
   templateUrl: './chartlist.html',
   styleUrls: ['../resourcelist.css'],
   imports: [
+    FbButtonComponent,
     MatTooltipModule,
     MatCheckboxModule,
-    MatButtonModule,
     ScrollingModule,
     MatMenuModule,
     ChartLayers,

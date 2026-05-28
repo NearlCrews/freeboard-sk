@@ -9,7 +9,10 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 /********* AboutDialog ****************
     data: {
@@ -23,7 +26,12 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
 @Component({
   selector: 'ap-about-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, FbIconComponent, MatButtonModule],
+  imports: [
+    MatDialogModule,
+    FbIconComponent,
+    FbButtonComponent,
+    MatButtonModule
+  ],
   template: `
     <div>
       <h1 mat-dialog-title>
@@ -51,9 +59,9 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
           >
           &nbsp;
         }
-        <button mat-raised-button (click)="dialogRef.close(false)">
+        <fb-button variant="primary" (pressed)="dialogRef.close(false)">
           Close
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,

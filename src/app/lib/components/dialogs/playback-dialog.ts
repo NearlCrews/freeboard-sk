@@ -14,9 +14,10 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -30,7 +31,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
     FormField,
     MatDialogModule,
     FbIconComponent,
-    MatButtonModule,
+    FbButtonComponent,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
@@ -113,14 +114,14 @@ import { provideNativeDateAdapter } from '@angular/material/core';
       </mat-dialog-content>
       <mat-dialog-actions>
         <div style="text-align:center;width:100%;">
-          <button
-            mat-raised-button
+          <fb-button
+            variant="primary"
             [disabled]="submitDisabled()"
-            (click)="submit()"
+            (pressed)="submit()"
           >
             START
-          </button>
-          <button mat-raised-button (click)="submit(true)">CANCEL</button>
+          </fb-button>
+          <fb-button variant="ghost" (pressed)="submit(true)">CANCEL</fb-button>
         </div>
       </mat-dialog-actions>
     </div>

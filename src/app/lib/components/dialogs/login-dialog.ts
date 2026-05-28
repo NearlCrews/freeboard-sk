@@ -10,7 +10,6 @@ import {
   ViewChild,
   signal
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -18,6 +17,7 @@ import {
 } from '@angular/material/dialog';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
@@ -39,7 +39,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatButtonModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
@@ -78,18 +78,18 @@ import {
           </fb-form-field>
         </fb-card-content>
         <fb-card-actions align="end">
-          <button
+          <fb-button
             default
-            mat-raised-button
+            variant="primary"
             [disabled]="username().length === 0"
-            (click)="submit()"
+            (pressed)="submit()"
           >
             {{ data.button1Text }}
-          </button>
+          </fb-button>
           &nbsp;&nbsp;
-          <button default mat-raised-button (click)="cancel()">
+          <fb-button default variant="ghost" (pressed)="cancel()">
             {{ data.button2Text }}
-          </button>
+          </fb-button>
         </fb-card-actions>
       </fb-card>
     </mat-dialog-content>

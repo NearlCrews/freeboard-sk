@@ -21,7 +21,9 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
+  FbButtonComponent,
   FbDividerComponent,
+  FbFabComponent,
   FbNavListComponent,
   FbProgressBarComponent
 } from 'src/app/design-system/primitives';
@@ -133,7 +135,9 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    FbButtonComponent,
     FbDividerComponent,
+    FbFabComponent,
     FbNavListComponent,
     FbProgressBarComponent,
     CommonModule,

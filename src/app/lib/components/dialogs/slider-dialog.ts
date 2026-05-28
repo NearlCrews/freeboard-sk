@@ -11,7 +11,6 @@ import {
 
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
@@ -19,6 +18,11 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
+
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 export interface SliderInputDialogResult {
   apply: boolean;
@@ -32,9 +36,10 @@ export interface SliderInputDialogResult {
   imports: [
     MatSliderModule,
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FbButtonComponent,
+    FbIconComponent
   ],
   template: `
     <div class="_ap-slider-input">
@@ -52,14 +57,14 @@ export interface SliderInputDialogResult {
           <h1 mat-dialog-title>{{ data.title ?? '' }}</h1>
         </div>
         <div style="width:50px;padding: 15px 0 0 10px;">
-          <button
+          <fb-button
             #btncancel
-            mat-icon-button
-            aria-label="Cancel"
-            (click)="handleClose(false)"
+            variant="ghost"
+            ariaLabel="Cancel"
+            (pressed)="handleClose(false)"
           >
-            <mat-icon>close</mat-icon>
-          </button>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
       </div>
 
@@ -86,7 +91,9 @@ export interface SliderInputDialogResult {
         </div>
       </mat-dialog-content>
       <mat-dialog-actions>
-        <button mat-raised-button (click)="handleClose(true)">APPLY</button>
+        <fb-button variant="primary" (pressed)="handleClose(true)"
+          >APPLY</fb-button
+        >
       </mat-dialog-actions>
     </div>
   `,

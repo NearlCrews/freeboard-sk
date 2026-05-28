@@ -8,10 +8,9 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import { FbFabComponent } from 'src/app/design-system/primitives';
 
 interface PiPVideoElement extends HTMLVideoElement {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +20,7 @@ interface PiPVideoElement extends HTMLVideoElement {
 //** Picture in Picture video component **
 @Component({
   selector: 'pip-video',
-  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
+  imports: [FbFabComponent, MatTooltipModule],
   template: `
     <div
       style="border: gray 1px solid;border-radius: var(--radius-md);display:none;"
@@ -29,17 +28,16 @@ interface PiPVideoElement extends HTMLVideoElement {
       <video #vid [src]="vidUrl" [muted]="muted" autoplay></video>
     </div>
     <div style="padding-left: 5px;">
-      <button
+      <fb-fab
         class="button-toolbar"
-        mat-mini-fab
+        icon="videocam"
+        ariaLabel="Show Video"
         [style.display]="src ? 'block' : 'none'"
         matTooltip="Show Video"
         matTooltipPosition="left"
         [disabled]="pipMode"
-        (click)="initPiP()"
-      >
-        <fb-icon name="videocam" ariaLabel=""></fb-icon>
-      </button>
+        (pressed)="initPiP()"
+      ></fb-fab>
       <!--<button mat-mini-fab [style.display]="pipMode ? 'block' : 'none'"
                 matTooltip="Mute Audio"
                 (click)="toggleMute()">

@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
@@ -26,6 +25,7 @@ import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import {
+  FbButtonComponent,
   FbSelectComponent,
   FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective,
@@ -86,7 +86,7 @@ interface WaypointTypeOption {
     FormsModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule,
+    FbButtonComponent,
     MatCheckboxModule,
     MatDialogModule,
     CoordsPipe,
@@ -105,9 +105,13 @@ interface WaypointTypeOption {
         </div>
         <span fbToolbarTitle>{{ data.title }}</span>
         <div fbToolbarActions style="width: 50px; text-align: right;">
-          <button mat-icon-button (click)="handleClose(false)">
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="handleClose(false)"
+          >
             <mat-icon>close</mat-icon>
-          </button>
+          </fb-button>
         </div>
       </fb-toolbar>
       <mat-dialog-content>
@@ -275,13 +279,13 @@ interface WaypointTypeOption {
       </mat-dialog-content>
       @if (!wptReadOnly) {
         <mat-dialog-actions align="end">
-          <button
-            mat-flat-button
+          <fb-button
+            variant="primary"
             [disabled]="saveDisabled() || wptReadOnly"
-            (click)="handleClose(true)"
+            (pressed)="handleClose(true)"
           >
             SAVE
-          </button>
+          </fb-button>
         </mat-dialog-actions>
       }
     </div>

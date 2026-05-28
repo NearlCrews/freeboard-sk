@@ -68,25 +68,23 @@
   <ol-control>
     <ol-content>
       <div class="ol-zoom">
-        <button
+        <fb-fab
           class="button-accent"
-          mat-mini-fab
-          (click)="zoomMap(false)"
+          icon="remove"
+          ariaLabel="Zoom out"
+          (pressed)="zoomMap(false)"
           [disabled]="mapZoomLevel() <= app.MAP_ZOOM_EXTENT.min"
           matTooltip="Zoom out"
-        >
-          <fb-icon name="remove" ariaLabel=""></fb-icon>
-        </button>
+        ></fb-fab>
         &nbsp;
-        <button
+        <fb-fab
           class="button-accent"
-          mat-mini-fab
-          (click)="zoomMap(true)"
+          icon="add"
+          ariaLabel="Zoom in"
+          (pressed)="zoomMap(true)"
           [disabled]="mapZoomLevel() >= app.MAP_ZOOM_EXTENT.max"
           matTooltip="Zoom in"
-        >
-          <fb-icon name="add" ariaLabel=""></fb-icon>
-        </button>
+        ></fb-fab>
       </div>
     </ol-content>
   </ol-control>

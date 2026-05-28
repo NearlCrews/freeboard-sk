@@ -7,13 +7,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
@@ -41,7 +41,7 @@ interface CoordinatesMetaEntry {
   imports: [
     CommonModule,
     MatTooltipModule,
-    MatButtonModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
@@ -56,23 +56,23 @@ interface CoordinatesMetaEntry {
           <span fbToolbarLeading>
             @if (!data.noButtons) {
               @if (showClearButton()) {
-                <button
-                  mat-button
-                  (click)="deactivate()"
+                <fb-button
+                  variant="ghost"
+                  (pressed)="deactivate()"
                   [matTooltip]="clearButtonText"
                 >
                   <fb-icon name="clear_all" ariaLabel=""></fb-icon>
                   Clear
-                </button>
+                </fb-button>
               } @else {
-                <button
-                  mat-raised-button
-                  (click)="startAt()"
+                <fb-button
+                  variant="primary"
+                  (pressed)="startAt()"
                   matTooltip="Start at nearest point."
                 >
                   <fb-icon name="near_me" ariaLabel=""></fb-icon>
                   Start
-                </button>
+                </fb-button>
               }
             }
           </span>
@@ -83,14 +83,15 @@ interface CoordinatesMetaEntry {
             {{ data.title }}
           </span>
           <span fbToolbarActions>
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              ariaLabel="Close"
+              (pressed)="close()"
               matTooltip="Close"
               matTooltipPosition="below"
             >
               <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </span>
         </fb-toolbar>
       </div>
@@ -126,13 +127,14 @@ interface CoordinatesMetaEntry {
                       ></fb-icon>
                     } @else {
                       @if (!data.noButtons) {
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
+                          ariaLabel="Go to"
                           matTooltip="Go to"
-                          (click)="startAt(i)"
+                          (pressed)="startAt(i)"
                         >
                           <fb-icon name="near_me" ariaLabel=""></fb-icon>
-                        </button>
+                        </fb-button>
                       }
                     }
                   </div>

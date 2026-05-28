@@ -7,13 +7,13 @@
       Vessel Trail to Route
     </h2>
     <span fbToolbarActions>
-      <button
-        mat-icon-button
-        aria-label="Cancel trail conversion"
-        (click)="doClose(false);"
+      <fb-button
+        variant="ghost"
+        ariaLabel="Cancel trail conversion"
+        (pressed)="doClose(false);"
       >
         <fb-icon name="close" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
     </span>
   </fb-toolbar>
 
@@ -68,13 +68,13 @@
 
   <mat-dialog-actions>
     <div style="text-align: center; width: 100%">
-      <button
-        mat-raised-button
+      <fb-button
+        variant="primary"
         [disabled]="pointCount==0"
-        (click)="doClose(true)"
+        (pressed)="doClose(true)"
       >
         SAVE
-      </button>
+      </fb-button>
     </div>
   </mat-dialog-actions>
 </div>

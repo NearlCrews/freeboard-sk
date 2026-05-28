@@ -3,7 +3,6 @@
 
 import type { OnInit, AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogRef,
@@ -13,7 +12,10 @@ import {
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 /*********** MsgBox ***************
 	data: {
@@ -25,7 +27,7 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
 @Component({
   selector: 'ap-msgbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, FbButtonComponent],
   template: `
     <div class="_ap-msgbox">
       <div>
@@ -39,9 +41,9 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
         }
       </mat-dialog-content>
       <mat-dialog-actions align="center">
-        <button mat-raised-button (click)="dialogRef.close(true)">
+        <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,
@@ -79,7 +81,7 @@ export class MsgBox implements OnInit {
 ***********************************/
 @Component({
   selector: 'ap-alertdialog',
-  imports: [MatDialogModule, FbIconComponent, MatButtonModule],
+  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
   template: `
     <div class="_ap-alert">
       <div>
@@ -104,9 +106,9 @@ export class MsgBox implements OnInit {
         </div>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
-        <button mat-raised-button (click)="dialogRef.close(true)">
+        <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,
@@ -150,7 +152,7 @@ export class AlertDialog implements OnInit {
     MatDialogModule,
     FbIconComponent,
     MatCheckboxModule,
-    MatButtonModule
+    FbButtonComponent
   ],
   template: `
     <div class="_ap-confirm">
@@ -187,15 +189,15 @@ export class AlertDialog implements OnInit {
         </div>
       </mat-dialog-content>
       <mat-dialog-actions align="center">
-        <button
-          mat-raised-button
-          (click)="dialogRef.close({ ok: true, checked: checked })"
+        <fb-button
+          variant="primary"
+          (pressed)="dialogRef.close({ ok: true, checked: checked })"
         >
           {{ data.button1Text }}
-        </button>
-        <button mat-raised-button (click)="dialogRef.close(null)">
+        </fb-button>
+        <fb-button variant="ghost" (pressed)="dialogRef.close(null)">
           {{ data.button2Text }}
-        </button>
+        </fb-button>
       </mat-dialog-actions>
     </div>
   `,
@@ -272,7 +274,7 @@ export class MessageBarComponent {
     MatDialogModule,
     MatStepperModule,
     FbIconComponent,
-    MatButtonModule
+    FbButtonComponent
   ],
   template: `
     <mat-dialog-content>
@@ -286,33 +288,33 @@ export class MessageBarComponent {
               <div style="display:flex;">
                 <div style="min-width:50px;text-align:left;padding-top: 15%;">
                   @if (i !== 0 && data.content.length > 1) {
-                    <button
-                      mat-icon-button
-                      aria-label="Previous page"
-                      (click)="currentPage = currentPage - 1"
+                    <fb-button
+                      variant="ghost"
+                      ariaLabel="Previous page"
+                      (pressed)="currentPage = currentPage - 1"
                       matStepperPrevious
                     >
                       <fb-icon
                         name="keyboard_arrow_left"
                         ariaLabel=""
                       ></fb-icon>
-                    </button>
+                    </fb-button>
                   }
                 </div>
                 <div style="flex: 1 1 auto;" [innerHTML]="c.message"></div>
                 <div style="min-width:50px;text-align:right;padding-top: 15%;">
                   @if (i !== data.content.length - 1) {
-                    <button
-                      mat-icon-button
-                      aria-label="Next page"
-                      (click)="currentPage = currentPage + 1"
+                    <fb-button
+                      variant="ghost"
+                      ariaLabel="Next page"
+                      (pressed)="currentPage = currentPage + 1"
                       matStepperNext
                     >
                       <fb-icon
                         name="keyboard_arrow_right"
                         ariaLabel=""
                       ></fb-icon>
-                    </button>
+                    </fb-button>
                   }
                 </div>
               </div>
@@ -333,9 +335,12 @@ export class MessageBarComponent {
           }
         </div>
         <div style="text-align:center;">
-          <button mat-raised-button (click)="dialogRef.close(data.showPrefs)">
+          <fb-button
+            variant="primary"
+            (pressed)="dialogRef.close(data.showPrefs)"
+          >
             {{ data.buttonText }}
-          </button>
+          </fb-button>
           <br />&nbsp;
         </div>
       </div>

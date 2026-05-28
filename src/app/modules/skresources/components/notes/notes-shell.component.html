@@ -1,40 +1,40 @@
 <section class="notes-shell" role="region" aria-label="Notes">
   <header class="notes-shell__top">
-    <button
-      mat-icon-button
-      (click)="onClose()"
+    <fb-button
+      variant="ghost"
+      (pressed)="onClose()"
       matTooltip="Close notes"
       matTooltipPosition="right"
-      aria-label="Close notes"
+      ariaLabel="Close notes"
     >
       <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-    </button>
+    </fb-button>
     <h1 class="notes-shell__title">Notes</h1>
     <div class="notes-shell__top-actions">
-      <button
-        mat-icon-button
-        (click)="onRefresh()"
+      <fb-button
+        variant="ghost"
+        (pressed)="onRefresh()"
         matTooltip="Reload notes"
         matTooltipPosition="below"
-        aria-label="Reload notes"
+        ariaLabel="Reload notes"
       >
         <fb-icon name="refresh" ariaLabel=""></fb-icon>
-      </button>
-      <button
-        mat-icon-button
+      </fb-button>
+      <fb-button
+        variant="ghost"
         class="action-toggle"
         [class.active]="showNotesOnMap()"
-        (click)="toggleMapDisplay()"
+        (pressed)="toggleMapDisplay()"
         matTooltip="Show notes on map"
         matTooltipPosition="below"
         [attr.aria-pressed]="showNotesOnMap()"
-        aria-label="Show notes on map"
+        ariaLabel="Show notes on map"
       >
         <fb-icon
           [name]="showNotesOnMap() ? 'visibility' : 'visibility_off'"
           ariaLabel=""
         ></fb-icon>
-      </button>
+      </fb-button>
     </div>
   </header>
 
@@ -126,25 +126,25 @@
             (panTo)="onDetailPanTo($event)"
           />
           <ng-template #fbDetailPaneActions>
-            <button
-              mat-stroked-button
+            <fb-button
+              variant="secondary"
               [disabled]="selectedNoteReadOnly()"
-              (click)="onEdit()"
+              (pressed)="onEdit()"
               matTooltip="Edit note"
             >
               <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
-            </button>
-            <button
-              mat-stroked-button
+            </fb-button>
+            <fb-button
+              variant="secondary"
               class="danger"
               [disabled]="selectedNoteReadOnly()"
-              (click)="onDelete()"
+              (pressed)="onDelete()"
               matTooltip="Delete note"
             >
               <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete
-            </button>
+            </fb-button>
           </ng-template>
         </fb-detail-pane>
       } @else {

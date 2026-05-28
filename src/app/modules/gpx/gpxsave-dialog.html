@@ -1,28 +1,28 @@
 <div class="gpxsave-dialog">
   <fb-toolbar style="background-color: transparent">
     <div fbToolbarLeading>
-      <button
+      <fb-button
+        variant="primary"
         style="width: 85px"
-        mat-raised-button
         matTooltip="Save selected resources"
         matTooltipPosition="right"
         [disabled]="!display.saveRoutesOK && !display.saveWaypointsOK && !display.saveTracksOK"
-        (click)="save()"
+        (pressed)="save()"
       >
         <fb-icon name="save" ariaLabel=""></fb-icon>&nbsp;Save&nbsp;
-      </button>
+      </fb-button>
     </div>
     <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
       Export to GPX
     </h2>
     <div fbToolbarActions>
-      <button
-        mat-icon-button
-        aria-label="Close export dialog"
-        (click)="this.dialogRef.close(-1);"
+      <fb-button
+        variant="ghost"
+        ariaLabel="Close export dialog"
+        (pressed)="this.dialogRef.close(-1);"
       >
         <fb-icon name="close" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
     </div>
   </fb-toolbar>
 

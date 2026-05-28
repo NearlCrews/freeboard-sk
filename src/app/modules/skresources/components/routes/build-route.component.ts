@@ -12,9 +12,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbIconComponent
 } from 'src/app/design-system/primitives';
@@ -42,7 +42,7 @@ interface BuildRoutePoint {
     MatTooltipModule,
     CdkDrag,
     CdkDropList,
-    MatButtonModule,
+    FbButtonComponent,
     FbIconComponent,
     FormsModule,
     FbCardComponent
@@ -54,13 +54,14 @@ interface BuildRoutePoint {
       <div class="rte-builder mat-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
           <div>
-            <button
-              mat-icon-button
+            <fb-button
+              variant="ghost"
+              ariaLabel="Refresh Waypoint list"
               matTooltip="Refresh Waypoint list"
-              (click)="getWaypoints()"
+              (pressed)="getWaypoints()"
             >
               <fb-icon name="refresh" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div
             style="flex: 1 1 auto;
@@ -72,9 +73,13 @@ interface BuildRoutePoint {
             Build Route:
           </div>
           <div>
-            <button mat-icon-button (click)="handleClose()">
+            <fb-button
+              variant="ghost"
+              ariaLabel="Close"
+              (pressed)="handleClose()"
+            >
               <fb-icon name="close" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
         </div>
 
@@ -126,9 +131,13 @@ interface BuildRoutePoint {
                       {{ item.name }}
                     </div>
                     <div style="width:40px;">
-                      <button mat-icon-button (click)="deleteFromRoute(idx)">
+                      <fb-button
+                        variant="ghost"
+                        ariaLabel="Delete"
+                        (pressed)="deleteFromRoute(idx)"
+                      >
                         <fb-icon name="delete" ariaLabel=""></fb-icon>
-                      </button>
+                      </fb-button>
                     </div>
                   </div>
                 }
@@ -138,13 +147,13 @@ interface BuildRoutePoint {
         </div>
 
         <div style="text-align:center;padding: 5px;">
-          <button
-            mat-raised-button
+          <fb-button
+            variant="primary"
             [disabled]="rtepts.length < 2"
-            (click)="doSave()"
+            (pressed)="doSave()"
           >
             <fb-icon name="save" ariaLabel=""></fb-icon>&nbsp;Save
-          </button>
+          </fb-button>
         </div>
       </div>
     </fb-card>

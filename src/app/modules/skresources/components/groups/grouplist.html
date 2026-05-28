@@ -4,14 +4,15 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close Group List"
               matTooltipPosition="right"
+              ariaLabel="Close Group List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Resource Groups</div>
         </div>
@@ -28,22 +29,24 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
-            (click)="itemProperties(undefined)"
+          <fb-button
+            variant="ghost"
+            (pressed)="itemProperties(undefined)"
             matTooltip="New Group"
             matTooltipPosition="below"
+            ariaLabel="New Group"
           >
             <fb-icon name="add" ariaLabel=""></fb-icon>
-          </button>
-          <button
-            mat-icon-button
-            (click)="initItems()"
+          </fb-button>
+          <fb-button
+            variant="ghost"
+            (pressed)="initItems()"
             matTooltip="Reload Groups"
             matTooltipPosition="below"
+            ariaLabel="Reload Groups"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
       </div>
     </fb-card-content>
@@ -99,24 +102,26 @@
         <fb-card-actions align="start">
           <div style="display: flex">
             <div style="flex: 1 1 auto">
-              <button
-                mat-icon-button
-                (click)="itemDelete(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemDelete(r[0])"
                 matTooltip="Delete Group"
                 matTooltipPosition="above"
+                ariaLabel="Delete Group"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             <div>
-              <button
-                mat-icon-button
-                (click)="itemProperties(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Edit Group Properties"
                 matTooltipPosition="above"
+                ariaLabel="Edit Group Properties"
               >
                 <fb-icon name="edit" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
           </div>
         </fb-card-actions>

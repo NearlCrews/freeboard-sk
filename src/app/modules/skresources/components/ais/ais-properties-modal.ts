@@ -10,9 +10,9 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
@@ -37,7 +37,7 @@ interface AISDisplay {
   imports: [
     MatTooltipModule,
     MatIconModule,
-    MatButtonModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
@@ -53,14 +53,15 @@ interface AISDisplay {
           {{ data.title }}
         </span>
         <span fbToolbarActions>
-          <button
-            mat-icon-button
-            (click)="modalRef.dismiss()"
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
           >
             <mat-icon>keyboard_arrow_down</mat-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
 

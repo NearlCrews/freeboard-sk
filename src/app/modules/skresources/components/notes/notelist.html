@@ -1,49 +1,49 @@
 <section class="notes-panel" role="region" aria-label="Notes">
   <header class="notes-header">
-    <button
-      mat-icon-button
-      (click)="close()"
+    <fb-button
+      variant="ghost"
+      (pressed)="close()"
       matTooltip="Close note list"
       matTooltipPosition="right"
-      aria-label="Close note list"
+      ariaLabel="Close note list"
     >
       <mat-icon>arrow_back</mat-icon>
-    </button>
+    </fb-button>
     <h1 class="notes-title">Notes</h1>
     <div class="header-actions">
-      <button
-        mat-icon-button
-        (click)="itemRefresh()"
+      <fb-button
+        variant="ghost"
+        (pressed)="itemRefresh()"
         matTooltip="Reload notes"
         matTooltipPosition="below"
-        aria-label="Reload notes"
+        ariaLabel="Reload notes"
       >
         <mat-icon>refresh</mat-icon>
-      </button>
-      <button
-        mat-icon-button
+      </fb-button>
+      <fb-button
+        variant="ghost"
         class="action-toggle"
         [class.active]="draftOnly"
-        (click)="toggleDraftOnly()"
+        (pressed)="toggleDraftOnly()"
         matTooltip="Show drafts only"
         matTooltipPosition="below"
         [attr.aria-pressed]="draftOnly"
-        aria-label="Show drafts only"
+        ariaLabel="Show drafts only"
       >
         <mat-icon>border_color</mat-icon>
-      </button>
-      <button
-        mat-icon-button
+      </fb-button>
+      <fb-button
+        variant="ghost"
         class="action-toggle"
         [class.active]="showNotes"
-        (click)="toggleMapDisplay(!showNotes)"
+        (pressed)="toggleMapDisplay(!showNotes)"
         matTooltip="Show notes on map"
         matTooltipPosition="below"
         [attr.aria-pressed]="showNotes"
-        aria-label="Show notes on map"
+        ariaLabel="Show notes on map"
       >
         <mat-icon>{{ showNotes ? 'visibility' : 'visibility_off' }}</mat-icon>
-      </button>
+      </fb-button>
     </div>
   </header>
 

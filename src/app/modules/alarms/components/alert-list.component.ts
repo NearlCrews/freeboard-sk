@@ -12,12 +12,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbSwitchComponent
 } from 'src/app/design-system/primitives';
@@ -33,11 +33,11 @@ import { alertSeverityClass } from './alert-severity';
   imports: [
     MatTooltipModule,
     CommonModule,
-    MatButtonModule,
     MatIconModule,
     MatMenuModule,
     FormsModule,
     CdkDrag,
+    FbButtonComponent,
     FbCardComponent,
     FbSwitchComponent
   ],
@@ -55,16 +55,16 @@ import { alertSeverityClass } from './alert-severity';
         <div class="title" cdkDragHandle>
           @if (app.featureFlags().notificationApi) {
             <div>
-              <button
+              <fb-button
                 class="button-warn"
-                mat-raised-button
+                variant="primary"
                 matTooltip="Raise Alarm"
-                aria-label="Raise alarm"
+                ariaLabel="Raise alarm"
                 [matMenuTriggerFor]="alarmsmenu"
               >
                 <mat-icon>warning</mat-icon>
                 Raise
-              </button>
+              </fb-button>
             </div>
           }
           <h2
@@ -79,14 +79,14 @@ import { alertSeverityClass } from './alert-severity';
             Alert List
           </h2>
           <div style="display:flex">
-            <button
-              mat-icon-button
+            <fb-button
+              variant="ghost"
               matTooltip="Silence All"
-              aria-label="Silence all alerts"
-              (click)="silenceAll()"
+              ariaLabel="Silence all alerts"
+              (pressed)="silenceAll()"
             >
               <mat-icon class="ob" svgIcon="sound-off-fill"></mat-icon>
-            </button>
+            </fb-button>
             &nbsp; &nbsp;
             <div>
               <fb-switch
@@ -97,14 +97,14 @@ import { alertSeverityClass } from './alert-severity';
               ></fb-switch>
             </div>
             &nbsp;
-            <button
-              mat-icon-button
+            <fb-button
+              variant="ghost"
               matTooltip="Close"
-              aria-label="Close alert list"
-              (click)="handleClose()"
+              ariaLabel="Close alert list"
+              (pressed)="handleClose()"
             >
               <mat-icon>close</mat-icon>
-            </button>
+            </fb-button>
           </div>
         </div>
 
@@ -145,15 +145,15 @@ import { alertSeverityClass } from './alert-severity';
                       item[1].sound &&
                       item[1].canSilence
                     ) {
-                      <button
-                        mat-icon-button
+                      <fb-button
+                        variant="ghost"
                         [matTooltip]="item[1].silenced ? 'Silenced' : 'Silence'"
                         matTooltipPosition="below"
-                        [attr.aria-label]="
+                        [ariaLabel]="
                           item[1].silenced ? 'Alert silenced' : 'Silence alert'
                         "
                         [disabled]="item[1].acknowledged || item[1].silenced"
-                        (click)="muteAlert(item[1].path)"
+                        (pressed)="muteAlert(item[1].path)"
                       >
                         <mat-icon
                           [class]="item[1].acknowledged ? '' : 'ob'"
@@ -163,7 +163,7 @@ import { alertSeverityClass } from './alert-severity';
                               : 'sound-high-fill'
                           "
                         ></mat-icon>
-                      </button>
+                      </fb-button>
                       &nbsp;
                     }
                     @if (
@@ -171,28 +171,28 @@ import { alertSeverityClass } from './alert-severity';
                       item[1].canAcknowledge
                     ) {
                       @if (!item[1].acknowledged) {
-                        <button
-                          mat-icon-button
+                        <fb-button
+                          variant="ghost"
                           matTooltip="Acknowledge"
                           matTooltipPosition="below"
-                          aria-label="Acknowledge alert"
+                          ariaLabel="Acknowledge alert"
                           [disabled]="item[1].acknowledged"
-                          (click)="ackAlert(item[1].path)"
+                          (pressed)="ackAlert(item[1].path)"
                         >
                           <mat-icon>check</mat-icon>
-                        </button>
+                        </fb-button>
                       } @else {
                         @if (item[1].canCancel) {
-                          <button
-                            mat-icon-button
+                          <fb-button
+                            variant="ghost"
                             matTooltip="Clear / Cancel"
                             matTooltipPosition="below"
-                            aria-label="Clear alert"
+                            ariaLabel="Clear alert"
                             [disabled]="!item[1].acknowledged"
-                            (click)="clearAlert(item[1].path)"
+                            (pressed)="clearAlert(item[1].path)"
                           >
                             <mat-icon>close</mat-icon>
-                          </button>
+                          </fb-button>
                         }
                       }
                     }

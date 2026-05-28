@@ -17,12 +17,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
   FbDividerComponent,
+  FbFabComponent,
   FbIconComponent
 } from 'src/app/design-system/primitives';
 
@@ -138,7 +138,7 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
   imports: [
     MatTooltipModule,
     FbIconComponent,
-    MatButtonModule,
+    FbFabComponent,
     CoordsPipe,
     MatMenuModule,
     FbDividerComponent,

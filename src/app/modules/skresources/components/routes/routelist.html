@@ -4,14 +4,15 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close Route List"
               matTooltipPosition="right"
+              ariaLabel="Close Route List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Routes</div>
         </div>
@@ -28,15 +29,16 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
+          <fb-button
+            variant="ghost"
             [disabled]="disableRefresh"
-            (click)="initItems()"
+            (pressed)="initItems()"
             matTooltip="Reload Routes"
             matTooltipPosition="below"
+            ariaLabel="Reload Routes"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
         <div>
           <mat-checkbox
@@ -113,76 +115,83 @@
         <fb-card-actions align="start">
           <div style="display: flex">
             <div style="flex: 1 1 auto">
-              <button
-                mat-icon-button
-                (click)="itemDelete(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemDelete(r[0])"
                 [disabled]="r[0] === activeRoute() || disableRefresh"
                 matTooltip="Delete Route"
                 matTooltipPosition="above"
+                ariaLabel="Delete Route"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
-              </button>
-              <button
-                mat-icon-button
-                (click)="itemViewNotes(r)"
+              </fb-button>
+              <fb-button
+                variant="ghost"
+                (pressed)="itemViewNotes(r)"
                 matTooltip="Route notes"
                 matTooltipPosition="above"
+                ariaLabel="Route notes"
               >
                 <fb-icon name="local_offer" ariaLabel=""></fb-icon>
-              </button>
-              <button
-                mat-icon-button
+              </fb-button>
+              <fb-button
+                variant="ghost"
                 [disabled]="disableRefresh"
-                (click)="itemViewPoints(r[0])"
+                (pressed)="itemViewPoints(r[0])"
                 matTooltip="Route points"
                 matTooltipPosition="above"
+                ariaLabel="Route points"
               >
                 <fb-icon name="flag" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
               @if(r[0] !== activeRoute()) {
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="disableRefresh"
-                (click)="itemSetActive(r[0])"
+                (pressed)="itemSetActive(r[0])"
                 matTooltip="Start"
                 matTooltipPosition="above"
+                ariaLabel="Start"
               >
                 <fb-icon name="near_me" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
               } @else {
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="disableRefresh"
-                (click)="itemClearActive(r[0])"
+                (pressed)="itemClearActive(r[0])"
                 matTooltip="Clear Active Route"
                 matTooltipPosition="above"
+                ariaLabel="Clear Active Route"
               >
                 <fb-icon name="clear_all" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
               }
             </div>
             <div>
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="disableRefresh"
-                (click)="itemProperties(r[0])"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Edit Route Properties"
                 matTooltipPosition="above"
+                ariaLabel="Edit Route Properties"
               >
                 <fb-icon name="edit" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             @if(app.featureFlags().resourceGroups) { &nbsp;
             <div>
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="disableRefresh"
-                (click)="itemAddToGroup(r[0])"
+                (pressed)="itemAddToGroup(r[0])"
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
+                ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             }
           </div>

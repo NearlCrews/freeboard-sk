@@ -4,14 +4,15 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close Region List"
               matTooltipPosition="right"
+              ariaLabel="Close Region List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Regions</div>
         </div>
@@ -28,14 +29,15 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
-            (click)="initItems()"
+          <fb-button
+            variant="ghost"
+            (pressed)="initItems()"
             matTooltip="Reload Regions"
             matTooltipPosition="below"
+            ariaLabel="Reload Regions"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
         <div>
           <mat-checkbox
@@ -104,34 +106,37 @@
         <fb-card-actions align="start">
           <div style="display: flex">
             <div style="flex: 1 1 auto; text-align: right">
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="app.uiConfig().mapMove"
-                (click)="emitCenter(r[1])"
+                (pressed)="emitCenter(r[1])"
                 matTooltip="Center Region"
                 matTooltipPosition="above"
+                ariaLabel="Center Region"
               >
                 <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
 
-              <button
-                mat-icon-button
-                (click)="itemProperties(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Region Properties"
                 matTooltipPosition="above"
+                ariaLabel="Region Properties"
               >
                 <fb-icon name="info" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
 
               @if(app.featureFlags().resourceGroups) { &nbsp;
-              <button
-                mat-icon-button
-                (click)="itemAddToGroup(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemAddToGroup(r[0])"
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
+                ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
               }
             </div>
           </div>

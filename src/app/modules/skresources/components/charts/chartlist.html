@@ -11,14 +11,15 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close Chart List"
               matTooltipPosition="right"
+              ariaLabel="Close Chart List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Charts</div>
         </div>
@@ -36,14 +37,15 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
-            (click)="initItems()"
+          <fb-button
+            variant="ghost"
+            (pressed)="initItems()"
             matTooltip="Reload Charts"
             matTooltipPosition="below"
+            ariaLabel="Reload Charts"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
         <div>
           <mat-checkbox
@@ -64,9 +66,9 @@
           Chart Order
         </div>
         <div>
-          <button mat-icon-button (click)="showChartLayers(false)">
+          <fb-button variant="ghost" (pressed)="showChartLayers(false)">
             <fb-icon name="close" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
       </div>
       }
@@ -83,24 +85,25 @@
       >
         Boundaries
       </fb-switch-row>
-      <button
-        mat-button
-        (click)="showChartLayers(true)"
+      <fb-button
+        variant="ghost"
+        (pressed)="showChartLayers(true)"
         matTooltip="Re-order Charts"
         matTooltipPosition="above"
       >
         <fb-icon name="import_export" ariaLabel=""></fb-icon>
         Re-order
-      </button>
+      </fb-button>
 
-      <button
-        mat-button
+      <fb-button
+        variant="ghost"
         matTooltip="Add Chart"
         matTooltipPosition="above"
         [matMenuTriggerFor]="addchartmenu"
+        ariaLabel="Add Chart"
       >
         <fb-icon name="add" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
       } @else {
       <div style="display: flex; width: 100%; font-style: italic">
         <div style="flex: 1 1 auto">Top Layer</div>
@@ -160,58 +163,63 @@
           <div style="display: flex">
             @if(r[1].source && r[1].source === 'resources-provider') {
             <div style="width: 100%; text-align: right">
-              <button
-                mat-icon-button
-                (click)="itemDelete(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemDelete(r[0])"
                 matTooltip="Remove Chart"
                 matTooltipPosition="above"
+                ariaLabel="Remove Chart"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             }
             <div style="width: 100%; text-align: right">
-              <button
-                mat-icon-button
-                (click)="itemProperties(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Chart Properties"
                 matTooltipPosition="above"
+                ariaLabel="Chart Properties"
               >
                 <fb-icon name="info" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             <div style="width: 100%; text-align: right">
-              <button
-                mat-icon-button
+              <fb-button
+                variant="ghost"
                 [disabled]="!r[2]"
-                (click)="itemOpacity(r)"
+                (pressed)="itemOpacity(r)"
                 matTooltip="Set Opacity"
                 matTooltipPosition="above"
+                ariaLabel="Set Opacity"
               >
                 <fb-icon name="opacity" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             @if(r[1].proxy) {
             <div style="width: 100%; text-align: right">
-              <button
-                mat-icon-button
-                (click)="selectCacheArea(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="selectCacheArea(r[0])"
                 matTooltip="Cache Tiles"
                 matTooltipPosition="above"
+                ariaLabel="Cache Tiles"
               >
                 <fb-icon name="download" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             } @if(app.featureFlags().resourceGroups) { &nbsp;
             <div style="width: 100%; text-align: right">
-              <button
-                mat-icon-button
-                (click)="itemAddToGroup(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemAddToGroup(r[0])"
                 matTooltip="Add to Group"
                 matTooltipPosition="above"
+                ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>
-              </button>
+              </fb-button>
             </div>
             }
           </div>

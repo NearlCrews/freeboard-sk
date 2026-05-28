@@ -9,12 +9,12 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { SignalKDetailsComponent } from '../components/signalk-details.component';
 import { Feature } from 'geojson';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
@@ -26,7 +26,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatButtonModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
@@ -42,14 +42,15 @@ import {
         ></span>
         <span fbToolbarTitle> Feature Properties </span>
         <span fbToolbarActions>
-          <button
-            mat-icon-button
-            (click)="modalRef.dismiss()"
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="modalRef.dismiss()"
             matTooltip="Close"
             matTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
 
@@ -60,16 +61,17 @@ import {
               @if (data.length > 1) {
                 <div style="min-width:50px;text-align:left;padding-top: 15%;">
                   @if (i !== 0) {
-                    <button
-                      mat-icon-button
-                      (click)="currentPage = currentPage - 1"
+                    <fb-button
+                      variant="ghost"
+                      ariaLabel="Previous"
+                      (pressed)="currentPage = currentPage - 1"
                       matStepperPrevious
                     >
                       <fb-icon
                         name="keyboard_arrow_left"
                         ariaLabel=""
                       ></fb-icon>
-                    </button>
+                    </fb-button>
                   }
                 </div>
               }
@@ -87,16 +89,17 @@ import {
               @if (data.length > 1) {
                 <div style="min-width:50px;text-align:right;padding-top: 15%;">
                   @if (i !== data.length - 1) {
-                    <button
-                      mat-icon-button
-                      (click)="currentPage = currentPage + 1"
+                    <fb-button
+                      variant="ghost"
+                      ariaLabel="Next"
+                      (pressed)="currentPage = currentPage + 1"
                       matStepperNext
                     >
                       <fb-icon
                         name="keyboard_arrow_right"
                         ariaLabel=""
                       ></fb-icon>
-                    </button>
+                    </fb-button>
                   }
                 </div>
               }

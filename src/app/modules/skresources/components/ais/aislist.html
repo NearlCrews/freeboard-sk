@@ -4,14 +4,14 @@
       <span fbCardTitle>
         <div class="title-block">
           <div style="width: 50px">
-            <button
-              mat-icon-button
-              (click)="close()"
+            <fb-button
+              variant="ghost"
+              (pressed)="close()"
               matTooltip="Close Vessels List"
               matTooltipPosition="right"
             >
               <mat-icon>arrow_back</mat-icon>
-            </button>
+            </fb-button>
           </div>
           <div style="flex: 1 1 auto; padding-top: 7px">Vessels</div>
         </div>
@@ -29,15 +29,15 @@
           />
         </div>
         <div>
-          <button
-            mat-icon-button
-            (click)="initItems()"
+          <fb-button
+            variant="ghost"
+            (pressed)="initItems()"
             matTooltip="Reload Vessels"
             matTooltipPosition="below"
             [disabled]="app.config.selections.aisFilterByShipType"
           >
             <mat-icon>refresh</mat-icon>
-          </button>
+          </fb-button>
         </div>
         <div>
           <mat-checkbox
@@ -145,42 +145,42 @@
           <div style="display: flex">
             <div style="flex: 1 1 auto">
               @if(r[0] !== focusId()) {
-              <button
-                mat-button
-                (click)="focus(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="focus(r[0])"
                 matTooltip="Focus vessel"
               >
                 <mat-icon>center_focus_weak</mat-icon>
                 FOCUS
-              </button>
+              </fb-button>
               } @else {
-              <button
-                mat-button
-                (click)="focus();"
+              <fb-button
+                variant="ghost"
+                (pressed)="focus();"
                 matTooltip="Clear vessel focus"
               >
                 <mat-icon>clear_all</mat-icon>
                 UNFOCUS
-              </button>
+              </fb-button>
               }
             </div>
-            <button
-              mat-button
+            <fb-button
+              variant="ghost"
               [disabled]="app.uiConfig().mapMove"
-              (click)="emitCenter(r[1].position)"
+              (pressed)="emitCenter(r[1].position)"
               matTooltip="Center Vessel"
             >
               <mat-icon>center_focus_strong</mat-icon>
               CENTER
-            </button>
+            </fb-button>
             <div>
-              <button
-                mat-icon-button
-                (click)="itemProperties(r[0])"
+              <fb-button
+                variant="ghost"
+                (pressed)="itemProperties(r[0])"
                 matTooltip="Vessel Properties"
               >
                 <mat-icon>info</mat-icon>
-              </button>
+              </fb-button>
             </div>
           </div>
         </fb-card-actions>

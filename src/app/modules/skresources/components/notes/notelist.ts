@@ -1,4 +1,5 @@
 import type { OnInit, OnChanges } from '@angular/core';
+import { FbButtonComponent } from 'src/app/design-system/primitives';
 import {
   Component,
   Input,
@@ -10,7 +11,6 @@ import { CommonModule } from '@angular/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -41,10 +41,10 @@ interface GroupChip {
   templateUrl: './notelist.html',
   styleUrls: ['./notes.scss'],
   imports: [
+    FbButtonComponent,
     CommonModule,
     MatTooltipModule,
     MatIconModule,
-    MatButtonModule,
     ScrollingModule
   ]
 })

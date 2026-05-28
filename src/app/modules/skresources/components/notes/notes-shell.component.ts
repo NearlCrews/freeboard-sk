@@ -9,10 +9,10 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
+  FbButtonComponent,
   FbDetailPaneComponent,
   FbFilterBarComponent,
   FbIconComponent,
@@ -58,8 +58,8 @@ const NAV_UNTAGGED = '__untagged';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FbButtonComponent,
     CommonModule,
-    MatButtonModule,
     FbIconComponent,
     MatTooltipModule,
     FbListPaneComponent,

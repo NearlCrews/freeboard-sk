@@ -16,12 +16,12 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
+  FbButtonComponent,
   FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -39,8 +39,8 @@ import { AppFacade } from 'src/app/app.facade';
   selector: 'ap-trail2routedialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FbButtonComponent,
     FbIconComponent,
-    MatButtonModule,
     MatDialogModule,
     MatTooltipModule,
     MatSliderModule,

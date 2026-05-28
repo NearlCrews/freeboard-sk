@@ -7,19 +7,21 @@ import {
 } from '@angular/core';
 
 import { MatTooltip } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { AppFacade } from 'src/app/app.facade';
 import { FBMapInteractService } from 'src/app/modules/map/fbmap-interact.service';
 import { Measurements } from './measurements.component';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 // ********* Interaction Help Component ********
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-interact-help',
-  imports: [FbIconComponent, MatButtonModule, MatTooltip, Measurements],
+  imports: [FbIconComponent, FbButtonComponent, MatTooltip, Measurements],
   template: `
     <div class="mat-app-background _ap_interact_help">
       @if (showHelpPanel()) {
@@ -53,10 +55,10 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
 
           <div style="text-align: center">
             <!-- cancel Draw button -->
-            <a
+            <fb-button
               class="icon-warn"
-              mat-raised-button
-              (click)="close()"
+              variant="primary"
+              (pressed)="close()"
               [matTooltip]="
                 mapInteract.isModifying()
                   ? 'Finish Editing'
@@ -66,7 +68,7 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
             >
               <fb-icon name="close" ariaLabel="" class="icon-warn"></fb-icon>
               {{ mapInteract.isModifying() ? 'FINISH' : 'CANCEL' }}
-            </a>
+            </fb-button>
           </div>
         </div>
       }

@@ -2,31 +2,31 @@
   <fb-toolbar style="background-color: transparent">
     <div fbToolbarLeading>
       @if(!app.sIsFetching()) {
-      <button
+      <fb-button
+        variant="primary"
         style="width: 85px"
-        mat-raised-button
         matTooltip="Load selected resources"
         matTooltipPosition="right"
         [disabled]="!display.loadRoutesOK && !display.loadWaypointsOK && !display.loadTracksOK"
-        (click)="load()"
+        (pressed)="load()"
       >
         <fb-icon name="file_upload" ariaLabel=""></fb-icon>
         &nbsp;Load
-      </button>
+      </fb-button>
       }
     </div>
     <h2 fbToolbarTitle style="margin: 0; font-size: inherit; font-weight: 500">
       Import GPX
     </h2>
     <div fbToolbarActions>
-      <button
-        mat-icon-button
-        aria-label="Close import dialog"
+      <fb-button
+        variant="ghost"
+        ariaLabel="Close import dialog"
         [disabled]="app.sIsFetching()"
-        (click)="this.dialogRef.close(-1);"
+        (pressed)="this.dialogRef.close(-1);"
       >
         <fb-icon name="close" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
     </div>
   </fb-toolbar>
 

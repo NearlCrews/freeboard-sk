@@ -4,10 +4,10 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
@@ -40,8 +40,8 @@ interface ResourceSetFeatureProperties {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatButtonModule,
     MatCheckboxModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
@@ -54,14 +54,15 @@ interface ResourceSetFeatureProperties {
           {{ title }}
         </span>
         <span fbToolbarActions>
-          <button
-            mat-icon-button
-            (click)="closeModal()"
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="closeModal()"
             matTooltip="Close"
             matTooltipPosition="left"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
 

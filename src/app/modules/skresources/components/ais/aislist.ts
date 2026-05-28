@@ -10,10 +10,10 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
@@ -37,10 +37,10 @@ import { getAisIcon } from 'src/app/modules/icons';
   templateUrl: './aislist.html',
   styleUrls: ['../resourcelist.css'],
   imports: [
+    FbButtonComponent,
     MatTooltipModule,
     MatIconModule,
     MatCheckboxModule,
-    MatButtonModule,
     ScrollingModule,
     FbCardComponent,
     FbCardHeaderComponent,

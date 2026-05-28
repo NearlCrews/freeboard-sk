@@ -1,25 +1,25 @@
 <section class="resources-shell" role="region" aria-label="Resources">
   <header class="resources-shell__top">
-    <button
-      mat-icon-button
-      (click)="onClose()"
+    <fb-button
+      variant="ghost"
+      (pressed)="onClose()"
       matTooltip="Close resources"
       matTooltipPosition="right"
-      aria-label="Close resources"
+      ariaLabel="Close resources"
     >
       <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
-    </button>
+    </fb-button>
     <h1 class="resources-shell__title">Resources</h1>
     <div class="resources-shell__top-actions">
-      <button
-        mat-icon-button
-        (click)="onRefresh()"
+      <fb-button
+        variant="ghost"
+        (pressed)="onRefresh()"
         matTooltip="Reload"
         matTooltipPosition="below"
-        aria-label="Reload resources"
+        ariaLabel="Reload resources"
       >
         <fb-icon name="refresh" ariaLabel=""></fb-icon>
-      </button>
+      </fb-button>
     </div>
   </header>
 
@@ -125,38 +125,42 @@
           <ng-template #fbDetailPaneActions>
             @if (isRouteRow(row)) {
               @if (selectedRouteIsActive()) {
-                <button
-                  mat-stroked-button
-                  (click)="onDeactivateRoute()"
+                <fb-button
+                  variant="secondary"
+                  (pressed)="onDeactivateRoute()"
                   matTooltip="Clear active route"
                 >
                   <fb-icon name="cancel" ariaLabel=""></fb-icon>
                   Deactivate
-                </button>
+                </fb-button>
               } @else {
-                <button
-                  mat-stroked-button
-                  (click)="onActivateRoute()"
+                <fb-button
+                  variant="secondary"
+                  (pressed)="onActivateRoute()"
                   matTooltip="Activate route"
                 >
                   <fb-icon name="navigation" ariaLabel=""></fb-icon>
                   Activate
-                </button>
+                </fb-button>
               }
             }
-            <button mat-stroked-button (click)="onEdit()" matTooltip="Edit">
+            <fb-button
+              variant="secondary"
+              (pressed)="onEdit()"
+              matTooltip="Edit"
+            >
               <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
-            </button>
-            <button
-              mat-stroked-button
+            </fb-button>
+            <fb-button
+              variant="secondary"
               class="danger"
-              (click)="onDelete()"
+              (pressed)="onDelete()"
               matTooltip="Delete"
             >
               <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete
-            </button>
+            </fb-button>
           </ng-template>
         </fb-detail-pane>
       } @else {

@@ -9,10 +9,10 @@ import {
   signal
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
+  FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
@@ -38,8 +38,8 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatButtonModule,
     MatCheckboxModule,
+    FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
@@ -50,39 +50,42 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
     <div class="_ap-resource-set">
       <fb-toolbar style="background-color: transparent">
         <span fbToolbarLeading>
-          <button
-            mat-icon-button
+          <fb-button
+            variant="ghost"
+            ariaLabel="Clear selections"
             [disabled]="
               (app.config.selections.resourceSets[data.path]?.length ?? 0) === 0
             "
             matTooltip="Clear selections"
             matTooltipPosition="below"
-            (click)="clearSelections()"
+            (pressed)="clearSelections()"
           >
             <fb-icon name="clear_all" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
 
-          <button
-            mat-icon-button
+          <fb-button
+            variant="ghost"
+            ariaLabel="Refresh list entries"
             matTooltip="Refresh list entries"
             matTooltipPosition="below"
-            (click)="getItems(true)"
+            (pressed)="getItems(true)"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
         <span fbToolbarTitle>
           {{ title }}
         </span>
         <span fbToolbarActions>
-          <button
-            mat-icon-button
-            (click)="closeModal()"
+          <fb-button
+            variant="ghost"
+            ariaLabel="Close"
+            (pressed)="closeModal()"
             matTooltip="Close"
             matTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </span>
       </fb-toolbar>
       @if (app.sIsFetching()) {

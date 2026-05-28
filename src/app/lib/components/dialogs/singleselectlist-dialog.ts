@@ -12,7 +12,6 @@ import {
 
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
@@ -22,6 +21,8 @@ import {
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
+  FbButtonComponent,
+  FbIconComponent,
   FbListComponent,
   FbListItemComponent
 } from 'src/app/design-system/primitives';
@@ -39,9 +40,10 @@ import {
   imports: [
     MatInputModule,
     MatIconModule,
-    MatButtonModule,
     MatDialogModule,
     MatTooltipModule,
+    FbButtonComponent,
+    FbIconComponent,
     FbListComponent,
     FbListItemComponent
   ],
@@ -61,14 +63,14 @@ import {
           <h1 mat-dialog-title>{{ data.title ?? 'Select Item' }}</h1>
         </div>
         <div style="width:50px;padding: 15px 0 0 10px;">
-          <button
+          <fb-button
             #btncancel
-            mat-icon-button
-            aria-label="Cancel selection"
-            (click)="handleClose()"
+            variant="ghost"
+            ariaLabel="Cancel selection"
+            (pressed)="handleClose()"
           >
-            <mat-icon>close</mat-icon>
-          </button>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
+          </fb-button>
         </div>
       </div>
 
@@ -93,7 +95,7 @@ import {
 })
 export class SingleSelectListDialog implements OnInit {
   @ViewChild('btncancel', { static: false })
-  btncancel: ElementRef<HTMLButtonElement> | undefined;
+  btncancel: ElementRef<HTMLElement> | undefined;
 
   constructor(
     private dialogRef: MatDialogRef<SingleSelectListDialog>,

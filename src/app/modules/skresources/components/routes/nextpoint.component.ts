@@ -4,14 +4,16 @@ import {
   output,
   input
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FbIconComponent } from 'src/app/design-system/primitives';
+import {
+  FbButtonComponent,
+  FbIconComponent
+} from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'route-nextpoint',
-  imports: [MatButtonModule, MatTooltipModule, FbIconComponent],
+  imports: [FbButtonComponent, MatTooltipModule, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -20,28 +22,30 @@ import { FbIconComponent } from 'src/app/design-system/primitives';
     >
       <div style="display: flex; flex: auto; flex-wrap: nowrap; width:90px;">
         <div style="flex: auto">
-          <button
+          <fb-button
             class="nav-button"
-            mat-icon-button
+            variant="ghost"
+            ariaLabel="Previous point"
             matTooltip="Previous point"
             matTootipPosition="top"
             [disabled]="!circular() && index() === 0"
-            (click)="changeIndex(-1)"
+            (pressed)="changeIndex(-1)"
           >
             <fb-icon name="skip_previous" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
         <div style="flex: auto">
-          <button
+          <fb-button
             class="nav-button"
-            mat-icon-button
+            variant="ghost"
+            ariaLabel="Next point"
             matTooltip="Next point"
             matTootipPosition="top"
             [disabled]="!circular() && index() >= total() - 1"
-            (click)="changeIndex(1)"
+            (pressed)="changeIndex(1)"
           >
             <fb-icon name="skip_next" ariaLabel=""></fb-icon>
-          </button>
+          </fb-button>
         </div>
       </div>
       <div style="font-family:roboto;line-height: 40px;">

@@ -10,11 +10,12 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CountryFlagComponent } from 'src/app/lib/components/country-flags.component';
 import { AppFacade } from 'src/app/app.facade';
+
+import { FbButtonComponent } from 'src/app/design-system/primitives';
 
 /*********** Popover ***************
 title: string -  title text,
@@ -26,7 +27,7 @@ measure: boolean= measure mode;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    MatButtonModule,
+    FbButtonComponent,
     MatTooltipModule,
     MatIconModule,
     CountryFlagComponent
@@ -63,20 +64,25 @@ measure: boolean= measure mode;
         </div>
         @if (canClose) {
           <div style="">
-            <button mat-icon-button (click)="handleClose()">
+            <fb-button
+              variant="ghost"
+              ariaLabel="Close"
+              (pressed)="handleClose()"
+            >
               <mat-icon>close</mat-icon>
-            </button>
+            </fb-button>
           </div>
         }
         @if (!canClose && navTo) {
           <div style="">
-            <button
-              mat-icon-button
+            <fb-button
+              variant="ghost"
+              ariaLabel="Navigate to here"
               matTooltip="Navigate to here"
-              (click)="handleNavTo()"
+              (pressed)="handleNavTo()"
             >
               <mat-icon>near_me</mat-icon>
-            </button>
+            </fb-button>
           </div>
         }
       </div>
