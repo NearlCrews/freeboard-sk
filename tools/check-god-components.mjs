@@ -14,10 +14,7 @@ const LOC_CEILING = 1500;
 // Grandfathered files: pre-existing god components above the ceiling. Each
 // gets its own decomposition PR in a later phase, listed in
 // MODERNIZATION_ROADMAP.md sections 3 (Phase 3) and 4 (Framework lens).
-const EXCLUDE = new Set([
-  'src/app/modules/skresources/resources.service.ts',
-  'src/app/modules/map/fb-map.component.ts'
-]);
+const EXCLUDE = new Set(['src/app/modules/map/fb-map.component.ts']);
 
 const SKIP_DIRS = new Set(['node_modules', '.angular', 'dist', 'public']);
 

@@ -193,10 +193,7 @@ export class WaypointsCollection {
         if (r?.save) {
           try {
             const w = await this.postOnServer(r.waypoint);
-            // Preserve original behavior: posting a new waypoint added the
-            // returned id to the *routes* selection list. Behaviour kept
-            // as-is for now; flagged for review.
-            if (w.id) this.selections.add('routes', w.id);
+            if (w.id) this.selections.add('waypoints', w.id);
           } catch (err) {
             this.app.parseHttpErrorResponse(err);
           }
