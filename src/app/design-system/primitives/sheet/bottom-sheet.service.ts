@@ -15,10 +15,10 @@ export interface FbBottomSheetConfig<D = unknown> {
 }
 
 /**
- * Wrapper around a CDK Dialog ref that exposes the MatBottomSheet-shaped
- * `afterDismissed` / `dismiss` API. The internal DialogRef is attached
- * lazily by FbBottomSheetService.open after CDK has finished instantiating
- * the opened component, so the wrapper can be provided to the opened
+ * Wrapper around a CDK Dialog ref that exposes an `afterDismissed` /
+ * `dismiss` API. The internal DialogRef is attached lazily by
+ * FbBottomSheetService.open after CDK has finished instantiating the
+ * opened component, so the wrapper can be provided to the opened
  * component via DI without a chicken-and-egg construction order.
  */
 export class FbBottomSheetRef<R = unknown, C = unknown> {
@@ -43,10 +43,10 @@ export class FbBottomSheetRef<R = unknown, C = unknown> {
 }
 
 /**
- * Replaces MatBottomSheet. Opens a component into a CDK Dialog overlay
- * pinned to the bottom edge of the viewport, provides the FbBottomSheetRef
- * wrapper to the opened component's injector, and exposes the
- * FB_BOTTOM_SHEET_DATA token for open-time payload injection.
+ * Opens a component into a CDK Dialog overlay pinned to the bottom edge
+ * of the viewport, provides the FbBottomSheetRef wrapper to the opened
+ * component's injector, and exposes the FB_BOTTOM_SHEET_DATA token for
+ * open-time payload injection.
  */
 @Injectable({ providedIn: 'root' })
 export class FbBottomSheetService {

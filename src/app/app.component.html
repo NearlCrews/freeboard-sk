@@ -114,7 +114,7 @@
           <button
             type="button"
             class="fb-menu-item"
-            (click)="openExperiment({ choice: p, value: null }); close()"
+            (click)="openResourceSet(p); close()"
           >
             <fb-icon
               class="ob"
@@ -353,29 +353,6 @@
           <span>Anchor Watch</span>
         </button>
       }
-      @if (
-        app.config.experiments &&
-        !isInteracting() &&
-        app.featureFlags().radarApi &&
-        radarApi.defaultRadar()
-      ) {
-        <button
-          type="button"
-          class="fb-menu-item"
-          (click)="toggleRadar(); close()"
-        >
-          @if (app.uiCtrl().radarLayer) {
-            <fb-icon
-              class="icon-accent"
-              name="check_box"
-              ariaLabel=""
-            ></fb-icon>
-          } @else {
-            <fb-icon class="ob" svgName="radar-iec" ariaLabel=""></fb-icon>
-          }
-          <span>Radar Overlay</span>
-        </button>
-      }
       <button
         type="button"
         class="fb-menu-item"
@@ -394,7 +371,7 @@
         <span>Resource Sets</span>
       </button>
 
-      @if (features.playbackAPI) {
+      @if (app.featureFlags().playbackApi) {
         <button
           type="button"
           class="fb-menu-item"
@@ -996,8 +973,8 @@
                   (pressed)="toggleToolbarButtons()"
                   [fbTooltip]="
                     app.uiConfig().toolbarButtons
-                      ? 'Hide Toobars'
-                      : 'Show Toobars'
+                      ? 'Hide Toolbars'
+                      : 'Show Toolbars'
                   "
                   fbTooltipPosition="before"
                 ></fb-fab>
@@ -1086,7 +1063,11 @@
                 <!-- Invert colors -->
                 <div class="buttonPanelItem">
                   <fb-fab
-                    [icon]="true ? 'invert_colors' : 'invert_colors_off'"
+                    [icon]="
+                      app.uiConfig().invertColor
+                        ? 'invert_colors'
+                        : 'invert_colors_off'
+                    "
                     ariaLabel="Invert feature text color"
                     [variant]="
                       app.uiConfig().invertColor ? 'primary' : 'secondary'
@@ -1098,15 +1079,6 @@
                   <br />&nbsp;<br />
                 </div>
 
-                <!-- Experiments -->
-                @if (app.config.experiments) {
-                  <div class="buttonPanelItem">
-                    <fb-experiments
-                      (selected)="openExperiment($event)"
-                    ></fb-experiments>
-                    <br />&nbsp;<br />
-                  </div>
-                }
                 <!-- PiP enable -->
                 @if (
                   app.config.resources.video.enable &&

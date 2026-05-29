@@ -75,7 +75,6 @@ import {
   BuildRouteComponent,
   ChartListComponent,
   CourseService,
-  ExperimentsComponent,
   FBCustomResourceService,
   FBMapComponent,
   GroupListComponent,
@@ -116,7 +115,6 @@ import {
   FBMapInteractService,
   SelectionResultDef
 } from './modules/map/fbmap-interact.service';
-import { RadarAPIService } from './modules/radar/radar-api.service';
 import {
   RoutePanel,
   SKResourceType,
@@ -148,7 +146,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     MFBContainerComponent,
     InteractionHelpComponent,
     FBMapComponent,
-    ExperimentsComponent,
     AnchorWatchComponent,
     AlertComponent,
     AlertListComponent,
@@ -227,8 +224,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected playbackTime = signal<string | null>(null);
 
-  // APP features / mode
-  public features = { playbackAPI: true };
   public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME; // current mode
 
   private timers: ReturnType<typeof setInterval>[] = [];
@@ -270,7 +265,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected wakeLock = inject(WakeLockService);
   private settings = inject(SettingsFacade);
   protected autopilot = inject(AutopilotService);
-  protected radarApi = inject(RadarAPIService);
 
   // ----- template-bound signal proxies -----
 
@@ -434,9 +428,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected focusMap() {
     this.shell.focusMap();
   }
-  protected toggleRadar() {
-    this.shell.toggleRadar();
-  }
   protected toggleMoveMap(exit = false) {
     this.shell.toggleMoveMap(exit);
   }
@@ -550,8 +541,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected openCourseSettings() {
     this.dialogs.openCourseSettings();
   }
-  protected openExperiment(e: { choice: string; value?: unknown }) {
-    this.dialogs.openExperiment(e);
+  protected openResourceSet(path: string) {
+    this.dialogs.openResourceSet(path);
   }
   protected featureProperties(e: { id: string; type: string }) {
     this.dialogs.featureProperties(e);
@@ -704,16 +695,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       anchorApi: false,
       autopilotApi: false,
       weatherApi: false,
-      radarApi: false,
       notificationApi: false,
+      playbackApi: false,
       buddyList: false
     };
     this.signalk.get('/signalk/v2/features?enabled=1').subscribe(
       (res: { apis: string[]; plugins: { id: string; version: string }[] }) => {
         ff.weatherApi = res.apis.includes('weather');
         ff.autopilotApi = res.apis.includes('autopilot');
-        ff.radarApi = res.apis.includes('radar');
         ff.notificationApi = res.apis.includes('notifications');
+        ff.playbackApi = res.apis.includes('playback');
 
         const hasPlugin = { charts: false, pmTiles: false };
 
@@ -1419,7 +1410,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     if (parseSemver(String(this.signalk.server.info['version']))?.[0] === 1) {
       this.app.showAlert(
         'Unsupported Server Version:',
-        'The connected Signal K server is not supported by this version of Freeboard-SK.\n Signal K server version 2 or later is required!'
+        'The connected Signal K server is not supported by this version of Open Binnacle.\n Signal K server version 2 or later is required!'
       );
     }
     this.app.alignCustomResourcesPaths();
@@ -1434,9 +1425,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         const selfPos = this.app.data.vessels.self.position;
         this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
-        this.radarApi.listRadars().catch((err: Error) => {
-          this.app.debug(err.message);
-        });
       },
       (err: HttpErrorResponse) => {
         if (err.status && err.status === 401) {

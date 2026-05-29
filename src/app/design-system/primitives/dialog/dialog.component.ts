@@ -23,8 +23,7 @@ import { DialogRef } from '@angular/cdk/dialog';
  * CDK Dialog takes ANY component as its content, and consumers want their
  * own component classes so they can hold their own state, inputs, and
  * outputs. This component is the visual chrome; the consumer's component
- * is the content. That decoupling is what lets `MatDialog` adopters
- * migrate one dialog at a time without rewriting the consuming component.
+ * is the content.
  *
  * A11y posture (CDK Dialog defaults documented at
  * https://material.angular.dev/cdk/dialog):

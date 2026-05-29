@@ -62,10 +62,10 @@ interface ParentMessage {
 // App details
 const FSK: AppInfoDef = {
   id: 'freeboard',
-  name: 'Freeboard-SK',
+  name: 'Open Binnacle',
   description: `Signal K Chart Plotter.`,
   version: '2.23.0',
-  url: 'https://github.com/signalk/freeboard-sk',
+  url: 'https://github.com/NearlCrews/signalk-open-binnacle',
   logo: './assets/img/app_logo.png'
 };
 
@@ -237,8 +237,8 @@ export class AppFacade extends InfoService {
     }
 
     // Cancel the in-flight reachability probe on facade destroy so the
-    // onOffline callback does not fire showAlert -> MatDialog.open after
-    // the injector tears down (NG0205 in TestBed).
+    // onOffline callback does not fire showAlert after the injector
+    // tears down (NG0205 in TestBed).
     const probeAbort = new AbortController();
     inject(DestroyRef).onDestroy(() => probeAbort.abort());
     testForInternet(() => {

@@ -192,8 +192,6 @@ export class Measurements implements OnChanges {
   }
 
   select(prev?: boolean) {
-    console.log(this.index, prev);
-
     if (prev) {
       if (this.index === -1) {
         if (this.coords.length > 2) {

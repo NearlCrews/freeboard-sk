@@ -141,7 +141,7 @@ export const getAlertIcon = (alert: AlertData): AppIconDef => {
       ? 'alarm-acknowledged-iec'
       : alert.silenced
         ? 'alarm-silenced-iec'
-        : 'alarm-acknowledged-iec';
+        : 'alarm-unack-iec';
     return { svgIcon: icon };
   } else {
     const icon = alert.acknowledged

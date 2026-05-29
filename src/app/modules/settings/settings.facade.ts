@@ -84,8 +84,7 @@ export class SettingsOptions {
     fab: new Map([
       ['wpt', 'Waypoint at vessel'],
       ['pob', 'Person Overboard'],
-      ['autopilot', 'Autopilot Console'],
-      ['radar', 'Radar Overlay']
+      ['autopilot', 'Autopilot Console']
     ])
   };
 
@@ -308,7 +307,7 @@ export class SettingsFacade {
 
   /** Populate applications list */
   private getApps() {
-    this.signalk.apps.list().subscribe(
+    this.signalk.listApps().subscribe(
       (a: SKAppsList[]) => {
         this.applicationList = a
           .map((i): AppListEntry | null => {

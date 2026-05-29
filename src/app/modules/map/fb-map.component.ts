@@ -984,7 +984,7 @@ export class FBMapComponent
             if (this.isCoordsArray(c[i][p])) {
               c[i][p] = this.transformCoordsArray(c[i][p]);
             } else {
-              console.log('Invalid polygon coordinates!');
+              console.warn('Invalid polygon coordinates');
             }
           }
         }

@@ -14,9 +14,8 @@ export type FbSwitchRowDensity = 'comfortable' | 'compact';
  * Tier-3 SwitchRow primitive.
  *
  * Full-width labeled row with an optional leading icon, projected label
- * content, and a trailing `fb-switch`. Used as a drop-in replacement for
- * `mat-slide-toggle` rows in lists (AIS targets, charts, alerts) where the
- * toggle owns the row's tap target.
+ * content, and a trailing `fb-switch`. Used in lists (AIS targets, charts,
+ * alerts) where the toggle owns the row's tap target.
  *
  * A11y posture:
  *  - Host is `role="group"` with the optional `ariaLabel`, so the inner

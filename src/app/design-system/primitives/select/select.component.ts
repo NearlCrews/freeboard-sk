@@ -89,9 +89,9 @@ export class FbSelectOptionTemplateDirective {
 /**
  * Tier-2 form Select primitive.
  *
- * Dropdown using CDK Overlay (NOT MatSelect). The trigger is a token-driven
- * button, the menu is a token-driven listbox of options, and selection
- * updates the `value` model (or `values` model when `multiple` is true).
+ * Dropdown using CDK Overlay. The trigger is a token-driven button, the
+ * menu is a token-driven listbox of options, and selection updates the
+ * `value` model (or `values` model when `multiple` is true).
  *
  * Generic over the option-id type so callers can use string or number ids.
  * Default `T = string` keeps existing call sites source-compatible.

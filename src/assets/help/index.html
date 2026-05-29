@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Freeboard | Help</title>
+    <title>Open Binnacle | Help</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <!-- ** Foundation ** -->
@@ -35,7 +35,7 @@
           <div class="name" style="padding-left: 20px">
             <h1>
               <img src="../img/app_logo.png" style="width: 38px" alt="" />
-              Freeboard Help
+              Open Binnacle Help
             </h1>
           </div>
         </div>
@@ -58,7 +58,7 @@
           <li><a href="#alerts">- Alerts</a></li>
           <li><a href="#playback">- Playback</a></li>
           <li><a href="#settings">Settings</a></li>
-          <li><a href="#experiments">- Experiments</a></li>
+          <li><a href="#video">- Video</a></li>
           <li><a href="#parameters">- URL parameters</a></li>
           <li>
             <a href="https://github.com/SignalK/freeboard-sk/" target="_fb">
@@ -70,7 +70,7 @@
       <div class="content-right">
         <div class="panel" id="top">
           <h3>Introduction</h3>
-          Freeboard is an Openlayers based chart plotter that uses Signal K
+          Open Binnacle is an Openlayers based chart plotter that uses Signal K
           communication protocols and Signal K server features to provide the
           following functionality:<br />
           <ul>
@@ -135,7 +135,7 @@
               release.<br />
               Once you have updated Signal K Server to v2.16.0 (or later) you
               can install the weather provider plugin(s) of your choice to
-              continue having weather data available in Freeboard-SK.<br />
+              continue having weather data available in Open Binnacle.<br />
               <b
                 >Note: The <i>signalk-openweather-provider</i> plugin provides
                 equivalent functionality to the deprecated built-in service.</b
@@ -148,7 +148,7 @@
           <h3>Signal K Server</h3>
 
           <b
-            >Note: Freeboard-SK requires the Signal K server to implement the
+            >Note: Open Binnacle requires the Signal K server to implement the
             following APIs:</b
           >
           <ul>
@@ -159,10 +159,10 @@
             <li><b>Autopilot API:</b> to enable autopilot operations</li>
           </ul>
 
-          Freeboard is a "stateless" application which can be used concurrently
+          Open Binnacle is a "stateless" application which can be used concurrently
           at multiple stations to both display and send back information to the
           Signal K server.<br />
-          Therefore Freeboard requires that the host Signal K server be able to
+          Therefore Open Binnacle requires that the host Signal K server be able to
           service requests to the following paths for all functionality to be
           available:<br />
           <ul>
@@ -274,7 +274,7 @@
         <div class="panel" id="display">
           <h4>Display</h4>
 
-          Freeboard provides a moving Vessel / Map display for both your vessel
+          Open Binnacle provides a moving Vessel / Map display for both your vessel
           <img src="../img/ship_red.png" style="height: 30px" alt="" />
           and other vessels
           <img
@@ -398,7 +398,7 @@
                   Show weather forecast data. Weather forecast data from the
                   weather station closest to the vessel location. (Requires
                   Weather API enabled in
-                  <i>Server Admin -> Plugin Config -> Freeboard-SK</i>)
+                  <i>Server Admin -> Plugin Config -> Open Binnacle</i>)
                 </li>
                 <li>
                   Settings: Open the <a href="#settings">Settings</a> screen.
@@ -408,7 +408,7 @@
           </ul>
           <br />
           <b>Right menu bar:</b>
-          Provides access to quick-actions and experiments.
+          Provides access to quick-actions.
           <ul>
             <li class="nobullet">
               <i class="material-icons">av_timer</i>
@@ -448,14 +448,6 @@
               <b>Fullscreen mode:</b>
               Displays application in fullscreen mode.<br />
               <i>Available only on supported devices.</i>
-            </li>
-
-            <li class="nobullet">
-              <i class="material-icons">science</i>
-              <b>Experiments:</b>
-              Provides access to experimental features which are being
-              considered for inclusion into the main application. See
-              <a href="#experiments">experiments</a> for more.<br />
             </li>
 
             <li class="nobullet">
@@ -597,7 +589,7 @@
         <div class="panel" id="navdata">
           <h4>Navigation</h4>
 
-          Freeboard will display course data when received from the server. You
+          Open Binnacle will display course data when received from the server. You
           can set a destination in the following ways:
           <ol>
             <li>
@@ -669,7 +661,7 @@
         <div class="panel" id="autopilot">
           <h4><img src="./img/command-autopilot.svg" /> Autopilot</h4>
 
-          Freeboard-SK supports the Signal K Autopilot API which enables common
+          Open Binnacle supports the Signal K Autopilot API which enables common
           operations to be performed including:
           <ul>
             <li>Engage / Disengage the autopilot</li>
@@ -695,7 +687,7 @@
         <div class="panel" id="resources">
           <h4><i class="material-icons">layers</i> Resources / Layers</h4>
 
-          Freeboard provides Create / Update / Delete (CrUD) functionality for
+          Open Binnacle provides Create / Update / Delete (CrUD) functionality for
           all in-built Signal K resource types:
           <i>routes, waypoints, charts, notes and regions</i>.
           <br />
@@ -767,7 +759,7 @@
           <div style="display: flex; flex-wrap: wrap">
             <div style="padding-left: 15px; background-color: orange">
               <b>Enabling Resource Groups</b><br />
-              Freeboard will try to create a resource collection on the Signal K
+              Open Binnacle will try to create a resource collection on the Signal K
               server to store resource groups. <br />
               <i
                 >Note: this requires that:
@@ -780,7 +772,7 @@
                 </ol>
               </i>
 
-              If Freeboard cannot create the store then you can configure a
+              If Open Binnacle cannot create the store then you can configure a
               <i>groups</i> resource endpoint on the Signal K server.
               <br />
               To do this:
@@ -798,7 +790,7 @@
                 <li>Click <b>Submit</b></li>
               </ul>
               <i
-                >Note: Freeboard-SK will need to be re-loaded to make the
+                >Note: Open Binnacle will need to be re-loaded to make the
                 Resource Groups menu item available.</i
               >
             </div>
@@ -839,7 +831,7 @@
           <div style="display: flex; flex-wrap: wrap">
             <div style="padding-left: 15px; background-color: orange">
               <b>Enabling Overlays</b><br />
-              Freeboard will try to create a resource collection on the Signal K
+              Open Binnacle will try to create a resource collection on the Signal K
               server to store Overlays. <br />
               <i
                 >Note: this requires that:
@@ -852,7 +844,7 @@
                 </ol>
               </i>
 
-              If Freeboard cannot create the store then you can configure a
+              If Open Binnacle cannot create the store then you can configure a
               <i>infolayers</i> resource endpoint on the Signal K server.
               <br />
               To do this:
@@ -870,7 +862,7 @@
                 <li>Click <b>Submit</b></li>
               </ul>
               <i
-                >Note: Freeboard-SK will need to be re-loaded to make the
+                >Note: Open Binnacle will need to be re-loaded to make the
                 Overlays menu item available.</i
               >
             </div>
@@ -1147,7 +1139,7 @@
           <br />&nbsp;
           <div>
             <b>Note Properties:</b><br />
-            Freeboard uses specfic key / value pairs that are defined within the
+            Open Binnacle uses specfic key / value pairs that are defined within the
             <code>properties: {}</code> block of a note: <br />&nbsp;
             <ul>
               <li>
@@ -1156,7 +1148,7 @@
                 scope of where the note is made available.
               </li>
               <li>
-                <b>readOnly</b> <i>(boolean)</i>: Used by Freeboard (when
+                <b>readOnly</b> <i>(boolean)</i>: Used by Open Binnacle (when
                 meta._attr is not available) to determine whther the note is
                 editable.
               </li>
@@ -1173,7 +1165,7 @@
           </li>
           <div>
             <i
-              ><b>Note:</b> Freeboard uses chart information from the
+              ><b>Note:</b> Open Binnacle uses chart information from the
               <i>./resources/charts</i>
               path and requires that the server has a supported plugin installed
               and configured
@@ -1181,7 +1173,7 @@
               available.</i
             >
             <br />&nbsp;<br />
-            Freeboard supports the following chart types:
+            Open Binnacle supports the following chart types:
             <ul>
               <li>
                 <b>Image Tiles:</b> The most popular format for serving maps,
@@ -1202,7 +1194,7 @@
                   applied to color lines and fill polygons. </i
                 ><br />
                 <b>S57 ENC converted to vector tiles:</b>
-                Freeboard-SK is able to display S57 ENC charts that have been
+                Open Binnacle is able to display S57 ENC charts that have been
                 converted to vector tiles with
                 <a href="https://github.com/wdantuma/s57-tiler" target="s57"
                   >s57-tiler</a
@@ -1257,7 +1249,7 @@
                   <a
                     href="https://github.com/SignalK/freeboard-sk/wiki/Chart-Sources"
                   >
-                    Freeboard-SK Wiki
+                    Open Binnacle Wiki
                   </a>
                   for more details.
                 </li>
@@ -1289,7 +1281,7 @@
                   <b>Display Chart:</b> Check the checkbox to display the chart.
                 </li>
               </ul>
-              Freeboard by default will display:
+              Open Binnacle by default will display:
               <ul>
                 <li>OpenStreetMap</li>
                 <li>OpenSeaMap</li>
@@ -1484,7 +1476,7 @@
               specify Signal K resource properties such as <i>name</i> or
               <i>description</i>.<br />
               <i
-                >Check out the Freeboard
+                >Check out the Open Binnacle
                 <a
                   target="_blank"
                   href="https://github.com/SignalK/freeboard-sk/wiki"
@@ -1606,7 +1598,7 @@
 
         <div class="panel" id="resourceset">
           <h4><i class="material-icons">upload</i>Resource Set</h4>
-          Freeboard allows you to upload resource data stored in files to
+          Open Binnacle allows you to upload resource data stored in files to
           `non-standard` resource paths that accept `PUT` or `POST` requests.
           <br />&nbsp;<br />
           To upload data:
@@ -1631,7 +1623,7 @@
             <b
               >Important:
               <i
-                >Freeboard does not attempt to validate the file contents in any
+                >Open Binnacle does not attempt to validate the file contents in any
                 way so please ensure you are uploading appropirate content for
                 the selected destination.
               </i></b
@@ -1644,7 +1636,7 @@
         <div class="panel" id="anchor">
           <h4><i class="material-icons">anchor</i> Anchor Watch</h4>
 
-          Freeboard integrates with the <i>signalk-anchor-alarm</i> plugin to
+          Open Binnacle integrates with the <i>signalk-anchor-alarm</i> plugin to
           facilitate the setting of an anchor watch alarm.
           <div>
             Select the <i class="material-icons">anchor</i>
@@ -1788,7 +1780,7 @@
         <div class="panel" id="alerts">
           <h4><i class="material-icons">warning</i> Alerts &amp; Alarms</h4>
 
-          Freeboard will display Alerts and also provides the ability to raise
+          Open Binnacle will display Alerts and also provides the ability to raise
           alarms.
           <br />
           When notifications are received, they are actioned as alerts based on
@@ -1822,7 +1814,7 @@
           An alarm request will be sent to the Signal K server which will emit a
           notification which clients will receive. <br />
 
-          Freeboard allows alerts to be <i>Acknowledged</i> and / or
+          Open Binnacle allows alerts to be <i>Acknowledged</i> and / or
           <i>Silenced</i>.
           <ul>
             <li>
@@ -1846,7 +1838,7 @@
         <div class="panel" id="aistargets">
           <h4>Vessels</h4>
 
-          Freeboard displays vessels with the following icons:
+          Open Binnacle displays vessels with the following icons:
           <div style="display: flex">
             <div style="width: 30px; text-align: center">
               <img src="../img/ship_red.png" style="width: 12px" alt="" />
@@ -1976,7 +1968,7 @@
             <div>Other <i>(AIS type 90-99)</i></div>
           </div>
 
-          Freeboard provides the ability to de-clutter the screen of vessels in
+          Open Binnacle provides the ability to de-clutter the screen of vessels in
           the following ways:
           <ul>
             <li>Show / Hide Vessels layer on the map</li>
@@ -2060,7 +2052,7 @@
                   <b>Display Vessel:</b> Tick the checkbox to display the vessel
                   on the map.
                 </li>
-                <i>Freeboard by default will display all vessels</i
+                <i>Open Binnacle by default will display all vessels</i
                 ><br />
                 <li>
                   <i class="material-icons">info</i>
@@ -2099,7 +2091,7 @@
         <div class="panel" id="playback">
           <h4>Playback History</h4>
 
-          Freeboard provides the ability to request historical data playback
+          Open Binnacle provides the ability to request historical data playback
           from the server. <br />
           <b
             >Note: Selecting this option from the menu disconnects the realtime
@@ -2160,7 +2152,7 @@
         <div class="panel" id="settings">
           <h4><i class="material-icons">settings</i> Settings</h4>
 
-          The Settings screen is where you can configure Freeboard and it
+          The Settings screen is where you can configure Open Binnacle and it
           consists of the following sections:
           <br />&nbsp;<br />
 
@@ -2172,7 +2164,7 @@
               theme (Light or Dark).<br />
               <ul>
                 <li>
-                  <b>Use OS Setting</b> - Selecting this option tells Freeboard
+                  <b>Use OS Setting</b> - Selecting this option tells Open Binnacle
                   follow the preferred display mode set by the hosting
                   system.<br />
                   Note: This uses the <i>prefers-color-scheme</i>
@@ -2292,12 +2284,12 @@
           <br />
           <b>Prefer True / Magnetic values</b>: <i>True</i> / <i>Magnetic</i
           ><br />
-          Instructs Freeboard to use either the True or Magnetic value path for
+          Instructs Open Binnacle to use either the True or Magnetic value path for
           paths that are not listed in <i>Preferred Paths</i>.
           <i>(Defaults to True)</i><br />
           <i
             >Note: If the selected path type is not within the received data
-            stream NO value will be displayed. Freeboard will NOT fallback to
+            stream NO value will be displayed. Open Binnacle will NOT fallback to
             other available path values!
           </i>
           <br />
@@ -2450,7 +2442,7 @@
             <li>
               <b>Display Vessel Trail</b>: Check this box if you want to display
               the vessel trail.<br />
-              By default Freeboard will display the vessel trail using a local
+              By default Open Binnacle will display the vessel trail using a local
               cache maintaining up to 5000 points at a 5 second interval.
               <ul>
                 <li>
@@ -2586,10 +2578,10 @@
 
           <span id="resourcepaths"></span>
           <b>Layers:</b><br />
-          Freeboard provides the ability display feature data contained in
+          Open Binnacle provides the ability display feature data contained in
           compliant JSON format layers on the map. The available resource paths
           are listed in this section and can be selected to enable them for use
-          with Freeboard.<br />
+          with Open Binnacle.<br />
 
           <i
             >Note: This functionality requires that you have configured the
@@ -2621,9 +2613,9 @@
           </ul>
 
           <h5>Tracks:</h5>
-          The Track data structure supported by Freeboard is generated via the
+          The Track data structure supported by Open Binnacle is generated via the
           <b>Load from GPX</b> functionality.<br />
-          What Freeboard requires is that the
+          What Open Binnacle requires is that the
           <i>/signalk/v2/api/resources/tracks</i> path is available from which
           to write and retrieve track data.<br />
           This requires the following action:
@@ -2647,7 +2639,7 @@
           </ul>
           &nbsp;<br />
 
-          Data from all other resource paths that you enable in Freeboard
+          Data from all other resource paths that you enable in Open Binnacle
           Settings will be treated as ResourceSets.<br />
 
           ResourceSets are a non-standard Signal K resource format that can be
@@ -2670,7 +2662,7 @@
             <a
               target="_blank"
               href="https://github.com/SignalK/freeboard-sk/wiki"
-              >Freeboard Wiki</a
+              >Open Binnacle Wiki</a
             >
             for more details regarding the file format.</i
           >
@@ -2734,22 +2726,8 @@
 
           <hr />
 
-          <b id="experiments">EXPERIMENTS:</b><br />
-          New features being assessed / tested for inclusion in Freeboard are
-          referred to as <b>Experiments</b>.<br />
-          To try out these features you will need to check the
-          <b>Experimental Features</b> option in <i>Settings</i>.
-          <br />&nbsp;<br />
-
-          Once enabled, you can access these features via the
-          <i class="material-icons">science</i> button. <br />&nbsp;<br />
-
-          <i>Note:</i> Some experiments will require configuration settings to
-          be made in the Signal K server Admin console under
-          <b>Plugin Config -> Freeboard-SK</b>.
-
-          <b>VIDEO</b><br />
-          Freeboard provides the ability to utilise the "Picture in Picture" (or
+          <b id="video">VIDEO</b><br />
+          Open Binnacle provides the ability to utilise the "Picture in Picture" (or
           PiP) feature in supported browsers to display a video stream from a
           source such as a video camera, etc.
 
@@ -2789,28 +2767,28 @@
             values will used to override stored configuration at start up.
           </p>
           <p>
-            Example: Start Freeboard-SK at zoom level to 15. <br />
+            Example: Start Open Binnacle at zoom level to 15. <br />
             <i>http://server:3000/@signalk/freeboard-sk?zoom=15</i>
           </p>
           <p>
-            Example: Start Freeboard-SK in North up mode. <br />
+            Example: Start Open Binnacle in North up mode. <br />
             <i>http://server:3000/@signalk/freeboard-sk?northup=1</i><br />
             or<br />
             <i>http://server:3000/@signalk/freeboard-sk?northup</i>
           </p>
           <p>
-            Example: Start Freeboard-SK in heading up mode. <br />
+            Example: Start Open Binnacle in heading up mode. <br />
             <i>http://server:3000/@signalk/freeboard-sk?northup=0</i>
           </p>
           <p>
-            Example: Start Freeboard-SK in moving map mode (keep vessel
+            Example: Start Open Binnacle in moving map mode (keep vessel
             centered). <br />
             <i>http://server:3000/@signalk/freeboard-sk?movemap=1</i><br />
             or<br />
             <i>http://server:3000/@signalk/freeboard-sk?movemap</i>
           </p>
           <p>
-            Example: Start Freeboard-SK with moving map mode turned off. <br />
+            Example: Start Open Binnacle with moving map mode turned off. <br />
             <i>http://server:3000/@signalk/freeboard-sk?movemap=0</i>
           </p>
           <p>

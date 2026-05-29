@@ -14,7 +14,7 @@ import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
-import { AddTargetPipe } from './safe.pipe';
+import { AddTargetPipe } from './add-target.pipe';
 
 import {
   FbButtonComponent,

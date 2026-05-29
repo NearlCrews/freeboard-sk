@@ -23,7 +23,6 @@ import type { Observable } from 'rxjs';
 
 import { Message } from './message';
 import { Path } from './path';
-import { SignalKApps } from './signalk-apps.service';
 import { SignalKHttp } from './signalk-http.service';
 import { SignalKStream } from './signalk-stream.service';
 import { APPDATA_CONTEXT } from './types';
@@ -49,7 +48,6 @@ interface LoginStatus {
 @Injectable({ providedIn: 'root' })
 export class SignalKClient implements OnDestroy {
   private readonly http = inject(HttpClient);
-  readonly apps = inject(SignalKApps);
   readonly api = inject(SignalKHttp);
   readonly stream = inject(SignalKStream);
 
@@ -321,12 +319,19 @@ export class SignalKClient implements OnDestroy {
       : [];
     this.debug(this.server.endpoints);
     this.api.server = this.server.info;
-    this.apps.endpoint = this.resolveAppsEndpoint();
   }
 
   // Return Signal K apps API URL.
   private resolveAppsEndpoint(): string {
     return this.resolveHttpEndpoint().replace('api', 'apps');
+  }
+
+  // Return list of installed Signal K apps.
+
+  listApps(): Observable<any> {
+    const base = this.resolveAppsEndpoint();
+    const ep = base.includes('webapps') ? base : `${base}list`;
+    return this.http.get(ep);
   }
 
   // Return preferred WS stream URL.

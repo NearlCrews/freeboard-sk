@@ -1,8 +1,7 @@
 /* App theme rules built on the OKLCH design tokens declared in tokens.css.
-   No @angular/material imports: every color, background, and surface
-   reference resolves through CSS custom properties that re-theme
-   automatically when the [data-theme] attribute or .dark-theme class
-   flips on the body. */
+   Every color, background, and surface reference resolves through CSS
+   custom properties that re-theme automatically when the [data-theme]
+   attribute or .dark-theme class flips on the body. */
 
 html {
   ::-webkit-scrollbar {
@@ -179,9 +178,7 @@ html {
 
 /* fb-dialog directive styling.
    These classes are applied by [fbDialogTitle], [fbDialogContent], and
-   [fbDialogActions] directives. They mirror the visual surface that
-   mat-dialog-content / mat-dialog-actions / mat-dialog-title used to
-   provide so the consumer markup did not need to learn new metrics. */
+   [fbDialogActions] directives. */
 .fb-dialog-title {
   display: block;
   margin: 0 0 var(--space-md);
@@ -221,9 +218,7 @@ html {
   justify-content: flex-end;
 }
 
-/* fb-app-background: replaces the mat-app-background utility class that
-   Material applied via its theme. Surfaces that previously inherited
-   Material's "app background" semantic land on the OKLCH surface token. */
+/* fb-app-background: app-level surface background. */
 .fb-app-background {
   background-color: var(--color-surface);
   color: var(--color-text);

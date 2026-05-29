@@ -20,7 +20,7 @@ export * from './stream';
 
 export type ErrorList = { status: number; message: string }[];
 
-export type MFBAction = 'wpt' | 'pob' | 'autopilot' | 'radar';
+export type MFBAction = 'wpt' | 'pob' | 'autopilot';
 
 export interface SKApiResponse {
   state: 'FAILED' | 'COMPLETED' | 'PENDING';
@@ -193,7 +193,6 @@ export interface IAppConfig {
     maxRadius: number; // max radius within which AIS targets are displayed
     proxied: boolean; // server behind a proxy server
   };
-  experiments: boolean;
   anchor: {
     radius: number; // most recent anchor radius setting
     setRadius: boolean; // checks inital anchor radius setting

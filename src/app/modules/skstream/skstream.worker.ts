@@ -11,7 +11,6 @@
  *   - signalk-delta-processor.ts: WebSocket lifecycle, delta parsing,
  *     vessel / aircraft / aton / sar / meteo object assembly, watchdog timer.
  *   - vessel-trail.fetcher.ts: `/self/track` fetch and segmentation.
- * Per-path delta caching is handled by src/lib/signalk-store (Batch 2).
  *
  * Constraints (per CLAUDE.md):
  *   - Import-light: no OpenLayers, no Angular DI.

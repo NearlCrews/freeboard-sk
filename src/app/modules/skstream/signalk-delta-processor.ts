@@ -8,8 +8,6 @@
  * Off-thread concerns left in the slim worker:
  *   - SimplifyAP autopilot path optimisation.
  *   - Deterministic AIS target TTL eviction (AisExpiryTracker).
- *
- * Per-path delta caching is the job of src/lib/signalk-store (Batch 2).
  */
 
 import { Subject, Subscription } from 'rxjs';

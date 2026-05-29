@@ -82,11 +82,10 @@
 }
 
 /* Touch-target floor (WCAG 2.5.5 / Apple HIG, --touch-secondary = 44px).
-   Material's mat-mini-fab and mat-icon-button default to 40px which is
-   below the floor. Height-only on the dial buttons because their X
-   positions sit inside fixed-width gutters on the autopilot.png raster;
-   a min-width would push them off the dial geometry. The close icon at
-   the top has free space and can take the square floor. */
+   Height-only on the dial buttons because their X positions sit inside
+   fixed-width gutters on the autopilot.png raster; a min-width would
+   push them off the dial geometry. The close icon at the top has free
+   space and can take the square floor. */
 .autopilot-console .title .icon-warn {
   min-width: var(--touch-secondary);
   min-height: var(--touch-secondary);
@@ -95,10 +94,9 @@
   justify-content: center;
 }
 
-/* Native button wrapper for the close icon. Previously a bare <mat-icon
-   (click)>, which axe flags under the keyboard rule (no focus, no
-   Enter/Space). Reset chrome so the icon renders identically on the
-   raster while staying focusable and operable from the keyboard. */
+/* Native button wrapper for the close icon. Reset chrome so the icon
+   renders identically on the raster while staying focusable and
+   operable from the keyboard. */
 .autopilot-console .title .close-btn {
   background: transparent;
   border: 0;

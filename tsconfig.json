@@ -19,9 +19,7 @@
     "module": "ES2022",
     "baseUrl": "./",
     "sourceMap": true,
-    "declaration": false,
-    "typeRoots": ["node_modules/@types"],
-    "paths": {}
+    "declaration": false
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

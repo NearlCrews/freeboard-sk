@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "freeboard-sk": {
+    "signalk-open-binnacle": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -85,14 +85,14 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "buildTarget": "freeboard-sk:build"
+            "buildTarget": "signalk-open-binnacle:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "freeboard-sk:build:production"
+              "buildTarget": "signalk-open-binnacle:build:production"
             },
             "development": {
-              "buildTarget": "freeboard-sk:build:development"
+              "buildTarget": "signalk-open-binnacle:build:development"
             }
           },
           "defaultConfiguration": "development"

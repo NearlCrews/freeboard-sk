@@ -5,7 +5,6 @@ import {
   Component,
   inject,
   signal,
-  computed,
   effect
 } from '@angular/core';
 
@@ -46,6 +45,7 @@ import { defaultConfig } from 'src/app/app.config';
 import { S57Service } from '../../map/ol';
 import { AppFacade } from 'src/app/app.facade';
 import { SettingsStore } from 'src/app/stores';
+import type { MFBAction } from 'src/app/types';
 import type { TARGET_UNIT } from 'src/app/lib/convert';
 import { Convert } from 'src/app/lib/convert';
 
@@ -97,34 +97,15 @@ export class SettingsDialog implements OnInit {
 
   protected readonly activeSection = signal<string>('display');
 
-  private static readonly BASE_SECTIONS: readonly SettingsSection[] = [
+  protected readonly visibleSections: readonly SettingsSection[] = [
     { id: 'display', label: 'Display' },
     { id: 'units', label: 'Units' },
     { id: 'map', label: 'Map' },
     { id: 'course', label: 'Course' },
     { id: 'vessels', label: 'Vessels' },
     { id: 'resources', label: 'Resources' },
-    { id: 'signalk', label: 'Signal K' },
-    { id: 'experiments', label: 'Experiments' }
+    { id: 'signalk', label: 'Signal K' }
   ];
-
-  protected readonly visibleSections = computed<readonly SettingsSection[]>(
-    () => {
-      const radarOn =
-        this.app.config.experiments && this.app.featureFlags().radarApi;
-      if (!radarOn) {
-        return SettingsDialog.BASE_SECTIONS;
-      }
-      const idx = SettingsDialog.BASE_SECTIONS.findIndex(
-        (s) => s.id === 'signalk'
-      );
-      return [
-        ...SettingsDialog.BASE_SECTIONS.slice(0, idx + 1),
-        { id: 'radar', label: 'Radar' },
-        ...SettingsDialog.BASE_SECTIONS.slice(idx + 1)
-      ];
-    }
-  );
 
   protected onSectionChange(id: string): void {
     this.activeSection.set(id);
@@ -459,6 +440,15 @@ export class SettingsDialog implements OnInit {
     this.persistModel('videoUrl');
   }
 
+  protected get webglAISThresholdValue(): number | null {
+    return this.facade.settings.ui.webglAISThreshold ?? null;
+  }
+  protected set webglAISThresholdValue(v: number | null) {
+    if (v === null || Number.isNaN(v)) return;
+    this.facade.settings.ui.webglAISThreshold = v;
+    this.persistModel();
+  }
+
   // Trail duration is numeric in storage. fb-slider models number directly.
   protected onTrailDuration(value: number): void {
     this.facade.settings.vessels.trailDuration = value;
@@ -469,11 +459,7 @@ export class SettingsDialog implements OnInit {
   // fb-select's generic `string | null` model() without losing strict types.
   protected onFab(v: string | null): void {
     if (v === null) return;
-    this.facade.settings.display.fab = v as
-      | 'wpt'
-      | 'pob'
-      | 'autopilot'
-      | 'radar';
+    this.facade.settings.display.fab = v as MFBAction;
     this.persistModel();
   }
 

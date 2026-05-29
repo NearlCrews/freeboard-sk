@@ -1,11 +1,9 @@
 allowBuilds:
   '@parcel/watcher': true
-  '@sentry/cli': true
   esbuild: true
   lmdb: false
   msgpackr-extract: false
   puppeteer: false
   simple-git-hooks: true
 minimumReleaseAgeExclude:
-  - '@testing-library/angular@19.3.0'
   - dependency-cruiser@17.4.2

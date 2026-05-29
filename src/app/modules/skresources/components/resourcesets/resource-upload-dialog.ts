@@ -110,8 +110,8 @@ export class ResourceImportDialog implements OnInit {
     try {
       const jdata = JSON.parse(e.data);
       this.source.type = jdata.type ? jdata.type : this.source.type;
-    } catch (error) {
-      console.log(`Error parsing resource file!`);
+    } catch {
+      console.warn('Error parsing resource file');
     }
   }
 }

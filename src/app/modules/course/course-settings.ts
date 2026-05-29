@@ -271,7 +271,6 @@ export class CourseSettingsModal implements OnInit {
     this.signalk.api
       .get(this.app.skApiVersion, 'vessels/self/navigation/course')
       .subscribe((val: CoursePutResponse) => {
-        console.log(val.targetArrivalTime);
         if (val.targetArrivalTime) {
           this.targetArrivalEnabled = true;
           const dt = new Date(val.targetArrivalTime);
@@ -375,18 +374,15 @@ export class CourseSettingsModal implements OnInit {
             value: atime
           }
         )
-        .subscribe(
-          () => {
-            console.log('targetArrivalTime = ', atime);
-          },
-          (error: HttpErrorResponse) => {
+        .subscribe({
+          error: (error: HttpErrorResponse) => {
             let msg = `Error setting target arrival time!\n`;
             if (error.status === 403) {
               msg += 'Unauthorised: Please login.';
             }
             this.app.showAlert(`Error (${error.status}):`, msg);
           }
-        );
+        });
     }
   }
 

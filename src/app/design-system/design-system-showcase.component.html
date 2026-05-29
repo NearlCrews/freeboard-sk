@@ -1,6 +1,6 @@
 <main class="ds-shell" [attr.data-theme]="theme()">
   <header class="ds-header">
-    <h1 class="ds-title">freeboard-sk design system</h1>
+    <h1 class="ds-title">Open Binnacle design system</h1>
     <p class="ds-subtitle">
       Tier-1 primitives, theme-switchable, a11y-checked, and token-driven (no
       hardcoded colors or sizes).
@@ -154,54 +154,6 @@
     </div>
   </section>
 
-  <section class="ds-section" aria-labelledby="ds-snack-heading">
-    <h2 id="ds-snack-heading" class="ds-section__heading">Snackbar</h2>
-    <p class="ds-section__a11y">
-      A11y: <code>role="status"</code> with polite live region for info and
-      success; <code>role="alert"</code> with assertive live region for warn and
-      error. Default duration is 4 s, error uses 7 s so the user has time to
-      read.
-    </p>
-    <div class="ds-grid">
-      <fb-button variant="secondary" (pressed)="openSnackbar('info')">
-        Info
-      </fb-button>
-      <fb-button variant="secondary" (pressed)="openSnackbar('success')">
-        Success
-      </fb-button>
-      <fb-button variant="secondary" (pressed)="openSnackbar('warn')">
-        Warn
-      </fb-button>
-      <fb-button variant="danger" (pressed)="openSnackbar('error')">
-        Error
-      </fb-button>
-      <span class="ds-result" aria-live="polite">
-        Last outcome: {{ lastSnackbarResult() || '(none yet)' }}
-      </span>
-    </div>
-  </section>
-
-  <section class="ds-section" aria-labelledby="ds-sidenav-heading">
-    <h2 id="ds-sidenav-heading" class="ds-section__heading">Sidenav</h2>
-    <p class="ds-section__a11y">
-      A11y: CDK Dialog under the hood, so focus trap, escape-to-close, and focus
-      restore are inherited. The host carries
-      <code>role="dialog"</code> and <code>aria-modal="true"</code>. Slide-in
-      animation drops under prefers-reduced-motion.
-    </p>
-    <div class="ds-grid">
-      <fb-button variant="secondary" (pressed)="openSidenav('left')">
-        Open left
-      </fb-button>
-      <fb-button variant="secondary" (pressed)="openSidenav('right')">
-        Open right
-      </fb-button>
-      <span class="ds-result" aria-live="polite">
-        Opened: {{ sidenavOpenCount() }}
-      </span>
-    </div>
-  </section>
-
   <section class="ds-section" aria-labelledby="ds-dlg-heading">
     <h2 id="ds-dlg-heading" class="ds-section__heading">Dialog</h2>
     <p class="ds-section__a11y">
@@ -216,23 +168,6 @@
       </fb-button>
       <span class="ds-result" aria-live="polite">
         Last result: {{ lastDialogResult() || '(none yet)' }}
-      </span>
-    </div>
-  </section>
-
-  <section class="ds-section" aria-labelledby="ds-sht-heading">
-    <h2 id="ds-sht-heading" class="ds-section__heading">Sheet</h2>
-    <p class="ds-section__a11y">
-      A11y: bottom-anchored CDK overlay with the same focus-trap, escape, and
-      restore guarantees as Dialog. Drag handle is aria-hidden. Slide-up
-      animation is disabled under prefers-reduced-motion.
-    </p>
-    <div class="ds-grid">
-      <fb-button variant="secondary" (pressed)="openSheet()">
-        Open sheet
-      </fb-button>
-      <span class="ds-result" aria-live="polite">
-        Opened: {{ sheetOpenCount() }}
       </span>
     </div>
   </section>

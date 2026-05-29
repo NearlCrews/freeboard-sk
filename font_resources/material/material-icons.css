@@ -1,11 +1,9 @@
 /*
- * Material icon font for freeboard-sk.
+ * Material Symbols icon font for Open Binnacle.
  *
  * Backed by the Material Symbols Outlined variable font, subsetted to only
  * the ~110 glyphs the app actually uses (see ./material-symbols-subset.woff2
- * and ./build-subset.mjs). Class name stays `.material-icons` so existing
- * <mat-icon> templates (which default to that class via @angular/material)
- * keep working without per-template changes.
+ * and ./build-subset.mjs).
  *
  * To regenerate the subset after icon usage changes:
  *   node font_resources/material/build-subset.mjs

@@ -113,11 +113,11 @@ describe('DialogOrchestrator', () => {
     expect(bs.open).not.toHaveBeenCalled();
   });
 
-  it('openExperiment skips unknown choices', () => {
+  it('openResourceSet skips unknown paths', () => {
     const bs = TestBed.inject(FbBottomSheetService) as unknown as {
       open: ReturnType<typeof vi.fn>;
     };
-    svc.openExperiment({ choice: 'unknown-experiment' });
+    svc.openResourceSet('unknown-path');
     expect(bs.open).not.toHaveBeenCalled();
   });
 });

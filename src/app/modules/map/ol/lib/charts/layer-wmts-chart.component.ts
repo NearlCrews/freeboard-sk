@@ -70,7 +70,7 @@ export class WmtsChartLayerComponent implements OnDestroy {
         const url = `${chart[1].url}`;
         this.capabilities = await this.wmtsCache.getCapabilities(url);
       } catch (err) {
-        console.log(err);
+        console.warn(err);
         return;
       }
     }

@@ -112,9 +112,7 @@ export class FreeboardLiveLayerComponent
   /** Process Refresh Timer tick */
   private onTimerTick() {
     const n = Date.now();
-    //console.log('InfoLayer timer tick...', n);
     this.layerMap.forEach((v) => {
-      //console.log(k, v.infoLayer.values.refreshInterval, v.lastRefresh, n - v.lastRefresh)
       const refreshInterval = v.infoLayer.values?.refreshInterval;
       if (
         typeof refreshInterval === 'number' &&

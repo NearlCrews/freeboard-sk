@@ -4,12 +4,10 @@ import { Observable, of, shareReplay } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 /**
- * Tiny in-house SVG registry used by fb-icon's svgName input. Replaces
- * the MatIconRegistry plumbing we used to lean on, without dragging in
- * the rest of @angular/material. Consumers register a logical name and
- * a URL; getNamedSvgIcon fetches once, parses to an SVGElement, caches
- * the parsed node, and replays it to every subscriber so repeated icon
- * renders share a single network round-trip.
+ * Tiny in-house SVG registry used by fb-icon's svgName input. Consumers
+ * register a logical name and a URL; getNamedSvgIcon fetches once, parses
+ * to an SVGElement, caches the parsed node, and replays it to every
+ * subscriber so repeated icon renders share a single network round-trip.
  */
 @Injectable({ providedIn: 'root' })
 export class FbIconRegistry {

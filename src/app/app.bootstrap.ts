@@ -72,8 +72,8 @@ export function isTopWindow(): boolean {
  *
  * Accepts an optional AbortSignal so the caller can cancel the pending
  * fetch on its own teardown. In tests this prevents the onOffline
- * callback from firing showAlert -> MatDialog.open after TestBed has
- * destroyed the root injector (NG0205).
+ * callback from firing showAlert after TestBed has destroyed the root
+ * injector (NG0205).
  */
 export function testForInternet(
   onOffline: () => void,

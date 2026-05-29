@@ -18,8 +18,6 @@ export interface UiCtrlState {
   alertList: boolean;
   /** display AutopilotConsole */
   autopilotConsole: boolean;
-  /** display Radar map Layer */
-  radarLayer: boolean;
   /** display BuildRoute */
   routeBuilder: boolean;
   /** prevent display of context menu */
@@ -56,8 +54,8 @@ export interface FeatureFlagsState {
   anchorApi: boolean;
   autopilotApi: boolean;
   weatherApi: boolean;
-  radarApi: boolean;
   notificationApi: boolean;
+  playbackApi: boolean;
   /** ability to store resource groups */
   resourceGroups: boolean;
   /** ability to store track resources */
@@ -112,7 +110,6 @@ export class SettingsStore {
   readonly uiCtrl = signal<UiCtrlState>({
     alertList: false,
     autopilotConsole: false,
-    radarLayer: false,
     routeBuilder: false,
     suppressContextMenu: false,
     forceNightMode: false
@@ -123,8 +120,8 @@ export class SettingsStore {
     anchorApi: true,
     autopilotApi: false,
     weatherApi: false,
-    radarApi: false,
     notificationApi: false,
+    playbackApi: false,
     resourceGroups: false,
     resourceTracks: false,
     infoLayers: false,

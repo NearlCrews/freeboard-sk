@@ -1,12 +1,7 @@
-.browserslistrc
-.eslintrc
-.eslintignore
 .gitignore
 .prettierrc
 angular.json
-package-lock.json
 package.json
-projects
 src
 helper
 font_resources
@@ -15,9 +10,6 @@ tsconfig.app.json
 tsconfig-helper.json
 tsconfig.spec.json
 tsconfig.worker.json
-vitest-base.config.ts
-vitest-setup.js
-webpack.config.js
 CHANGELOG.md
 .angular
 .github

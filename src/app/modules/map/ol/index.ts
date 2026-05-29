@@ -51,7 +51,6 @@ import { TileJsonChartLayerComponent } from './lib/charts/layer-tilejson-chart.c
 import { MapStyleJsonChartLayerComponent } from './lib/charts/layer-mapstylejson-chart.component';
 import { S57ChartLayerComponent } from './lib/charts/layer-s57-chart.component';
 import { ChartBoundsLayerComponent } from './lib/charts/layer-chart-bounds.component';
-import { RadarComponent } from './lib/radar/layer-radar.component';
 import { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.component';
 
 export * from './lib/util';
@@ -108,8 +107,6 @@ export { TileJsonChartLayerComponent } from './lib/charts/layer-tilejson-chart.c
 export { MapStyleJsonChartLayerComponent } from './lib/charts/layer-mapstylejson-chart.component';
 export { S57ChartLayerComponent } from './lib/charts/layer-s57-chart.component';
 export { ChartBoundsLayerComponent } from './lib/charts/layer-chart-bounds.component';
-export { RadarComponent } from './lib/radar/layer-radar.component';
-export { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.component';
 
 const declarations = [
   ContentComponent,
@@ -152,7 +149,6 @@ const declarations = [
   RangeCirclesComponent,
   CogLineComponent,
   WindLinesComponent,
-  RadarComponent,
   RasterChartLayerComponent,
   VectorChartLayerComponent,
   WmsChartLayerComponent,
@@ -172,6 +168,5 @@ export class FreeboardOpenlayersModule {}
 
 // Re-export Phase 4b additions so they enter the TS program graph
 // and consumers can import via the ol barrel.
-export * from './lib/adapter';
 export * from './lib/theme';
 export * from './lib/webgl';

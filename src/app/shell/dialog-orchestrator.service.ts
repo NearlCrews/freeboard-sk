@@ -85,7 +85,8 @@ export class DialogOrchestrator {
           version: this.app.version,
           description: this.app.description,
           logo: this.app.logo,
-          url: this.app.url
+          url: this.app.url,
+          captureDebug: () => this.captureDebugToClipboard()
         }
       })
       .closed.subscribe(() => this.focus());
@@ -398,20 +399,17 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  openExperiment(e: { choice: string; value?: unknown }): void {
-    if (e.choice === 'debugCapture') {
-      this.captureDebugToClipboard();
+  openResourceSet(path: string): void {
+    if (!this.app.config.resources.paths.includes(path)) {
       return;
     }
-    if (this.app.config.resources.paths.includes(e.choice)) {
-      this.bottomSheet
-        .open(ResourceSetModal, {
-          disableClose: true,
-          data: { path: e.choice }
-        })
-        .afterDismissed()
-        .subscribe(() => this.focus());
-    }
+    this.bottomSheet
+      .open(ResourceSetModal, {
+        disableClose: true,
+        data: { path }
+      })
+      .afterDismissed()
+      .subscribe(() => this.focus());
   }
 
   private captureDebugToClipboard(): void {
@@ -419,7 +417,7 @@ export class DialogOrchestrator {
       navigator.clipboard.writeText(
         JSON.stringify({ data: this.app.data, config: this.app.config })
       );
-      this.app.showMessage('Debug data catpured to clipboard.');
+      this.app.showMessage('Debug data captured to clipboard.');
     } else {
       this.alarm.showAlert(
         'Feature Unavailable',

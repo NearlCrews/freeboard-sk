@@ -4,7 +4,6 @@
 import { isDevMode } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
-import { State } from './state.service';
 import { parseSemver } from '../semver';
 import { IAppConfig, FBAppData } from '../../types';
 
@@ -38,15 +37,21 @@ export class InfoService {
   protected suppressPersist = false;
 
   private id = '';
-  private state: State;
+  private ls: Storage | null = null;
 
   // Observables
   private configEvent: Subject<ConfigEvent> = new Subject<ConfigEvent>();
   public config$: Observable<ConfigEvent> = this.configEvent.asObservable();
 
   constructor(infoDef: AppInfoDef) {
-    this.state = new State();
     this.devMode = isDevMode();
+    try {
+      if ('localStorage' in window && window.localStorage !== null) {
+        this.ls = window.localStorage;
+      }
+    } catch {
+      console.warn('window.localStorage is not supported by this browser!');
+    }
 
     this.id = infoDef.id ?? '_';
     this.name = infoDef.name ?? '';
@@ -54,7 +59,6 @@ export class InfoService {
     this.version = infoDef.version ?? '0.0.0';
     this.url = infoDef.url ?? '';
     this.logo = infoDef.logo ?? '';
-    this.state.appId = this.id;
     this.checkVersion();
   }
 
@@ -68,21 +72,12 @@ export class InfoService {
 
   /** Check version set launchStatus */
   private checkVersion() {
-    const pv = this.loadInfo().version;
+    const pv = (this.readStorage('info') as AppInfoDef | null)?.version;
     if (!pv) {
-      //no previous version
-      this.launchStatus = {
-        result: 'first_run',
-        previousVersion: ''
-      };
+      this.launchStatus = { result: 'first_run', previousVersion: '' };
     } else if (pv === this.version) {
-      //current version
-      this.launchStatus = {
-        result: 'current',
-        previousVersion: pv
-      };
+      this.launchStatus = { result: 'current', previousVersion: pv };
     } else {
-      //changed version
       const pva = parseSemver(pv);
       const cva = parseSemver(this.version);
       let result: 'major' | 'minor' | 'patch' = 'patch';
@@ -102,22 +97,15 @@ export class InfoService {
     this.configEvent.next(value);
   }
 
-  /** load app version Info */
-  loadInfo(): AppInfoDef {
-    return this.state.loadInfo() as AppInfoDef;
-  }
-
   /** persist version info */
   saveInfo() {
-    this.state.saveInfo({
-      name: this.name,
-      version: this.version
-    });
+    this.writeStorage('info', { name: this.name, version: this.version });
   }
 
   /** load app config */
   loadConfig() {
-    this.config = this.state.loadConfig(this.config) as IAppConfig;
+    const stored = this.readStorage('config');
+    this.config = (stored ?? this.config) as IAppConfig;
   }
 
   /** persist app config */
@@ -127,17 +115,41 @@ export class InfoService {
       return;
     }
     this.debug(`InfoService.saveConfig`);
-    this.state.saveConfig(this.config);
+    this.writeStorage('config', this.config);
     this.emitConfigEvent('saved');
   }
 
   /** load app data */
   loadData() {
-    this.data = this.state.loadData(this.data) as FBAppData;
+    const stored = this.readStorage('data');
+    this.data = (stored ?? this.data) as FBAppData;
   }
 
   /** persist app data */
   saveData() {
-    this.state.saveData(this.data);
+    this.writeStorage('data', this.data);
+  }
+
+  private storageKey(key: string): string {
+    return `${this.id}_${key}`;
+  }
+
+  private readStorage(key: string): unknown {
+    if (!this.ls) return null;
+    const raw = this.ls.getItem(this.storageKey(key));
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      console.warn(
+        `InfoService: discarding malformed localStorage entry "${key}"`
+      );
+      return null;
+    }
+  }
+
+  private writeStorage(key: string, value: unknown): void {
+    if (!this.ls || value === null || value === undefined) return;
+    this.ls.setItem(this.storageKey(key), JSON.stringify(value));
   }
 }

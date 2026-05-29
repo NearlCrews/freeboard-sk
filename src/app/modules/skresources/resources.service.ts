@@ -2139,9 +2139,7 @@ export class SKResourceService {
               }
               break;
             case 'add':
-              if (relatedBy === 'group') {
-                /** @deprecated legacy notes group*/
-              } else {
+              if (relatedBy !== 'group') {
                 this.showNoteEditor({
                   type: relatedBy,
                   href: { id: id, exists: true }

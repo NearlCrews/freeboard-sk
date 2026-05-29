@@ -17,8 +17,8 @@ export type FbInputType =
 /**
  * Tier-2 form Input primitive.
  *
- * Wraps a native `<input>` with token-driven chrome. No MatInput dependency.
- * Two-way binding via `model()` so consumers can do `[(value)]="model"`.
+ * Wraps a native `<input>` with token-driven chrome. Two-way binding via
+ * `model()` so consumers can do `[(value)]="model"`.
  *
  * Numeric mode (`numericMode=true`) switches the model to a separate
  * `numericValue` signal of `number | null` and forces type="number" with

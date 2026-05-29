@@ -72,11 +72,6 @@ export class AppShellService {
 
   // ----- toolbar toggles -----
 
-  toggleRadar(): void {
-    this.settings.uiCtrl.update((c) => ({ ...c, radarLayer: !c.radarLayer }));
-    this.focusMap();
-  }
-
   toggleMoveMap(exit = false): void {
     this.settings.uiConfig.update((c) => ({
       ...c,

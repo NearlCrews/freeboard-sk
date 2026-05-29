@@ -188,17 +188,6 @@
   >
   </fb-livelayer>
 
-  <!-- Radar Overlay -->
-  @if (app.uiCtrl().radarLayer) {
-    <fb-radar
-      [position]="dfeat.self.position"
-      [heading]="dfeat.self.orientation"
-      [mapZoom]="mapZoomLevel()"
-      [zIndex]="99"
-    >
-    </fb-radar>
-  }
-
   <!-- Tracks -->
   @if (app.featureFlags().resourceTracks) {
     <fb-tracks

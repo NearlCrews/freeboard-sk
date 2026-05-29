@@ -38,11 +38,11 @@ export class FbSnackBarRef<R = unknown, C = unknown> {
 const DEFAULT_DURATION_MS = 3000;
 
 /**
- * Replaces MatSnackBar. Opens a component into a backdrop-less CDK
- * Dialog overlay pinned to the bottom edge of the viewport. Default
- * auto-dismiss is 3s; pass 0 to keep the snack until explicit dismissal.
- * The opened component can inject FB_SNACK_BAR_DATA for its payload and
- * FbSnackBarRef to call dismiss programmatically.
+ * Opens a component into a backdrop-less CDK Dialog overlay pinned to
+ * the bottom edge of the viewport. Default auto-dismiss is 3s; pass 0
+ * to keep the snack until explicit dismissal. The opened component can
+ * inject FB_SNACK_BAR_DATA for its payload and FbSnackBarRef to call
+ * dismiss programmatically.
  */
 @Injectable({ providedIn: 'root' })
 export class FbSnackBarService {

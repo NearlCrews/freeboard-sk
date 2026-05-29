@@ -4,12 +4,9 @@
  * Tier-1 (shipped):
  *   - FbButtonComponent
  *   - FbDialogComponent + FbDialogService
- *   - FbSheetComponent + FbSheetService
  *   - FbIconComponent
  *   - FbFabComponent
  *   - FbMenuComponent + FbMenuService
- *   - FbSnackbarComponent + FbSnackbarService
- *   - FbSidenavComponent + FbSidenavService
  *
  * Tier-2 layout (shipped):
  *   - FbListPaneComponent
@@ -37,9 +34,6 @@ export {
 
 export { FbDialogComponent } from './dialog/dialog.component';
 export { FbDialogService } from './dialog/dialog.service';
-
-export { FbSheetComponent } from './sheet/sheet.component';
-export { FbSheetService } from './sheet/sheet.service';
 
 export {
   FbListPaneComponent,
@@ -77,22 +71,6 @@ export {
   type FbMenuTemplateOpenAtConfig,
   type FbMenuTemplateRef
 } from './menu/menu.service';
-
-export {
-  FbSnackbarComponent,
-  type FbSnackbarKind
-} from './snackbar/snackbar.component';
-export {
-  FbSnackbarService,
-  type FbSnackbarOptions,
-  type FbSnackbarOutcome
-} from './snackbar/snackbar.service';
-
-export {
-  FbSidenavComponent,
-  type FbSidenavSide
-} from './sidenav/sidenav.component';
-export { FbSidenavService } from './sidenav/sidenav.service';
 
 export { FbFormFieldComponent } from './form-field/form-field.component';
 

@@ -5,13 +5,10 @@ import {
   Component,
   Input,
   output,
-  ChangeDetectionStrategy,
-  inject
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { CountryFlagComponent } from 'src/app/lib/components/country-flags.component';
-import { AppFacade } from 'src/app/app.facade';
 
 import {
   FbButtonComponent,
@@ -31,8 +28,7 @@ measure: boolean= measure mode;
     CommonModule,
     FbButtonComponent,
     FbIconComponent,
-    FbTooltipDirective,
-    CountryFlagComponent
+    FbTooltipDirective
   ],
   template: `
     <div
@@ -49,9 +45,6 @@ measure: boolean= measure mode;
                                 line-clamp: 1;
                                 text-overflow:ellipsis;"
         >
-          @if (mmsi) {
-            <country-flag [mmsi]="mmsi" [host]="app.hostDef.url"></country-flag>
-          }
           @if (icon; as ic) {
             <fb-icon
               [class]="ic.class ?? ''"
@@ -97,7 +90,6 @@ measure: boolean= measure mode;
 })
 export class PopoverComponent {
   @Input() title = '';
-  @Input() mmsi = '';
   @Input() icon:
     | { class?: string; name?: string; svgIcon?: string }
     | undefined;
@@ -106,10 +98,6 @@ export class PopoverComponent {
   @Input() navTo = false;
   readonly closed = output<void>();
   readonly navigateTo = output<void>();
-
-  protected app = inject(AppFacade);
-
-  constructor() {}
 
   handleClose() {
     this.closed.emit();

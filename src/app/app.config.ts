@@ -525,7 +525,6 @@ export function defaultConfig(): IAppConfig {
       manualSet: false, // checks manual set setting
       rodeLength: 50 // rode length setting
     },
-    experiments: false,
     // selections.aisTargets and selections.infolayers are declared non-nullable
     // in IAppConfig but boot defaults are intentionally null (no saved selection
     // yet). cleanConfig normalises them on load. The cast preserves the on-the-

@@ -12,15 +12,14 @@ import {
   FbIconComponent
 } from 'src/app/design-system/primitives';
 
-/********* AboutDialog ****************
-    data: {
-        name: this.app.name,
-        version: this.app.version,
-        description: this.app.description,
-        logo: this.app.logo,
-        url: this.app.url
-    }
-***************************************/
+export interface AboutDialogData {
+  name: string;
+  version: string;
+  description: string;
+  logo: string;
+  url?: string;
+  captureDebug?: () => void;
+}
 @Component({
   selector: 'ap-about-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +57,12 @@ import {
           </fb-button>
           &nbsp;
         }
+        @if (data.captureDebug) {
+          <fb-button variant="ghost" (pressed)="data.captureDebug()">
+            <fb-icon name="adb" ariaLabel=""></fb-icon>&nbsp;Capture Debug Info
+          </fb-button>
+          &nbsp;
+        }
         <fb-button variant="primary" (pressed)="dialogRef.close(false)">
           Close
         </fb-button>
@@ -89,7 +94,6 @@ import {
 export class AboutDialog {
   constructor(
     public dialogRef: DialogRef<unknown, AboutDialog>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: AboutDialogData
   ) {}
 }

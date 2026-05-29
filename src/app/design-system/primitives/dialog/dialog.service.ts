@@ -11,7 +11,6 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
  *
  * Why a wrapper instead of using `Dialog` directly:
  *  - Centralizes the a11y defaults so individual call sites cannot drift.
- *  - Gives future migration off `MatDialog` a single seam to swap.
  */
 @Injectable({ providedIn: 'root' })
 export class FbDialogService {

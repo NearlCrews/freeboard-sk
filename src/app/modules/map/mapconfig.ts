@@ -1,4 +1,4 @@
-// ** Freeboard Map configuration **
+// ** Open Binnacle Map configuration **
 
 import { Style, Icon, Text, Stroke, Fill, Circle } from 'ol/style';
 
@@ -13,12 +13,6 @@ export const mapControls = [
       units: 'nautical'
     }
   }
-  //{name: 'fullscreen'},
-  //{name: 'rotate'},
-  //{name: 'zoom'},
-  //{name: 'zoomslider'},
-  //{name: 'zoomtoextent'},
-  //{name: 'attribution'},
 ];
 
 export const bearingDistanceStyle = {

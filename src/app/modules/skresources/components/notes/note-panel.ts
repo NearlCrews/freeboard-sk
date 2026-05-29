@@ -11,7 +11,7 @@ import {
 import { CoordsPipe } from 'src/app/lib/pipes';
 
 import { RemarkModule } from 'ngx-remark';
-import { AddTargetPipe } from './safe.pipe';
+import { AddTargetPipe } from './add-target.pipe';
 
 import {
   FbButtonComponent,

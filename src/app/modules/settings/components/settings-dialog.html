@@ -18,7 +18,7 @@
 <div fbDialogContent class="settings-shell">
   <fb-list-pane
     class="settings-shell__nav"
-    [items]="visibleSections()"
+    [items]="visibleSections"
     [selected]="activeSection()"
     (selectionChange)="onSectionChange($event)"
   ></fb-list-pane>
@@ -403,6 +403,36 @@
                     fbTooltip="Do not exit follow vessel when map is panned."
                   >
                     Lock Follow Vessel
+                  </fb-checkbox>
+                </div>
+              </div>
+            </fb-card-content>
+          </fb-card>
+          <div class="setting-group-title">PERFORMANCE</div>
+          <fb-card>
+            <fb-card-content>
+              <div class="setting-card-row pb-md">
+                <div class="setting-card-row-item">
+                  <label class="setting-label" for="webgl-ais-threshold">
+                    WebGL AIS threshold
+                  </label>
+                  <fb-input
+                    name="webgl-ais-threshold"
+                    [numericMode]="true"
+                    [min]="0"
+                    [(numericValue)]="webglAISThresholdValue"
+                    ariaLabel="AIS target count above which the WebGL points layer takes over from canvas"
+                    fbTooltip="AIS target count above which the WebGL points layer replaces the canvas layer."
+                  ></fb-input>
+                </div>
+                <div class="setting-card-row-item">
+                  <fb-checkbox
+                    [(checked)]="facade.settings.ui.useWebGLNightMode"
+                    (checkedChange)="persistModel()"
+                    ariaLabel="WebGL night-mode tint for raster charts"
+                    fbTooltip="Use the WebGL shader-based night-mode tint for WebGLTileLayer raster chart layers (faster than the OffscreenCanvas filter)."
+                  >
+                    WebGL night-mode tint
                   </fb-checkbox>
                 </div>
               </div>
@@ -1187,6 +1217,38 @@
             </fb-card-content>
           </fb-card>
         </div>
+        <div class="setting-group" id="sectResVideo">
+          <div class="setting-group-title">VIDEO</div>
+          <fb-card class="setting-card">
+            <fb-card-content>
+              <div class="setting-card-row">
+                <div class="setting-card-row-item">
+                  <fb-checkbox
+                    [(checked)]="facade.settings.resources.video.enable"
+                    (checkedChange)="persistModel()"
+                    ariaLabel="Enable Video"
+                  >
+                    Enable Video
+                  </fb-checkbox>
+                </div>
+                <div class="setting-card-row-item">
+                  <label class="setting-label" for="video-url">url:</label>
+                  <fb-input
+                    name="video-url"
+                    [disabled]="!facade.settings.resources.video.enable"
+                    [invalid]="!videoUrl"
+                    [(value)]="videoUrl"
+                    placeholder="Video stream URL"
+                    ariaLabel="Enter URL of video stream"
+                  ></fb-input>
+                  @if(!videoUrl) {
+                  <fb-hint variant="error">Value required.</fb-hint>
+                  }
+                </div>
+              </div>
+            </fb-card-content>
+          </fb-card>
+        </div>
       </div>
     </div>
     } @case ('signalk') {
@@ -1286,64 +1348,6 @@
                   >
                     <fb-icon name="key_off"></fb-icon>
                   </fb-button>
-                </div>
-              </div>
-            </fb-card-content>
-          </fb-card>
-        </div>
-      </div>
-    </div>
-    } @case ('radar') {
-    <div class="theme-page settings">
-      <div class="theme-panel">
-        <div class="setting-group" id="sectExperiments">
-          <div class="setting-group-title">RADAR SETTINGS</div>
-          <fb-card class="setting-card"></fb-card>
-        </div>
-      </div>
-    </div>
-    } @case ('experiments') {
-    <div class="theme-page settings">
-      <div class="theme-panel">
-        <div class="setting-group" id="sectExperiments">
-          <div class="setting-group-title">EXPERIMENTS</div>
-          <fb-card class="setting-card">
-            <fb-card-content>
-              <div class="setting-card-row">
-                <div class="setting-card-row-item">
-                  <fb-checkbox
-                    [(checked)]="facade.settings.resources.video.enable"
-                    (checkedChange)="persistModel()"
-                    ariaLabel="Enable Video"
-                  >
-                    Enable Video
-                  </fb-checkbox>
-                </div>
-                <div class="setting-card-row-item">
-                  <label class="setting-label" for="video-url">url:</label>
-                  <fb-input
-                    name="video-url"
-                    [disabled]="!facade.settings.resources.video.enable"
-                    [invalid]="!videoUrl"
-                    [(value)]="videoUrl"
-                    placeholder="Video stream URL"
-                    ariaLabel="Enter URL of video stream"
-                  ></fb-input>
-                  @if(!videoUrl) {
-                  <fb-hint variant="error">Value required.</fb-hint>
-                  }
-                </div>
-              </div>
-              <div class="setting-card-row">
-                <div class="setting-card-row-item">
-                  <fb-checkbox
-                    [(checked)]="facade.settings.experiments"
-                    (checkedChange)="persistModel()"
-                    ariaLabel="Experimental Features"
-                    fbTooltip="Enable ALL experimental Features"
-                  >
-                    <fb-icon name="science"></fb-icon> Experimental Features
-                  </fb-checkbox>
                 </div>
               </div>
             </fb-card-content>
