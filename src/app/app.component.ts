@@ -61,7 +61,8 @@ import {
   AppShellService,
   AudioAlarmService,
   DialogOrchestrator,
-  MenuController
+  MenuController,
+  SignalKConnectionController
 } from 'src/app/shell';
 
 import {
@@ -99,11 +100,8 @@ import {
 
 import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
-import { compareSemver, parseSemver } from 'src/app/lib/semver';
-
 import {
   LineString,
-  MultiLineString,
   NotificationMessage,
   Polygon,
   Position,
@@ -206,6 +204,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   private readonly menu = inject(MenuController);
   private readonly audio = inject(AudioAlarmService);
   private readonly dialogs = inject(DialogOrchestrator);
+  private readonly conn = inject(SignalKConnectionController);
   private readonly fbMenu = inject(FbMenuService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private openMenuRef: FbMenuTemplateRef | null = null;
@@ -224,9 +223,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected playbackTime = signal<string | null>(null);
 
-  public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME; // current mode
-
-  private timers: ReturnType<typeof setInterval>[] = [];
+  public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME; // mirrored from controller for template binding
 
   // external resources
   protected instUrl = signal<SafeResourceUrl | null>(null);
@@ -235,10 +232,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected convert = Convert;
   private destroyRef = inject(DestroyRef);
-  private streamOptions: {
-    options: StreamOptions | null;
-    toMode: SKSTREAM_MODE | null;
-  } = { options: null, toMode: null };
 
   protected mapCenter = signal<Position>([0, 0]);
 
@@ -308,10 +301,27 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     // Wire dialog cross-cuts back into the shell's stream/connection lifecycle.
     this.dialogs.registerHooks({
-      fetchResources: () => this.fetchResources(),
-      fetchAllResources: () => this.fetchAllResources(),
+      fetchResources: () => this.conn.fetchResources(),
+      fetchAllResources: () => this.conn.fetchAllResources(),
       switchMode: (mode, options) => this.switchMode(mode, options),
-      queryAfterConnect: () => this.queryAfterConnect()
+      queryAfterConnect: () => this.conn.queryAfterConnect()
+    });
+
+    // Wire stream-event hooks back to the host's template signals and
+    // dialog flows. The controller owns the stream lifecycle but cannot
+    // touch UI-bound state directly.
+    this.conn.registerHooks({
+      onModeChange: (mode) => {
+        this.mode = mode;
+      },
+      onPlaybackTimeChange: (time) => this.playbackTime.set(time),
+      updateNavPanel: () => this.updateNavPanel(),
+      showLogin: () => {
+        this.showLogin(undefined, false, true);
+      },
+      openSettings: () => this.openSettings(),
+      showPlaybackSettings: () => this.showPlaybackSettings(),
+      requestSwitchMode: (mode, options) => this.switchMode(mode, options)
     });
 
     effect(() => {
@@ -377,37 +387,37 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       )
     );
 
-    this.connectSignalKServer();
+    this.conn.connect();
 
     // ********************* SUBSCRIPTIONS *****************
     this.stream
       .delta$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg: NotificationMessage | UpdateMessage) =>
-        this.onMessage(msg)
+        this.conn.handleMessage(msg)
       );
     this.stream
       .connect$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg: NotificationMessage | UpdateMessage) =>
-        this.onConnect(msg)
+        this.conn.handleConnect(msg)
       );
     this.stream
       .close$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg: NotificationMessage | UpdateMessage) =>
-        this.onClose(msg)
+        this.conn.handleClose(msg)
       );
     this.stream
       .error$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg: NotificationMessage | UpdateMessage) =>
-        this.onError(msg)
+        this.conn.handleError(msg)
       );
     this.stream
       .trail$()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((msg) => this.handleTrailUpdate(msg));
+      .subscribe((msg) => this.conn.handleTrailUpdate(msg));
 
     this.settings.change$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -415,9 +425,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.stopTimers();
-    this.stream.terminate();
-    this.signalk.disconnect();
+    this.conn.terminate();
   }
 
   // ********* DISPLAY / APPEARANCE / TOOLBAR (delegated to AppShellService) ****************
@@ -638,184 +646,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       });
     });
-  }
-
-  // ********* SIGNAL K CONNECTION ****************
-
-  private connectSignalKServer() {
-    this.app.data.selfId = null;
-    this.app.data.server = null;
-    this.signalk.proxied = this.app.config.signalk.proxied;
-    this.signalk
-      .connect(
-        this.app.hostDef.name,
-        this.app.hostDef.port,
-        this.app.hostDef.ssl
-      )
-      .subscribe({
-        next: () => {
-          this.signalk.authToken = this.app.getFBToken() ?? '';
-          this.app.watchSKLogin();
-          this.fetchAllResources();
-          this.app
-            .loadUserConfigfromServer()
-            .then((loaded: boolean) => {
-              if (!loaded && this.app.launchStatus.result === 'first_run') {
-                const wr = this.app.showWelcome(false);
-                if (wr) {
-                  wr.closed.subscribe((r) => {
-                    const result = r as boolean | undefined;
-                    if (result) this.openSettings();
-                  });
-                }
-              } else {
-                this.app.showWelcome(true);
-              }
-            })
-            .finally(() => {
-              this.fetchAllResources();
-            });
-          this.getFeatures();
-          this.app.data.server = this.signalk.server.info;
-          this.openSKStream();
-        },
-        error: () => {
-          this.app.showMessage(
-            'Unable to contact Signal K server! (Retrying in 5 secs)',
-            false,
-            5000
-          );
-          setTimeout(() => this.connectSignalKServer(), 5000);
-        }
-      });
-  }
-
-  private async getFeatures() {
-    const ff = {
-      anchorApi: false,
-      autopilotApi: false,
-      weatherApi: false,
-      notificationApi: false,
-      playbackApi: false,
-      buddyList: false
-    };
-    this.signalk.get('/signalk/v2/features?enabled=1').subscribe({
-      next: (res: {
-        apis: string[];
-        plugins: { id: string; version: string }[];
-      }) => {
-        ff.weatherApi = res.apis.includes('weather');
-        ff.autopilotApi = res.apis.includes('autopilot');
-        ff.notificationApi = res.apis.includes('notifications');
-        ff.playbackApi = res.apis.includes('playback');
-
-        const hasPlugin = { charts: false, pmTiles: false };
-
-        res.plugins.forEach((p: { id: string; version: string }) => {
-          if (p.id === 'anchoralarm') {
-            this.app.debug('*** found anchoralarm plugin');
-            ff.anchorApi = true;
-          }
-          if (p.id === 'signalk-buddylist-plugin') {
-            this.app.debug('*** found buddylist plugin');
-            ff.buddyList = compareSemver(p.version, '1.2.0') > 0;
-          }
-          if (p.id === 'signalk-pmtiles-plugin') {
-            this.app.debug('*** found PMTiles plugin');
-            hasPlugin.pmTiles = true;
-          }
-        });
-        this.app.featureFlags.update((current) =>
-          Object.assign({}, current, ff)
-        );
-      },
-      error: () => {
-        this.app.debug('*** Features API not present!');
-      }
-    });
-
-    this.app.fetchUnitPrefsFromSKServer();
-
-    const rcs = await this.skresOther.initCustomCollections();
-    this.app.featureFlags.update((current) => {
-      return Object.assign({}, current, rcs);
-    });
-  }
-
-  // ********* TRAIL LOGGING TIMER ****************
-
-  private startTimers() {
-    this.app.debug(`Starting Trail logging timer...`);
-    this.timers.push(setInterval(() => this.processTrail(), 5000));
-  }
-
-  private stopTimers() {
-    this.app.debug(`Stopping timers:`);
-    this.timers.forEach((t) => clearInterval(t));
-    this.timers = [];
-  }
-
-  /** Process local vessel trail. trailData is the optional server trail. */
-  private processTrail(trailData?: LineString) {
-    if (!this.app.config.vessels.trail) {
-      return;
-    }
-    const t = this.app.selfTrail().slice(-1);
-    const selfPos = this.app.data.vessels.self.position;
-    if (this.app.data.vessels.showSelf && selfPos) {
-      if (t.length === 0) {
-        this.app.selfTrail.update((current) => [...current, selfPos]);
-        return;
-      }
-      const last = t[0];
-      if (last && (selfPos[0] !== last[0] || selfPos[1] !== last[1])) {
-        this.app.selfTrail.update((current) => [...current, selfPos]);
-      }
-    }
-
-    if (!trailData || trailData.length === 0) {
-      if (this.app.selfTrail().length % 60 === 0 && this.app.data.serverTrail) {
-        if (this.app.config.vessels.trailFromServer) {
-          this.stream.requestTrailFromServer();
-        }
-      }
-      this.app.selfTrail.update((current) => current.slice(-5000));
-    } else {
-      // trailData arrives shaped as Position[][] at runtime even though
-      // typed LineString; the .slice(-1) chain takes the trailing point of
-      // the trailing segment. Behavior preserved.
-      const segments = trailData as unknown as Position[][];
-      const lastseg = segments.slice(-1);
-      let lastpt: LineString = [];
-      const first = lastseg[0];
-      if (lastseg.length !== 0 && first) {
-        lastpt = first.slice(-1);
-      } else if (segments.length > 1) {
-        const prev = segments[segments.length - 2];
-        if (prev) lastpt = prev.slice(-1);
-      }
-      this.app.selfTrail.update(() => lastpt);
-    }
-    const trailId = this.mode === SKSTREAM_MODE.PLAYBACK ? 'history' : 'self';
-    this.app.db.saveTrail(trailId, this.app.selfTrail());
-  }
-
-  private handleTrailUpdate(e: {
-    action: string;
-    mode: string;
-    data: MultiLineString;
-  }) {
-    if (e.action === 'get' && e.mode === 'trail') {
-      if (this.app.config.vessels.trailFromServer) {
-        // selfTrailFromServer signal is typed LineString but consumers in
-        // the layer-vessel-trail OL component expect Coordinate[][]
-        // (MultiLineString shape). Phase 6 will reconcile.
-        this.app.selfTrailFromServer.update(
-          () => e.data as unknown as LineString
-        );
-      }
-      this.processTrail(e.data as unknown as LineString);
-    }
   }
 
   // ********* SETTINGS CHANGE HANDLER ****************
@@ -1226,7 +1056,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       });
     }
     this.switchActiveVessel();
-    this.openSKStream(options, toMode, true);
+    this.conn.openStream(options, toMode, true);
   }
 
   protected showSelectMode() {
@@ -1375,151 +1205,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.skres.refreshNotes();
     } else if (r[0] === 'region') {
       this.skres.refreshRegions();
-    }
-  }
-
-  // ******** SIGNAL K STREAM *************
-
-  private fetchResources() {
-    this.skres.refreshRoutes();
-    this.skres.refreshWaypoints();
-    this.skres.refreshCharts();
-    // notes refresh is triggered via map center change, not here.
-    this.skres.refreshRegions();
-  }
-
-  private fetchAllResources() {
-    this.fetchResources();
-    this.skres.refreshTracks();
-    this.skresOther.refreshResourceSetsInBounds();
-    this.skresOther.refreshInfoLayers();
-  }
-
-  private openSKStream(
-    options: StreamOptions | null = null,
-    toMode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME,
-    restart = false
-  ) {
-    if (restart) {
-      this.streamOptions = { options, toMode };
-      this.stream.close();
-      return;
-    }
-    this.stream.sendConfig(this.app.config);
-    this.stream.open(options ?? undefined);
-  }
-
-  private queryAfterConnect() {
-    if (parseSemver(String(this.signalk.server.info['version']))?.[0] === 1) {
-      this.app.showAlert(
-        'Unsupported Server Version:',
-        'The connected Signal K server is not supported by this version of Open Binnacle.\n Signal K server version 2 or later is required!'
-      );
-    }
-    this.app.alignCustomResourcesPaths();
-    this.signalk.api.getSelf().subscribe({
-      next: (r: { name?: string }) => {
-        this.stream.post({
-          cmd: 'vessel',
-          options: { context: 'self', name: r.name ?? '' }
-        });
-        if (this.app.config.vessels.trailFromServer) {
-          this.stream.requestTrailFromServer();
-        }
-        if (this.app.featureFlags().anchorApi) {
-          const selfPos = this.app.data.vessels.self.position;
-          this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        if (err.status && err.status === 401) {
-          this.showLogin(undefined, false, true);
-        }
-        this.app.debug('No vessel data available!');
-      }
-    });
-  }
-
-  // ******** STREAM EVENT HANDLERS *************
-
-  private reconnecting = false;
-
-  private onConnect(e?: NotificationMessage | UpdateMessage) {
-    this.app.showMessage('Connection Open.', false, 2000);
-    this.app.debug(e);
-    this.queryAfterConnect();
-    this.startTimers();
-  }
-
-  private onClose(e?: NotificationMessage | UpdateMessage) {
-    this.app.debug('onClose: STREAM connection closed...');
-    this.app.debug(e);
-    this.stopTimers();
-    if (e?.result) {
-      this.openSKStream(
-        this.streamOptions.options ?? undefined,
-        this.streamOptions.toMode ?? undefined
-      );
-      return;
-    }
-    if (e?.playback) {
-      this.handlePlaybackClose();
-      return;
-    }
-    if (!this.reconnecting) {
-      this.reconnecting = true;
-      setTimeout(() => {
-        this.reconnecting = false;
-        this.openSKStream(this.streamOptions.options ?? undefined, this.mode);
-      }, 5000);
-    }
-  }
-
-  private handlePlaybackClose() {
-    const data = {
-      title: 'Connection Closed:',
-      buttonText: 'OK',
-      message: 'Unable to open Playback connection.'
-    };
-    this.app
-      .showAlert(data.message, data.title, data.buttonText)
-      .subscribe(() => {
-        if (this.mode === SKSTREAM_MODE.REALTIME) {
-          this.switchMode(this.mode);
-        } else {
-          this.showPlaybackSettings();
-        }
-      });
-  }
-
-  private onError(e?: NotificationMessage | UpdateMessage) {
-    this.app.showMessage('Connection Error!', false, 2000);
-    console.warn('Stream Error!', e);
-  }
-
-  private onMessage(e: NotificationMessage | UpdateMessage) {
-    if (e.action === 'hello') {
-      this.app.debug(e);
-      if (e.playback) {
-        this.mode = SKSTREAM_MODE.PLAYBACK;
-      } else {
-        this.mode = SKSTREAM_MODE.REALTIME;
-        this.stream.subscribe();
-      }
-      this.app.data.selfId = e.self ?? '';
-      return;
-    }
-    if (e.action === 'update') {
-      if (this.mode === SKSTREAM_MODE.PLAYBACK) {
-        const d = new Date(e.timestamp);
-        this.playbackTime.update(
-          () => `${d.toDateString().slice(4)} ${d.toTimeString().slice(0, 8)}`
-        );
-      } else {
-        this.playbackTime.set(null);
-        this.shell.setDarkTheme();
-      }
-      this.updateNavPanel();
     }
   }
 
