@@ -25,7 +25,7 @@ import { fromLonLatArray, mapifyCoords, mapifyRadius } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard Anchor Alarm component **
+// ** Open Binnacle Anchor Alarm component **
 @Component({
   selector: 'ol-map > fb-anchor-alarm',
   template: '<ng-content></ng-content>',

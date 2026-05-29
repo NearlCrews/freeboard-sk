@@ -21,7 +21,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { AsyncSubject } from 'rxjs';
 import { Position } from 'src/app/types';
 
-// ** Freeboard Layline component **
+// ** Open Binnacle Layline component **
 @Component({
   selector: 'ol-map > fb-layline',
   template: '<ng-content></ng-content>',

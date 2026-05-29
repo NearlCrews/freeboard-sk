@@ -23,7 +23,7 @@ const DEFAULT_TRACK_STROKE = new Stroke({
   lineDash: [5, 5]
 });
 
-// ** Freeboard Track resources collection format **
+// ** Open Binnacle Track resources collection format **
 @Component({
   selector: 'ol-map > fb-tracks',
   template: '<ng-content></ng-content>',

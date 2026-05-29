@@ -625,7 +625,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.signalk.getLoginStatus().subscribe((r) => {
       this.app.data.loginRequired = r.authenticationRequired ?? false;
       this.app.isLoggedIn.update(() => r.status === 'loggedIn');
-      this.signalk.get('/plugins/freeboard-sk').subscribe(
+      this.signalk.get('/plugins/signalk-open-binnacle').subscribe(
         () => {
           this.app.debug('User Authenticated');
           this.app.isLoggedIn.set(true);

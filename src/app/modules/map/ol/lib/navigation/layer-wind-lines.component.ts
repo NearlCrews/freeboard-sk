@@ -22,7 +22,7 @@ import { Extent, Coordinate } from '../models';
 import { AsyncSubject } from 'rxjs';
 import { fromLonLat } from 'ol/proj';
 
-// ** Freeboard TWD / AWA lines component **
+// ** Open Binnacle TWD / AWA lines component **
 @Component({
   selector: 'ol-map > fb-wind-lines',
   template: '<ng-content></ng-content>',

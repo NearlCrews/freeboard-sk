@@ -24,7 +24,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard XTE path component **
+// ** Open Binnacle XTE path component **
 @Component({
   selector: 'ol-map > fb-xte-path',
   template: '<ng-content></ng-content>',

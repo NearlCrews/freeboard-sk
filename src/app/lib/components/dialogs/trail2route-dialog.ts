@@ -23,7 +23,7 @@ import {
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
-import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
+import { OpenBinnacleOpenlayersModule } from 'src/app/modules/map/ol';
 import { SimplifyAP } from 'src/lib/simplify-ts';
 import { SKResourceService, SKStreamFacade, SKRoute } from 'src/app/modules';
 import { AppFacade } from 'src/app/app.facade';
@@ -44,7 +44,7 @@ import { AppFacade } from 'src/app/app.facade';
     FbSliderComponent,
     FbToolbarComponent,
     FbTooltipDirective,
-    FreeboardOpenlayersModule
+    OpenBinnacleOpenlayersModule
   ],
   templateUrl: `./trail2route-dialog.html`,
   styles: [

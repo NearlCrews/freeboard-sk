@@ -55,7 +55,7 @@ const fixedVesselStyle = new Style({
   })
 });
 
-// ** Freeboard Vessel component **
+// ** Open Binnacle Vessel component **
 @Component({
   selector: 'ol-map > fb-vessel',
   template: '<ng-content></ng-content>',

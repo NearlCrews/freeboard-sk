@@ -1,7 +1,7 @@
 // ** Resource Types **
 
 import { Position, LineString, MultiLineString } from './resources/geojson';
-import { FBCharts, FBRoute } from './resources/freeboard';
+import { FBCharts, FBRoute } from './resources/app-resources';
 import {
   SKMeteo,
   SKSaR,
@@ -15,7 +15,7 @@ import { Options } from '../modules/map/ol/lib/charts/s57-options';
 export * from './resources/signalk';
 export * from './resources/custom';
 export * from './resources/geojson';
-export * from './resources/freeboard';
+export * from './resources/app-resources';
 export * from './stream';
 
 export type ErrorList = { status: number; message: string }[];

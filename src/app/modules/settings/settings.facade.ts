@@ -311,7 +311,7 @@ export class SettingsFacade {
       (a: SKAppsList[]) => {
         this.applicationList = a
           .map((i): AppListEntry | null => {
-            if (i.name === '@signalk/freeboard-sk') {
+            if (i.name === 'signalk-open-binnacle') {
               return null;
             }
             if (!i._location && !i.location) {

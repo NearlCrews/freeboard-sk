@@ -22,14 +22,14 @@ import type { FBRoutes, Position } from 'src/app/types';
 // path. Each segment of every route previously allocated three fresh strokes.
 const POINT_STROKE_WIDE = new Stroke({ width: 1, color: 'white' });
 
-// ** Freeboard resource collection format **
+// ** Open Binnacle resource collection format **
 @Component({
   selector: 'ol-map > fb-routes',
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class FreeboardRouteLayerComponent extends FBFeatureLayerComponent {
+export class OpenBinnacleRouteLayerComponent extends FBFeatureLayerComponent {
   @Input() routeStyles?: Record<string, Style>;
   @Input() activeRoute?: string;
   @Input() routes: FBRoutes = [];

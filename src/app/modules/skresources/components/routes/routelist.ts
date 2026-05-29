@@ -34,7 +34,7 @@ import {
   FBRoute,
   FBResourceSelect,
   FBRoutes
-} from 'src/app/types/resources/freeboard';
+} from 'src/app/types/resources/app-resources';
 import { ResourceListBase } from '../resource-list-baseclass';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';

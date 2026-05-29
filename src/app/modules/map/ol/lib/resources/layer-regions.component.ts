@@ -22,7 +22,7 @@ import { FBRegions } from 'src/app/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class FreeboardRegionLayerComponent extends FBFeatureLayerComponent {
+export class OpenBinnacleRegionLayerComponent extends FBFeatureLayerComponent {
   @Input() regions: FBRegions = [];
   @Input() regionStyles?: Record<string, Style>;
 

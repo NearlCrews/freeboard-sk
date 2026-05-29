@@ -23,7 +23,7 @@ import { mapifyRadius } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard Arrival Circle component **
+// ** Open Binnacle Arrival Circle component **
 @Component({
   selector: 'ol-map > fb-arrival-circle',
   template: '<ng-content></ng-content>',

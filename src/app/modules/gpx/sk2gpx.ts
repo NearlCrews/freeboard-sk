@@ -19,7 +19,7 @@ export class SK2GPX {
   init() {
     this.gpx = new GPX();
     this.gpx.metadata.name = 'Signal K Resource Export';
-    this.gpx.metadata.desc = 'Freeboard export of Signal K resources';
+    this.gpx.metadata.desc = 'Open Binnacle export of Signal K resources';
   }
 
   toXML() {

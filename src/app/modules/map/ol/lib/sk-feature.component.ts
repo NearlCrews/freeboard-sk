@@ -1,5 +1,5 @@
-/** Freeboard Feature Layer Base Component
- * Abstract class for Freeboard Feature layers
+/** Open Binnacle Feature Layer Base Component
+ * Abstract class for Open Binnacle Feature layers
  **/
 
 import {

@@ -1,7 +1,7 @@
 // **** CUSTOM RESOURCE CLASSES **********
 import { ResourceSet, CustomStyles, InfoLayerResource } from 'src/app/types';
 
-// ** Freeboard / SK ResourceSet
+// ** Open Binnacle / SK ResourceSet
 export class SKResourceSet {
   id = '';
   name = '';
@@ -24,7 +24,7 @@ export class SKResourceSet {
   }
 }
 
-// ** Freeboard / SK Information Layer
+// ** Open Binnacle / SK Information Layer
 export class SKInfoLayer {
   id = '';
   name = '';

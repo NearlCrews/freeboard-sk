@@ -52,7 +52,7 @@ export class FBCustomResourceService {
    *************************************/
 
   /**
-   * @description Check status and initialise custom resource paths required for Freeboard features
+   * @description Check status and initialise custom resource paths required for Open Binnacle features
    * @returns object items to be added to this.app.featureFlags
    */
   public async initCustomCollections(): Promise<Record<string, boolean>> {

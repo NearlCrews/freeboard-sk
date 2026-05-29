@@ -18,14 +18,14 @@ import { MapImageRegistry } from '../map-image-registry.service';
 import { MapThemeService } from '../theme';
 import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 
-// ** Freeboard resource collection format **
+// ** Open Binnacle resource collection format **
 @Component({
   selector: 'ol-map > fb-waypoints',
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class FreeboardWaypointLayerComponent extends FBFeatureLayerComponent {
+export class OpenBinnacleWaypointLayerComponent extends FBFeatureLayerComponent {
   @Input() waypointStyles?: Record<string, Style>;
   @Input() activeWaypoint?: string;
   @Input() waypoints: FBWaypoints = [];

@@ -18,14 +18,14 @@ import { MapThemeService } from '../theme';
 import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { SKNote } from 'src/app/modules/skresources';
 
-// ** Freeboard resource collection format **
+// ** Open Binnacle resource collection format **
 @Component({
   selector: 'ol-map > fb-notes',
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class FreeboardNoteLayerComponent extends FBFeatureLayerComponent {
+export class OpenBinnacleNoteLayerComponent extends FBFeatureLayerComponent {
   @Input() notes: FBNotes = [];
 
   private readonly mapTheme = inject(MapThemeService);

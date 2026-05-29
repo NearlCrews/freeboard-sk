@@ -1,6 +1,6 @@
 /**
- * Shared tuning knobs for OL tile sources used by freeboard charts and
- * live layers. Centralized so a future revision is a one-line change
+ * Shared tuning knobs for OL tile sources used by chart and live
+ * layers. Centralized so a future revision is a one-line change
  * across every chart source instead of grepping for magic numbers.
  *
  * Raster cache: pixel data is shared with the browser image cache via

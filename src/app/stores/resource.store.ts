@@ -31,22 +31,22 @@ export class ResourceStore {
   readonly CUSTOM_RESOURCES: readonly CustomResourceDef[] = [
     {
       name: 'tracks',
-      description: 'Freeboard GPX track imports.',
+      description: 'Open Binnacle GPX track imports.',
       featureKey: 'resourceTracks'
     },
     {
       name: 'infolayers',
-      description: 'Freeboard map overlays.',
+      description: 'Open Binnacle map overlays.',
       featureKey: 'infoLayers'
     },
     {
       name: 'groups',
-      description: 'Freeboard resource groups.',
+      description: 'Open Binnacle resource groups.',
       featureKey: 'resourceGroups'
     }
   ];
 
-  /** Resources Freeboard owns the UI for and therefore filters out of the
+  /** Resources Open Binnacle owns the UI for and therefore filters out of the
    * "custom paths" picker. Computed once at construction since
    * STANDARD_RESOURCES and CUSTOM_RESOURCES are readonly. */
   readonly IGNORE_RESOURCES: readonly string[] = [

@@ -27,7 +27,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard Bearing line component **
+// ** Open Binnacle Bearing line component **
 @Component({
   selector: 'ol-map > fb-bearing-line',
   template: '<ng-content></ng-content>',

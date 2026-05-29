@@ -6,7 +6,7 @@ import {
   MultiPolygonFeature
 } from './geojson';
 
-// *** Freeboard defined RESOURCE types
+// *** Open Binnacle defined RESOURCE types
 
 export type Tracks = Record<string, TrackResource>;
 

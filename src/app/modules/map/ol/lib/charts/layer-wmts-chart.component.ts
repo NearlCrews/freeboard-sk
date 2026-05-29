@@ -20,7 +20,7 @@ import { WmtsCapabilitiesService } from './wmts-capabilities.service';
 import { createAbortableRasterTileLoader } from './tile-loader-abort';
 import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
-// ** Freeboard WMTS Chart **
+// ** Open Binnacle WMTS Chart **
 @Component({
   selector: 'ol-map > fb-wmts-chart',
   template: '<ng-content></ng-content>',

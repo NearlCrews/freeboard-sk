@@ -32,7 +32,7 @@ import {
 // ** OL & popovers **
 import { PopoverComponent } from './popovers';
 import { S57_CLICKABLE_LAYERS, S57_NAMES } from './popovers/s57-consts';
-import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
+import { OpenBinnacleOpenlayersModule } from 'src/app/modules/map/ol';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
 import { toLonLat } from 'ol/proj';
@@ -143,7 +143,7 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
     FbIconComponent,
     FbTooltipDirective,
     CoordsPipe,
-    FreeboardOpenlayersModule,
+    OpenBinnacleOpenlayersModule,
     PopoverComponent
   ],
   templateUrl: './fb-map.component.html',

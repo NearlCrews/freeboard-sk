@@ -25,7 +25,7 @@ import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-select.component';
 
-// ** Freeboard Vessel Heading line component **
+// ** Open Binnacle Vessel Heading line component **
 @Component({
   selector: 'ol-map > fb-heading-line',
   template: '<ng-content></ng-content>',

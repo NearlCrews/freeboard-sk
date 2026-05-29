@@ -61,7 +61,7 @@ function rangeForResolution(resolution: number): number {
 const TRANSPARENT_FILL = new Fill({ color: 'transparent' });
 const TRANSPARENT_STROKE = new Stroke({ color: 'transparent' });
 
-// ** Freeboard Range Circles component **
+// ** Open Binnacle Range Circles component **
 @Component({
   selector: 'ol-map > fb-range-circles',
   template: '<ng-content></ng-content>',

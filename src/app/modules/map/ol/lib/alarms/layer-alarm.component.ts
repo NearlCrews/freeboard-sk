@@ -21,7 +21,7 @@ import { Extent } from '../models';
 import { AsyncSubject } from 'rxjs';
 import { AlertData } from 'src/app/modules/alarms';
 
-// ** Freeboard Notification Alarm component **
+// ** Open Binnacle Notification Alarm component **
 @Component({
   selector: 'ol-map > fb-alarms',
   template: '<ng-content></ng-content>',

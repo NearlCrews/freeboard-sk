@@ -14,8 +14,8 @@ interface StoredTrail {
 }
 
 /**
- * Wraps the freeboard IndexedDB store: trail-only today, scoped to expand
- * as Phase 5+ data layers land. Emits action / value events via dbUpdate$
+ * Wraps the IndexedDB store: trail-only today, scoped to expand as
+ * Phase 5+ data layers land. Emits action / value events via dbUpdate$
  * so AppFacade can sync the in-memory trail signal on init and warn on
  * persistence failures.
  */
@@ -26,7 +26,7 @@ export class AppDB {
     this.dbUpdateSource.asObservable();
 
   constructor() {
-    this.db = new IndexedDB('freeboard', 1);
+    this.db = new IndexedDB('open-binnacle', 1);
     this.db
       .openDatabase(1, (evt) => {
         const trail = evt.currentTarget.result.createObjectStore('trail', {

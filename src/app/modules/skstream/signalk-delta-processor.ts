@@ -173,7 +173,7 @@ export class SignalKDeltaProcessor {
   private isFetching = false;
   private $source = '';
   private $timestamp = '';
-  private apDeviceId = 'freeboard-sk';
+  private apDeviceId = 'signalk-open-binnacle';
   private watchDog = {
     active: false,
     maxMsgIntervals: WATCHDOG_MAX_EMPTY_INTERVALS,

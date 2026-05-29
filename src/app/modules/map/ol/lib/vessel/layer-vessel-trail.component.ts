@@ -22,7 +22,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard Vessel trail component **
+// ** Open Binnacle Vessel trail component **
 @Component({
   selector: 'ol-map > fb-vessel-trail',
   template: '<ng-content></ng-content>',

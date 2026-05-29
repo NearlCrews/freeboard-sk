@@ -37,7 +37,7 @@ import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-sele
 // render frame.
 const TRANSPARENT_FILL = new Fill({ color: 'transparent' });
 
-// ** Freeboard COG line component **
+// ** Open Binnacle COG line component **
 @Component({
   selector: 'ol-map > fb-cog-line',
   template: '<ng-content></ng-content>',

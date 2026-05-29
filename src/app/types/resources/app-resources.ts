@@ -13,31 +13,31 @@ import {
   SKResourceSet
 } from 'src/app/modules/skresources/custom-resource-classes';
 
-export type FBRoutes = Array<FBRoute>;
+export type FBRoutes = FBRoute[];
 export type FBRoute = [string, SKRoute, boolean?];
 
-export type FBWaypoints = Array<FBWaypoint>;
+export type FBWaypoints = FBWaypoint[];
 export type FBWaypoint = [string, SKWaypoint, boolean?];
 
-export type FBNotes = Array<FBNote>;
+export type FBNotes = FBNote[];
 export type FBNote = [string, SKNote, boolean?];
 
-export type FBRegions = Array<FBRegion>;
+export type FBRegions = FBRegion[];
 export type FBRegion = [string, SKRegion, boolean?];
 
-export type FBCharts = Array<FBChart>;
+export type FBCharts = FBChart[];
 export type FBChart = [string, SKChart, boolean?];
 
-export type FBTracks = Array<FBTrack>;
+export type FBTracks = FBTrack[];
 export type FBTrack = [string, SKTrack, boolean?];
 
-export type FBVessels = Array<FBVessel>;
+export type FBVessels = FBVessel[];
 export type FBVessel = [string, SKVessel, boolean?];
 
-export type FBResourceSets = Array<FBResourceSet>;
+export type FBResourceSets = FBResourceSet[];
 export type FBResourceSet = [string, SKResourceSet, boolean?];
 
-export type FBInfoLayers = Array<FBInfoLayer>;
+export type FBInfoLayers = FBInfoLayer[];
 export type FBInfoLayer = [string, SKInfoLayer, boolean?];
 
 export type FBResource =
@@ -48,9 +48,9 @@ export type FBResource =
   | FBChart
   | FBTrack;
 
-export type FBResourceSelect = {
+export interface FBResourceSelect {
   id: string;
   value?: boolean;
   type?: string;
   isGroup?: boolean;
-};
+}

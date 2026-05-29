@@ -26,7 +26,7 @@ import { Position } from 'src/app/types';
 const DOT_FILL = new Fill({ color: 'blue' });
 const DOT_STROKE = new Stroke({ color: 'white', width: 1 });
 
-// ** Freeboard direction of travel component **
+// ** Open Binnacle direction of travel component **
 @Component({
   selector: 'ol-map > fb-route-direction',
   template: '<ng-content></ng-content>',

@@ -14,11 +14,11 @@ import { ControlComponent } from './lib/control.component';
 import { InteractionDrawComponent } from './lib/interactions/interaction-draw.component';
 import { InteractionModifyComponent } from './lib/interactions/interaction-modify.component';
 import { InteractionDragBoxComponent } from './lib/interactions/interaction-dragbox.component';
-import { FreeboardWaypointLayerComponent } from './lib/resources/layer-waypoints.component';
-import { FreeboardNoteLayerComponent } from './lib/resources/layer-notes.component';
-import { FreeboardRouteLayerComponent } from './lib/resources/layer-routes.component';
-import { FreeboardRegionLayerComponent } from './lib/resources/layer-regions.component';
-import { FreeboardLiveLayerComponent } from './lib/resources/layer-livelayer.component';
+import { OpenBinnacleWaypointLayerComponent } from './lib/resources/layer-waypoints.component';
+import { OpenBinnacleNoteLayerComponent } from './lib/resources/layer-notes.component';
+import { OpenBinnacleRouteLayerComponent } from './lib/resources/layer-routes.component';
+import { OpenBinnacleRegionLayerComponent } from './lib/resources/layer-regions.component';
+import { OpenBinnacleLiveLayerComponent } from './lib/resources/layer-livelayer.component';
 import { TrackLayerComponent } from './lib/resources/layer-tracks.component';
 import { ResourceSetLayerComponent } from './lib/resources/layer-resourceset.component';
 import { AnchorAlarmComponent } from './lib/alarms/layer-anchor-alarm.component';
@@ -70,11 +70,11 @@ export { ControlComponent } from './lib/control.component';
 export { InteractionDrawComponent } from './lib/interactions/interaction-draw.component';
 export { InteractionModifyComponent } from './lib/interactions/interaction-modify.component';
 export { InteractionDragBoxComponent } from './lib/interactions/interaction-dragbox.component';
-export { FreeboardWaypointLayerComponent } from './lib/resources/layer-waypoints.component';
-export { FreeboardNoteLayerComponent } from './lib/resources/layer-notes.component';
-export { FreeboardRouteLayerComponent } from './lib/resources/layer-routes.component';
-export { FreeboardRegionLayerComponent } from './lib/resources/layer-regions.component';
-export { FreeboardLiveLayerComponent } from './lib/resources/layer-livelayer.component';
+export { OpenBinnacleWaypointLayerComponent } from './lib/resources/layer-waypoints.component';
+export { OpenBinnacleNoteLayerComponent } from './lib/resources/layer-notes.component';
+export { OpenBinnacleRouteLayerComponent } from './lib/resources/layer-routes.component';
+export { OpenBinnacleRegionLayerComponent } from './lib/resources/layer-regions.component';
+export { OpenBinnacleLiveLayerComponent } from './lib/resources/layer-livelayer.component';
 export { TrackLayerComponent } from './lib/resources/layer-tracks.component';
 export { ResourceSetLayerComponent } from './lib/resources/layer-resourceset.component';
 export { AnchorAlarmComponent } from './lib/alarms/layer-anchor-alarm.component';
@@ -119,12 +119,12 @@ const declarations = [
   InteractionDrawComponent,
   InteractionModifyComponent,
   InteractionDragBoxComponent,
-  FreeboardWaypointLayerComponent,
-  FreeboardNoteLayerComponent,
-  FreeboardRouteLayerComponent,
-  FreeboardRegionLayerComponent,
+  OpenBinnacleWaypointLayerComponent,
+  OpenBinnacleNoteLayerComponent,
+  OpenBinnacleRouteLayerComponent,
+  OpenBinnacleRegionLayerComponent,
   TrackLayerComponent,
-  FreeboardLiveLayerComponent,
+  OpenBinnacleLiveLayerComponent,
   ChartBoundsLayerComponent,
   ResourceSetLayerComponent,
   AnchorAlarmComponent,
@@ -164,7 +164,7 @@ const declarations = [
   declarations: [...declarations],
   exports: [...declarations]
 })
-export class FreeboardOpenlayersModule {}
+export class OpenBinnacleOpenlayersModule {}
 
 // Re-export Phase 4b additions so they enter the TS program graph
 // and consumers can import via the ol barrel.

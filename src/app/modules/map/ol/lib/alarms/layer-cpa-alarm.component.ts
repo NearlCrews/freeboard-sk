@@ -23,7 +23,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { MapThemeService } from '../theme';
 import { AsyncSubject } from 'rxjs';
 
-// ** Freeboard CPA Alarm component **
+// ** Open Binnacle CPA Alarm component **
 @Component({
   selector: 'ol-map > fb-cpa-alarms',
   template: '<ng-content></ng-content>',

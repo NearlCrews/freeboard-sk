@@ -37,14 +37,14 @@ interface LayerParam {
   param: Record<string, any>;
 }
 
-// ** Freeboard InfoLayer (live layer) **
+// ** Open Binnacle InfoLayer (live layer) **
 @Component({
   selector: 'ol-map > fb-livelayer',
   template: '<ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class FreeboardLiveLayerComponent
+export class OpenBinnacleLiveLayerComponent
   implements OnInit, OnDestroy, OnChanges
 {
   @Input() layerDefs?: FBInfoLayers;

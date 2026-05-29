@@ -21,7 +21,7 @@ import { fromLonLatArray, mapifyCoords } from '../util';
 import { AsyncSubject } from 'rxjs';
 import { Position } from 'src/app/types';
 
-// ** Freeboard Beat Angle component **
+// ** Open Binnacle Beat Angle component **
 @Component({
   selector: 'ol-map > fb-target-angle',
   template: '<ng-content></ng-content>',

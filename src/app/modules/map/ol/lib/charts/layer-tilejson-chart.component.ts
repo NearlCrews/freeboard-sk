@@ -18,7 +18,7 @@ import { extentFromBounds, resolveLayerMaxZoom } from './chart-utils';
 import { createAbortableRasterTileLoader } from './tile-loader-abort';
 import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 
-// ** Freeboard TileJSON Chart **
+// ** Open Binnacle TileJSON Chart **
 @Component({
   selector: 'ol-map > fb-tilejson-chart',
   template: '<ng-content></ng-content>',
