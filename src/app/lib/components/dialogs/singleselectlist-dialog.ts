@@ -10,7 +10,6 @@ import {
   Inject
 } from '@angular/core';
 
-import { MatInputModule } from '@angular/material/input';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -36,7 +35,6 @@ import {
   selector: 'ap-singleselectlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatInputModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,

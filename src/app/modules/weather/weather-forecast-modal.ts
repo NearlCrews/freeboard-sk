@@ -13,7 +13,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatBottomSheetRef,
-  MatBottomSheetModule,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
@@ -59,7 +58,6 @@ interface WeatherData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatBottomSheetModule,
     FbButtonComponent,
     FbIconComponent,
     FbProgressBarComponent,

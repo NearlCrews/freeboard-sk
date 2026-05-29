@@ -12,7 +12,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-  MatBottomSheetModule,
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
@@ -59,7 +58,6 @@ interface CoursePutResponse {
   selector: 'ap-course-modal',
   imports: [
     FormsModule,
-    MatBottomSheetModule,
     MatTooltipModule,
     FbButtonComponent,
     FbDatepickerComponent,
