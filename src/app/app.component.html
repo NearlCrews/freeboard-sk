@@ -3,7 +3,7 @@
     'dark-theme': app.config.display.darkMode.enabled
   }"
 >
-  <div class="appframe mat-app-background">
+  <div class="appframe fb-app-background">
     <!--toolbar button menus-->
     <ng-template #layersmenuTpl let-close="close">
       <button
@@ -1197,7 +1197,7 @@
 
           <!-- *** Playback panel ***-->
           @if (mode === 1) {
-            <div class="playbackPanel mat-app-background">
+            <div class="playbackPanel fb-app-background">
               <div style="border-radius: var(--radius-md)">
                 <fb-icon name="access_time" ariaLabel=""></fb-icon>
                 <b>Playback:</b>
@@ -1255,7 +1255,7 @@
               }
               @if (app.config.ui.showCourseData && navDataPanel().show) {
                 <div style="display: flex; flex-wrap: nowrap">
-                  <div class="mat-app-background" style="display: flex">
+                  <div class="fb-app-background" style="display: flex">
                     <div style="width: 40px">
                       <fb-button
                         variant="ghost"

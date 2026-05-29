@@ -16,7 +16,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="mat-app-background"
+      class="fb-app-background"
       style="height: 96px;border: 1px rgba(0,0,0,0) solid;"
     >
       <div style="display: flex; flex: auto; flex-wrap: nowrap; width:90px;">

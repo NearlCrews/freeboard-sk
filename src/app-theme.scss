@@ -297,3 +297,11 @@ html {
 .fb-dialog-actions[data-align='end'] {
   justify-content: flex-end;
 }
+
+/* fb-app-background: replaces the mat-app-background utility class that
+   Material applied via its theme. Surfaces that previously inherited
+   Material's "app background" semantic land on the OKLCH surface token. */
+.fb-app-background {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}

@@ -36,7 +36,7 @@ measure: boolean= measure mode;
   ],
   template: `
     <div
-      class="popover top in mat-app-background"
+      class="popover top in fb-app-background"
       [ngClass]="{ measure: measure }"
     >
       <div class="popover-title">

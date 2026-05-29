@@ -19,7 +19,7 @@ units: "<string>" dsisplay units,
   selector: 'ap-dial-text',
   imports: [],
   template: `
-    <div class="dial-text mat-app-background">
+    <div class="dial-text fb-app-background">
       <div class="dial-text-title">
         {{ title }}&nbsp;
         @if (subTitle) {
@@ -47,7 +47,7 @@ value: "<number>" TTG value in minutes
   selector: 'ap-dial-ttg',
   imports: [],
   template: `
-    <div class="dial-text mat-app-background">
+    <div class="dial-text fb-app-background">
       <div class="dial-text-title">
         TTG&nbsp;
         @if (subTitle) {
@@ -102,7 +102,7 @@ value: "<Date>" ETA date
   selector: 'ap-dial-eta',
   imports: [],
   template: `
-    <div class="dial-text mat-app-background">
+    <div class="dial-text fb-app-background">
       <div class="dial-text-title">
         ETA&nbsp;
         @if (subTitle) {

@@ -47,7 +47,7 @@ import { alertSeverityClass } from './alert-severity';
   styleUrls: ['./alert-list.component.css'],
   template: `
     <fb-card variant="outlined">
-      <div class="alert-list-main mat-app-background" cdkDrag>
+      <div class="alert-list-main fb-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
           @if (app.featureFlags().notificationApi) {
             <div>

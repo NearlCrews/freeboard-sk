@@ -51,7 +51,7 @@ interface BuildRoutePoint {
   styleUrls: ['./build-route.component.css'],
   template: `
     <fb-card>
-      <div class="rte-builder mat-app-background" cdkDrag>
+      <div class="rte-builder fb-app-background" cdkDrag>
         <div class="title" cdkDragHandle>
           <div>
             <fb-button
@@ -123,7 +123,7 @@ interface BuildRoutePoint {
                 (cdkDropListDropped)="dropEventHandler($event)"
               >
                 @for (item of rtepts; track item; let idx = $index) {
-                  <div class="wpt-box" mat-background cdkDrag>
+                  <div class="wpt-box" fb-app-background cdkDrag>
                     <div style="width:40px;">
                       <fb-icon name="room" ariaLabel=""></fb-icon>
                     </div>

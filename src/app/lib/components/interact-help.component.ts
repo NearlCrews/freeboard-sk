@@ -28,9 +28,9 @@ import {
     Measurements
   ],
   template: `
-    <div class="mat-app-background _ap_interact_help">
+    <div class="fb-app-background _ap_interact_help">
       @if (showHelpPanel()) {
-        <div class="mat-app-background measurePanel">
+        <div class="fb-app-background measurePanel">
           <div>
             <span style="font-weight: bold; padding: var(--space-xs)">
               <fb-icon [name]="mode.iconName" ariaLabel=""></fb-icon>
