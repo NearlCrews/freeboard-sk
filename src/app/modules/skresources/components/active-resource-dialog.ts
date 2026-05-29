@@ -48,7 +48,7 @@ interface CoordinatesMetaEntry {
     CdkDropList
   ],
   template: `
-    <div class="_ap-dest" class="flex flex-col">
+    <div class="_ap-dest flex flex-col">
       <div>
         <fb-toolbar class="bg-transparent">
           <span fbToolbarLeading>

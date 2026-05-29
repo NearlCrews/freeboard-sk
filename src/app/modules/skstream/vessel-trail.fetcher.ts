@@ -148,7 +148,7 @@ export class VesselTrailFetcher {
   }
 
   private apiGet(url: string): Promise<unknown> {
-    return fetch(url).then((r) => {
+    return fetch(url, { credentials: 'include' }).then((r) => {
       // fetch() resolves on HTTP errors; only network failures reject.
       // The trail endpoint is optional (only present when a track plugin
       // is installed). A 404 must surface as a rejection so the caller's

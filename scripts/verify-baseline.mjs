@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// Monotonic-decrease verifier for the freeboard-sk Phase 0 floor.
+// Monotonic-decrease verifier for the Open Binnacle Phase 0 floor.
 //
 // Tracks per-file violation counts for two rule families:
 //   @typescript-eslint/no-explicit-any  -> .eslint-any-baseline.json

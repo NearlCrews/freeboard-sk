@@ -66,7 +66,7 @@ let nextFormFieldId = 0;
         line-height: var(--line-height-tight);
       }
       .fb-form-field__required {
-        margin-left: var(--space-xxs);
+        margin-left: var(--space-xs);
         color: var(--color-error);
       }
       .fb-form-field__control {

@@ -93,15 +93,23 @@ export class DialogOrchestrator {
   }
 
   async openSettings(): Promise<void> {
+    if (this.settingsDialogOpen) return;
+    this.settingsDialogOpen = true;
     const { SettingsDialog } =
       await import('src/app/modules/settings/components/settings-dialog');
     this.dialog
       .open(SettingsDialog, {
         disableClose: true,
-        data: {}
+        data: {},
+        width: 'min(900px, 100vw)'
       })
-      .closed.subscribe(() => this.focus());
+      .closed.subscribe(() => {
+        this.settingsDialogOpen = false;
+        this.focus();
+      });
   }
+
+  private settingsDialogOpen = false;
 
   /** Route GPX vs GeoJSON imports by sniffing file content. */
   importFile(f: { data: string | ArrayBuffer; name: string }): void {

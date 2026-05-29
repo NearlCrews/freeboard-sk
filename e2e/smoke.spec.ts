@@ -4,21 +4,21 @@
 // MODERNIZATION_ROADMAP.md section 3, Phase 1.
 //
 // To run locally:
-//   1. Start signalk-server with `@signalk/freeboard-sk` loaded (port 3000 by default).
+//   1. Start signalk-server with `signalk-open-binnacle` loaded (port 3000 by default).
 //   2. `E2E_LOCAL=1 pnpm test:e2e --project=chromium`.
 
 import { expect, test } from '@playwright/test';
 
 const RUN_LOCAL = process.env.E2E_LOCAL === '1';
 
-test.describe('freeboard-sk app shell', () => {
+test.describe('Open Binnacle app shell', () => {
   test.skip(
     !RUN_LOCAL,
     'Requires a running signalk-server. Set E2E_LOCAL=1 to run.'
   );
 
   test('loads the shell and renders the map host', async ({ page }) => {
-    await page.goto('/@signalk/freeboard-sk/');
+    await page.goto('/signalk-open-binnacle/');
 
     // <app-root> presence is the cheapest landmark that proves Angular bootstrapped.
     await expect(page.locator('app-root')).toBeVisible();

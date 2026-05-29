@@ -4,7 +4,7 @@
 // baseline (monotonic-decrease ratchet matching the lint baseline).
 //
 // To run locally:
-//   1. Start signalk-server with `@signalk/freeboard-sk` loaded.
+//   1. Start signalk-server with `signalk-open-binnacle` loaded.
 //   2. `E2E_LOCAL=1 pnpm test:e2e --project=chromium -- --grep a11y`.
 //
 // To seed/refresh the baseline:
@@ -45,14 +45,14 @@ function saveBaseline(baseline: AxeBaseline): void {
   writeFileSync(BASELINE_PATH, JSON.stringify(baseline, null, 2) + '\n');
 }
 
-test.describe('freeboard-sk a11y baseline', () => {
+test.describe('Open Binnacle a11y baseline', () => {
   test.skip(
     !RUN_LOCAL,
     'Requires a running signalk-server. Set E2E_LOCAL=1 to run.'
   );
 
   test('axe-core scan does not regress the baseline', async ({ page }) => {
-    await page.goto('/@signalk/freeboard-sk/');
+    await page.goto('/signalk-open-binnacle/');
     await expect(page.locator('app-root')).toBeVisible();
     await expect(page.locator('app-root canvas').first()).toBeVisible({
       timeout: 15_000

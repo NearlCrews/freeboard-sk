@@ -114,7 +114,7 @@ export const getResourceIcon = (
     }
     return { svgIcon: wid };
   }
-  return { class: 'icon-default', name: 'help_outline' };
+  return { class: 'icon-default', name: 'help' };
 };
 
 /**

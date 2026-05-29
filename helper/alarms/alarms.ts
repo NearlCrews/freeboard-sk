@@ -41,7 +41,7 @@ import {
   SubscribeMessage,
   Update
 } from '@signalk/server-api';
-import { FreeboardHelperApp } from '../index';
+import { OpenBinnacleHelperApp } from '../index';
 import * as uuid from 'uuid';
 
 // Helpers replacing geolib (dropped Phase 4a). Server-side, low frequency,
@@ -228,7 +228,7 @@ class AreaAlarmManager {
 
 // ******************************************************************
 
-let server: FreeboardHelperApp;
+let server: OpenBinnacleHelperApp;
 let pluginId: string;
 let unsubscribes: (() => void)[] = [];
 
@@ -239,7 +239,7 @@ const getSelfPathValue = <T>(path: string): { value?: T } | undefined => {
   return server.getSelfPath(path) as { value?: T } | undefined;
 };
 
-export const initAlarms = (app: FreeboardHelperApp, id: string) => {
+export const initAlarms = (app: OpenBinnacleHelperApp, id: string) => {
   server = app;
   pluginId = id;
 

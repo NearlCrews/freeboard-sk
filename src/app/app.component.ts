@@ -1423,8 +1423,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         if (this.app.config.vessels.trailFromServer) {
           this.stream.requestTrailFromServer();
         }
-        const selfPos = this.app.data.vessels.self.position;
-        this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
+        if (this.app.featureFlags().anchorApi) {
+          const selfPos = this.app.data.vessels.self.position;
+          this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
+        }
       },
       (err: HttpErrorResponse) => {
         if (err.status && err.status === 401) {

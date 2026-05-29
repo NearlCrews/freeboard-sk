@@ -3,8 +3,8 @@
 // .github/workflows/ci.yml; the @playwright/test version must stay in
 // lock-step with the container tag.
 //
-// baseURL targets signalk-server's default port (3000); the freeboard-sk
-// plugin is served at /@signalk/freeboard-sk/. Override with E2E_BASE_URL
+// baseURL targets signalk-server's default port (3000); the Open Binnacle
+// plugin is served at /signalk-open-binnacle/. Override with E2E_BASE_URL
 // for alternate hosts.
 //
 // Projects:

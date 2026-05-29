@@ -8,7 +8,7 @@
 // job (workflow_dispatch only).
 //
 // To run locally:
-//   1. Start signalk-server with `@signalk/freeboard-sk` loaded plus the
+//   1. Start signalk-server with `signalk-open-binnacle` loaded plus the
 //      signalk-ais-fixture plugin (sibling repo) which exposes the
 //      synthetic-AIS endpoints under /plugins/signalk-ais-fixture/.
 //   2. `E2E_LOCAL=1 AIS_BURST=1 pnpm test:e2e --project=perf`
@@ -35,7 +35,7 @@ test.describe('AIS burst perf gate', () => {
   }) => {
     test.setTimeout(120_000);
 
-    await page.goto('/@signalk/freeboard-sk/');
+    await page.goto('/signalk-open-binnacle/');
     await expect(page.locator('app-root')).toBeVisible();
     await expect(page.locator('app-root canvas').first()).toBeVisible({
       timeout: 15_000

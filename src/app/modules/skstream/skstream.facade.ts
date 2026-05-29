@@ -152,7 +152,7 @@ export class SKStreamFacade {
 
   // ** open Signal K Stream
   open(options?: StreamOptions) {
-    const wsBase = this.signalk.server.endpoints?.['v1']?.['signalk-ws'];
+    const wsBase = this.signalk.resolveStreamEndpoint();
     if (!wsBase) return;
     if (options && options.startTime) {
       const url = wsBase.replace('stream', 'playback');

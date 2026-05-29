@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Build a subset of the Material Symbols Outlined variable font containing
- * only the glyphs (ligature names) freeboard-sk actually uses.
+ * only the glyphs (ligature names) Open Binnacle actually uses.
  *
  * Why this exists: the upstream Material Symbols Outlined woff2 is ~3.8 MB
  * uncompressed. After subsetting to the ~110 ligature names this app uses,
@@ -95,6 +95,7 @@ const ICON_NAMES = [
   'center_focus_weak',
   'check',
   'check_box',
+  'check_box_outline_blank',
   'chevron_left',
   'chevron_right',
   'clear_all',

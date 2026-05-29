@@ -240,7 +240,7 @@ export class DesignSystemShowcaseComponent {
   ];
   readonly waypointTypeValue = signal<string | null>(null);
   readonly glyphOptions: readonly FbSelectOption[] = [
-    { id: 'home', label: 'Home' },
+    { id: 'map', label: 'Map' },
     { id: 'anchor', label: 'Anchor' },
     { id: 'flag', label: 'Flag' },
     { id: 'place', label: 'Place' }
@@ -286,7 +286,7 @@ export class DesignSystemShowcaseComponent {
   readonly tabDefs: readonly FbTabDef[] = [
     { id: 'info', label: 'Info', icon: 'info' },
     { id: 'route', label: 'Route', icon: 'route' },
-    { id: 'notes', label: 'Notes', icon: 'note' },
+    { id: 'notes', label: 'Notes', icon: 'note_alt' },
     { id: 'archived', label: 'Archived', icon: 'archive', disabled: true }
   ];
   readonly tabsActiveId = signal<string | null>('info');
@@ -350,7 +350,7 @@ export class DesignSystemShowcaseComponent {
         }
       ]
     },
-    { id: 'notes', label: 'Notes', icon: 'note' }
+    { id: 'notes', label: 'Notes', icon: 'note_alt' }
   ];
   readonly treeActivatedId = signal<string>('');
   readonly treeSelectedNoCascade = signal<readonly string[]>([]);

@@ -384,7 +384,7 @@ export class SignalKClient implements OnDestroy {
     this.debug(`get ${url}`);
     if (this._token) {
       const headers = new HttpHeaders({ Authorization: `JWT ${this._token}` });
-      return this.http.get(url, { headers });
+      return this.http.get(url, { headers, withCredentials: true });
     }
     return this.http.get(url, { withCredentials: true });
   }
@@ -395,7 +395,7 @@ export class SignalKClient implements OnDestroy {
     this.debug(`put ${url}`);
     if (this._token) {
       const headers = new HttpHeaders({ Authorization: `JWT ${this._token}` });
-      return this.http.put(url, value, { headers });
+      return this.http.put(url, value, { headers, withCredentials: true });
     }
     return this.http.put(url, value, { withCredentials: true });
   }
@@ -410,7 +410,7 @@ export class SignalKClient implements OnDestroy {
     this.debug(`post ${url}`);
     if (this._token) {
       const headers = new HttpHeaders({ Authorization: `JWT ${this._token}` });
-      return this.http.post(url, value, { headers });
+      return this.http.post(url, value, { headers, withCredentials: true });
     }
     return this.http.post(url, value, { withCredentials: true });
   }
@@ -421,7 +421,7 @@ export class SignalKClient implements OnDestroy {
     return this.http.post(
       `${this.protocol}://${this.hostname}:${this.port}/signalk/${this._version}/auth/login`,
       { username, password },
-      { headers }
+      { headers, withCredentials: true }
     );
   }
 

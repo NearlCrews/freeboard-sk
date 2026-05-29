@@ -428,7 +428,7 @@ export class AppFacade extends InfoService {
       (this.signalk as unknown as { authToken: string | null }).authToken =
         null;
       this.isLoggedIn.set(false);
-      document.cookie = `sktoken=null; SameSite=Strict; max-age=0;`;
+      document.cookie = `sktoken=; SameSite=Strict; max-age=0;`;
       this.worker.postMessage({ cmd: 'auth', options: { token: null } });
     }
   }
@@ -471,12 +471,20 @@ export class AppFacade extends InfoService {
 
   override saveConfig(): void {
     super.saveConfig();
-    if (this.isLoggedIn()) {
-      this.signalk.appDataSet('/', this.config)?.subscribe({
-        next: () => this.debug('saveConfig: config saved to server.'),
-        error: () => this.debug('saveConfig: Cannot save config to server!')
-      });
+    if (!this.isLoggedIn()) return;
+    // Skip the remote write until processHello has populated
+    // server.endpoints. Otherwise resolveAppDataEndpoint returns an empty
+    // string and the request resolves against the page base (yielding a
+    // 404 like /signalk-open-binnacle/user/<appId>/<version>/).
+    if (
+      !this.signalk.server.endpoints?.[this.signalk.version === 1 ? 'v1' : 'v2']
+    ) {
+      return;
     }
+    this.signalk.appDataSet('/', this.config)?.subscribe({
+      next: () => this.debug('saveConfig: config saved to server.'),
+      error: () => this.debug('saveConfig: Cannot save config to server!')
+    });
   }
 
   // ----- dialog delegates -----

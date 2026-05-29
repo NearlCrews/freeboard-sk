@@ -1,6 +1,6 @@
 // @ts-check
 //
-// ESLint 10 flat config for freeboard-sk Phase 0 floor.
+// ESLint 10 flat config for Open Binnacle Phase 0 floor.
 //
 // Design notes:
 // - typescript-eslint recommendedTypeChecked is the strict spine. Rules the

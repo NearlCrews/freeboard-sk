@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "version": "2.20.0",
-    "title": "Freeboard-SK API",
-    "description": "API endpoints exposed by Freeboard-SK to support application functionality and experimental features.",
+    "title": "Open Binnacle API",
+    "description": "API endpoints exposed by Open Binnacle to support application functionality.",
     "termsOfService": "http://signalk.org/terms/",
     "license": {
       "name": "Apache 2.0",

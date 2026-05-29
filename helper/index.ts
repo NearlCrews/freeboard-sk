@@ -28,9 +28,9 @@ interface SETTINGS {
   alarms: AlarmSettings;
 }
 
-export interface FreeboardHelperApp extends Application, ServerAPI {}
+export interface OpenBinnacleHelperApp extends Application, ServerAPI {}
 
-module.exports = (server: FreeboardHelperApp): Plugin => {
+module.exports = (server: OpenBinnacleHelperApp): Plugin => {
   // ** default configuration settings
   let settings: SETTINGS = {
     alarms: {

@@ -1,4 +1,4 @@
-# freeboard-sk Playwright suite
+# Open Binnacle Playwright suite
 
 All specs in this directory are **opt-in**. CI does not start a
 signalk-server, so every spec gates on `E2E_LOCAL=1`. The AIS-burst
@@ -16,7 +16,7 @@ fixture-feed plugin on the server.
 ## Running
 
 Start signalk-server first (port 3000 by default) with
-`@signalk/freeboard-sk` loaded. Then from the repo root:
+`signalk-open-binnacle` loaded. Then from the repo root:
 
 ```bash
 # Shell smoke
@@ -44,7 +44,7 @@ server lives elsewhere.
   `{ count, hz, durationSec }`. The plugin must begin emitting
   `count` synthetic vessel deltas at `hz` Hz for `durationSec`
   seconds, addressing each vessel by a stable
-  `vessels.urn:mrn:imo:mmsi:<id>` context so the freeboard-sk
+  `vessels.urn:mrn:imo:mmsi:<id>` context so the Open Binnacle
   `dfeat.ais` Map fills to `count` entries.
 - `POST /signalk/v1/test-fixtures/ais-burst/stop` to halt the feed.
 

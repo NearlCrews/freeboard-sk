@@ -24,7 +24,7 @@ import {
       [name]="name()"
       [id]="name()"
       [rows]="rows()"
-      [placeholder]="placeholder() || null"
+      [attr.placeholder]="placeholder() || null"
       [disabled]="disabled()"
       [attr.aria-label]="ariaLabel() || null"
       [attr.aria-invalid]="invalid() || null"

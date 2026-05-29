@@ -62,7 +62,7 @@ import { DialogRef } from '@angular/cdk/dialog';
         border: 1px solid var(--color-border);
         border-radius: var(--radius-lg);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-        max-width: min(560px, 100vw);
+        max-width: 100%;
         max-height: 90vh;
         overflow: hidden;
         font-family: var(--font-family-sans);
