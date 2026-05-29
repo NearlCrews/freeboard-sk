@@ -10,8 +10,6 @@ import {
   MAT_DIALOG_DATA,
   MatDialogModule
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -62,8 +60,6 @@ interface GPXDataSummary {
     FbProgressBarComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatDividerModule,
     MatTooltipModule
   ],

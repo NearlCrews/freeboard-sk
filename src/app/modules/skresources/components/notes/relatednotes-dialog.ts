@@ -5,8 +5,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RemarkModule } from 'ngx-remark';
 
@@ -35,8 +33,6 @@ interface DialogData {
     FbIconComponent,
     MatDialogModule,
     MatTooltipModule,
-    MatFormFieldModule,
-    MatInputModule,
     FbToolbarComponent,
     RemarkModule
   ],
