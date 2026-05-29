@@ -13,9 +13,8 @@ import {
   Injectable,
   isDevMode
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
+import { FbIconRegistry } from './design-system/primitives/icon/icon-registry.service';
 
 import { AppDB, InfoService, AppInfoDef } from './lib/services';
 import { WelcomeDialog } from './lib/components/dialogs/common-dialogs';
@@ -111,8 +110,7 @@ export class AppFacade extends InfoService {
 
   protected signalk = inject(SignalKClient);
   private worker = inject(SKWorkerService);
-  private iconReg = inject(MatIconRegistry);
-  private dom = inject(DomSanitizer);
+  private iconReg = inject(FbIconRegistry);
   private s57 = inject(S57Service);
 
   // ----- delegating signal getters (back-compat surface) -----
@@ -411,13 +409,9 @@ export class AppFacade extends InfoService {
     this.settings.alignUnitPrefs(this.config, units);
   }
 
-  /** Initialises Material IconRegistry with custom icons. */
   private initAppIcons(): void {
     getSvgList().forEach((s: { id: string; path: string }) => {
-      this.iconReg.addSvgIcon(
-        s.id,
-        this.dom.bypassSecurityTrustResourceUrl(s.path)
-      );
+      this.iconReg.register(s.id, s.path);
     });
   }
 

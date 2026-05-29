@@ -10,7 +10,7 @@ import {
   input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatIconRegistry } from '@angular/material/icon';
+import { FbIconRegistry } from './icon-registry.service';
 
 export type FbIconSize = 'sm' | 'md' | 'lg';
 export type FbIconWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700;
@@ -22,10 +22,10 @@ export type FbIconFill = 0 | 1;
  * Renders either a Material Symbols ligature (via the `name` input) or
  * a registered SVG asset (via the `svgName` input). When `svgName` is
  * set it takes precedence and the SVG is inlined into the host so it
- * inherits `currentColor`. The SVG registry is shared with
- * `MatIconRegistry` (configured at app startup in `AppFacade.initAppIcons`)
- * so this primitive reuses the existing registration without a parallel
- * service.
+ * inherits `currentColor`. SVG assets are resolved through
+ * `FbIconRegistry`, which is populated at app startup in
+ * `AppFacade.initAppIcons` by registering each known svgName with its
+ * asset URL.
  *
  * A11y posture:
  *  - When `ariaLabel` is provided, the host element gets `role="img"` and
@@ -143,7 +143,7 @@ export class FbIconComponent {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly registry = inject(MatIconRegistry);
+  private readonly registry = inject(FbIconRegistry);
 
   constructor() {
     let initialized = false;
