@@ -112,6 +112,7 @@ import { DragBoxEvent } from 'ol/interaction/DragBox';
 import { MapService } from './ol/lib/map.service';
 import { MapPersistenceController } from './map-persistence.controller';
 import { MapInteractionController } from './map-interaction.controller';
+import { MapLayerController } from './map-layer.controller';
 import { MapViewportController } from './map-viewport.controller';
 import { FEATURE_ID_PREFIX_TO_RESOURCE_TYPE } from './ol/lib/resources/feature-id-prefix';
 
@@ -286,6 +287,7 @@ export class FBMapComponent
   private viewContainerRef = inject(ViewContainerRef);
   private readonly persistence = inject(MapPersistenceController);
   private readonly interaction = inject(MapInteractionController);
+  private readonly layers = inject(MapLayerController);
   private readonly viewport = inject(MapViewportController);
 
   constructor() {
@@ -1922,85 +1924,10 @@ export class FBMapComponent
 
   // ** called by onMapMoveEnd() to render features within map extent
   private renderMapContents(zoomChanged = false) {
-    if (this.shouldFetchNotes(zoomChanged)) {
-      void this.skres.refreshNotes();
-      this.app.debug(`fetching Notes...`);
-    }
-    if (this.shouldFetchResourceSets(zoomChanged)) {
-      this.app.debug(`fetching ResourceSets...`);
-      void this.skresOther.refreshResourceSetsInBounds();
-    }
-  }
-
-  // returns true when map center has moved a distance > (threshold / 2)
-  private mapMoveThresholdExceeded(threshold: number): boolean {
-    if (!this.app.data.lastGet) {
-      this.app.data.lastGet = this.app.config.map.center;
-      return true;
-    }
-    // ** calc distance from new map center to lastGet
-    const d = GeoUtils.distanceTo(
-      this.app.data.lastGet,
-      this.app.config.map.center
-    );
-    this.app.debug(`distance map moved: ${d}`);
-    // ** if d is more than half the getRadius
-    const cr =
-      this.app.config.units.distance === 'kilometer'
-        ? threshold * 1000
-        : Convert.nauticalMilesToKm(threshold) * 1000;
-
-    this.app.debug(`mapMoveThresholdExceeded: ${d >= cr / 2}`);
-    if (d >= cr / 2) {
-      this.app.data.lastGet = this.app.config.map.center;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // ** returns true if skresOther.refreshResourceSetsInBounds() should be called
-  private shouldFetchResourceSets(zoomChanged: boolean) {
-    if (
-      this.app.config.resources.fetchRadius !== 0 &&
-      this.app.config.resources.fetchFilter
-    ) {
-      if (!this.skresOther.anyResourceSetSelection()) {
-        return false;
-      }
-      if (zoomChanged) {
-        return true;
-      }
-      return this.mapMoveThresholdExceeded(50);
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * @description Determine if Notes should be fetched from the server.
-   * @param zoomChanged When true signifies that zoom level has changed.
-   * @returns true if skres.refreshNotes() should be called
-   */
-  private shouldFetchNotes(zoomChanged: boolean) {
-    this.showNoteslayer.update(
-      () =>
-        this.app.config.ui.showNotes &&
-        this.app.config.map.zoomLevel >= this.app.config.resources.notes.minZoom
-    );
-
-    this.app.debug(`lastGet: ${JSON.stringify(this.app.data.lastGet)}`);
-    this.app.debug(`getRadius: ${this.app.config.resources.notes.getRadius}`);
-
-    if (zoomChanged) {
-      if (this.mapZoomLevel() < this.app.config.resources.notes.minZoom) {
-        return false;
-      } else {
-        return true;
-      }
-    }
-    return this.mapMoveThresholdExceeded(
-      this.app.config.resources.notes.getRadius
+    this.layers.refreshOnViewChange(
+      zoomChanged,
+      this.mapZoomLevel(),
+      this.showNoteslayer
     );
   }
 }
