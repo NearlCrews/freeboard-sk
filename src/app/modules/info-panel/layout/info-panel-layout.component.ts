@@ -352,6 +352,15 @@ export class FbInfoPanelRelatedDirective {}
     }
     :host ::ng-deep .ip-body .ip-attribution__line {
       display: block;
+      padding-left: 0.9em;
+      text-indent: -0.9em;
+    }
+    :host ::ng-deep .ip-body .ip-attribution__line::before {
+      content: '\\00B7';
+      display: inline-block;
+      width: 0.9em;
+      margin: 0;
+      color: var(--color-text-muted);
     }
     :host ::ng-deep .ip-body .ip-attribution__line + .ip-attribution__line {
       margin-top: var(--space-xs);
