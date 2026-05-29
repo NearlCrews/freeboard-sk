@@ -54,6 +54,7 @@ import type {
 import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
 import { ChartsCollection } from './charts.collection';
+import { NotesCollection } from './notes.collection';
 import { RegionsCollection } from './regions.collection';
 import { RoutesCollection } from './routes.collection';
 import { TracksCollection } from './tracks.collection';
@@ -120,12 +121,6 @@ interface RawVessel {
 }
 type RawVessels = Record<string, RawVessel>;
 
-// Hoisted so `fromCache()` does not re-allocate a 6-element array
-// per call (called on every per-feature interaction lookup).
-const CACHED_COLLECTIONS: ReadonlySet<SKResourceType> = new Set(
-  SK_RESOURCE_TYPES
-);
-
 // ** Signal K resource operations
 @Injectable({ providedIn: 'root' })
 export class SKResourceService {
@@ -138,6 +133,7 @@ export class SKResourceService {
 
   private readonly selectionsManager = inject(SelectionsManager);
   private readonly chartsCollection = inject(ChartsCollection);
+  private readonly notesCollection = inject(NotesCollection);
   private readonly regionsCollection = inject(RegionsCollection);
   private readonly routesCollection = inject(RoutesCollection);
   private readonly tracksCollection = inject(TracksCollection);
@@ -182,40 +178,9 @@ export class SKResourceService {
   // ******** Resource cache operations ********************
 
   /**
-   * @description Fetch relatated notes for the supplied resource identifier
-   * @param collection Signal K resource type
-   * @param id Resource identifier
-   * @returns Promise containing an array of related notes
-   */
-  private async fetchRelatedNotes(
-    collection: SKResourceType,
-    id: string
-  ): Promise<FBNotes> {
-    try {
-      return await this.listFromServer<FBNote>(
-        'notes',
-        `href=/resources/${collection}/${id}`
-      );
-    } catch {
-      return [];
-    }
-  }
-
-  /**
-   * @description Return reference to cache for supplied resource type
-   * @param collection
-   * @returns Reference to resource cache
-   */
-  private getCacheRef(collection: Extract<SKResourceType, 'notes'>) {
-    switch (collection) {
-      case 'notes':
-        return this.noteCacheSignal;
-    }
-  }
-
-  /**
-   * @description Retrieve cached resource entry (app.data)
-   * @params cache Resource cache to use (e.g. routes, etc.)
+   * @description Retrieve cached resource entry. The dispatcher routes
+   *   each collection to its per-type collection service.
+   * @params collection Resource collection name
    * @params id Resource identifier
    * @returns resource entry
    */
@@ -233,30 +198,20 @@ export class SKResourceService {
     collection: SKResourceType,
     id: string
   ): FBRoute | FBWaypoint | FBNote | FBRegion | FBTrack | FBChart | undefined {
-    if (collection === 'tracks') {
-      return this.tracksCollection.fromCache(id);
+    switch (collection) {
+      case 'tracks':
+        return this.tracksCollection.fromCache(id);
+      case 'regions':
+        return this.regionsCollection.fromCache(id);
+      case 'waypoints':
+        return this.waypointsCollection.fromCache(id);
+      case 'routes':
+        return this.routesCollection.fromCache(id);
+      case 'charts':
+        return this.chartsCollection.fromCache(id);
+      case 'notes':
+        return this.notesCollection.fromCache(id);
     }
-    if (collection === 'regions') {
-      return this.regionsCollection.fromCache(id);
-    }
-    if (collection === 'waypoints') {
-      return this.waypointsCollection.fromCache(id);
-    }
-    if (collection === 'routes') {
-      return this.routesCollection.fromCache(id);
-    }
-    if (collection === 'charts') {
-      return this.chartsCollection.fromCache(id);
-    }
-    if (CACHED_COLLECTIONS.has(collection)) {
-      const cache = this.getCacheRef(collection);
-      if (!cache) {
-        this.app.showAlert('Error', 'Collection not found!');
-        return undefined;
-      }
-      return cache().find((r) => r[0] === id) as FBNote | undefined;
-    }
-    return undefined;
   }
 
   // ******** SK Resource operations ********************
@@ -381,7 +336,7 @@ export class SKResourceService {
           id
         );
       case 'notes':
-        return this.transformNote(resource as NoteResource, id);
+        return this.notesCollection.transform(resource as NoteResource, id);
       case 'charts':
         return this.chartsCollection.transform(resource as ChartResource, id);
       case 'tracks':
@@ -741,282 +696,34 @@ export class SKResourceService {
     this.regionsCollection.toggleSelection(ids);
   }
 
-  // **** NOTES ****
+  // **** NOTES (delegated to NotesCollection) ****
 
-  private noteCacheSignal = signal<FBNotes>([]);
-  readonly notes = this.noteCacheSignal.asReadonly();
+  readonly notes = this.notesCollection.notes;
 
-  /**
-   * @description Fill cache with notes fetched from sk server
-   * @param query Filter criteria for notes placed in the cache
-   */
-  public async refreshNotes(query?: string): Promise<void> {
-    query =
-      query ??
-      processUrlTokens(
-        this.app.config.resources.notes.rootFilter,
-        this.app.config
-      );
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshNotes->query: ${query}`);
-    try {
-      const notes = await this.listFromServer<FBNote>('notes', query);
-      const flist = notes.filter((note: FBNote) => note[2]);
-      this.noteCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshNotes:', err);
-    }
+  public refreshNotes(query?: string): Promise<void> {
+    return this.notesCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param note Note resource from server
-   * @param id Note id
-   * @returns SKNote object
-   */
-  private transformNote(note: NoteResource, id: string): SKNote {
-    // replace title with name
-    if (!note.name) {
-      note.name = note.title ?? 'Note-' + id.slice(-6);
-      if (note.title) {
-        delete note.title;
-      }
-    }
-    if (!note.href) {
-      note.href = note.region ?? '';
-      if (note.region) {
-        delete note.region;
-      }
-      if (note.href && note.href.includes('resources/')) {
-        const a = note.href.split('/');
-        const last = a[a.length - 1];
-        if (typeof last === 'string') {
-          const segments = last.split(':');
-          const h = segments[segments.length - 1];
-          if (typeof h === 'string') {
-            a[a.length - 1] = h;
-            note.href = a.join('/');
-          }
-        }
-      }
-    }
-    if (typeof note.properties === 'undefined') {
-      note.properties = {};
-    }
-    if (typeof note.position === 'undefined') {
-      if (typeof note.geohash !== 'undefined') {
-        // replace geohash with position
-        const gh = GeoUtils.geohashDecode(note.geohash);
-        note.position = { latitude: gh.latitude, longitude: gh.longitude };
-        delete note.geohash;
-      }
-    }
-    return new SKNote(note);
-  }
-
-  /**
-   * @description Handle note selection
-   * @param id Note identifier
-   * @param showRelated true = show related notes dialog, false = show Note information
-   * @returns SKNote object
-   */
   public noteSelected(id: string, showRelated: boolean): void {
-    if (showRelated) {
-      this.showRelatedNotes(id, 'group');
-    } else {
-      this.showNoteDetails(id);
-    }
+    this.notesCollection.selected(id, showRelated);
   }
 
-  /**
-   * @description Create note resource on the server
-   * @param note SKNote object
-   */
-  private async createNote(note: SKNote): Promise<void> {
-    try {
-      await this.postToServer('notes', note);
-      this.reopenRelatedDialog();
-    } catch (err) {
-      this.app.parseHttpErrorResponse(err);
-    }
-  }
-
-  /**
-   * @description Open Note editing dialog. `data` carries the dialog inputs
-   *   that NoteDialog reads (noteId is used by the caller to dispatch to
-   *   create vs update, and is not passed to the dialog itself).
-   */
-  private async openNoteForEdit(e: {
-    noteId: string | null;
-    note: SKNote | null;
-    editable: boolean;
-    addNote: boolean;
-    title: string | null;
-    region?: { id: string; exists: boolean } | null;
-    createRegion?: boolean | null;
-  }): Promise<void> {
-    const { NoteDialog } =
-      await import('src/app/modules/skresources/components/notes/note-dialog');
-    this.dialog
-      .open(NoteDialog, {
-        disableClose: true,
-        data: {
-          note: e.note,
-          editable: e.editable,
-          addNote: e.addNote,
-          title: e.title
-        }
-      })
-      .closed.subscribe(async (res) => {
-        const r = res as { result?: boolean; data?: SKNote } | undefined;
-        if (r?.result && r.data) {
-          // ** save / update **
-          const note = r.data;
-          if (!e.noteId) {
-            // add note
-            this.createNote(note);
-          } else {
-            // update note
-            if (typeof note.href !== 'undefined' && !note.href) {
-              delete (note as Partial<SKNote>).href;
-            }
-            try {
-              await this.putToServer('notes', e.noteId, note);
-              this.reopenRelatedDialog();
-            } catch (err) {
-              this.app.parseHttpErrorResponse(err);
-            }
-          }
-        } else {
-          // cancel
-          this.reopenRelatedDialog();
-        }
-      });
-  }
-
-  /**
-   * @description Reopen last related notes dialog
-   * @param noReset true = does not reset reOpen object
-   */
-  private reopenRelatedDialog(noReset = false): void {
-    if (this.reOpen.key && this.reOpen.value) {
-      this.showRelatedNotes(
-        this.reOpen.value,
-        this.reOpen.key,
-        this.reOpen.readOnly
-      );
-      if (noReset) {
-        return;
-      }
-      this.reOpen = {};
-    }
-  }
-
-  /**
-   * Fetch a list of related notes for the supplied resource identifier
-   * @param collection - Type of resource
-   * @param id - Resource identifier
-   */
-  public async getRelatedNotes(
+  public getRelatedNotes(
     collection: SKResourceType,
     id: string
   ): Promise<FBNotes> {
-    try {
-      return await this.listFromServer<FBNote>(
-        'notes',
-        `href=/resources/${collection}/${id}`
-      );
-    } catch {
-      return [];
-    }
+    return this.notesCollection.getRelated(collection, id);
   }
 
-  /**
-   * @description Fetch and display related Notes list
-   * @param id Parent resource identifier
-   * @param relatedBy How the notes to fetch are related to the parent
-   * 'group' | destination | 'region' | 'waypoint' | 'route' | 'note'
-   * @readonly true disables edit controls.
-   */
-  public async showRelatedNotes(
+  public showRelatedNotes(
     id: string,
     relatedBy = 'region',
     readOnly = false
   ): Promise<void> {
-    let paramName: string;
-    if (!['group', 'destination'].includes(relatedBy)) {
-      id = !id.includes(relatedBy) ? `/resources/${relatedBy}s/${id}` : id;
-      paramName = 'href';
-    } else {
-      paramName = relatedBy;
-    }
-    this.app.sIsFetching.set(true);
-    try {
-      const notes = await this.listFromServer<FBNote>(
-        'notes',
-        `${paramName}=${id}`
-      );
-      this.app.sIsFetching.set(false);
-      const { RelatedNotesDialog } =
-        await import('./components/notes/relatednotes-dialog');
-      this.dialog
-        .open(RelatedNotesDialog, {
-          disableClose: true,
-          data: { notes: notes, relatedBy: relatedBy, readOnly: readOnly }
-        })
-        .closed.subscribe((res) => {
-          const r = res as
-            | { result?: boolean; data?: string; id?: string }
-            | undefined;
-          if (!r?.result) {
-            return;
-          }
-          if (relatedBy) {
-            this.reOpen = {
-              key: relatedBy,
-              value: id,
-              readOnly: readOnly
-            };
-          } else {
-            this.reOpen = {};
-          }
-          switch (r.data) {
-            case 'edit':
-              if (r.id) {
-                this.showNoteEditor({ id: r.id });
-              }
-              break;
-            case 'add':
-              if (relatedBy !== 'group') {
-                this.showNoteEditor({
-                  type: relatedBy,
-                  href: { id: id, exists: true }
-                });
-              }
-              break;
-            case 'delete':
-              if (r.id) {
-                this.deleteNote(r.id);
-              }
-              break;
-          }
-        });
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      void err;
-      this.app.showAlert(
-        'ERROR',
-        `Unable to retrieve Notes for specified ${relatedBy}!`
-      );
-    }
+    return this.notesCollection.showRelated(id, relatedBy, readOnly);
   }
 
-  /**
-   * @description Display Add / Update Note Dialog
-   */
-  public async showNoteEditor(
+  public showNoteEditor(
     e: {
       id?: string;
       position?: Position;
@@ -1025,188 +732,19 @@ export class SKResourceService {
       href?: { id: string; exists: boolean };
     } | null = null
   ): Promise<void> {
-    let note: SKNote;
-    const data: {
-      noteId: string | null;
-      note: SKNote | null;
-      editable: boolean;
-      addNote: boolean;
-      title: string | null;
-      region: { id: string; exists: boolean } | null;
-      createRegion: boolean | null;
-    } = {
-      noteId: null,
-      note: null,
-      editable: true,
-      addNote: true,
-      title: null,
-      region: null,
-      createRegion: null
-    };
-
-    if (!e) {
-      return;
-    }
-    if (!e.id && e.position) {
-      // add note at provided position
-      data.title = 'Add Note';
-      note = new SKNote();
-      if (e.group) {
-        note.group = e.group;
-      }
-      const pos = GeoUtils.normaliseCoords(e.position);
-      note.position = { latitude: pos[1], longitude: pos[0] };
-      note.name = '';
-      note.description = '';
-      data.note = note;
-      this.openNoteForEdit(data);
-    } else if (!e.id && !e.position && e.group) {
-      // add note in provided group with no position
-      data.title = 'Add Note to Group';
-      note = new SKNote();
-      note.group = e.group;
-      note.name = '';
-      note.description = '';
-      data.note = note;
-      this.openNoteForEdit(data);
-    } else if (!e.id && e.href && e.type) {
-      // add note to existing resource or new/existing region
-      note = new SKNote();
-      note.href = !e.href.id.includes(e.type)
-        ? `/resources/${e.type}s/${e.href.id}`
-        : e.href.id;
-      note.name = '';
-      note.description = '';
-
-      data.title = `Add Note to ${e.type}`;
-      data.region = e.href;
-      data.note = note;
-      data.createRegion = e.href.exists ? false : e.type === 'region';
-      this.openNoteForEdit(data);
-    } else if (e.id) {
-      // edit selected note details
-      this.app.sIsFetching.set(true);
-      try {
-        const res = await this.fromServer('notes', e.id);
-        this.app.sIsFetching.set(false);
-        data.noteId = e.id;
-        data.title = 'Edit Note';
-        data.note = res;
-        data.addNote = false;
-        this.openNoteForEdit(data);
-      } catch (err) {
-        this.app.sIsFetching.set(false);
-        void err;
-        this.app.showAlert('ERROR', 'Unable to retrieve Note!');
-      }
-    }
+    return this.notesCollection.showEditor(e);
   }
 
-  /**
-   * @description Fetch note with supplied id and display details dialog
-   * @param id note identifier
-   */
-  public async showNoteDetails(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let note: SKNote;
-    try {
-      this.app.sIsFetching.set(true);
-      note = await this.fromServer('notes', id);
-      this.app.sIsFetching.set(false);
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      void err;
-      this.app.showAlert('ERROR', 'Unable to retrieve Note!');
-      return;
-    }
-    const { NoteDialog } =
-      await import('src/app/modules/skresources/components/notes/note-dialog');
-    this.dialog
-      .open(NoteDialog, {
-        disableClose: true,
-        data: { note: note, editable: false }
-      })
-      .closed.subscribe((res) => {
-        const r = res as
-          | { result?: boolean; data?: string; value?: string }
-          | undefined;
-        if (!r?.result) {
-          return;
-        }
-        if (r.data === 'url') {
-          // ** open url in new tab **
-          window.open(note.url, 'note');
-        }
-        if (r.data === 'edit') {
-          this.showNoteEditor({ id: id });
-        }
-        if (r.data === 'delete') {
-          this.deleteNote(id);
-        }
-        if (r.data === 'group' && r.value) {
-          this.showRelatedNotes(r.value, r.data);
-        }
-      });
+  public showNoteDetails(id: string): Promise<void> {
+    return this.notesCollection.showDetails(id);
   }
 
-  /**
-   * @description Confirm Note Deletion
-   * @param id Note identifier
-   */
   public deleteNote(id: string): void {
-    if (!id) {
-      return;
-    }
-    this.app
-      .showConfirm(
-        'Do you want to delete this Note from the server?\n',
-        'Delete Note:',
-        'YES',
-        'NO'
-      )
-      .subscribe(async (res) => {
-        const ok = res as { ok: boolean } | boolean | undefined;
-        const confirmed = typeof ok === 'boolean' ? ok : Boolean(ok && ok.ok);
-        if (confirmed) {
-          try {
-            await this.deleteFromServer('notes', id);
-            this.reopenRelatedDialog();
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        } else {
-          this.reopenRelatedDialog();
-        }
-      });
+    this.notesCollection.delete(id);
   }
 
-  /** modify Note position
-   * @description Update the position of the specified note
-   * @param id Note identifier
-   * @param position New note position coordinates
-   */
-  public async updateNotePosition(
-    id: string,
-    position: Position
-  ): Promise<void> {
-    if (!id) {
-      return;
-    }
-    const t = this.fromCache('notes', id);
-    if (!t) {
-      return;
-    }
-    const note = t[1];
-    position = GeoUtils.normaliseCoords(position);
-    note.position = { latitude: position[1], longitude: position[0] };
-    try {
-      await this.putToServer('notes', id, note);
-      this.reopenRelatedDialog();
-    } catch (err) {
-      this.app.parseHttpErrorResponse(err);
-    }
+  public updateNotePosition(id: string, position: Position): Promise<void> {
+    return this.notesCollection.updatePosition(id, position);
   }
 
   // **** TRACKS (delegated to TracksCollection) ****
