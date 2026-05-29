@@ -41,7 +41,7 @@ import { Collection, Feature } from 'ol';
 import { Feature as GeoJsonFeature } from 'geojson';
 
 import { Convert } from 'src/app/lib/convert';
-import { GeoUtils, Angle } from 'src/app/lib/geoutils';
+import { GeoUtils } from 'src/app/lib/geoutils';
 import {
   LineString,
   MultiLineString,
@@ -92,7 +92,6 @@ import { Coordinate } from 'ol/coordinate';
 import {
   FBMapEvent,
   FBPointerEvent,
-  zoomOffsetLevel,
   MapComponent
 } from './ol/lib/map.component';
 import WebGLTileLayer from 'ol/layer/WebGLTile';
@@ -111,6 +110,7 @@ import {
 import { DragBoxEvent } from 'ol/interaction/DragBox';
 import { MapService } from './ol/lib/map.service';
 import { MapPersistenceController } from './map-persistence.controller';
+import { MapFocusController } from './map-focus.controller';
 import { MapInteractionController } from './map-interaction.controller';
 import { MapLayerController } from './map-layer.controller';
 import { MapViewportController } from './map-viewport.controller';
@@ -121,7 +121,7 @@ interface IResource {
   type: string;
 }
 
-interface IFeatureData {
+export interface IFeatureData {
   aircraft: Map<string, SKAircraft>;
   atons: Map<string, SKAtoN>;
   sar: Map<string, SKSaR>;
@@ -286,6 +286,7 @@ export class FBMapComponent
   private fbMenu = inject(FbMenuService);
   private viewContainerRef = inject(ViewContainerRef);
   private readonly persistence = inject(MapPersistenceController);
+  private readonly focus = inject(MapFocusController);
   private readonly interaction = inject(MapInteractionController);
   private readonly layers = inject(MapLayerController);
   private readonly viewport = inject(MapViewportController);
@@ -1603,189 +1604,15 @@ export class FBMapComponent
     this.viewport.centerVessel(this.mapCenterPositon);
   }
 
-  /** construct vessel lines for rendering */
-  protected drawVesselLines(vesselUpdate = false) {
-    const z = this.mapZoomLevel();
-    const offset = z < 29 ? (zoomOffsetLevel[Math.floor(z)] ?? 60) : 60;
-    const wMax = 10; // max line length
-
-    // update vessel trail
-    if (vesselUpdate && this.dfeat.self.position) {
-      this.app.addToSelfTrail(this.dfeat.self.position);
-    }
-
-    // render laylines
-    this.buildLaylines();
-
-    // render cog, heading, twd, awa for focused vessel
-    const active = this.dfeat.active;
-    const cog = active.vectors.cog ?? [];
-    const sog = active.sog || 0;
-    const headingLen = this.app.config.vessels.selfLines.heading.length;
-    const hl =
-      headingLen === -1
-        ? (sog > wMax ? wMax : sog) * offset
-        : Convert.nauticalMilesToKm(headingLen) * 1000;
-    const activePos = active.position;
-    const heading: LineString = activePos
-      ? [
-          activePos,
-          GeoUtils.rhumbDestination(activePos, active.orientation, hl)
-        ]
-      : [];
-    this.vesselLines.set({ cog, heading });
-  }
-
-  /** calculate vessel & dest laylines & update signals */
-  private buildLaylines() {
-    const navPos = this.dfeat.navData.position;
-    if (
-      !this.app.config.vessels.laylines ||
-      !Array.isArray(navPos) ||
-      typeof navPos[0] !== 'number' ||
-      typeof this.app.data.vessels.active.heading !== 'number'
-    ) {
-      return;
-    }
-    const twd_deg = Convert.radiansToDegrees(
-      this.app.data.vessels.self.wind.direction ?? 0
-    );
-
-    const twd_inv = Angle.add(twd_deg, 180);
-
-    const destUpwind =
-      Math.abs(
-        Angle.difference(this.course.courseData().bearing.value, twd_deg)
-      ) < 90;
-
-    // beat angle
-    const ba_deg = Convert.radiansToDegrees(
-      this.app.data.vessels.self.performance.beatAngle ?? Math.PI / 4
-    );
-
-    // gybe angle
-    let ga_deg: number | undefined;
-    let ga_diff: number | undefined;
-    if (typeof this.app.data.vessels.self.performance.gybeAngle === 'number') {
-      ga_deg = Convert.radiansToDegrees(
-        this.app.data.vessels.self.performance.gybeAngle
-      );
-      ga_diff = 180 - Math.abs(ga_deg);
-    }
-
-    const destInTarget = destUpwind
-      ? Math.abs(
-          Angle.difference(this.course.courseData().bearing.value, twd_deg)
-        ) < ba_deg
-      : Math.abs(
-          Angle.difference(this.course.courseData().bearing.value, twd_inv)
-        ) < (ga_diff ?? 0);
-
-    const dtg =
-      this.app.config.units.distance === 'kilometer'
-        ? this.course.courseData().dtg * 1000
-        : Convert.nauticalMilesToKm(this.course.courseData().dtg * 1000);
-
-    // mark laylines
-    let markLines: Position[] = [];
-    if (destUpwind) {
-      const bapt1 = GeoUtils.destCoordinate(
-        navPos,
-        Convert.degreesToRadians(Angle.add(twd_inv, ba_deg)),
-        dtg
-      );
-      const bapt2 = GeoUtils.destCoordinate(
-        navPos,
-        Convert.degreesToRadians(Angle.add(twd_inv, 0 - ba_deg)),
-        dtg
-      );
-
-      markLines = [bapt1, navPos, bapt2];
-    } else if (typeof ga_deg === 'number') {
-      const gapt1 = GeoUtils.destCoordinate(
-        navPos,
-        Convert.degreesToRadians(Angle.add(twd_inv, ga_deg)),
-        dtg
-      );
-      const gapt2 = GeoUtils.destCoordinate(
-        navPos,
-        Convert.degreesToRadians(Angle.add(twd_inv, 0 - ga_deg)),
-        dtg
-      );
-
-      markLines = [gapt1, navPos, gapt2];
-    }
-
-    this.perfTargetAngle.update(() => markLines);
-
-    // vessel laylines
-    if (!destInTarget) {
-      return;
-    }
-    const hbd_deg = Angle.difference(
-      twd_deg,
-      this.course.courseData().bearing.value
-    );
-    let ipts: Position | undefined;
-    let iptp: Position | undefined;
-    const activePos = this.app.data.vessels.active.position;
-
-    if (destUpwind && activePos) {
-      // Vector angles
-      const C_RAD = Convert.degreesToRadians(ba_deg - hbd_deg);
-      const B_RAD = Convert.degreesToRadians(ba_deg + hbd_deg);
-      const A_RAD = Math.PI - (B_RAD + C_RAD);
-      const b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
-      const c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
-      ipts = GeoUtils.destCoordinate(
-        activePos,
-        Convert.degreesToRadians(Angle.add(twd_deg, ba_deg)),
-        b
-      );
-      iptp = GeoUtils.destCoordinate(
-        activePos,
-        Convert.degreesToRadians(Angle.add(twd_deg, 0 - ba_deg)),
-        c
-      );
-    } else if (
-      !destUpwind &&
-      markLines.length !== 0 &&
-      typeof ga_diff === 'number' &&
-      activePos
-    ) {
-      // downwind
-      const C_RAD = Convert.degreesToRadians(ga_diff - hbd_deg);
-      const B_RAD = Convert.degreesToRadians(ga_diff + hbd_deg);
-      const A_RAD = Math.PI - (B_RAD + C_RAD);
-      const b = (dtg * Math.sin(B_RAD)) / Math.sin(A_RAD);
-      const c = (dtg * Math.sin(C_RAD)) / Math.sin(A_RAD);
-      ipts = GeoUtils.destCoordinate(
-        activePos,
-        Convert.degreesToRadians(Angle.add(twd_deg, ga_diff)),
-        b
-      );
-      iptp = GeoUtils.destCoordinate(
-        activePos,
-        Convert.degreesToRadians(Angle.add(twd_deg, 0 - ga_diff)),
-        c
-      );
-    }
-
-    const ml1 = markLines[1];
-    if (!ipts || !iptp || !activePos || !ml1) {
-      return;
-    }
-    this.perfLaylines.update(() => {
-      return {
-        port: [
-          [iptp as Position, activePos],
-          [ipts as Position, activePos]
-        ],
-        starboard: [
-          [ipts as Position, ml1],
-          [ml1, iptp as Position]
-        ]
-      };
+  /** Construct vessel lines for rendering (delegated). */
+  protected drawVesselLines(vesselUpdate = false): void {
+    this.focus.drawVesselLines({
+      mapZoomLevel: this.mapZoomLevel(),
+      vesselUpdate,
+      dfeat: this.dfeat,
+      vesselLines: this.vesselLines,
+      perfTargetAngle: this.perfTargetAngle,
+      perfLaylines: this.perfLaylines
     });
   }
 
