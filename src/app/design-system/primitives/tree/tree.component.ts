@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Directive,
   ElementRef,
   HostListener,
   computed,
@@ -70,6 +71,182 @@ function flattenVisible<T>(
     }
   }
   return out;
+}
+
+/**
+ * Shared base for `FbTreeComponent` and `FbTreeSelectComponent`. Holds the
+ * visible-row flattening, expansion overrides, roving tabindex, indent
+ * helper, chevron click, base row click, and the navigation keydown logic
+ * (ArrowUp/Down/Left/Right, Home/End, Enter). Subclasses override
+ * `onRowClick` and `onKeyDown` only when their semantics diverge (selection
+ * + space-bar toggle in the select variant).
+ *
+ * Marked @Directive so Angular accepts the signal-based inputs/outputs and
+ * @HostListener declarations under inheritance; the directive itself has no
+ * selector and is never instantiated directly.
+ */
+@Directive()
+export abstract class FbTreeBase<T = unknown> {
+  readonly nodes = input.required<readonly FbTreeNode<T>[]>();
+  readonly ariaLabel = input<string | undefined>(undefined);
+  readonly defaultExpanded = input<boolean>(false);
+
+  readonly activated = output<FbTreeNode<T>>();
+
+  protected readonly expansionOverrides = signal<ReadonlyMap<string, boolean>>(
+    new Map()
+  );
+
+  readonly rows = computed<readonly FlatTreeRow<T>[]>(() =>
+    flattenVisible(
+      this.nodes(),
+      this.expansionOverrides(),
+      this.defaultExpanded()
+    )
+  );
+
+  readonly rovingIndex = signal<number>(0);
+
+  protected readonly rowRefs = viewChildren<ElementRef<HTMLDivElement>>('row');
+
+  protected indentFor(level: number): string {
+    return `calc(var(--space-md) + ${level} * 1.25rem)`;
+  }
+
+  protected toggleExpanded(id: string, force?: boolean): void {
+    const overrides = new Map(this.expansionOverrides());
+    const currentRow = this.rows().find((r) => r.node.id === id);
+    const currentOpen = currentRow?.expanded ?? this.defaultExpanded();
+    const target = force === undefined ? !currentOpen : force;
+    overrides.set(id, target);
+    this.expansionOverrides.set(overrides);
+  }
+
+  protected onChevronClick(row: FlatTreeRow<T>, event: MouseEvent): void {
+    event.stopPropagation();
+    if (row.node.disabled) return;
+    this.toggleExpanded(row.node.id);
+  }
+
+  protected onRowClick(
+    row: FlatTreeRow<T>,
+    index: number,
+    _event: MouseEvent
+  ): void {
+    if (row.node.disabled) return;
+    this.rovingIndex.set(index);
+    this.focusRow(index);
+    if (row.hasChildren) {
+      this.toggleExpanded(row.node.id);
+    } else {
+      this.activated.emit(row.node);
+    }
+  }
+
+  @HostListener('focus')
+  protected onHostFocus(): void {
+    this.focusRow(this.rovingIndex());
+  }
+
+  protected onKeyDown(event: KeyboardEvent): void {
+    const key = event.key;
+    const rows = this.rows();
+    if (rows.length === 0) return;
+    if (!this.isNavKey(key)) return;
+    const current = this.rovingIndex();
+    const row = rows[current];
+    if (!row) return;
+
+    if (key === 'Enter') {
+      event.preventDefault();
+      if (row.node.disabled) return;
+      if (row.hasChildren) {
+        this.toggleExpanded(row.node.id);
+      } else {
+        this.activated.emit(row.node);
+      }
+      return;
+    }
+
+    if (this.handleExtraKey(key, row, event)) return;
+
+    if (key === 'Home' || key === 'End') {
+      event.preventDefault();
+      const next = key === 'Home' ? 0 : rows.length - 1;
+      this.rovingIndex.set(next);
+      this.focusRow(next);
+      return;
+    }
+
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
+      event.preventDefault();
+      const step = key === 'ArrowDown' ? 1 : -1;
+      let next = current + step;
+      if (next < 0) next = 0;
+      if (next > rows.length - 1) next = rows.length - 1;
+      this.rovingIndex.set(next);
+      this.focusRow(next);
+      return;
+    }
+
+    if (key === 'ArrowRight') {
+      event.preventDefault();
+      if (row.hasChildren && !row.expanded) {
+        this.toggleExpanded(row.node.id, true);
+        return;
+      }
+      if (row.hasChildren && row.expanded) {
+        const next = current + 1;
+        if (next < rows.length) {
+          this.rovingIndex.set(next);
+          this.focusRow(next);
+        }
+      }
+      return;
+    }
+
+    if (key === 'ArrowLeft') {
+      event.preventDefault();
+      if (row.hasChildren && row.expanded) {
+        this.toggleExpanded(row.node.id, false);
+        return;
+      }
+      if (row.parentId !== null) {
+        const parentIdx = rows.findIndex((r) => r.node.id === row.parentId);
+        if (parentIdx >= 0) {
+          this.rovingIndex.set(parentIdx);
+          this.focusRow(parentIdx);
+        }
+      }
+    }
+  }
+
+  protected isNavKey(key: string): boolean {
+    return (
+      key === 'ArrowDown' ||
+      key === 'ArrowUp' ||
+      key === 'ArrowRight' ||
+      key === 'ArrowLeft' ||
+      key === 'Home' ||
+      key === 'End' ||
+      key === 'Enter'
+    );
+  }
+
+  /** Subclass hook for keys the base does not own (e.g. space-bar in
+   *  TreeSelect). Return true to short-circuit further base handling. */
+  protected handleExtraKey(
+    _key: string,
+    _row: FlatTreeRow<T>,
+    _event: KeyboardEvent
+  ): boolean {
+    return false;
+  }
+
+  protected focusRow(index: number): void {
+    const refs = this.rowRefs();
+    refs[index]?.nativeElement.focus();
+  }
 }
 
 /**
@@ -236,156 +413,9 @@ function flattenVisible<T>(
     `
   ]
 })
-export class FbTreeComponent<T = unknown> {
-  readonly nodes = input.required<readonly FbTreeNode<T>[]>();
-  readonly ariaLabel = input<string | undefined>(undefined);
-  readonly defaultExpanded = input<boolean>(false);
-
-  readonly activated = output<FbTreeNode<T>>();
-
-  protected readonly expansionOverrides = signal<ReadonlyMap<string, boolean>>(
-    new Map()
-  );
-
-  readonly rows = computed<readonly FlatTreeRow<T>[]>(() =>
-    flattenVisible(
-      this.nodes(),
-      this.expansionOverrides(),
-      this.defaultExpanded()
-    )
-  );
-
-  readonly rovingIndex = signal<number>(0);
-
-  private readonly rowRefs = viewChildren<ElementRef<HTMLDivElement>>('row');
-
-  protected indentFor(level: number): string {
-    return `calc(var(--space-md) + ${level} * 1.25rem)`;
-  }
-
+export class FbTreeComponent<T = unknown> extends FbTreeBase<T> {
   protected ariaSelectedFor(_id: string): string | null {
     return null;
-  }
-
-  protected toggleExpanded(id: string, force?: boolean): void {
-    const overrides = new Map(this.expansionOverrides());
-    const currentRow = this.rows().find((r) => r.node.id === id);
-    const currentOpen = currentRow?.expanded ?? this.defaultExpanded();
-    const target = force === undefined ? !currentOpen : force;
-    overrides.set(id, target);
-    this.expansionOverrides.set(overrides);
-  }
-
-  protected onChevronClick(row: FlatTreeRow<T>, event: MouseEvent): void {
-    event.stopPropagation();
-    if (row.node.disabled) return;
-    this.toggleExpanded(row.node.id);
-  }
-
-  protected onRowClick(
-    row: FlatTreeRow<T>,
-    index: number,
-    _event: MouseEvent
-  ): void {
-    if (row.node.disabled) return;
-    this.rovingIndex.set(index);
-    this.focusRow(index);
-    if (!row.hasChildren) {
-      this.activated.emit(row.node);
-    } else {
-      this.toggleExpanded(row.node.id);
-    }
-  }
-
-  @HostListener('focus')
-  protected onHostFocus(): void {
-    this.focusRow(this.rovingIndex());
-  }
-
-  protected onKeyDown(event: KeyboardEvent): void {
-    const key = event.key;
-    const rows = this.rows();
-    if (rows.length === 0) return;
-    const navKeys = new Set([
-      'ArrowDown',
-      'ArrowUp',
-      'ArrowRight',
-      'ArrowLeft',
-      'Home',
-      'End',
-      'Enter'
-    ]);
-    if (!navKeys.has(key)) return;
-    const current = this.rovingIndex();
-    const row = rows[current];
-    if (!row) return;
-
-    if (key === 'Enter') {
-      event.preventDefault();
-      if (row.node.disabled) return;
-      if (row.hasChildren) {
-        this.toggleExpanded(row.node.id);
-      } else {
-        this.activated.emit(row.node);
-      }
-      return;
-    }
-
-    if (key === 'Home' || key === 'End') {
-      event.preventDefault();
-      const next = key === 'Home' ? 0 : rows.length - 1;
-      this.rovingIndex.set(next);
-      this.focusRow(next);
-      return;
-    }
-
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
-      event.preventDefault();
-      const step = key === 'ArrowDown' ? 1 : -1;
-      let next = current + step;
-      if (next < 0) next = 0;
-      if (next > rows.length - 1) next = rows.length - 1;
-      this.rovingIndex.set(next);
-      this.focusRow(next);
-      return;
-    }
-
-    if (key === 'ArrowRight') {
-      event.preventDefault();
-      if (row.hasChildren && !row.expanded) {
-        this.toggleExpanded(row.node.id, true);
-        return;
-      }
-      if (row.hasChildren && row.expanded) {
-        const next = current + 1;
-        if (next < rows.length) {
-          this.rovingIndex.set(next);
-          this.focusRow(next);
-        }
-      }
-      return;
-    }
-
-    if (key === 'ArrowLeft') {
-      event.preventDefault();
-      if (row.hasChildren && row.expanded) {
-        this.toggleExpanded(row.node.id, false);
-        return;
-      }
-      if (row.parentId !== null) {
-        const parentIdx = rows.findIndex((r) => r.node.id === row.parentId);
-        if (parentIdx >= 0) {
-          this.rovingIndex.set(parentIdx);
-          this.focusRow(parentIdx);
-        }
-      }
-      return;
-    }
-  }
-
-  protected focusRow(index: number): void {
-    const refs = this.rowRefs();
-    refs[index]?.nativeElement.focus();
   }
 }
 
@@ -565,28 +595,9 @@ export class FbTreeComponent<T = unknown> {
     `
   ]
 })
-export class FbTreeSelectComponent<T = unknown> {
-  readonly nodes = input.required<readonly FbTreeNode<T>[]>();
-  readonly ariaLabel = input<string | undefined>(undefined);
-  readonly defaultExpanded = input<boolean>(false);
+export class FbTreeSelectComponent<T = unknown> extends FbTreeBase<T> {
   readonly cascade = input<boolean>(false);
   readonly selected = model<readonly string[]>([]);
-
-  readonly activated = output<FbTreeNode<T>>();
-
-  protected readonly expansionOverrides = signal<ReadonlyMap<string, boolean>>(
-    new Map()
-  );
-
-  readonly rows = computed<readonly FlatTreeRow<T>[]>(() =>
-    flattenVisible(
-      this.nodes(),
-      this.expansionOverrides(),
-      this.defaultExpanded()
-    )
-  );
-
-  readonly rovingIndex = signal<number>(0);
 
   /**
    * Memoised index of all descendant ids per parent id. Built once per
@@ -615,8 +626,6 @@ export class FbTreeSelectComponent<T = unknown> {
     return map;
   });
 
-  private readonly rowRefs = viewChildren<ElementRef<HTMLDivElement>>('row');
-
   isChecked(id: string): boolean {
     return this.selected().includes(id);
   }
@@ -636,40 +645,6 @@ export class FbTreeSelectComponent<T = unknown> {
       }
     }
     return some && !all && !sel.has(id);
-  }
-
-  protected indentFor(level: number): string {
-    return `calc(var(--space-md) + ${level} * 1.25rem)`;
-  }
-
-  protected toggleExpanded(id: string, force?: boolean): void {
-    const overrides = new Map(this.expansionOverrides());
-    const currentRow = this.rows().find((r) => r.node.id === id);
-    const currentOpen = currentRow?.expanded ?? this.defaultExpanded();
-    const target = force === undefined ? !currentOpen : force;
-    overrides.set(id, target);
-    this.expansionOverrides.set(overrides);
-  }
-
-  protected onChevronClick(row: FlatTreeRow<T>, event: MouseEvent): void {
-    event.stopPropagation();
-    if (row.node.disabled) return;
-    this.toggleExpanded(row.node.id);
-  }
-
-  protected onRowClick(
-    row: FlatTreeRow<T>,
-    index: number,
-    _event: MouseEvent
-  ): void {
-    if (row.node.disabled) return;
-    this.rovingIndex.set(index);
-    this.focusRow(index);
-    if (row.hasChildren) {
-      this.toggleExpanded(row.node.id);
-    } else {
-      this.activated.emit(row.node);
-    }
   }
 
   protected onCheckboxClickStop(event: MouseEvent): void {
@@ -692,112 +667,27 @@ export class FbTreeSelectComponent<T = unknown> {
         current.delete(id);
         for (const d of descendants) current.delete(d);
       }
+    } else if (next) {
+      current.add(id);
     } else {
-      if (next) {
-        current.add(id);
-      } else {
-        current.delete(id);
-      }
+      current.delete(id);
     }
     this.selected.set([...current]);
   }
 
-  @HostListener('focus')
-  protected onHostFocus(): void {
-    this.focusRow(this.rovingIndex());
+  protected override isNavKey(key: string): boolean {
+    return super.isNavKey(key) || key === ' ';
   }
 
-  protected onKeyDown(event: KeyboardEvent): void {
-    const key = event.key;
-    const rows = this.rows();
-    if (rows.length === 0) return;
-    const navKeys = new Set([
-      'ArrowDown',
-      'ArrowUp',
-      'ArrowRight',
-      'ArrowLeft',
-      'Home',
-      'End',
-      'Enter',
-      ' '
-    ]);
-    if (!navKeys.has(key)) return;
-    const current = this.rovingIndex();
-    const row = rows[current];
-    if (!row) return;
-
-    if (key === 'Enter') {
-      event.preventDefault();
-      if (row.node.disabled) return;
-      if (row.hasChildren) {
-        this.toggleExpanded(row.node.id);
-      } else {
-        this.activated.emit(row.node);
-      }
-      return;
-    }
-
-    if (key === ' ') {
-      event.preventDefault();
-      if (row.node.disabled) return;
-      this.applyToggle(row.node.id, !this.isChecked(row.node.id));
-      return;
-    }
-
-    if (key === 'Home' || key === 'End') {
-      event.preventDefault();
-      const next = key === 'Home' ? 0 : rows.length - 1;
-      this.rovingIndex.set(next);
-      this.focusRow(next);
-      return;
-    }
-
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
-      event.preventDefault();
-      const step = key === 'ArrowDown' ? 1 : -1;
-      let next = current + step;
-      if (next < 0) next = 0;
-      if (next > rows.length - 1) next = rows.length - 1;
-      this.rovingIndex.set(next);
-      this.focusRow(next);
-      return;
-    }
-
-    if (key === 'ArrowRight') {
-      event.preventDefault();
-      if (row.hasChildren && !row.expanded) {
-        this.toggleExpanded(row.node.id, true);
-        return;
-      }
-      if (row.hasChildren && row.expanded) {
-        const next = current + 1;
-        if (next < rows.length) {
-          this.rovingIndex.set(next);
-          this.focusRow(next);
-        }
-      }
-      return;
-    }
-
-    if (key === 'ArrowLeft') {
-      event.preventDefault();
-      if (row.hasChildren && row.expanded) {
-        this.toggleExpanded(row.node.id, false);
-        return;
-      }
-      if (row.parentId !== null) {
-        const parentIdx = rows.findIndex((r) => r.node.id === row.parentId);
-        if (parentIdx >= 0) {
-          this.rovingIndex.set(parentIdx);
-          this.focusRow(parentIdx);
-        }
-      }
-      return;
-    }
-  }
-
-  protected focusRow(index: number): void {
-    const refs = this.rowRefs();
-    refs[index]?.nativeElement.focus();
+  protected override handleExtraKey(
+    key: string,
+    row: FlatTreeRow<T>,
+    event: KeyboardEvent
+  ): boolean {
+    if (key !== ' ') return false;
+    event.preventDefault();
+    if (row.node.disabled) return true;
+    this.applyToggle(row.node.id, !this.isChecked(row.node.id));
+    return true;
   }
 }
