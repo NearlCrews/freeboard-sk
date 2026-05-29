@@ -108,11 +108,10 @@ import {
   DrawFeatureInfo,
   IPopover
 } from './fbmap-interact.service';
-import { ScaleLine } from 'ol/control';
-import { Units } from 'ol/control/ScaleLine';
 import { DragBoxEvent } from 'ol/interaction/DragBox';
 import { MapService } from './ol/lib/map.service';
 import { MapPersistenceController } from './map-persistence.controller';
+import { MapViewportController } from './map-viewport.controller';
 import { FEATURE_ID_PREFIX_TO_RESOURCE_TYPE } from './ol/lib/resources/feature-id-prefix';
 
 interface IResource {
@@ -285,6 +284,7 @@ export class FBMapComponent
   private fbMenu = inject(FbMenuService);
   private viewContainerRef = inject(ViewContainerRef);
   private readonly persistence = inject(MapPersistenceController);
+  private readonly viewport = inject(MapViewportController);
 
   constructor() {
     effect(() => {
@@ -404,17 +404,8 @@ export class FBMapComponent
     }
   }
 
-  // set map scale units
   private setScaleUnits() {
-    try {
-      const u: Units = ['kilometer', 'm'].includes(this.scaleUnits())
-        ? 'metric'
-        : 'nautical';
-      const c = this.olMap.getMap()?.getControls().getArray();
-      (c?.[0] as ScaleLine | undefined)?.setUnits(u);
-    } catch {
-      // no map or scale control
-    }
+    this.viewport.setScaleUnits(this.olMap.getMap(), this.scaleUnits());
   }
 
   // format WMS parameters
@@ -591,16 +582,8 @@ export class FBMapComponent
     }
   }
 
-  // handle map move / zoom
   protected onMapMoveEnd(e: FBMapEvent) {
-    this.app.config.map.zoomLevel = e.zoom;
-
-    this.app.mapExtent.update(() => e.extent);
-    this.app.mapViewTopCenter.update(() => e.topCenter as Position);
-    this.app.mapViewRightCenter.update(() => e.rightCenter as Position);
-    this.app.mapViewRotation.update(() => e.rotation);
-    this.app.config.map.center = e.lonlat as Position;
-
+    this.viewport.applyMoveEnd(e);
     this.drawVesselLines();
     if (!this.movingMap) {
       this.app.saveConfig();
@@ -1696,19 +1679,16 @@ export class FBMapComponent
     }
   }
 
-  // orient map heading up / north up
   private rotateMap() {
-    if (this.northUp) {
-      this.mapRotation.set(0);
-    } else {
-      this.mapRotation.update(() => 0 - this.dfeat.active.orientation);
-    }
+    this.viewport.rotateMap(
+      this.northUp,
+      this.dfeat.active.orientation,
+      this.mapRotation
+    );
   }
 
-  // center map to active vessel position
   private centerVessel() {
-    const pos = this.app.calcMapCenter();
-    this.mapCenterPositon.update(() => pos);
+    this.viewport.centerVessel(this.mapCenterPositon);
   }
 
   /** construct vessel lines for rendering */
