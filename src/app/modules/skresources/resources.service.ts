@@ -52,6 +52,7 @@ import type {
   PathValue
 } from 'src/app/types';
 import { SKWorkerService } from '../skstream/skstream.service';
+import { SelectionsManager } from './selections-manager';
 
 // Single source of truth for SKResourceType. The tuple drives the
 // compile-time union AND the runtime guard so a string can't be
@@ -79,13 +80,6 @@ interface ReOpenState {
   value?: string;
   readOnly?: boolean;
 }
-
-// Typed bracket access into IAppConfig.selections without losing the
-// discriminated keys. selections.tracks is the only string[] | null entry;
-// the others are string[]. Array.isArray() guards the null case. SKSelection
-// includes 'notes' but IAppConfig.selections has no notes field (no caller
-// passes 'notes' here), so the Record reuses the string[] shape.
-type SelectionsRecord = Record<SKSelection, string[] | null>;
 
 // Server response shape for the v1 /vessels endpoint, narrowed to the
 // fields transformVessel reads. All nested values are best-effort; the
@@ -137,12 +131,7 @@ export class SKResourceService {
   private signalk = inject(SignalKClient);
   private worker = inject(SKWorkerService);
 
-  // IAppConfig.selections is typed with discriminated property keys (no index
-  // signature) so direct `selections[key]` reads trip TS4111 under
-  // noPropertyAccessFromIndexSignature. Narrow it to a Record view here.
-  private selections(): SelectionsRecord {
-    return this.app.config.selections as unknown as SelectionsRecord;
-  }
+  private readonly selectionsManager = inject(SelectionsManager);
 
   constructor() {
     this.worker
@@ -150,97 +139,34 @@ export class SKResourceService {
       .subscribe((msg: PathValue[]) => this.processResourceMessage(msg));
   }
 
-  // ******** Resource selections management ********************
+  // ******** Resource selections management (delegated) ********************
 
-  /**
-   * @description Returns boolean indicating if resource selection list is filtered.
-   * @returns true: is filtered, false: not filtered.
-   */
   public selectionIsFiltered(collection: SKSelection): boolean {
-    return Array.isArray(this.selections()[collection]);
+    return this.selectionsManager.isFiltered(collection);
   }
 
-  /**
-   * @description Resource selection list contains the supplied identifier.
-   * @param collection
-   * @id Resource identifier.
-   * @returns true if identifier is in the selection list.
-   */
   public selectionHas(collection: SKSelection, id: string): boolean {
-    const list = this.selections()[collection];
-    if (!Array.isArray(list)) {
-      return false;
-    }
-    return list.includes(id);
+    return this.selectionsManager.has(collection, id);
   }
-  /**
-   * @description Add resource ids to selection list
-   * @param collection
-   * @id Resource identifier or array of identifiers to add to selection list
-   */
+
   public selectionAdd(collection: SKSelection, id: string | string[]): void {
-    const sel = this.selections();
-    const current = sel[collection];
-    if (typeof current === 'undefined') {
-      return;
-    }
-    if (Array.isArray(current)) {
-      const ids = typeof id === 'string' ? [id] : id;
-      const added = ids.filter((s) => !current.includes(s));
-      sel[collection] = current.concat(added);
-      this.app.saveConfig();
-    }
+    this.selectionsManager.add(collection, id);
   }
 
-  /**
-   * @description Remove resource ids from selection list
-   * @param collection
-   * @id Resource identifier or array of identifiers to remove from selection list
-   */
   public selectionRemove(collection: SKSelection, id: string | string[]): void {
-    const sel = this.selections();
-    const current = sel[collection];
-    if (typeof current === 'undefined') {
-      return;
-    }
-    if (Array.isArray(current)) {
-      const ids = typeof id === 'string' ? [id] : id;
-      sel[collection] = current.filter((s: string) => !ids.includes(s));
-      this.app.saveConfig();
-    }
+    this.selectionsManager.remove(collection, id);
   }
 
-  /**
-   * @description Sets selection list to null to indicate list is unfiltered.
-   * @param collection
-   */
   public selectionUnfilter(collection: SKSelection): void {
-    this.selections()[collection] = null;
-    this.app.saveConfig();
+    this.selectionsManager.unfilter(collection);
   }
 
-  /**
-   * @description Empties the selection list.
-   * @param collection
-   */
   public selectionClear(collection: SKSelection): void {
-    this.selections()[collection] = [];
-    this.app.saveConfig();
+    this.selectionsManager.clear(collection);
   }
 
-  /**
-   * @description Cleans the selection list of entries that do not appear in fullList.
-   * @param collection
-   * @param fullList Array of resource identifiers
-   */
   public selectionClean(collection: SKSelection, fullList: string[]): void {
-    const sel = this.selections();
-    const current = sel[collection];
-    if (!Array.isArray(current)) {
-      return;
-    }
-    sel[collection] = current.filter((i) => fullList.includes(i));
-    this.app.saveConfig();
+    this.selectionsManager.clean(collection, fullList);
   }
 
   // ******** Resource cache operations ********************
@@ -553,7 +479,6 @@ export class SKResourceService {
       regions: false,
       charts: false
     };
-    const sel = this.selections();
     msg.forEach((item: PathValue) => {
       const p = item.path.split('.');
       if (p.length !== 3) {
@@ -569,10 +494,8 @@ export class SKResourceService {
       }
       if (this.selectionIsFiltered(collection) && !item.value) {
         // delete event from server: drop the id from the selection list
-        const list = sel[collection];
-        if (Array.isArray(list) && list.includes(id)) {
-          list.splice(list.indexOf(id), 1);
-          this.app.saveConfig();
+        if (this.selectionsManager.has(collection, id)) {
+          this.selectionsManager.remove(collection, id);
         }
       }
     });
