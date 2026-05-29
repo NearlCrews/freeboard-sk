@@ -13,8 +13,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
@@ -34,8 +32,6 @@ import { AppFacade } from 'src/app/app.facade';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatExpansionModule,
-    MatCheckboxModule,
     MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,

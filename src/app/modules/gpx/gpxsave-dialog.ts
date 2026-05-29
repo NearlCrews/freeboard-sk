@@ -13,7 +13,6 @@ import {
   MatDialogModule
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 
 import {
   FbButtonComponent,
@@ -43,7 +42,6 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
     FbIconComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatDividerModule,
     MatTooltipModule
   ],
   templateUrl: './gpxsave-dialog.html',

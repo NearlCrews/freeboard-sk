@@ -19,7 +19,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 // standalone
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import {
   FbBadgeComponent,
   FbButtonComponent,
@@ -134,7 +133,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   styleUrls: ['./app.component.css'],
   imports: [
     MatSidenavModule,
-    MatButtonModule,
     MatTooltipModule,
     FbBadgeComponent,
     FbButtonComponent,

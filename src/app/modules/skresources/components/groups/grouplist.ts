@@ -11,7 +11,6 @@ import {
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatRadioModule } from '@angular/material/radio';
 
 import {
   FbButtonComponent,
@@ -47,7 +46,6 @@ import {
     FbButtonComponent,
     MatTooltipModule,
     ScrollingModule,
-    MatRadioModule,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,

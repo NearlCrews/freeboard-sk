@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -87,7 +86,6 @@ interface WaypointTypeOption {
     MatInputModule,
     FbButtonComponent,
     FbIconComponent,
-    MatCheckboxModule,
     MatDialogModule,
     CoordsPipe,
     FormField,

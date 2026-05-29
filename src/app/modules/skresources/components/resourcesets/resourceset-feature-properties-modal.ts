@@ -4,7 +4,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import {
   FbButtonComponent,
@@ -40,7 +39,6 @@ interface ResourceSetFeatureProperties {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatCheckboxModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
