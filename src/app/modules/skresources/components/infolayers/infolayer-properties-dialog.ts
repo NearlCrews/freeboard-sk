@@ -4,7 +4,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
 
@@ -18,7 +17,6 @@ import {
   selector: 'ap-infolayerproperties',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbIconComponent,
     FbButtonComponent,
     MatDialogModule,

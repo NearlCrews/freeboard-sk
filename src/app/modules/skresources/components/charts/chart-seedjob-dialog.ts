@@ -12,7 +12,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { FBChart, Position } from 'src/app/types';
@@ -34,7 +33,6 @@ interface DialogData {
   selector: 'ap-chartproperties',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     MatDialogModule,
     FormsModule,
     FbButtonComponent,

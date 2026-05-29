@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 
 import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -39,7 +38,6 @@ import {
   imports: [
     MatInputModule,
     MatDialogModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,
     FbListComponent,

@@ -10,7 +10,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -60,7 +59,6 @@ interface TileJson {
   selector: 'json-mapsource-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,

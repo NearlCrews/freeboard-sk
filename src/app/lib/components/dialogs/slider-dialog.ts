@@ -9,7 +9,6 @@ import {
   inject
 } from '@angular/core';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -34,7 +33,6 @@ export interface SliderInputDialogResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,
     FbSliderComponent

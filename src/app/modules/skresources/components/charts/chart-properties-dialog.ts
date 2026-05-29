@@ -12,7 +12,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -39,7 +38,6 @@ import { NodeListSelect } from './node-list-select';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    MatTooltipModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,

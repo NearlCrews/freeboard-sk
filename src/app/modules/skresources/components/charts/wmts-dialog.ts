@@ -4,7 +4,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -23,7 +22,6 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
   selector: 'wmts-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
