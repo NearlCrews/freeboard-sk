@@ -54,6 +54,7 @@ import type {
 import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
 import { RegionsCollection } from './regions.collection';
+import { RoutesCollection } from './routes.collection';
 import { TracksCollection } from './tracks.collection';
 import { WaypointsCollection } from './waypoints.collection';
 
@@ -136,6 +137,7 @@ export class SKResourceService {
 
   private readonly selectionsManager = inject(SelectionsManager);
   private readonly regionsCollection = inject(RegionsCollection);
+  private readonly routesCollection = inject(RoutesCollection);
   private readonly tracksCollection = inject(TracksCollection);
   private readonly waypointsCollection = inject(WaypointsCollection);
 
@@ -203,11 +205,12 @@ export class SKResourceService {
    * @returns Reference to resource cache
    */
   private getCacheRef(
-    collection: Exclude<SKResourceType, 'tracks' | 'regions' | 'waypoints'>
+    collection: Exclude<
+      SKResourceType,
+      'tracks' | 'regions' | 'waypoints' | 'routes'
+    >
   ) {
     switch (collection) {
-      case 'routes':
-        return this.routeCacheSignal;
       case 'notes':
         return this.noteCacheSignal;
       case 'charts':
@@ -244,17 +247,16 @@ export class SKResourceService {
     if (collection === 'waypoints') {
       return this.waypointsCollection.fromCache(id);
     }
+    if (collection === 'routes') {
+      return this.routesCollection.fromCache(id);
+    }
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
         this.app.showAlert('Error', 'Collection not found!');
         return undefined;
       }
-      return cache().find((r) => r[0] === id) as
-        | FBRoute
-        | FBNote
-        | FBChart
-        | undefined;
+      return cache().find((r) => r[0] === id) as FBNote | FBChart | undefined;
     }
     return undefined;
   }
@@ -374,7 +376,7 @@ export class SKResourceService {
       case 'regions':
         return this.regionsCollection.transform(resource as RegionResource, id);
       case 'routes':
-        return this.transformRoute(resource as RouteResource, id);
+        return this.routesCollection.transform(resource as RouteResource, id);
       case 'waypoints':
         return this.waypointsCollection.transform(
           resource as WaypointResource,
@@ -1003,306 +1005,54 @@ export class SKResourceService {
       });
   }
 
-  // **** ROUTES ****
+  // **** ROUTES (delegated to RoutesCollection) ****
 
-  private routeCacheSignal = signal<FBRoutes>([]);
-  readonly routes = this.routeCacheSignal.asReadonly();
+  readonly routes = this.routesCollection.routes;
 
-  /**
-   * @description Refresh Route cache with entries fetched from sk server
-   * @param query Filter criteria for routes in placed in the cache
-   */
-  public async refreshRoutes(query?: string): Promise<void> {
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshRoutes(): ${query}`);
-    try {
-      if (this.app.data.activeRoute) {
-        this.selectionAdd('routes', this.app.data.activeRoute);
-      }
-      const rtes = await this.listFromServer<FBRoute>('routes', query);
-      const flist = rtes.filter((route: FBRoute) => route[2]);
-      this.routeCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshRoutes:', err);
-      this.routeCacheSignal.set([]);
-    }
+  public refreshRoutes(query?: string): Promise<void> {
+    return this.routesCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param rte Route resource from server
-   * @param id Route id
-   * @returns SKRoute object
-   */
-  private transformRoute(rte: RouteResource, id: string): SKRoute {
-    // parse as v2: legacy servers ship start/end at the top level
-    const rteWithLegacy = rte as RouteResource &
-      Partial<{ start: unknown; end: unknown }>;
-    if (typeof rteWithLegacy.start !== 'undefined') {
-      delete rteWithLegacy.start;
-    }
-    if (typeof rteWithLegacy.end !== 'undefined') {
-      delete rteWithLegacy.end;
-    }
-    if (typeof rte.name === 'undefined') {
-      rte.name = 'Rte-' + id.slice(-6);
-    }
-    if (rte.feature && !rte.feature.properties) {
-      rte.feature.properties = {};
-    }
-    const props = rte.feature?.properties as
-      | Record<string, unknown>
-      | undefined;
-    if (props && typeof props['points'] !== 'undefined') {
-      // check for v2 array
-      if (!Array.isArray(props['points'])) {
-        // legacy format
-        const legacyPoints = props['points'] as {
-          names?: unknown;
-        };
-        if (Array.isArray(legacyPoints.names)) {
-          const pts: { name: string }[] = [];
-          (legacyPoints.names as string[]).forEach((pt: string) => {
-            pts.push({ name: pt ?? '' });
-          });
-          props['coordinatesMeta'] = pts;
-          delete props['points'];
-        }
-      }
-    }
-    // ensure coords & coordsMeta array lengths are aligned
-    if (rte.feature && props) {
-      const cm = props['coordinatesMeta'];
-      if (
-        Array.isArray(cm) &&
-        cm.length !== rte.feature.geometry.coordinates.length
-      ) {
-        delete props['coordinatesMeta'];
-      }
-    }
-    return new SKRoute(rte);
+  public routeAddFromServer(ids?: string[]): void {
+    this.routesCollection.addFromServer(ids);
   }
 
-  /**
-   * @description Fetch routes from server and add to cache
-   * @param ids Array of route identifiers. If not supplied all routes will be added.
-   */
-  public routeAddFromServer(ids?: string[]) {
-    if (!ids) {
-      // add all routes retrieved from server
-      this.selectionUnfilter('routes');
-    } else {
-      if (this.selectionIsFiltered('routes')) {
-        this.selectionAdd('routes', ids);
-      }
-    }
-    this.refreshRoutes();
+  public routeAdd(routes: FBRoutes): void {
+    this.routesCollection.add(routes);
   }
 
-  /**
-   * @description Add FBRoute objects to the Route Cache
-   * @param routes FBRoute array
-   */
-  public routeAdd(routes: FBRoutes) {
-    this.routeCacheSignal.update((current: FBRoutes) => {
-      if (this.selectionIsFiltered('routes')) {
-        this.selectionAdd(
-          'routes',
-          routes.map((r: FBRoute) => r[0])
-        );
-      }
-      return current.concat(routes);
-    });
+  public routeRemove(ids?: string[]): void {
+    this.routesCollection.remove(ids);
   }
 
-  /**
-   * @description Remove FBRoute objects from the Route Cache
-   * @param ids Array of route identifiers. If not supplied all routes are removed.
-   */
-  public routeRemove(ids?: string[]) {
-    this.routeCacheSignal.update((current: FBRoutes) => {
-      if (!ids) {
-        // remove all entries
-        this.selectionClear('routes');
-        return [];
-      } else {
-        this.selectionRemove('routes', ids);
-        return current.filter((r: FBRoute) => !ids.includes(r[0]));
-      }
-    });
-  }
-
-  /**
-   * @description Return a FBRoute object using the supplied coordinates.
-   * @params coordinates - Route points
-   */
   public buildRoute(coordinates: LineString): FBRoute {
-    const rte = new SKRoute();
-    const rteUuid = this.signalk.uuid;
-    rte.feature.geometry.coordinates = GeoUtils.normaliseCoords(coordinates);
-    rte.distance = GeoUtils.routeLength(rte.feature.geometry.coordinates);
-    return [rteUuid, rte, true];
+    return this.routesCollection.build(coordinates);
   }
 
-  /** Create new Route with supplied coordinates and metadata and edit dialog
-   * @param coordinates Route points
-   * @param meta Route point metadata.
-   */
   public newRouteAt(
     coordinates: LineString,
     meta?: { href?: string; name?: string }[]
   ): void {
-    if (!coordinates) {
-      return;
-    }
-    const rte = this.buildRoute(coordinates);
-    if (meta && Array.isArray(meta)) {
-      if (!rte[1].feature.properties) {
-        rte[1].feature.properties = {};
-      }
-      rte[1].feature.properties['coordinatesMeta'] = meta;
-    }
-    this.newRoute(rte[1]);
+    this.routesCollection.newAt(coordinates, meta);
   }
 
-  /**
-   * @description Create new Route and save to server
-   * @param route
-   */
-  private async newRoute(route: SKRoute): Promise<void> {
-    if (!route) {
-      return;
-    }
-    const { RouteDialog } = await import('./components/routes/route-dialog');
-    this.dialog
-      .open(RouteDialog, {
-        disableClose: true,
-        data: {
-          title: 'New Route',
-          route: route
-        }
-      })
-      .closed.subscribe(async (res) => {
-        const r = res as { save: boolean; route: SKRoute } | undefined;
-        if (r?.save) {
-          try {
-            const rte = await this.postToServer('routes', r.route);
-            if (rte.id) {
-              this.selectionAdd('routes', rte.id);
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
+  public editRouteInfo(id: string): Promise<void> {
+    return this.routesCollection.editInfo(id);
   }
 
-  /**
-   * @description Fetch Route with supplied id and display edit dialog
-   * @param id route identifier
-   */
-  public async editRouteInfo(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let rte: SKRoute;
-    try {
-      this.app.sIsFetching.set(true);
-      rte = await this.fromServer('routes', id);
-      this.app.sIsFetching.set(false);
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
-      return;
-    }
-    const { RouteDialog } = await import('./components/routes/route-dialog');
-    this.dialog
-      .open(RouteDialog, {
-        disableClose: true,
-        data: {
-          title: 'Route Details',
-          addMode: false,
-          route: rte
-        }
-      })
-      .closed.subscribe((res) => {
-        const r = res as { save: boolean; route: SKRoute } | undefined;
-        if (r?.save) {
-          this.putToServer('routes', id, r.route).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
-          );
-        }
-      });
+  public deleteRoute(id: string): Promise<void> {
+    return this.routesCollection.delete(id);
   }
 
-  /**
-   * @description Confirm deletion of Route with supplied id
-   * @param id Route identifier
-   */
-  public async deleteRoute(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    // are there notes attached?
-    const notes = await this.fetchRelatedNotes('routes', id);
-    const checkText = notes?.length !== 0 ? 'Delete attached Notes.' : '';
-    this.app
-      .showConfirm(
-        'Do you want to delete this Route from the server?\n',
-        'Delete Route:',
-        'YES',
-        'NO',
-        checkText
-      )
-      .subscribe(async (res) => {
-        const result = res as { ok: boolean; checked: boolean } | undefined;
-        if (result && result.ok) {
-          try {
-            await this.deleteFromServer('routes', id);
-            if (result.checked) {
-              notes.forEach((note: FBNote) => {
-                this.deleteFromServer('notes', note[0]);
-              });
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
-  }
-
-  // Modify Route point coordinates & refresh course
-  /**
-   * @description Modify Route point coordinates and push to server
-   * @param id Route identifier
-   * @param coords Route points
-   * @param coordsMeta Array of point metadata
-   */
   public updateRouteCoords(
     id: string,
     coords: Position[],
     coordsMeta?: { name?: string; href?: string }[]
   ): void {
-    const r = this.fromCache('routes', id);
-    if (!r) {
-      return;
-    }
-    const rte = r[1];
-    rte.feature.geometry.coordinates = GeoUtils.normaliseCoords(coords);
-    rte.distance = GeoUtils.routeLength(rte.feature.geometry.coordinates);
-
-    if (coordsMeta) {
-      if (!rte.feature.properties) {
-        rte.feature.properties = {};
-      }
-      rte.feature.properties['coordinatesMeta'] = coordsMeta;
-    }
-    this.putToServer('routes', id, rte).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
-    });
+    this.routesCollection.updateCoords(id, coords, coordsMeta);
   }
+
+  // **** ROUTES OLD CODE (TO REMOVE) ****
 
   // **** WAYPOINTS (delegated to WaypointsCollection) ****
 
