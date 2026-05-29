@@ -4,6 +4,7 @@
 .app-shell {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-rows: 1fr;
   height: 100%;
   width: 100%;
 }

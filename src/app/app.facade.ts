@@ -60,8 +60,8 @@ interface ParentMessage {
 }
 
 // App details
-const FSK: AppInfoDef = {
-  id: 'freeboard',
+const APP_INFO: AppInfoDef = {
+  id: 'open-binnacle',
   name: 'Open Binnacle',
   description: `Signal K Chart Plotter.`,
   version: '2.23.0',
@@ -199,7 +199,7 @@ export class AppFacade extends InfoService {
   }
 
   constructor() {
-    super(FSK);
+    super(APP_INFO);
     this.config = defaultConfig();
     this.data = initData();
     this.suppressPersist = true;
@@ -217,7 +217,7 @@ export class AppFacade extends InfoService {
       }
     });
 
-    this.signalk.setAppId(FSK.id);
+    this.signalk.setAppId(APP_INFO.id);
     this.signalk.setAppVersion(SERVER_APPDATA_VERSION);
 
     this.initAppIcons();
