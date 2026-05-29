@@ -282,6 +282,10 @@ export class NotesShellComponent {
     this.pan.emit(event);
   }
 
+  protected onDetailClose() {
+    this.selectedNoteId.set(null);
+  }
+
   protected snippet(note: { description?: string; mimeType?: string }): string {
     return textSnippet(note?.description);
   }

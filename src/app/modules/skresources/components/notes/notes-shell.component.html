@@ -124,6 +124,7 @@
             [id]="selectedNoteId() ?? ''"
             (edit)="onEdit()"
             (panTo)="onDetailPanTo($event)"
+            (closed)="onDetailClose()"
           />
           <ng-template #fbDetailPaneActions>
             <fb-button

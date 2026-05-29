@@ -245,15 +245,16 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   display: block;
   width: 100%;
   box-sizing: border-box;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   padding: 14px 16px 14px 18px;
   border: 1.5px solid var(--notes-hairline);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   background: var(--notes-surface);
   color: var(--notes-text);
   cursor: pointer;
   text-align: left;
   font: inherit;
+  box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.08);
   transition:
     background 140ms ease,
     border-color 140ms ease,

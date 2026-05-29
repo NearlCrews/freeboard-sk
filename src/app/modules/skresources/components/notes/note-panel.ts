@@ -43,7 +43,11 @@ import {
     AddTargetPipe,
     RemarkModule
   ],
-  templateUrl: `note-panel.html`
+  templateUrl: `note-panel.html`,
+  host: {
+    tabindex: '-1',
+    '(keydown.escape)': 'onEscape($event)'
+  }
 })
 export class NotePanel {
   note = input<SKNote>(new SKNote());
@@ -54,6 +58,7 @@ export class NotePanel {
   edit = output<string>();
   delete = output<void>();
   info = output<void>();
+  closed = output<void>();
   panTo = output<{
     center: Position;
     zoomLevel: number | null;
@@ -93,6 +98,11 @@ export class NotePanel {
 
   onInfo() {
     this.info.emit();
+  }
+
+  onEscape(event: KeyboardEvent) {
+    event.stopPropagation();
+    this.closed.emit();
   }
 
   onGoto() {
