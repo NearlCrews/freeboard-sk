@@ -53,6 +53,7 @@ import type {
 } from 'src/app/types';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
+import { TracksCollection } from './tracks.collection';
 
 // Single source of truth for SKResourceType. The tuple drives the
 // compile-time union AND the runtime guard so a string can't be
@@ -132,6 +133,7 @@ export class SKResourceService {
   private worker = inject(SKWorkerService);
 
   private readonly selectionsManager = inject(SelectionsManager);
+  private readonly tracksCollection = inject(TracksCollection);
 
   constructor() {
     this.worker
@@ -196,7 +198,7 @@ export class SKResourceService {
    * @param collection
    * @returns Reference to resource cache
    */
-  private getCacheRef(collection: SKResourceType) {
+  private getCacheRef(collection: Exclude<SKResourceType, 'tracks'>) {
     switch (collection) {
       case 'routes':
         return this.routeCacheSignal;
@@ -208,8 +210,6 @@ export class SKResourceService {
         return this.regionCacheSignal;
       case 'charts':
         return this.chartCacheSignal;
-      case 'tracks':
-        return this.trackCacheSignal;
     }
   }
 
@@ -233,6 +233,9 @@ export class SKResourceService {
     collection: SKResourceType,
     id: string
   ): FBRoute | FBWaypoint | FBNote | FBRegion | FBTrack | FBChart | undefined {
+    if (collection === 'tracks') {
+      return this.tracksCollection.fromCache(id);
+    }
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
@@ -244,7 +247,6 @@ export class SKResourceService {
         | FBWaypoint
         | FBNote
         | FBRegion
-        | FBTrack
         | FBChart
         | undefined;
     }
@@ -374,7 +376,7 @@ export class SKResourceService {
       case 'charts':
         return this.transformChart(resource as ChartResource, id);
       case 'tracks':
-        return this.transformTrack(resource as TrackResource);
+        return new SKTrack(resource as TrackResource);
     }
   }
 
@@ -2289,147 +2291,32 @@ export class SKResourceService {
     }
   }
 
-  // **** TRACKS ****
+  // **** TRACKS (delegated to TracksCollection) ****
 
-  private trackCacheSignal = signal<FBTracks>([]);
-  readonly tracks = this.trackCacheSignal.asReadonly();
+  readonly tracks = this.tracksCollection.tracks;
 
-  /**
-   * @description Refresh Track cache with entries fetched from sk server
-   * @param query Filter criteria for tracks in placed in the cache
-   */
-  public async refreshTracks(query?: string): Promise<void> {
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshTracks(): ${query}`);
-    try {
-      const trks = await this.listFromServer<FBTrack>('tracks', query);
-      const flist = trks.filter((track: FBTrack) => track[2]);
-      this.trackCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshTracks:', err);
-      this.trackCacheSignal.set([]);
-    }
+  public refreshTracks(query?: string): Promise<void> {
+    return this.tracksCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param trk Track resource from server
-   * @returns SKTrack object
-   */
-  private transformTrack(trk: TrackResource): SKTrack {
-    return new SKTrack(trk);
+  public trackAddFromServer(ids?: string[]): void {
+    this.tracksCollection.addFromServer(ids);
   }
 
-  /**
-   * @description Fetch tracks from server and add to cache
-   * @param ids Array of track identifiers. If not supplied all tracks will be added.
-   */
-  public trackAddFromServer(ids?: string[]) {
-    if (!ids) {
-      // add all tracks retrieved from server
-      this.selectionUnfilter('tracks');
-    } else {
-      if (this.selectionIsFiltered('tracks')) {
-        this.selectionAdd('tracks', ids);
-      }
-    }
-    this.refreshTracks();
+  public trackAdd(tracks: FBTracks): void {
+    this.tracksCollection.add(tracks);
   }
 
-  /**
-   * @description Add FBTrack objects to the Track Cache
-   * @param tracks FBTrack array
-   */
-  public trackAdd(tracks: FBTracks) {
-    this.trackCacheSignal.update((current: FBTracks) => {
-      if (this.selectionIsFiltered('tracks')) {
-        this.selectionAdd(
-          'tracks',
-          tracks.map((r: FBTrack) => r[0])
-        );
-      }
-      return current.concat(tracks);
-    });
+  public trackRemove(ids?: string[]): void {
+    this.tracksCollection.remove(ids);
   }
 
-  /**
-   * @description Remove FBTrack objects from the Track Cache
-   * @param ids Array of track identifiers. If not supplied all tracks are removed.
-   */
-  public trackRemove(ids?: string[]) {
-    this.trackCacheSignal.update((current: FBTracks) => {
-      if (!ids) {
-        // remove all entries
-        this.selectionClear('tracks');
-        return [];
-      } else {
-        this.selectionRemove('tracks', ids);
-        return current.filter((t: FBTrack) => !ids.includes(t[0]));
-      }
-    });
+  public editTrackInfo(id: string): Promise<void> {
+    return this.tracksCollection.editInfo(id);
   }
 
-  /**
-   * @description Fetch Track with supplied id and display edit dialog
-   * @param id track identifier
-   */
-  public async editTrackInfo(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let trk: SKTrack;
-    try {
-      this.app.sIsFetching.set(true);
-      trk = await this.fromServer('tracks', id);
-      this.app.sIsFetching.set(false);
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
-      return;
-    }
-    const { TrackDialog } = await import('./components/tracks/track-dialog');
-    this.dialog
-      .open(TrackDialog, {
-        disableClose: true,
-        data: {
-          track: trk
-        }
-      })
-      .closed.subscribe((res) => {
-        const r = res as { save: boolean; track: SKTrack } | undefined;
-        if (r?.save) {
-          this.putToServer('tracks', id, r.track);
-        }
-      });
-  }
-
-  /**
-   * @description Confirm deletion of Track with supplied id
-   * @param id Track identifier
-   */
-  public async deleteTrack(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    this.app
-      .showConfirm(
-        'Do you want to delete this Track from the server?\n',
-        'Delete Track:',
-        'YES',
-        'NO'
-      )
-      .subscribe(async (res) => {
-        const result = res as { ok: boolean; checked: boolean } | undefined;
-        if (result && result.ok) {
-          try {
-            await this.deleteFromServer('tracks', id);
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
+  public deleteTrack(id: string): Promise<void> {
+    return this.tracksCollection.delete(id);
   }
 
   // *** Vessels ****
