@@ -11,8 +11,14 @@ export type FbInputType =
   | 'number'
   | 'email'
   | 'password'
+  | 'tel'
+  | 'url'
   | 'search'
   | 'color';
+
+export type FbInputValue<TType extends FbInputType> = TType extends 'number'
+  ? number | null
+  : string | null;
 
 /**
  * Tier-2 form Input primitive.
@@ -20,11 +26,20 @@ export type FbInputType =
  * Wraps a native `<input>` with token-driven chrome. Two-way binding via
  * `model()` so consumers can do `[(value)]="model"`.
  *
- * Numeric mode (`numericMode=true`) switches the model to a separate
- * `numericValue` signal of `number | null` and forces type="number" with
- * inputmode="numeric". Parsed values that come back NaN map to null so
- * consumers always see a numeric value or the explicit "empty" sentinel.
- * The string `value` model is ignored while numericMode is true.
+ * API representation: generic class `FbInputComponent<TType extends FbInputType>`.
+ * The class generic narrows the `value` model's element type via
+ * `FbInputValue<TType>` so consumers see `string | null` for text-family
+ * types and `number | null` for `type="number"`. This was chosen over
+ * function overloads on a single `value` setter because Angular's `model()`
+ * does not accept overloaded signatures: a class-level generic is the only
+ * way to surface a type-narrowed two-way binding while keeping the consumer
+ * template literally `<fb-input type="number" [(value)]="depth">` with zero
+ * casts and zero extra inputs.
+ *
+ * Numeric mode (`type="number"`) parses the raw string with
+ * `Number.parseFloat`. Empty fields and unparseable input both map to
+ * `null`, so consumers never see `NaN`. The `min`, `max`, and `step` inputs
+ * are forwarded to the underlying `<input>` only while `type="number"`.
  *
  * A11y posture:
  *  - aria-invalid mirrors the `invalid` input so screen readers announce
@@ -41,11 +56,11 @@ export type FbInputType =
   template: `
     <input
       [class]="classes()"
-      [type]="effectiveType()"
+      [type]="type()"
       [attr.inputmode]="inputMode()"
-      [attr.step]="numericMode() ? step() : null"
-      [attr.min]="numericMode() ? min() : null"
-      [attr.max]="numericMode() ? max() : null"
+      [attr.step]="isNumeric() ? step() : null"
+      [attr.min]="isNumeric() ? min() : null"
+      [attr.max]="isNumeric() ? max() : null"
       [name]="name()"
       [id]="name()"
       [value]="displayValue()"
@@ -81,8 +96,6 @@ export type FbInputType =
       .fb-input::placeholder {
         color: var(--color-text-muted);
       }
-      /* Hide WebKit/Blink native search clear control. Consumers that wrap
-         type="search" (fb-search-input) provide their own clear button. */
       .fb-input[type='search']::-webkit-search-cancel-button,
       .fb-input[type='search']::-webkit-search-decoration {
         appearance: none;
@@ -110,12 +123,10 @@ export type FbInputType =
     `
   ]
 })
-export class FbInputComponent {
+export class FbInputComponent<TType extends FbInputType = 'text'> {
   readonly name = input.required<string>();
-  readonly value = model<string>('');
-  readonly numericValue = model<number | null>(null);
-  readonly type = input<FbInputType>('text');
-  readonly numericMode = input<boolean>(false);
+  readonly type = input<TType>('text' as TType);
+  readonly value = model<FbInputValue<TType>>(null as FbInputValue<TType>);
   readonly step = input<number | null>(null);
   readonly min = input<number | null>(null);
   readonly max = input<number | null>(null);
@@ -124,38 +135,37 @@ export class FbInputComponent {
   readonly invalid = input<boolean>(false);
   readonly ariaLabel = input<string>('');
 
+  readonly isNumeric = computed<boolean>(() => this.type() === 'number');
+
   readonly classes = computed(
     () => `fb-input${this.invalid() ? ' fb-input--invalid' : ''}`
   );
 
-  readonly effectiveType = computed<FbInputType>(() =>
-    this.numericMode() ? 'number' : this.type()
-  );
-
   readonly inputMode = computed<string | null>(() =>
-    this.numericMode() ? 'numeric' : null
+    this.isNumeric() ? 'numeric' : null
   );
 
   readonly displayValue = computed<string>(() => {
-    if (this.numericMode()) {
-      const n = this.numericValue();
-      return n === null ? '' : String(n);
+    const v = this.value();
+    if (v === null || v === undefined) {
+      return '';
     }
-    return this.value();
+    return String(v);
   });
 
   onInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (this.numericMode()) {
-      const raw = target.value;
+    const raw = (event.target as HTMLInputElement).value;
+    if (this.isNumeric()) {
       if (raw === '') {
-        this.numericValue.set(null);
+        this.value.set(null as FbInputValue<TType>);
         return;
       }
-      const parsed = Number(raw);
-      this.numericValue.set(Number.isNaN(parsed) ? null : parsed);
+      const parsed = Number.parseFloat(raw);
+      this.value.set(
+        (Number.isNaN(parsed) ? null : parsed) as FbInputValue<TType>
+      );
       return;
     }
-    this.value.set(target.value);
+    this.value.set(raw as FbInputValue<TType>);
   }
 }

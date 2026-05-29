@@ -112,7 +112,7 @@ import type { RadioGroupHost } from './radio-group.component';
     `
   ]
 })
-export class FbRadioComponent<T extends string | number = string> {
+export class FbRadioComponent<T extends string | number | null = string> {
   readonly value = input.required<T>();
   readonly disabled = input<boolean>(false);
   readonly ariaLabel = input<string>('');

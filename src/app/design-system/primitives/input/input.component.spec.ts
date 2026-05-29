@@ -20,7 +20,7 @@ import { FbInputComponent, type FbInputType } from './input.component';
 })
 class HostComponent {
   name = signal<string>('email');
-  value = signal<string>('');
+  value = signal<string | null>('');
   type = signal<FbInputType>('text');
   placeholder = signal<string>('');
   disabled = signal<boolean>(false);
@@ -34,8 +34,8 @@ class HostComponent {
   template: `
     <fb-input
       name="depth"
-      [numericMode]="true"
-      [(numericValue)]="depth"
+      type="number"
+      [(value)]="depth"
       [min]="0"
       [max]="100"
       [step]="0.1"
@@ -109,12 +109,18 @@ describe('FbInputComponent', () => {
     expect(query().disabled).toBe(true);
   });
 
-  it('updates the model on input', () => {
+  it('updates the string model on input', () => {
     const el = query();
     el.value = 'hello';
     el.dispatchEvent(new Event('input', { bubbles: true }));
     fixture.detectChanges();
     expect(host.value()).toBe('hello');
+  });
+
+  it('does not forward min, max, or step in string mode', () => {
+    expect(query().getAttribute('min')).toBeNull();
+    expect(query().getAttribute('max')).toBeNull();
+    expect(query().getAttribute('step')).toBeNull();
   });
 });
 
@@ -133,7 +139,7 @@ describe('FbInputComponent (numeric mode)', () => {
       fixture.nativeElement.querySelector('input') as HTMLInputElement;
   });
 
-  it('forces type=number and inputmode=numeric', () => {
+  it('renders type=number and inputmode=numeric', () => {
     const el = query();
     expect(el.type).toBe('number');
     expect(el.getAttribute('inputmode')).toBe('numeric');
@@ -146,7 +152,15 @@ describe('FbInputComponent (numeric mode)', () => {
     expect(el.getAttribute('step')).toBe('0.1');
   });
 
-  it('parses numeric input into the numericValue model', () => {
+  it('round-trips a numeric value: set 42, emit 42', () => {
+    const el = query();
+    el.value = '42';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(host.depth()).toBe(42);
+  });
+
+  it('parses fractional input via parseFloat', () => {
     const el = query();
     el.value = '42.5';
     el.dispatchEvent(new Event('input', { bubbles: true }));

@@ -228,18 +228,17 @@
 
     <h3 class="ds-grid__title">Numeric mode</h3>
     <p class="ds-section__a11y">
-      A11y: <code>numericMode</code> forces <code>type="number"</code> and
-      <code>inputmode="numeric"</code>, forwards <code>min</code>,
-      <code>max</code>, and <code>step</code>, and routes through a
-      <code>numericValue</code> model of <code>number | null</code>. Empty
-      fields and unparseable input both map to <code>null</code> so consumers
-      never see <code>NaN</code>.
+      A11y: <code>type="number"</code> forces <code>inputmode="numeric"</code>,
+      forwards <code>min</code>, <code>max</code>, and <code>step</code>, and
+      routes through a <code>value</code> model of <code>number | null</code>.
+      Empty fields and unparseable input both map to <code>null</code> so
+      consumers never see <code>NaN</code>.
     </p>
     <div class="ds-grid">
       <fb-input
         name="ds-input-numeric"
-        [numericMode]="true"
-        [(numericValue)]="numericInputValue"
+        type="number"
+        [(value)]="numericInputValue"
         [min]="0"
         [max]="100"
         [step]="0.5"

@@ -46,7 +46,7 @@ import { FbRadioComponent } from './radio.component';
   ]
 })
 export class FbRadioGroupComponent<
-  T extends string | number = string
+  T extends string | number | null = string
 > implements AfterContentInit {
   readonly value = model<T | null>(null);
   readonly disabled = input<boolean>(false);
@@ -60,11 +60,11 @@ export class FbRadioGroupComponent<
     }
   }
 
-  isSelected(radioValue: string | number): boolean {
+  isSelected(radioValue: string | number | null): boolean {
     return this.value() === (radioValue as T);
   }
 
-  isFocusable(radioValue: string | number): boolean {
+  isFocusable(radioValue: string | number | null): boolean {
     const current = this.value();
     if (current !== null) {
       return current === (radioValue as T);
@@ -76,7 +76,7 @@ export class FbRadioGroupComponent<
     return this.disabled();
   }
 
-  select(radioValue: string | number): void {
+  select(radioValue: string | number | null): void {
     if (this.disabled()) return;
     this.value.set(radioValue as T);
   }
@@ -143,8 +143,8 @@ export class FbRadioGroupComponent<
  * does not need to be generic itself.
  */
 export interface RadioGroupHost {
-  isSelected(value: string | number): boolean;
-  isFocusable(value: string | number): boolean;
+  isSelected(value: string | number | null): boolean;
+  isFocusable(value: string | number | null): boolean;
   isDisabled(): boolean;
-  select(value: string | number): void;
+  select(value: string | number | null): void;
 }

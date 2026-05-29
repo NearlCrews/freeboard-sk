@@ -17,10 +17,11 @@ import { NgTemplateOutlet } from '@angular/common';
 import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { FbIconComponent } from '../icon/icon.component';
 
-export interface FbSelectOption<T extends string | number = string> {
+export interface FbSelectOption<T extends string | number | null = string> {
   readonly id: T;
   readonly label: string;
   readonly disabled?: boolean;
+  readonly icon?: string;
   /**
    * Free-form payload accessible from the projected `[fbSelectOption]`
    * template (and from a custom `[fb-select-trigger]` lookup). Untyped so
@@ -30,7 +31,7 @@ export interface FbSelectOption<T extends string | number = string> {
   readonly data?: unknown;
 }
 
-export interface FbSelectGroup<T extends string | number = string> {
+export interface FbSelectGroup<T extends string | number | null = string> {
   readonly label: string;
   readonly options: readonly FbSelectOption<T>[];
 }
@@ -51,7 +52,9 @@ export class FbSelectTriggerDirective {}
  * The id-type generic stays open so number-keyed and string-keyed callers
  * can both reuse the same projection slot.
  */
-export interface FbSelectOptionContext<T extends string | number = string> {
+export interface FbSelectOptionContext<
+  T extends string | number | null = string
+> {
   readonly $implicit: FbSelectOption<T>;
 }
 
@@ -81,7 +84,7 @@ export class FbSelectOptionTemplateDirective {
   static ngTemplateContextGuard(
     _dir: FbSelectOptionTemplateDirective,
     ctx: unknown
-  ): ctx is FbSelectOptionContext<string | number> {
+  ): ctx is FbSelectOptionContext<string | number | null> {
     return true;
   }
 }
@@ -180,7 +183,7 @@ export class FbSelectOptionTemplateDirective {
         [id]="listboxId()"
         class="fb-select__listbox"
         role="listbox"
-        [attr.aria-multiselectable]="multiple() ? 'true' : null"
+        [attr.aria-multiselectable]="isMulti() ? 'true' : null"
         [attr.aria-activedescendant]="activeOptionId()"
       >
         @if (hasGroups()) {
@@ -344,17 +347,20 @@ export class FbSelectOptionTemplateDirective {
     `
   ]
 })
-export class FbSelectComponent<T extends string | number = string> {
+export class FbSelectComponent<T extends string | number | null = string> {
   readonly name = input.required<string>();
   readonly options = input<readonly FbSelectOption<T>[]>([]);
   readonly groups = input<readonly FbSelectGroup<T>[] | undefined>(undefined);
   readonly value = model<T | null>(null);
   readonly values = model<readonly T[]>([]);
   readonly multiple = input<boolean>(false);
+  readonly multi = input<boolean>(false);
   readonly placeholder = input<string>('Select...');
   readonly disabled = input<boolean>(false);
   readonly invalid = input<boolean>(false);
   readonly ariaLabel = input<string>('');
+
+  readonly isMulti = computed<boolean>(() => this.multi() || this.multiple());
 
   readonly open = signal<boolean>(false);
   readonly activeIndex = signal<number>(-1);
@@ -403,12 +409,12 @@ export class FbSelectComponent<T extends string | number = string> {
   ];
 
   readonly hasSelection = computed(() => {
-    if (this.multiple()) return this.values().length > 0;
+    if (this.isMulti()) return this.values().length > 0;
     return this.value() !== null;
   });
 
   readonly triggerLabel = computed(() => {
-    if (this.multiple()) return this.multiTriggerLabel();
+    if (this.isMulti()) return this.multiTriggerLabel();
     const v = this.value();
     if (v === null) return '';
     return this.flatOptions().find((o) => o.id === v)?.label ?? '';
@@ -437,7 +443,7 @@ export class FbSelectComponent<T extends string | number = string> {
   }
 
   isOptionSelected(id: T): boolean {
-    if (this.multiple()) return this.values().includes(id);
+    if (this.isMulti()) return this.values().includes(id);
     return this.value() === id;
   }
 
@@ -464,7 +470,7 @@ export class FbSelectComponent<T extends string | number = string> {
 
   selectOption(opt: FbSelectOption<T>): void {
     if (opt.disabled) return;
-    if (this.multiple()) {
+    if (this.isMulti()) {
       const current = this.values();
       const next = current.includes(opt.id)
         ? current.filter((id) => id !== opt.id)
@@ -560,7 +566,7 @@ export class FbSelectComponent<T extends string | number = string> {
 
   private syncActiveToValue(): void {
     const opts = this.flatOptions();
-    if (this.multiple()) {
+    if (this.isMulti()) {
       const selected = this.values();
       if (selected.length === 0) {
         for (let i = 0; i < opts.length; i++) {

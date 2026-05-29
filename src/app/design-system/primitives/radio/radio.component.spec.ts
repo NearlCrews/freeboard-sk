@@ -41,6 +41,22 @@ class NumericHostComponent {
   value = signal<number | null>(null);
 }
 
+@Component({
+  standalone: true,
+  imports: [FbRadioComponent, FbRadioGroupComponent],
+  template: `
+    <fb-radio-group [(value)]="value" ariaLabel="Vessel icon scale">
+      <fb-radio [value]="0.75">Small</fb-radio>
+      <fb-radio [value]="0.9">Default</fb-radio>
+      <fb-radio [value]="1.15">Large</fb-radio>
+      <fb-radio [value]="1.4">Extra large</fb-radio>
+    </fb-radio-group>
+  `
+})
+class FractionalHostComponent {
+  value = signal<number | null>(null);
+}
+
 function setup(): {
   host: HostComponent;
   fixture: ComponentFixture<HostComponent>;
@@ -200,5 +216,44 @@ describe('FbRadioGroupComponent (numeric values)', () => {
     const list = radios();
     expect(list[0]!.getAttribute('aria-checked')).toBe('false');
     expect(list[2]!.getAttribute('aria-checked')).toBe('true');
+  });
+});
+
+describe('FbRadioGroupComponent (fractional numeric values)', () => {
+  let host: FractionalHostComponent;
+  let fixture: ComponentFixture<FractionalHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [FractionalHostComponent] });
+    fixture = TestBed.createComponent(FractionalHostComponent);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  function radios(): HTMLButtonElement[] {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll('fb-radio button')
+    ) as HTMLButtonElement[];
+  }
+
+  it('round-trips a fractional value: set 0.75 then emit 0.75 on click', () => {
+    host.value.set(0.75);
+    fixture.detectChanges();
+    const list = radios();
+    expect(list[0]!.getAttribute('aria-checked')).toBe('true');
+    expect(list[1]!.getAttribute('aria-checked')).toBe('false');
+
+    list[0]!.click();
+    fixture.detectChanges();
+    expect(host.value()).toBe(0.75);
+    expect(typeof host.value()).toBe('number');
+  });
+
+  it('selects 1.15 on click and stores it as a number', () => {
+    radios()[2]!.click();
+    fixture.detectChanges();
+    expect(host.value()).toBe(1.15);
+    expect(typeof host.value()).toBe('number');
   });
 });

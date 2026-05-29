@@ -418,9 +418,9 @@
                   </label>
                   <fb-input
                     name="webgl-ais-threshold"
-                    [numericMode]="true"
+                    type="number"
                     [min]="0"
-                    [(numericValue)]="webglAISThresholdValue"
+                    [(value)]="webglAISThresholdValue"
                     ariaLabel="AIS target count above which the WebGL points layer takes over from canvas"
                     fbTooltip="AIS target count above which the WebGL points layer replaces the canvas layer."
                   ></fb-input>
@@ -500,10 +500,10 @@
                   </label>
                   <fb-input
                     name="s57-shallow-depth"
-                    [numericMode]="true"
+                    type="number"
                     [min]="0"
-                    [numericValue]="facade.settings.map.s57Options.shallowDepth"
-                    (numericValueChange)="onS57ShallowDepth($event)"
+                    [value]="facade.settings.map.s57Options.shallowDepth"
+                    (valueChange)="onS57ShallowDepth($event)"
                     [invalid]="facade.settings.map.s57Options.shallowDepth === null || facade.settings.map.s57Options.shallowDepth < 0"
                     ariaLabel="Shallow depth in metres"
                   ></fb-input>
@@ -520,10 +520,10 @@
                   </label>
                   <fb-input
                     name="s57-safety-depth"
-                    [numericMode]="true"
+                    type="number"
                     [min]="0"
-                    [numericValue]="facade.settings.map.s57Options.safetyDepth"
-                    (numericValueChange)="onS57SafetyDepth($event)"
+                    [value]="facade.settings.map.s57Options.safetyDepth"
+                    (valueChange)="onS57SafetyDepth($event)"
                     [invalid]="facade.settings.map.s57Options.safetyDepth === null || facade.settings.map.s57Options.safetyDepth < 0"
                     ariaLabel="Safety depth in metres"
                   ></fb-input>
@@ -540,10 +540,10 @@
                   </label>
                   <fb-input
                     name="s57-deep-depth"
-                    [numericMode]="true"
+                    type="number"
                     [min]="0"
-                    [numericValue]="facade.settings.map.s57Options.deepDepth"
-                    (numericValueChange)="onS57DeepDepth($event)"
+                    [value]="facade.settings.map.s57Options.deepDepth"
+                    (valueChange)="onS57DeepDepth($event)"
                     [invalid]="facade.settings.map.s57Options.deepDepth === null || facade.settings.map.s57Options.deepDepth < 0"
                     ariaLabel="Deep depth in metres"
                   ></fb-input>
@@ -586,10 +586,10 @@
                   </label>
                   <fb-input
                     name="course-arrival-circle"
-                    [numericMode]="true"
+                    type="number"
                     [min]="0"
-                    [numericValue]="facade.settings.course.arrivalCircle"
-                    (numericValueChange)="onArrivalCircle($event)"
+                    [value]="facade.settings.course.arrivalCircle"
+                    (valueChange)="onArrivalCircle($event)"
                     [invalid]="facade.settings.course.arrivalCircle === null || facade.settings.course.arrivalCircle < 0"
                     ariaLabel="Arrival circle radius in metres"
                   ></fb-input>
@@ -702,11 +702,11 @@
                       </label>
                       <fb-input
                         name="vessel-fixed-lat"
-                        [numericMode]="true"
+                        type="number"
                         [min]="-90"
                         [max]="90"
-                        [numericValue]="facade.fixedPosition[1]"
-                        (numericValueChange)="onFixedLat($event)"
+                        [value]="facade.fixedPosition[1]"
+                        (valueChange)="onFixedLat($event)"
                         [disabled]="!facade.settings.vessels.fixedLocationMode"
                         [invalid]="facade.fixedPosition[1] === null || facade.fixedPosition[1] < -90 || facade.fixedPosition[1] > 90"
                         ariaLabel="Fixed location latitude"
@@ -725,11 +725,11 @@
                       </label>
                       <fb-input
                         name="vessel-fixed-lon"
-                        [numericMode]="true"
+                        type="number"
                         [min]="-180"
                         [max]="180"
-                        [numericValue]="facade.fixedPosition[0]"
-                        (numericValueChange)="onFixedLon($event)"
+                        [value]="facade.fixedPosition[0]"
+                        (valueChange)="onFixedLon($event)"
                         [disabled]="!facade.settings.vessels.fixedLocationMode"
                         [invalid]="facade.fixedPosition[0] === null || facade.fixedPosition[0] < -180 || facade.fixedPosition[0] > 180"
                         ariaLabel="Fixed location longitude"
@@ -893,10 +893,10 @@
                       </label>
                       <fb-input
                         name="vessel-range-distance"
-                        [numericMode]="true"
+                        type="number"
                         [min]="1"
-                        [numericValue]="formattedNumberModel.rangeCirclesDistance"
-                        (numericValueChange)="onRangeCirclesDistance($event)"
+                        [value]="formattedNumberModel.rangeCirclesDistance"
+                        (valueChange)="onRangeCirclesDistance($event)"
                         [disabled]="!facade.settings.vessels.rangeCircles || !facade.settings.vessels.rangeCirclesFixed"
                         [invalid]="formattedNumberModel.rangeCirclesDistance < 1"
                         ariaLabel="Distance between circles"

@@ -548,3 +548,175 @@ describe('FbSelectComponent (custom option template)', () => {
     expect(fixture.componentInstance.value()).toBe('fuel');
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="port"
+      [options]="options()"
+      [(value)]="value"
+      ariaLabel="Port"
+    ></fb-select>
+  `
+})
+class TypedNumberHostComponent {
+  options = signal<readonly FbSelectOption<number>[]>([
+    { id: 1, label: 'One' },
+    { id: 2, label: 'Two' },
+    { id: 3, label: 'Three' }
+  ]);
+  value = signal<number | null>(null);
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="multi-tags"
+      [options]="options()"
+      [(values)]="values"
+      [multi]="true"
+      ariaLabel="Tags"
+    ></fb-select>
+  `
+})
+class TypedMultiHostComponent {
+  options = signal<readonly FbSelectOption<number>[]>([
+    { id: 10, label: 'Ten' },
+    { id: 20, label: 'Twenty' },
+    { id: 30, label: 'Thirty' }
+  ]);
+  values = signal<readonly number[]>([]);
+}
+
+@Component({
+  standalone: true,
+  imports: [FbSelectComponent],
+  template: `
+    <fb-select
+      name="theme-default"
+      [options]="options()"
+      [(value)]="value"
+      ariaLabel="Theme"
+    ></fb-select>
+  `
+})
+class StringDefaultHostComponent {
+  options = signal<readonly FbSelectOption[]>([
+    { id: 'light', label: 'Light' },
+    { id: 'dark', label: 'Dark' }
+  ]);
+  value = signal<string | null>(null);
+}
+
+describe('FbSelectComponent (typed-number option)', () => {
+  let fixture: ComponentFixture<TypedNumberHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TypedNumberHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(TypedNumberHostComponent);
+    fixture.detectChanges();
+  });
+
+  it('preserves the number type when selecting a typed-number option', () => {
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const opts = Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+    opts[2]!.click();
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    expect(host.value()).toBe(3);
+    expect(typeof host.value()).toBe('number');
+  });
+});
+
+describe('FbSelectComponent (typed-multi-select via `multi` input)', () => {
+  let fixture: ComponentFixture<TypedMultiHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TypedMultiHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(TypedMultiHostComponent);
+    fixture.detectChanges();
+  });
+
+  function triggerBtn(): HTMLButtonElement {
+    return fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+  }
+
+  function visibleOptions(): HTMLElement[] {
+    return Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+  }
+
+  it('activates multi mode through the `multi` input alias', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    const listbox = document.querySelector('.fb-select__listbox')!;
+    expect(listbox.getAttribute('aria-multiselectable')).toBe('true');
+  });
+
+  it('accumulates typed-number ids without closing the listbox', () => {
+    triggerBtn().click();
+    fixture.detectChanges();
+    visibleOptions()[0]!.click();
+    fixture.detectChanges();
+    visibleOptions()[2]!.click();
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    expect([...host.values()]).toEqual([10, 30]);
+    expect(typeof host.values()[0]).toBe('number');
+    expect(triggerBtn().getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('shows comma-joined labels for the selected typed-number values', () => {
+    fixture.componentInstance.values.set([10, 20]);
+    fixture.detectChanges();
+    expect(triggerBtn().textContent).toContain('Ten, Twenty');
+  });
+});
+
+describe('FbSelectComponent (string-typed default unchanged)', () => {
+  let fixture: ComponentFixture<StringDefaultHostComponent>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [StringDefaultHostComponent, OverlayModule]
+    });
+    fixture = TestBed.createComponent(StringDefaultHostComponent);
+    fixture.detectChanges();
+  });
+
+  it('keeps the string-id default behavior for untyped consumers', () => {
+    const trigger = fixture.nativeElement.querySelector(
+      '.fb-select__trigger'
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    const opts = Array.from(
+      document.querySelectorAll('.fb-select__option')
+    ) as HTMLElement[];
+    opts[1]!.click();
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    expect(host.value()).toBe('dark');
+    expect(typeof host.value()).toBe('string');
+  });
+});
