@@ -1,7 +1,7 @@
 /** Dialog Components **
  ************************/
 
-import type { OnInit, AfterViewInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import {
   MatDialogRef,
@@ -9,7 +9,6 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
-import { MatStepperModule } from '@angular/material/stepper';
 
 import {
   FbButtonComponent,
@@ -270,57 +269,42 @@ export class MessageBarComponent {
 ***************************************/
 @Component({
   selector: 'ap-welcome-dialog',
-  imports: [
-    MatDialogModule,
-    MatStepperModule,
-    FbIconComponent,
-    FbButtonComponent
-  ],
+  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
   template: `
     <mat-dialog-content>
       <div class="welcome">
-        <mat-horizontal-stepper [linear]="false" #stepper>
-          @for (c of data.content; track c; let i = $index) {
-            <mat-step>
-              <div style="text-align:center;">
-                <h3>{{ c.title }}</h3>
+        @for (c of data.content; track c; let i = $index) {
+          @if (currentPage - 1 === i) {
+            <div style="text-align:center;">
+              <h3>{{ c.title }}</h3>
+            </div>
+            <div class="flex">
+              <div style="min-width:50px;text-align:left;padding-top: 15%;">
+                @if (i !== 0 && data.content.length > 1) {
+                  <fb-button
+                    variant="ghost"
+                    ariaLabel="Previous page"
+                    (pressed)="currentPage = currentPage - 1"
+                  >
+                    <fb-icon name="keyboard_arrow_left" ariaLabel=""></fb-icon>
+                  </fb-button>
+                }
               </div>
-              <div class="flex">
-                <div style="min-width:50px;text-align:left;padding-top: 15%;">
-                  @if (i !== 0 && data.content.length > 1) {
-                    <fb-button
-                      variant="ghost"
-                      ariaLabel="Previous page"
-                      (pressed)="currentPage = currentPage - 1"
-                      matStepperPrevious
-                    >
-                      <fb-icon
-                        name="keyboard_arrow_left"
-                        ariaLabel=""
-                      ></fb-icon>
-                    </fb-button>
-                  }
-                </div>
-                <div class="flex-auto" [innerHTML]="c.message"></div>
-                <div style="min-width:50px;text-align:right;padding-top: 15%;">
-                  @if (i !== data.content.length - 1) {
-                    <fb-button
-                      variant="ghost"
-                      ariaLabel="Next page"
-                      (pressed)="currentPage = currentPage + 1"
-                      matStepperNext
-                    >
-                      <fb-icon
-                        name="keyboard_arrow_right"
-                        ariaLabel=""
-                      ></fb-icon>
-                    </fb-button>
-                  }
-                </div>
+              <div class="flex-auto" [innerHTML]="c.message"></div>
+              <div style="min-width:50px;text-align:right;padding-top: 15%;">
+                @if (i !== data.content.length - 1) {
+                  <fb-button
+                    variant="ghost"
+                    ariaLabel="Next page"
+                    (pressed)="currentPage = currentPage + 1"
+                  >
+                    <fb-icon name="keyboard_arrow_right" ariaLabel=""></fb-icon>
+                  </fb-button>
+                }
               </div>
-            </mat-step>
+            </div>
           }
-        </mat-horizontal-stepper>
+        }
         <div
           style="text-align:center;font-size:var(--font-size-sm);font-family:roboto;"
         >
@@ -384,7 +368,7 @@ export class MessageBarComponent {
     `
   ]
 })
-export class WelcomeDialog implements AfterViewInit {
+export class WelcomeDialog {
   public currentPage = 1;
 
   constructor(
@@ -392,13 +376,4 @@ export class WelcomeDialog implements AfterViewInit {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
-
-  ngAfterViewInit() {
-    const sh = document.getElementsByClassName(
-      'mat-horizontal-stepper-header-container'
-    );
-    if (sh.length) {
-      (sh[0] as HTMLElement).style.display = 'none';
-    }
-  }
 }

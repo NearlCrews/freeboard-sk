@@ -11,7 +11,10 @@ import {
   OnInit
 } from '@angular/core';
 
-import { MatRadioModule } from '@angular/material/radio';
+import {
+  FbRadioComponent,
+  FbRadioGroupComponent
+} from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
 
@@ -24,7 +27,7 @@ interface PreferredPathEntry {
 
 @Component({
   selector: 'signalk-preferred-paths',
-  imports: [MatRadioModule],
+  imports: [FbRadioGroupComponent, FbRadioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./signalk-preferredpaths.component.css'],
   template: `
@@ -36,21 +39,17 @@ interface PreferredPathEntry {
             <div class="title">
               <div>{{ item[1].name }}</div>
             </div>
-            <div>
+            <fb-radio-group
+              [value]="item[1].current"
+              [ariaLabel]="item[1].name"
+              (valueChange)="item[1].current = $event; save(true)"
+            >
               @for (path of item[1].available; track path) {
-                <div style="margin: var(--space-xs) 0 var(--space-xs) 0;">
-                  <mat-radio-button
-                    #pathopt
-                    [name]="item[0]"
-                    [value]="path"
-                    [checked]="path === item[1].current"
-                    (change)="item[1].current = pathopt.value; save(true)"
-                  >
-                    {{ path.split('.').slice(-1) }}
-                  </mat-radio-button>
-                </div>
+                <fb-radio [value]="path">
+                  {{ path.split('.').slice(-1) }}
+                </fb-radio>
               }
-            </div>
+            </fb-radio-group>
           </div>
         }
       </div>

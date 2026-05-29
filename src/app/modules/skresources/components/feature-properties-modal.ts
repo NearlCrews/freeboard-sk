@@ -1,15 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  AfterViewInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatStepperModule } from '@angular/material/stepper';
 import { SignalKDetailsComponent } from '../components/signalk-details.component';
 import { Feature } from 'geojson';
 
@@ -31,8 +25,7 @@ import {
     FbCardContentComponent,
     FbIconComponent,
     FbToolbarComponent,
-    SignalKDetailsComponent,
-    MatStepperModule
+    SignalKDetailsComponent
   ],
   template: `
     <div class="_ap-feature">
@@ -54,59 +47,49 @@ import {
         </span>
       </fb-toolbar>
 
-      <mat-horizontal-stepper [linear]="false" #stepper>
-        @for (feature of display; track feature; let i = $index) {
-          <mat-step>
-            <div class="flex">
-              @if (data.length > 1) {
-                <div style="min-width:50px;text-align:left;padding-top: 15%;">
-                  @if (i !== 0) {
-                    <fb-button
-                      variant="ghost"
-                      ariaLabel="Previous"
-                      (pressed)="currentPage = currentPage - 1"
-                      matStepperPrevious
-                    >
-                      <fb-icon
-                        name="keyboard_arrow_left"
-                        ariaLabel=""
-                      ></fb-icon>
-                    </fb-button>
-                  }
-                </div>
-              }
-              <div class="flex-auto">
-                <fb-card>
-                  <fb-card-content>
-                    <div class="flex flex-col">
-                      <signalk-details-list
-                        [details]="feature"
-                      ></signalk-details-list>
-                    </div>
-                  </fb-card-content>
-                </fb-card>
+      @for (feature of display; track feature; let i = $index) {
+        @if (currentPage - 1 === i) {
+          <div class="flex">
+            @if (data.length > 1) {
+              <div style="min-width:50px;text-align:left;padding-top: 15%;">
+                @if (i !== 0) {
+                  <fb-button
+                    variant="ghost"
+                    ariaLabel="Previous"
+                    (pressed)="currentPage = currentPage - 1"
+                  >
+                    <fb-icon name="keyboard_arrow_left" ariaLabel=""></fb-icon>
+                  </fb-button>
+                }
               </div>
-              @if (data.length > 1) {
-                <div style="min-width:50px;text-align:right;padding-top: 15%;">
-                  @if (i !== data.length - 1) {
-                    <fb-button
-                      variant="ghost"
-                      ariaLabel="Next"
-                      (pressed)="currentPage = currentPage + 1"
-                      matStepperNext
-                    >
-                      <fb-icon
-                        name="keyboard_arrow_right"
-                        ariaLabel=""
-                      ></fb-icon>
-                    </fb-button>
-                  }
-                </div>
-              }
+            }
+            <div class="flex-auto">
+              <fb-card>
+                <fb-card-content>
+                  <div class="flex flex-col">
+                    <signalk-details-list
+                      [details]="feature"
+                    ></signalk-details-list>
+                  </div>
+                </fb-card-content>
+              </fb-card>
             </div>
-          </mat-step>
+            @if (data.length > 1) {
+              <div style="min-width:50px;text-align:right;padding-top: 15%;">
+                @if (i !== data.length - 1) {
+                  <fb-button
+                    variant="ghost"
+                    ariaLabel="Next"
+                    (pressed)="currentPage = currentPage + 1"
+                  >
+                    <fb-icon name="keyboard_arrow_right" ariaLabel=""></fb-icon>
+                  </fb-button>
+                }
+              </div>
+            }
+          </div>
         }
-      </mat-horizontal-stepper>
+      }
 
       <div
         style="text-align:center;font-size:var(--font-size-sm);font-family:roboto;"
@@ -134,7 +117,7 @@ import {
     `
   ]
 })
-export class FeaturePropertiesModal implements AfterViewInit {
+export class FeaturePropertiesModal {
   protected display: Feature['properties'][] = [];
   protected currentPage = 1;
 
@@ -145,15 +128,5 @@ export class FeaturePropertiesModal implements AfterViewInit {
     this.display = Array.isArray(this.data)
       ? this.data.map((f) => f.properties)
       : [];
-  }
-
-  ngAfterViewInit() {
-    const sh = document.getElementsByClassName(
-      'mat-horizontal-stepper-header-container'
-    );
-    const header = sh[0] as HTMLElement | undefined;
-    if (header) {
-      header.style.display = 'none';
-    }
   }
 }

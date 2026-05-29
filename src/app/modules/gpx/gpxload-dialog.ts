@@ -11,11 +11,11 @@ import {
   MatDialogModule
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDividerComponent,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
   FbExpansionPanelTitleDirective,
@@ -53,6 +53,7 @@ interface GPXDataSummary {
   imports: [
     FbButtonComponent,
     FbCheckboxComponent,
+    FbDividerComponent,
     FbExpansionPanelComponent,
     FbExpansionPanelDescriptionDirective,
     FbExpansionPanelTitleDirective,
@@ -60,7 +61,6 @@ interface GPXDataSummary {
     FbProgressBarComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatDividerModule,
     MatTooltipModule
   ],
   templateUrl: './gpxload-dialog.html',
