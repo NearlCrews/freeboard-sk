@@ -87,7 +87,7 @@ import {
 } from './mapconfig';
 import { ModifyEvent } from 'ol/interaction/Modify';
 import { DrawEvent } from 'ol/interaction/Draw';
-import { LineString as OlLineString, Circle as OlCircle } from 'ol/geom';
+import { LineString as OlLineString } from 'ol/geom';
 import { Coordinate } from 'ol/coordinate';
 import {
   FBMapEvent,
@@ -111,6 +111,7 @@ import {
 import { DragBoxEvent } from 'ol/interaction/DragBox';
 import { MapService } from './ol/lib/map.service';
 import { MapPersistenceController } from './map-persistence.controller';
+import { MapInteractionController } from './map-interaction.controller';
 import { MapViewportController } from './map-viewport.controller';
 import { FEATURE_ID_PREFIX_TO_RESOURCE_TYPE } from './ol/lib/resources/feature-id-prefix';
 
@@ -284,6 +285,7 @@ export class FBMapComponent
   private fbMenu = inject(FbMenuService);
   private viewContainerRef = inject(ViewContainerRef);
   private readonly persistence = inject(MapPersistenceController);
+  private readonly interaction = inject(MapInteractionController);
   private readonly viewport = inject(MapViewportController);
 
   constructor() {
@@ -739,14 +741,7 @@ export class FBMapComponent
 
   /** process pointer click event when in measure mode */
   private parseClickInMeasureMode(pos: Position) {
-    const measurement = this.mapInteract.measurement();
-    if (
-      this.mapInteract.measureGeometryType === 'LineString' &&
-      measurement &&
-      (measurement.coords?.length ?? 0) !== 0
-    ) {
-      this.onMeasureClick(pos);
-    }
+    this.interaction.parseClickInMeasureMode(pos, this.overlay);
   }
 
   /** Toggle display of chart feature  */
@@ -758,116 +753,31 @@ export class FBMapComponent
 
   /** Handle OL interaction start event */
   protected onDragBoxStart(e: DragBoxEvent) {
-    const c = toLonLat(e.coordinate);
-    this.mapInteract.initBoxCoord(c as Position);
+    this.interaction.handleDragBoxStart(e);
   }
 
-  /** Handle OL interaction end event */
   protected onDragBoxEnd(e: DragBoxEvent) {
-    const c = toLonLat(e.coordinate);
-    this.mapInteract.stopBoxSelection(c as Position);
+    this.interaction.handleDragBoxEnd(e);
   }
 
-  /** Handle OL interaction end event */
-  protected onDragBoxCancel(e: DragBoxEvent) {
-    this.app.debug(`onDragBoxCancel()...`);
-    this.mapInteract.stopBoxSelection();
+  protected onDragBoxCancel(_e: DragBoxEvent) {
+    this.interaction.handleDragBoxCancel();
   }
 
-  /** Handle OL interaction start event */
   protected onMeasureStart(e: DrawEvent) {
-    this.app.debug(`onMeasureStart()...`, this.mapInteract.measureGeometryType);
-    let ovPosition: Position;
-    if (this.mapInteract.measureGeometryType === 'LineString') {
-      const geom = e.feature.getGeometry() as OlLineString;
-      let c: Position[] = geom
-        .getCoordinates()
-        .map((p) => toLonLat(p as [number, number]) as Position);
-      c = c.slice(0, c.length - 1);
-      this.mapInteract.measurementCoords = c;
-      ovPosition = (c[0] ?? [0, 0]) as Position;
-    } else {
-      const g = e.feature.getGeometry() as OlCircle;
-      const center = toLonLat(g.getCenter());
-      const radius: number = g.getRadius();
-      this.mapInteract.measurementCenter = center as Position;
-      this.mapInteract.measurementRadius = radius;
-      ovPosition = center as Position;
-      this.app.debug(this.mapInteract.measurement);
-    }
-    this.formatPopover(null, null);
-    this.overlay.update((current) => {
-      return Object.assign({}, current, {
-        position: ovPosition,
-        title: '0',
-        show: true,
-        type: 'measure'
-      });
-    });
+    this.interaction.handleMeasureStart(e, this.overlay);
   }
 
-  /** Process pointer click in MEASURE mode */
   protected onMeasureClick(pt: Position) {
-    this.app.debug(`onMeasureClick()...`);
-    if (!Array.isArray(pt)) {
-      return;
-    }
-    const coords = this.mapInteract.measurement().coords ?? [];
-    const lastPt = coords[coords.length - 1];
-    if (lastPt && pt[0] === lastPt[0] && pt[1] === lastPt[1]) {
-      return;
-    }
-    const lm = this.mapInteract.addMeasurementCoord(pt);
-    // ** update popover measurement values
-    const newCoords = this.mapInteract.measurement().coords ?? [];
-    const tail = newCoords.slice(-2);
-    const t0 = tail[0];
-    const t1 = tail[1];
-    const b = t0 && t1 ? GeoUtils.greatCircleBearing(t0, t1) : 0;
-    this.overlay.update((current) => {
-      return Object.assign({}, current, {
-        position: pt,
-        title: `${this.app.formatValueForDisplay(
-          lm,
-          'm'
-        )} ${this.app.formatValueForDisplay(b, 'deg')}`
-      });
-    });
+    this.interaction.handleMeasureClick(pt, this.overlay);
   }
 
-  /** Handle OL interaction start event */
   protected onMeasureEnd() {
-    this.app.debug(`onMeasureEnd()...`);
-    this.overlay.update((current) => {
-      return Object.assign({}, current, {
-        show: false
-      });
-    });
-    this.mapInteract.stopMeasuring();
+    this.interaction.handleMeasureEnd(this.overlay);
   }
 
-  /**
-   * Process pointer click in DRAW mode
-   * @param fa Array of Features
-   */
   protected onDrawClick(fa: Feature[]) {
-    if (!Array.isArray(fa)) {
-      return;
-    }
-    if (this.mapInteract.draw.resourceType === 'route') {
-      let rteCoords: Position[] = [];
-      fa.forEach((f: Feature) => {
-        const geom = f.getGeometry();
-        if (geom?.getType() === 'LineString') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rteCoords = (geom as any)
-            .getCoordinates()
-            .map((c: Position) => toLonLat(c as [number, number]) as Position);
-          rteCoords = rteCoords.slice(0, rteCoords.length - 1);
-        }
-      });
-      this.mapInteract.measurementCoords = rteCoords;
-    }
+    this.interaction.handleDrawClick(fa);
   }
 
   /** Handle OL interaction end event */
