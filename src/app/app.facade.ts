@@ -38,7 +38,6 @@ import {
 
 import { getSvgList } from './modules/icons';
 import { S57Service } from './modules/map/ol';
-import type { LineStyleDash } from './modules/settings/components/linestyle-select.component';
 import {
   AlarmStore,
   CourseStore,
@@ -179,23 +178,6 @@ export class AppFacade extends InfoService {
   }
   set MAP_ZOOM_EXTENT(v: { min: number; max: number }) {
     this.vessel.MAP_ZOOM_EXTENT.set({ ...v });
-  }
-
-  get STANDARD_RESOURCES() {
-    return this.resource.STANDARD_RESOURCES;
-  }
-  get CUSTOM_RESOURCES() {
-    return this.resource.CUSTOM_RESOURCES;
-  }
-  get IGNORE_RESOURCES() {
-    return this.resource.IGNORE_RESOURCES;
-  }
-
-  get lineDashMap() {
-    return this.settings.lineDashMap;
-  }
-  formatLineDashArray(value: LineStyleDash): number[] | null {
-    return this.settings.formatLineDashArray(value);
   }
 
   constructor() {
@@ -341,7 +323,7 @@ export class AppFacade extends InfoService {
         stroke: {
           color: cog.color,
           width: cog.weight,
-          lineDash: this.formatLineDashArray(cog.dash)
+          lineDash: this.settings.formatLineDashArray(cog.dash)
         }
       },
       heading: {
@@ -349,7 +331,7 @@ export class AppFacade extends InfoService {
         stroke: {
           color: heading.color,
           width: heading.weight,
-          lineDash: this.formatLineDashArray(heading.dash)
+          lineDash: this.settings.formatLineDashArray(heading.dash)
         }
       }
     });

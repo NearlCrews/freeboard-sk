@@ -297,7 +297,7 @@ export class SettingsFacade {
       (r: ResourceTypeList) => {
         this.resourcePathList = Object.keys(r)
           .filter((i: string) => {
-            return !this.app.IGNORE_RESOURCES.includes(i);
+            return !this.app.resource.IGNORE_RESOURCES.includes(i);
           })
           .sort();
       },
