@@ -263,11 +263,6 @@ export class ConfirmDialog implements OnInit {
         display: inline-flex;
         align-items: center;
         gap: var(--space-sm);
-        padding: var(--space-sm) var(--space-md);
-        font-family: var(--font-family-sans);
-        font-size: var(--font-size-base);
-        line-height: var(--line-height-normal);
-        color: var(--color-text);
       }
       .message-bar__text {
         flex: 0 1 auto;

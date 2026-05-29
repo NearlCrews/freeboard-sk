@@ -239,11 +239,17 @@ export class DialogOrchestrator {
       });
   }
 
+  private loginDialogOpen = false;
+
   async showLogin(
     message?: string,
     cancelWarning = true,
     onConnect?: boolean
   ): Promise<void> {
+    if (this.loginDialogOpen) {
+      return;
+    }
+    this.loginDialogOpen = true;
     const { LoginDialog } =
       await import('src/app/lib/components/dialogs/login-dialog');
     this.dialog
@@ -252,6 +258,7 @@ export class DialogOrchestrator {
         data: { message: message || 'Login to Signal K server.' }
       })
       .closed.subscribe((result) => {
+        this.loginDialogOpen = false;
         const res = result as
           | { cancel: boolean; user: string; pwd: string }
           | undefined;
