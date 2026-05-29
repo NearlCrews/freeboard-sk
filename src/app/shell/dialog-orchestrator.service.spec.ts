@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  FbBottomSheetService,
+  FbDialogService
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -47,8 +49,8 @@ function fakeAlarm(): FakeAlarm {
 function configure(app: FakeApp, alarm: FakeAlarm) {
   TestBed.configureTestingModule({
     providers: [
-      { provide: MatDialog, useValue: { open: vi.fn() } },
-      { provide: MatBottomSheet, useValue: { open: vi.fn() } },
+      { provide: FbDialogService, useValue: { open: vi.fn() } },
+      { provide: FbBottomSheetService, useValue: { open: vi.fn() } },
       { provide: AppFacade, useValue: app },
       { provide: AlarmStore, useValue: alarm },
       { provide: SettingsStore, useValue: { sIsFetching: { set: vi.fn() } } },
@@ -104,7 +106,7 @@ describe('DialogOrchestrator', () => {
   });
 
   it('showWeather ignores non-forecast modes', () => {
-    const bs = TestBed.inject(MatBottomSheet) as unknown as {
+    const bs = TestBed.inject(FbBottomSheetService) as unknown as {
       open: ReturnType<typeof vi.fn>;
     };
     svc.showWeather('hindcast');
@@ -112,7 +114,7 @@ describe('DialogOrchestrator', () => {
   });
 
   it('openExperiment skips unknown choices', () => {
-    const bs = TestBed.inject(MatBottomSheet) as unknown as {
+    const bs = TestBed.inject(FbBottomSheetService) as unknown as {
       open: ReturnType<typeof vi.fn>;
     };
     svc.openExperiment({ choice: 'unknown-experiment' });

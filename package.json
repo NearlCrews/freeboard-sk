@@ -95,7 +95,6 @@
     "@angular/core": "^21.2.14",
     "@angular/forms": "^21.2.14",
     "@angular/language-service": "^21.2.14",
-    "@angular/material": "^21.2.12",
     "@angular/platform-browser": "^21.2.14",
     "@angular/platform-browser-dynamic": "^21.2.14",
     "@axe-core/playwright": "^4.11.3",
