@@ -192,7 +192,9 @@ export class TracksCollection {
       });
   }
 
-  private transform(trk: TrackResource): SKTrack {
+  /** Server-shape to SKTrack. Public so SKResourceService's generic
+   *  transform dispatcher can route the 'tracks' case here. */
+  transform(trk: TrackResource): SKTrack {
     return new SKTrack(trk);
   }
 }

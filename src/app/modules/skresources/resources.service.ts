@@ -53,6 +53,7 @@ import type {
 } from 'src/app/types';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
+import { RegionsCollection } from './regions.collection';
 import { TracksCollection } from './tracks.collection';
 
 // Single source of truth for SKResourceType. The tuple drives the
@@ -133,6 +134,7 @@ export class SKResourceService {
   private worker = inject(SKWorkerService);
 
   private readonly selectionsManager = inject(SelectionsManager);
+  private readonly regionsCollection = inject(RegionsCollection);
   private readonly tracksCollection = inject(TracksCollection);
 
   constructor() {
@@ -198,7 +200,9 @@ export class SKResourceService {
    * @param collection
    * @returns Reference to resource cache
    */
-  private getCacheRef(collection: Exclude<SKResourceType, 'tracks'>) {
+  private getCacheRef(
+    collection: Exclude<SKResourceType, 'tracks' | 'regions'>
+  ) {
     switch (collection) {
       case 'routes':
         return this.routeCacheSignal;
@@ -206,8 +210,6 @@ export class SKResourceService {
         return this.waypointCacheSignal;
       case 'notes':
         return this.noteCacheSignal;
-      case 'regions':
-        return this.regionCacheSignal;
       case 'charts':
         return this.chartCacheSignal;
     }
@@ -236,6 +238,9 @@ export class SKResourceService {
     if (collection === 'tracks') {
       return this.tracksCollection.fromCache(id);
     }
+    if (collection === 'regions') {
+      return this.regionsCollection.fromCache(id);
+    }
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
@@ -246,7 +251,6 @@ export class SKResourceService {
         | FBRoute
         | FBWaypoint
         | FBNote
-        | FBRegion
         | FBChart
         | undefined;
     }
@@ -366,7 +370,7 @@ export class SKResourceService {
   ): SKRoute | SKWaypoint | SKRegion | SKNote | SKChart | SKTrack {
     switch (collection) {
       case 'regions':
-        return this.transformRegion(resource as RegionResource, id);
+        return this.regionsCollection.transform(resource as RegionResource, id);
       case 'routes':
         return this.transformRoute(resource as RouteResource, id);
       case 'waypoints':
@@ -376,7 +380,7 @@ export class SKResourceService {
       case 'charts':
         return this.transformChart(resource as ChartResource, id);
       case 'tracks':
-        return new SKTrack(resource as TrackResource);
+        return this.tracksCollection.transform(resource as TrackResource);
     }
   }
 
@@ -1577,250 +1581,44 @@ export class SKResourceService {
     });
   }
 
-  // **** REGIONS ****
+  // **** REGIONS (delegated to RegionsCollection) ****
 
-  private regionCacheSignal = signal<FBRegions>([]);
-  readonly regions = this.regionCacheSignal.asReadonly();
+  readonly regions = this.regionsCollection.regions;
 
-  /**
-   * @description Fill cache with regions fetched from sk server
-   * @param query Filter criteria for regions placed in the cache
-   */
-  public async refreshRegions(query?: string): Promise<void> {
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshRegions->query: ${query}`);
-    try {
-      const regions = await this.listFromServer<FBRegion>('regions', query);
-      const flist = regions.filter((region: FBRegion) => region[2]);
-      this.regionCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshRegions:', err);
-    }
+  public refreshRegions(query?: string): Promise<void> {
+    return this.regionsCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param region Region resource from server
-   * @param id Resource id
-   * @returns SKRegion object
-   */
-  private transformRegion(region: RegionResource, id: string): SKRegion {
-    const legacy = region as RegionResource & { geohash?: unknown };
-    if (typeof legacy.geohash === 'string') {
-      const gh = GeoUtils.geohashDecodeBbox(legacy.geohash);
-      const reg = new SKRegion();
-      reg.name = 'Region-' + id.slice(-6);
-      // Polygon: outer ring of [lon,lat] pairs, closed
-      reg.feature.geometry.coordinates = [
-        [
-          [gh[1], gh[0]],
-          [gh[3], gh[0]],
-          [gh[3], gh[2]],
-          [gh[1], gh[2]],
-          [gh[1], gh[0]]
-        ]
-      ];
-      return reg;
-    }
-    return new SKRegion(region);
+  public newRegion(region: SKRegion): Promise<void> {
+    return this.regionsCollection.create(region);
   }
 
-  /**
-   * @description Create new Region and save to server
-   * @param region
-   */
-  public async newRegion(region: SKRegion): Promise<void> {
-    if (!region) {
-      return;
-    }
-    const { RegionDialog } = await import('./components/regions/region-dialog');
-    this.dialog
-      .open(RegionDialog, {
-        disableClose: true,
-        data: {
-          region: region
-        }
-      })
-      .closed.subscribe(async (res) => {
-        const r = res as { save: boolean; region: SKRegion } | undefined;
-        if (r?.save) {
-          try {
-            const reg = await this.postToServer('regions', r.region);
-            if (reg.id) {
-              this.selectionAdd('regions', reg.id);
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
+  public editRegionInfo(id: string): Promise<void> {
+    return this.regionsCollection.editInfo(id);
   }
 
-  /**
-   * @description Fetch Region with supplied id and display edit dialog
-   * @param id region identifier
-   */
-  public async editRegionInfo(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let region: SKRegion;
-    try {
-      this.app.sIsFetching.set(true);
-      region = await this.fromServer('regions', id);
-      this.app.sIsFetching.set(false);
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
-      return;
-    }
-    const { RegionDialog } = await import('./components/regions/region-dialog');
-    this.dialog
-      .open(RegionDialog, {
-        disableClose: true,
-        data: {
-          region: region
-        }
-      })
-      .closed.subscribe((res) => {
-        const r = res as { save: boolean; region: SKRegion } | undefined;
-        if (r?.save) {
-          this.putToServer('regions', id, r.region).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
-          );
-        }
-      });
+  public deleteRegion(id: string): Promise<void> {
+    return this.regionsCollection.delete(id);
   }
 
-  /**
-   * @description Confirm deletion of Region with supplied id
-   * @param id Region identifier
-   */
-  public async deleteRegion(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    // are there notes attached?
-    const notes = await this.fetchRelatedNotes('regions', id);
-    const checkText = notes?.length !== 0 ? 'Delete attached Notes.' : '';
-    this.app
-      .showConfirm(
-        'Do you want to delete this Region from the server?\n',
-        'Delete Region:',
-        'YES',
-        'NO',
-        checkText
-      )
-      .subscribe((res) => {
-        const result = res as { ok: boolean; checked: boolean } | undefined;
-        if (result && result.ok) {
-          this.deleteFromServer('regions', id)
-            .then(() => {
-              this.refreshRegions();
-              if (result.checked) {
-                // remove linked notes
-                notes.forEach((note: FBNote) => {
-                  this.deleteFromServer('notes', note[0]);
-                });
-              }
-            })
-            .catch((err: HttpErrorResponse) =>
-              this.app.parseHttpErrorResponse(err)
-            );
-        }
-      });
-  }
-
-  /**
-   * @description Update Region coordinates and push to server
-   * @param id Region identifier
-   * @param coords Coordinates to assign to region
-   */
   public updateRegionCoords(id: string, coords: Position[][]): void {
-    if (!id || !coords) {
-      return;
-    }
-    const r = this.fromCache('regions', id);
-    if (!r) {
-      return;
-    }
-    const region = r[1];
-    const normalised = GeoUtils.normaliseCoords(coords);
-    // SKRegion.feature is Polygon | MultiPolygon; updateRegionCoords callers
-    // always feed Polygon-shape coords. Widen the field for assignment.
-    const feature = region.feature as { geometry: { coordinates: unknown } };
-    feature.geometry.coordinates = normalised;
-    this.putToServer('regions', id, region).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
-    });
+    this.regionsCollection.updateCoords(id, coords);
   }
 
-  /**
-   * @description Add FBRegion objects to the Region Cache
-   * @param ids Array of region identifiers. If not supplied all regions will be added.
-   */
-  public regionAddFromServer(ids?: string[]) {
-    if (!ids) {
-      // add all regions retrieved from server
-      this.selectionUnfilter('regions');
-    } else {
-      if (this.selectionIsFiltered('regions')) {
-        this.selectionAdd('regions', ids);
-      }
-    }
-    this.refreshRegions();
+  public regionAddFromServer(ids?: string[]): void {
+    this.regionsCollection.addFromServer(ids);
   }
 
-  /**
-   * @description Add FBRegion objects to the Region Cache
-   * @param regions FBRegion array
-   */
-  public regionAdd(regions: FBRegions) {
-    this.regionCacheSignal.update((current: FBRegions) => {
-      if (this.selectionIsFiltered('regions')) {
-        this.selectionAdd(
-          'regions',
-          regions.map((c: FBRegion) => c[0])
-        );
-      }
-      return current.concat(regions);
-    });
+  public regionAdd(regions: FBRegions): void {
+    this.regionsCollection.add(regions);
   }
 
-  /**
-   * @description Remove FBRegion objects from the Region Cache
-   * @param ids Array of region identifiers. If not supplied all regions are removed.
-   */
-  public regionRemove(ids?: string[]) {
-    this.regionCacheSignal.update((current: FBRegions) => {
-      if (!ids) {
-        // remove all entries
-        this.selectionClear('regions');
-        this.app.saveConfig();
-        return [];
-      } else {
-        this.selectionRemove('regions', ids);
-        return current.filter((c) => !ids.includes(c[0]));
-      }
-    });
+  public regionRemove(ids?: string[]): void {
+    this.regionsCollection.remove(ids);
   }
 
-  /**
-   * @description Select the regions with the supplied ids for inclusion into the cache.
-   * @param ids Array of region identifiers
-   */
-  public regionSelected(ids: string | string[]) {
-    ids = !Array.isArray(ids) ? [ids] : ids;
-    ids.forEach((id: string) => {
-      if (!this.selectionHas('regions', id)) {
-        this.selectionAdd('regions', id);
-      } else {
-        this.selectionRemove('regions', id);
-      }
-    });
-    this.refreshRegions();
+  public regionSelected(ids: string | string[]): void {
+    this.regionsCollection.toggleSelection(ids);
   }
 
   // **** NOTES ****
