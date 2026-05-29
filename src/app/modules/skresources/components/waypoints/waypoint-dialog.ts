@@ -7,9 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { FormsModule } from '@angular/forms';
 import { form, FormField, max, min, required } from '@angular/forms/signals';
-import { MatInputModule } from '@angular/material/input';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -24,9 +22,11 @@ import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 import {
   FbButtonComponent,
   FbIconComponent,
+  FbInputComponent,
   FbSelectComponent,
   FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective,
+  FbTextareaComponent,
   FbToolbarComponent,
   FbTooltipDirective,
   type FbSelectGroup
@@ -82,18 +82,18 @@ interface WaypointTypeOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    FormsModule,
-    MatInputModule,
     FbButtonComponent,
     FbIconComponent,
-    MatDialogModule,
-    CoordsPipe,
-    FormField,
+    FbInputComponent,
     FbSelectComponent,
     FbSelectOptionTemplateDirective,
     FbSelectTriggerDirective,
+    FbTextareaComponent,
     FbToolbarComponent,
-    FbTooltipDirective
+    FbTooltipDirective,
+    MatDialogModule,
+    CoordsPipe,
+    FormField
   ],
   template: `
     <div class="_ap-waypoint">
@@ -120,29 +120,27 @@ interface WaypointTypeOption {
         <div class="flex">
           <div class="flex-auto">
             <div>
-              <mat-form-field floatLabel="always" style="width:100%;">
-                <mat-label>Name</mat-label>
-                <input matInput type="text" [formField]="wptForm.name" />
-                @if (
-                  wptForm.name().invalid() &&
-                  (wptForm.name().dirty() || wptForm.name().touched())
-                ) {
-                  <mat-error>{{ errorMessage() }}</mat-error>
-                }
-              </mat-form-field>
+              <label for="waypoint-name" class="block font-semibold">
+                Name
+              </label>
+              <fb-input type="text" [formField]="wptForm.name"></fb-input>
+              @if (
+                wptForm.name().invalid() &&
+                (wptForm.name().dirty() || wptForm.name().touched())
+              ) {
+                <div class="error-xs">{{ errorMessage() }}</div>
+              }
             </div>
             <div>
-              <mat-form-field floatLabel="always" style="width:100%;">
-                <mat-label>Description</mat-label>
-                <textarea
-                  matInput
-                  rows="3"
-                  #inpcmt="ngModel"
-                  [readonly]="wptReadOnly"
-                  [(ngModel)]="wptDescription"
-                >
-                </textarea>
-              </mat-form-field>
+              <label for="waypoint-description" class="block font-semibold">
+                Description
+              </label>
+              <fb-textarea
+                name="waypoint-description"
+                [rows]="3"
+                [disabled]="wptReadOnly"
+                [(value)]="wptDescription"
+              ></fb-textarea>
             </div>
             <!-- select icon type / category-->
             <div style="display:flex;flex-wrap:wrap;">
@@ -230,16 +228,19 @@ interface WaypointTypeOption {
                   ></div>
                 } @else {
                   <div class="flex-auto">
-                    <mat-form-field floatLabel="always">
-                      <mat-label>Latitude</mat-label>
-                      <input matInput type="number" [formField]="wptForm.lat" />
-                      @if (
-                        wptForm.lat().invalid() &&
-                        (wptForm.lat().dirty() || wptForm.lat().touched())
-                      ) {
-                        <mat-error>{{ errorMessage() }}</mat-error>
-                      }
-                    </mat-form-field>
+                    <label for="waypoint-lat" class="block font-semibold">
+                      Latitude
+                    </label>
+                    <fb-input
+                      type="number"
+                      [formField]="wptForm.lat"
+                    ></fb-input>
+                    @if (
+                      wptForm.lat().invalid() &&
+                      (wptForm.lat().dirty() || wptForm.lat().touched())
+                    ) {
+                      <div class="error-xs">{{ errorMessage() }}</div>
+                    }
                   </div>
                 }
               </div>
@@ -254,16 +255,19 @@ interface WaypointTypeOption {
                   ></div>
                 } @else {
                   <div class="flex-auto">
-                    <mat-form-field floatLabel="always">
-                      <mat-label>Longitude</mat-label>
-                      <input matInput type="number" [formField]="wptForm.lon" />
-                      @if (
-                        wptForm.lon().invalid() &&
-                        (wptForm.lon().dirty() || wptForm.lon().touched())
-                      ) {
-                        <mat-error>{{ errorMessage() }}</mat-error>
-                      }
-                    </mat-form-field>
+                    <label for="waypoint-lon" class="block font-semibold">
+                      Longitude
+                    </label>
+                    <fb-input
+                      type="number"
+                      [formField]="wptForm.lon"
+                    ></fb-input>
+                    @if (
+                      wptForm.lon().invalid() &&
+                      (wptForm.lon().dirty() || wptForm.lon().touched())
+                    ) {
+                      <div class="error-xs">{{ errorMessage() }}</div>
+                    }
                   </div>
                 }
               </div>
