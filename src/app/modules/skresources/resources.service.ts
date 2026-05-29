@@ -55,6 +55,7 @@ import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
 import { RegionsCollection } from './regions.collection';
 import { TracksCollection } from './tracks.collection';
+import { WaypointsCollection } from './waypoints.collection';
 
 // Single source of truth for SKResourceType. The tuple drives the
 // compile-time union AND the runtime guard so a string can't be
@@ -136,6 +137,7 @@ export class SKResourceService {
   private readonly selectionsManager = inject(SelectionsManager);
   private readonly regionsCollection = inject(RegionsCollection);
   private readonly tracksCollection = inject(TracksCollection);
+  private readonly waypointsCollection = inject(WaypointsCollection);
 
   constructor() {
     this.worker
@@ -201,13 +203,11 @@ export class SKResourceService {
    * @returns Reference to resource cache
    */
   private getCacheRef(
-    collection: Exclude<SKResourceType, 'tracks' | 'regions'>
+    collection: Exclude<SKResourceType, 'tracks' | 'regions' | 'waypoints'>
   ) {
     switch (collection) {
       case 'routes':
         return this.routeCacheSignal;
-      case 'waypoints':
-        return this.waypointCacheSignal;
       case 'notes':
         return this.noteCacheSignal;
       case 'charts':
@@ -241,6 +241,9 @@ export class SKResourceService {
     if (collection === 'regions') {
       return this.regionsCollection.fromCache(id);
     }
+    if (collection === 'waypoints') {
+      return this.waypointsCollection.fromCache(id);
+    }
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
@@ -249,7 +252,6 @@ export class SKResourceService {
       }
       return cache().find((r) => r[0] === id) as
         | FBRoute
-        | FBWaypoint
         | FBNote
         | FBChart
         | undefined;
@@ -374,7 +376,10 @@ export class SKResourceService {
       case 'routes':
         return this.transformRoute(resource as RouteResource, id);
       case 'waypoints':
-        return this.transformWaypoint(resource as WaypointResource, id);
+        return this.waypointsCollection.transform(
+          resource as WaypointResource,
+          id
+        );
       case 'notes':
         return this.transformNote(resource as NoteResource, id);
       case 'charts':
@@ -1299,286 +1304,44 @@ export class SKResourceService {
     });
   }
 
-  // **** WAYPOINTS ****
+  // **** WAYPOINTS (delegated to WaypointsCollection) ****
 
-  private waypointCacheSignal = signal<FBWaypoints>([]);
-  readonly waypoints = this.waypointCacheSignal.asReadonly();
+  readonly waypoints = this.waypointsCollection.waypoints;
 
-  /**
-   * @description Refresh Waypoint cache with entries fetched from sk server
-   * @param query Filter criteria for wapoints in placed in the cache
-   */
-  public async refreshWaypoints(query?: string): Promise<void> {
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshWaypoints(): ${query}`);
-    try {
-      if (this.app.data.activeWaypoint) {
-        this.selectionAdd('waypoints', this.app.data.activeWaypoint);
-      }
-      const wpts = await this.listFromServer<FBWaypoint>('waypoints', query);
-      const flist = wpts.filter((waypoint: FBWaypoint) => waypoint[2]);
-      this.waypointCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshWaypoints:', err);
-      this.waypointCacheSignal.set([]);
-    }
+  public refreshWaypoints(query?: string): Promise<void> {
+    return this.waypointsCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param wpt Waypoint resource from server
-   * @param id Waypoint id
-   * @returns SKWaypoint object
-   */
-  private transformWaypoint(wpt: WaypointResource, id: string): SKWaypoint {
-    // legacy servers ship a top-level `position` outside the GeoJSON feature
-    const wptWithLegacy = wpt as WaypointResource &
-      Partial<{ position: unknown }>;
-    if (typeof wptWithLegacy.position !== 'undefined') {
-      delete wptWithLegacy.position;
-    }
-    if (wpt.feature && !wpt.feature.properties) {
-      wpt.feature.properties = {};
-    }
-    const props = wpt.feature?.properties as
-      | Record<string, unknown>
-      | undefined;
-    if (!wpt.name) {
-      if (props && typeof props['name'] === 'string') {
-        wpt.name = props['name'] as string;
-        delete props['name'];
-      } else {
-        wpt.name = 'Wpt-' + id.slice(-6);
-      }
-    }
-    if (!wpt.description && props) {
-      if (typeof props['description'] === 'string') {
-        wpt.description = props['description'] as string;
-        delete props['description'];
-      } else if (typeof props['cmt'] === 'string') {
-        wpt.description = props['cmt'] as string;
-      }
-    }
-    if (props && typeof props['skType'] === 'string') {
-      wpt.type = props['skType'] as string;
-      delete props['skType'];
-    }
-    if (wpt.type) {
-      wpt.type = wpt.type.toLowerCase();
-    }
-    return new SKWaypoint(wpt);
+  public waypointAddFromServer(ids?: string[]): void {
+    this.waypointsCollection.addFromServer(ids);
   }
 
-  /**
-   * @description Add FBWaypoint objects to the Waypoint Cache
-   * @param ids Array of waypoint identifiers. If not supplied all waypoints will be added.
-   */
-  public waypointAddFromServer(ids?: string[]) {
-    if (!ids) {
-      // add all waypoints retrieved from server
-      this.selectionUnfilter('waypoints');
-    } else {
-      if (this.selectionIsFiltered('waypoints')) {
-        this.selectionAdd('waypoints', ids);
-      }
-    }
-    this.refreshWaypoints();
+  public waypointAdd(waypoints: FBWaypoints): void {
+    this.waypointsCollection.add(waypoints);
   }
 
-  /**
-   * @description Add FBWaypoint objects to the Waypoint Cache
-   * @param waypoints FBWaypoint array
-   */
-  public waypointAdd(waypoints: FBWaypoints) {
-    this.waypointCacheSignal.update((current: FBWaypoints) => {
-      if (this.selectionIsFiltered('waypoints')) {
-        this.selectionAdd(
-          'waypoints',
-          waypoints.map((w: FBWaypoint) => w[0])
-        );
-      }
-      return current.concat(waypoints);
-    });
+  public waypointRemove(ids?: string[]): void {
+    this.waypointsCollection.remove(ids);
   }
 
-  /**
-   * @description Remove FBWaypoint objects from the Waypoint Cache
-   * @param ids Array of waypoint identifiers. If not supplied all waypoints are removed.
-   */
-  public waypointRemove(ids?: string[]) {
-    this.waypointCacheSignal.update((current: FBWaypoints) => {
-      if (!ids) {
-        // remove all entries
-        this.selectionClear('waypoints');
-        return [];
-      } else {
-        this.selectionRemove('waypoints', ids);
-        return current.filter((w: FBWaypoint) => !ids.includes(w[0]));
-      }
-    });
-  }
-
-  /**
-   * @description Build and return FBWaypoint object with supplied coordinates
-   * @param coordinates Waypoint position
-   */
   public buildWaypoint(coordinates: Position): FBWaypoint {
-    const wpt = new SKWaypoint();
-    const wptUuid = this.signalk.uuid;
-    wpt.feature.geometry.coordinates = GeoUtils.normaliseCoords(coordinates);
-    return [wptUuid, wpt, true];
+    return this.waypointsCollection.build(coordinates);
   }
 
-  /**
-   * @description Create new Waypoint at supplied position and display edit dialog
-   * @param posiiton Waypoint position
-   */
-  public newWaypointAt(position: Position, name?: string) {
-    if (!position) {
-      return;
-    }
-    const wpt = this.buildWaypoint(position);
-    wpt[1].name = name ?? `Wpt-${Date.now().toString().slice(-5)}`;
-    this.newWaypoint(wpt[1]);
+  public newWaypointAt(position: Position, name?: string): void {
+    this.waypointsCollection.newAt(position, name);
   }
 
-  /**
-   * @description Create new Waypoint and save to server
-   * @param waypoint
-   */
-  private async newWaypoint(waypoint: SKWaypoint): Promise<void> {
-    if (!waypoint) {
-      return;
-    }
-    const { WaypointDialog } =
-      await import('./components/waypoints/waypoint-dialog');
-    this.dialog
-      .open(WaypointDialog, {
-        disableClose: true,
-        data: {
-          title: 'New Waypoint',
-          waypoint: waypoint
-        }
-      })
-      .closed.subscribe(async (res) => {
-        const r = res as { save: boolean; waypoint: SKWaypoint } | undefined;
-        if (r?.save) {
-          try {
-            const w = await this.postToServer('waypoints', r.waypoint);
-            if (w.id) {
-              this.selectionAdd('routes', w.id);
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
+  public editWaypointInfo(id: string): Promise<void> {
+    return this.waypointsCollection.editInfo(id);
   }
 
-  /**
-   * @description Fetch Waypoint with supplied id and display edit dialog
-   * @param id waypoint identifier
-   */
-  public async editWaypointInfo(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let wpt: SKWaypoint;
-    try {
-      this.app.sIsFetching.set(true);
-      wpt = await this.fromServer('waypoints', id);
-      this.app.sIsFetching.set(false);
-    } catch (err) {
-      this.app.sIsFetching.set(false);
-      this.app.parseHttpErrorResponse(err);
-      return;
-    }
-    const { WaypointDialog } =
-      await import('./components/waypoints/waypoint-dialog');
-    this.dialog
-      .open(WaypointDialog, {
-        disableClose: true,
-        data: {
-          title: 'Waypoint Details',
-          addMode: false,
-          waypoint: wpt
-        }
-      })
-      .closed.subscribe((res) => {
-        const r = res as { save: boolean; waypoint: SKWaypoint } | undefined;
-        if (r?.save) {
-          this.putToServer('waypoints', id, r.waypoint).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
-          );
-        }
-      });
+  public deleteWaypoint(id: string): Promise<void> {
+    return this.waypointsCollection.delete(id);
   }
 
-  /**
-   * @description Confirm deletion of Waypoint with supplied id
-   * @param id Waypoint identifier
-   */
-  public async deleteWaypoint(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    // are there notes attached?
-    const notes = await this.fetchRelatedNotes('waypoints', id);
-    const checkText = notes?.length !== 0 ? 'Delete attached Notes.' : '';
-    this.app
-      .showConfirm(
-        'Do you want to delete this Waypoint from the server?\n',
-        'Delete Waypoint:',
-        'YES',
-        'NO',
-        checkText
-      )
-      .subscribe(async (res) => {
-        const result = res as { ok: boolean; checked: boolean } | undefined;
-        if (result && result.ok) {
-          try {
-            await this.deleteFromServer('waypoints', id);
-            if (result.checked) {
-              notes.forEach((note: FBNote) => {
-                this.deleteFromServer('notes', note[0]);
-              });
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
-  }
-
-  /**
-   * @description Update Waypoint position and push to server
-   * @param id Waypoint identifier
-   * @param position Position to assign to waypoint
-   */
   public updateWaypointPosition(id: string, position: Position): void {
-    if (!id || !position) {
-      return;
-    }
-    const w = this.fromCache('waypoints', id);
-    if (!w) {
-      return;
-    }
-    const wpt = w[1];
-    wpt.feature.geometry.coordinates = GeoUtils.normaliseCoords(position);
-    // SK v1 servers expect a sibling `position` block alongside the feature.
-    // SKWaypoint does not declare it, so attach via a typed widening.
-    const wptWithLegacyPos = wpt as SKWaypoint & {
-      position?: { latitude: number; longitude: number };
-    };
-    wptWithLegacyPos.position = {
-      latitude: wpt.feature.geometry.coordinates[1],
-      longitude: wpt.feature.geometry.coordinates[0]
-    };
-    this.putToServer('waypoints', id, wpt).catch((err) => {
-      this.app.parseHttpErrorResponse(err);
-    });
+    this.waypointsCollection.updatePosition(id, position);
   }
 
   // **** REGIONS (delegated to RegionsCollection) ****
