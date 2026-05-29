@@ -121,12 +121,18 @@
     <p class="ip-empty">No description. Click Edit to add one.</p>
     } @if (pluginInfo(); as plugin) {
     <p class="ip-attribution">
-      @if (plugin.name) { Source:
-      <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
-        >{{ plugin.name }}</a
-      >
-      @if (plugin.attribution) { · {{ plugin.attribution }} } } @else if
-      (plugin.attribution) { {{ plugin.attribution }} }
+      @if (plugin.name) {
+      <span class="ip-attribution__line">
+        Source:
+        <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
+          >{{ plugin.name }}</a
+        >
+      </span>
+      @if (plugin.attribution) {
+      <span class="ip-attribution__line">{{ plugin.attribution }}</span>
+      } } @else if (plugin.attribution) {
+      <span class="ip-attribution__line">{{ plugin.attribution }}</span>
+      }
     </p>
     }
   </div>

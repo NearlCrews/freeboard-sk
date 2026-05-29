@@ -337,9 +337,11 @@ export class FbInfoPanelRelatedDirective {}
       font-size: var(--font-size-sm);
     }
 
-    /* Small attribution line at the bottom of the body: "Source:
-       <plugin-name>" linked to the plugin's npm page. Quiet typography,
-       hairline separator so it reads as a footnote rather than chrome. */
+    /* Small attribution footer at the bottom of the body. Two stacked
+       lines: "Source: <plugin-name>" linked to the plugin's npm page,
+       and the plugin-provided attribution text (e.g. data provenance).
+       Quiet typography, hairline separator so it reads as a footnote
+       rather than chrome. */
     :host ::ng-deep .ip-body .ip-attribution {
       margin: var(--space-lg) 0 0;
       padding-top: var(--space-sm);
@@ -347,6 +349,12 @@ export class FbInfoPanelRelatedDirective {}
       color: var(--color-text-muted);
       font-size: var(--font-size-xs);
       letter-spacing: 0.02em;
+    }
+    :host ::ng-deep .ip-body .ip-attribution__line {
+      display: block;
+    }
+    :host ::ng-deep .ip-body .ip-attribution__line + .ip-attribution__line {
+      margin-top: var(--space-xs);
     }
     :host ::ng-deep .ip-body .ip-attribution a {
       color: var(--color-primary);
