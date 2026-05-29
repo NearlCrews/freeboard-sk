@@ -9,7 +9,6 @@ import {
   output
 } from '@angular/core';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RemarkModule } from 'ngx-remark';
@@ -36,7 +35,6 @@ import {
   selector: 'note-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatIconModule,
     MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,

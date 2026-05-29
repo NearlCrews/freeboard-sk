@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
@@ -86,7 +85,6 @@ interface WaypointTypeOption {
     CommonModule,
     FormsModule,
     MatInputModule,
-    MatIconModule,
     FbButtonComponent,
     FbIconComponent,
     MatCheckboxModule,
@@ -103,7 +101,11 @@ interface WaypointTypeOption {
     <div class="_ap-waypoint">
       <fb-toolbar class="bg-transparent">
         <div fbToolbarLeading>
-          <mat-icon class="icon-waypoint">{{ dialogIcon }}</mat-icon>
+          <fb-icon
+            class="icon-waypoint"
+            [name]="dialogIcon"
+            ariaLabel=""
+          ></fb-icon>
         </div>
         <span fbToolbarTitle>{{ data.title }}</span>
         <div fbToolbarActions class="w-50 text-right">
@@ -112,7 +114,7 @@ interface WaypointTypeOption {
             ariaLabel="Close"
             (pressed)="handleClose(false)"
           >
-            <mat-icon>close</mat-icon>
+            <fb-icon name="close" ariaLabel=""></fb-icon>
           </fb-button>
         </div>
       </fb-toolbar>
@@ -163,17 +165,12 @@ interface WaypointTypeOption {
                       style="display: inline-flex; align-items: center; gap: var(--space-sm);"
                     >
                       @if (optionIcon(option); as icn) {
-                        @if (icn.svgIcon) {
-                          <fb-icon
-                            [svgName]="icn.svgIcon"
-                            [class]="icn.class ?? ''"
-                            ariaLabel=""
-                          ></fb-icon>
-                        } @else {
-                          <mat-icon [class]="icn.class ?? ''">{{
-                            icn.name
-                          }}</mat-icon>
-                        }
+                        <fb-icon
+                          [class]="icn.class ?? ''"
+                          [svgName]="icn.svgIcon ?? ''"
+                          [name]="icn.name ?? ''"
+                          ariaLabel=""
+                        ></fb-icon>
                       }
                       {{ option.label }}
                     </span>
@@ -182,17 +179,12 @@ interface WaypointTypeOption {
                     <span
                       style="display: inline-flex; align-items: center; gap: var(--space-sm);"
                     >
-                      @if (wptIcon().svgIcon) {
-                        <fb-icon
-                          [svgName]="wptIcon().svgIcon"
-                          [class]="wptIcon().class ?? ''"
-                          ariaLabel=""
-                        ></fb-icon>
-                      } @else {
-                        <mat-icon [class]="wptIcon().class ?? ''">{{
-                          wptIcon().name
-                        }}</mat-icon>
-                      }
+                      <fb-icon
+                        [class]="wptIcon().class ?? ''"
+                        [svgName]="wptIcon().svgIcon ?? ''"
+                        [name]="wptIcon().name ?? ''"
+                        ariaLabel=""
+                      ></fb-icon>
                       {{ wptIconDisplayName }}
                     </span>
                   </span>

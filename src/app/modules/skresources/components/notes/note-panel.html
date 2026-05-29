@@ -1,10 +1,11 @@
 <fb-info-panel-layout ariaLabel="Note details">
   <span fbInfoPanelIcon>
-    @if (!icon?.svgIcon) {
-    <mat-icon [class]="icon?.class ?? ''">{{ icon?.name }}</mat-icon>
-    } @else {
-    <fb-icon [svgName]="icon?.svgIcon ?? ''" ariaLabel=""></fb-icon>
-    }
+    <fb-icon
+      [class]="icon?.class ?? ''"
+      [svgName]="icon?.svgIcon ?? ''"
+      [name]="icon?.name ?? ''"
+      ariaLabel=""
+    ></fb-icon>
   </span>
 
   <span fbInfoPanelTitle>{{ _note().name || 'Untitled note' }}</span>

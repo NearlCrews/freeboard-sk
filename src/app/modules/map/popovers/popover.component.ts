@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CountryFlagComponent } from 'src/app/lib/components/country-flags.component';
 import { AppFacade } from 'src/app/app.facade';
@@ -33,7 +32,6 @@ measure: boolean= measure mode;
     FbButtonComponent,
     FbIconComponent,
     MatTooltipModule,
-    MatIconModule,
     CountryFlagComponent
   ],
   template: `
@@ -52,12 +50,7 @@ measure: boolean= measure mode;
                                 text-overflow:ellipsis;"
         >
           @if (mmsi) {
-            <mat-icon>
-              <country-flag
-                [mmsi]="mmsi"
-                [host]="app.hostDef.url"
-              ></country-flag>
-            </mat-icon>
+            <country-flag [mmsi]="mmsi" [host]="app.hostDef.url"></country-flag>
           }
           @if (icon; as ic) {
             <fb-icon
@@ -70,25 +63,25 @@ measure: boolean= measure mode;
           &nbsp;{{ title }}
         </div>
         @if (canClose) {
-          <div style="">
+          <div>
             <fb-button
               variant="ghost"
               ariaLabel="Close"
               (pressed)="handleClose()"
             >
-              <mat-icon>close</mat-icon>
+              <fb-icon name="close" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
         }
         @if (!canClose && navTo) {
-          <div style="">
+          <div>
             <fb-button
               variant="ghost"
               ariaLabel="Navigate to here"
               matTooltip="Navigate to here"
               (pressed)="handleNavTo()"
             >
-              <mat-icon>near_me</mat-icon>
+              <fb-icon name="near_me" ariaLabel=""></fb-icon>
             </fb-button>
           </div>
         }

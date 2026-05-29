@@ -10,7 +10,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogModule,
@@ -58,7 +57,6 @@ interface GroupItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    MatIconModule,
     MatDialogModule,
     MatTooltipModule,
     FbButtonComponent,
@@ -76,7 +74,7 @@ interface GroupItem {
     <div class="_ap-group">
       <fb-toolbar class="bg-transparent">
         <div fbToolbarLeading>
-          <mat-icon class="icon-region">category</mat-icon>
+          <fb-icon class="icon-region" name="category" ariaLabel=""></fb-icon>
         </div>
         <span fbToolbarTitle>
           {{ this.data.addMode ? 'New Group' : 'Group Information' }}
@@ -147,7 +145,11 @@ interface GroupItem {
                           matTooltip="Remove"
                           (pressed)="removeItem('route', i.id)"
                         >
-                          <mat-icon class="icon-warn">delete</mat-icon>
+                          <fb-icon
+                            class="icon-warn"
+                            name="delete"
+                            ariaLabel=""
+                          ></fb-icon>
                         </fb-button>
                       </div>
                     </div>
@@ -181,7 +183,11 @@ interface GroupItem {
                           matTooltip="Remove"
                           (pressed)="removeItem('waypoint', i.id)"
                         >
-                          <mat-icon class="icon-warn">delete</mat-icon>
+                          <fb-icon
+                            class="icon-warn"
+                            name="delete"
+                            ariaLabel=""
+                          ></fb-icon>
                         </fb-button>
                       </div>
                     </div>
@@ -215,7 +221,11 @@ interface GroupItem {
                           matTooltip="Remove"
                           (pressed)="removeItem('region', i.id)"
                         >
-                          <mat-icon class="icon-warn">delete</mat-icon>
+                          <fb-icon
+                            class="icon-warn"
+                            name="delete"
+                            ariaLabel=""
+                          ></fb-icon>
                         </fb-button>
                       </div>
                     </div>
@@ -242,7 +252,11 @@ interface GroupItem {
                           matTooltip="Remove"
                           (pressed)="removeItem('chart', i.id)"
                         >
-                          <mat-icon class="icon-warn">delete</mat-icon>
+                          <fb-icon
+                            class="icon-warn"
+                            name="delete"
+                            ariaLabel=""
+                          ></fb-icon>
                         </fb-button>
                       </div>
                     </div>

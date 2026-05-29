@@ -1,10 +1,13 @@
 <fb-info-panel-layout ariaLabel="Region details">
   <span fbInfoPanelIcon>
-    @if (icon; as ic) { @if (!ic.svgIcon) {
-    <mat-icon [class]="ic.class ?? ''">{{ ic.name }}</mat-icon>
-    } @else {
-    <fb-icon [svgName]="ic.svgIcon" ariaLabel=""></fb-icon>
-    } }
+    @if (icon; as ic) {
+    <fb-icon
+      [class]="ic.class ?? ''"
+      [svgName]="ic.svgIcon ?? ''"
+      [name]="ic.name ?? ''"
+      ariaLabel=""
+    ></fb-icon>
+    }
   </span>
 
   <span fbInfoPanelTitle>{{ _region().name || 'Region' }}</span>

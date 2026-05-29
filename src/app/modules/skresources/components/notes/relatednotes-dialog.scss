@@ -39,20 +39,21 @@
   padding-top: 10px;
   border-top: 1px solid var(--notes-hairline);
 
-  button[mat-icon-button] {
+  fb-button {
     color: var(--notes-text-muted);
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
 
     &:hover:not([disabled]) {
       color: var(--notes-accent);
     }
 
-    mat-icon {
+    fb-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
+
+      ::ng-deep .fb-icon__glyph {
+        font-size: 18px;
+      }
     }
   }
 }
@@ -62,17 +63,21 @@
   background: var(--notes-surface);
   border-top: 1px solid var(--notes-hairline);
 
-  button[mat-flat-button] {
+  fb-button {
     background: var(--notes-accent);
     color: var(--notes-surface);
     font-size: 13px;
     letter-spacing: 0.04em;
 
-    mat-icon {
+    fb-icon {
       margin-right: 4px;
       font-size: 18px;
       width: 18px;
       height: 18px;
+
+      ::ng-deep .fb-icon__glyph {
+        font-size: 18px;
+      }
     }
   }
 }

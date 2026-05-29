@@ -51,7 +51,7 @@ export const getSvgList = (): { id: string; path: string }[] => {
 };
 
 /**
- * @description Return an icon definition that can be used to assign a mat-icon for a resource
+ * @description Return an icon definition that can be used to assign an fb-icon for a resource
  * @param resourceType The type of resource supplied 'route' | 'waypoint' | 'region' | 'note'
  * @param resource Signal K resource
  * @returns Icon definition object

@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -40,7 +39,6 @@ import { getAisIcon } from 'src/app/modules/icons';
   imports: [
     FbButtonComponent,
     MatTooltipModule,
-    MatIconModule,
     ScrollingModule,
     FbCardComponent,
     FbCardHeaderComponent,
@@ -129,7 +127,7 @@ export class AISListComponent extends ResourceListBase implements OnInit {
   /**
    * @description Return icon for AIS vessel type id
    * @param id AIS shipType identifier
-   * @returns mat-icon svgIcon value
+   * @returns fb-icon svgName value
    */
   protected getShipIcon(id: number): string {
     return getAisIcon(id).svgIcon ?? '';

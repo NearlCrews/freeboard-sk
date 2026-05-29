@@ -125,7 +125,13 @@ export {
   type FbSegmentedOption
 } from './segmented/segmented.component';
 
-/* Tier-3 simple primitives (this gate). */
+/* Tier-3 simple primitives. */
+export {
+  FbBadgeComponent,
+  type FbBadgePosition,
+  type FbBadgeSeverity,
+  type FbBadgeSize
+} from './badge/badge.component';
 export {
   FbCardComponent,
   FbCardHeaderComponent,
@@ -145,7 +151,7 @@ export {
 } from './toolbar/toolbar.component';
 export { FbProgressBarComponent } from './progress-bar/progress-bar.component';
 
-/* Tier-3 list family + tabs (this gate). */
+/* Tier-3 list family + tabs. */
 export {
   FbListComponent,
   FbListItemComponent,
@@ -161,7 +167,7 @@ export {
   type FbTabDef
 } from './tabs/tabs.component';
 
-/* Tier-3 expansion panel + accordion (this gate). */
+/* Tier-3 expansion panel + accordion. */
 export {
   FbAccordionComponent,
   FbExpansionPanelComponent,
@@ -171,14 +177,14 @@ export {
   type AccordionHost
 } from './expansion-panel/expansion-panel.component';
 
-/* Tier-3 stepper (this gate). */
+/* Tier-3 stepper. */
 export {
   FbStepperComponent,
   FbStepComponent,
   FbStepActionsDirective
 } from './stepper/stepper.component';
 
-/* Tier-3 datepicker (this gate). */
+/* Tier-3 datepicker. */
 export { FbDatepickerComponent } from './datepicker/datepicker.component';
 
 /* Tier-3 tree primitives. */

@@ -623,7 +623,7 @@
                     matTooltip="Previous plugin"
                     matTooltipPosition="below"
                   >
-                    <mat-icon>arrow_back_ios</mat-icon>
+                    <fb-icon name="arrow_back_ios" ariaLabel=""></fb-icon>
                   </fb-button>
                   <fb-button
                     variant="ghost"
@@ -635,7 +635,7 @@
                     matTooltip="Next plugin"
                     matTooltipPosition="below"
                   >
-                    <mat-icon>arrow_forward_ios</mat-icon>
+                    <fb-icon name="arrow_forward_ios" ariaLabel=""></fb-icon>
                   </fb-button>
                 </div>
                 <fb-divider />
@@ -933,51 +933,56 @@
             <div class="statusBar">
               @if (!wakeLock.enabled() && wakeLock.isAvailable) {
                 <div class="statusBarItem">
-                  <mat-icon
+                  <fb-icon
+                    name="visibility_off"
+                    ariaLabel=""
                     matTooltip="WakeLock is turned off"
                     matTooltipPosition="below"
-                    >visibility_off
-                  </mat-icon>
+                  ></fb-icon>
                 </div>
               }
               @if (!app.uiConfig().showCourseData) {
                 <div class="statusBarItem">
-                  <mat-icon
+                  <fb-icon
+                    name="compare_arrows"
+                    ariaLabel=""
                     matTooltip="Course data is hidden"
                     matTooltipPosition="below"
-                    >compare_arrows
-                  </mat-icon>
+                  ></fb-icon>
                 </div>
               }
               @if (!app.uiConfig().showAisTargets) {
                 <div class="statusBarItem">
-                  <mat-icon
+                  <fb-icon
+                    name="directions_boat"
+                    ariaLabel=""
                     matTooltip="Vessels are hidden"
                     matTooltipPosition="below"
-                    >directions_boat
-                  </mat-icon>
+                  ></fb-icon>
                 </div>
               }
               @if (!app.uiConfig().showNotes) {
                 <div class="statusBarItem">
-                  <mat-icon
+                  <fb-icon
+                    name="local_offer"
+                    ariaLabel=""
                     matTooltip="Notes are hidden"
                     matTooltipPosition="below"
-                    >local_offer
-                  </mat-icon>
+                  ></fb-icon>
                 </div>
               }
               @if (stream.watchDogAlarm()) {
                 <div class="statusBarItem">
-                  <mat-icon
+                  <fb-icon
+                    name="signal_wifi_statusbar_connected_no_internet_4"
+                    ariaLabel=""
                     style="
                       background-color: var(--color-error);
                       color: var(--color-on-primary);
                     "
                     matTooltip="No server messages!"
                     matTooltipPosition="below"
-                    >signal_wifi_statusbar_connected_no_internet_4
-                  </mat-icon>
+                  ></fb-icon>
                 </div>
               }
             </div>
@@ -1202,7 +1207,8 @@
           @if (mode === 1) {
             <div class="playbackPanel mat-app-background">
               <div style="border-radius: var(--radius-md)">
-                <mat-icon>access_time</mat-icon> <b>Playback:</b>
+                <fb-icon name="access_time" ariaLabel=""></fb-icon>
+                <b>Playback:</b>
               </div>
               <div style="text-align: center">{{ playbackTime() }}</div>
             </div>
@@ -1284,12 +1290,14 @@
                         matTooltip="Engage Autopilot"
                         (pressed)="autopilot.engage()"
                       >
-                        <mat-icon
+                        <fb-icon
                           class="ob"
-                          svgIcon="command-autopilot"
-                          [color]="navDataPanel().apModeColor"
-                        >
-                        </mat-icon>
+                          [class.icon-primary]="
+                            navDataPanel().apModeColor === 'primary'
+                          "
+                          svgName="command-autopilot"
+                          ariaLabel=""
+                        ></fb-icon>
                       </fb-button>
                     </div>
                     <div>
@@ -1299,7 +1307,7 @@
                         matTooltip="Restart XTE"
                         (pressed)="course.courseRestart()"
                       >
-                        <mat-icon>replay</mat-icon>
+                        <fb-icon name="replay" ariaLabel=""></fb-icon>
                       </fb-button>
                       <br />
                       <fb-button
@@ -1310,13 +1318,11 @@
                         [disabled]="!app.data.activeRoute"
                         (pressed)="course.courseReverse()"
                       >
-                        <mat-icon
-                          [color]="
-                            app.data.activeRouteReversed ? 'primary' : 'none'
-                          "
-                        >
-                          multiple_stop
-                        </mat-icon>
+                        <fb-icon
+                          name="multiple_stop"
+                          [class.icon-primary]="app.data.activeRouteReversed"
+                          ariaLabel=""
+                        ></fb-icon>
                       </fb-button>
                     </div>
                   </div>

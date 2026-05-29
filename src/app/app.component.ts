@@ -21,7 +21,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import {
   FbButtonComponent,
   FbDividerComponent,
@@ -137,7 +136,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     MatSidenavModule,
     MatBadgeModule,
     MatButtonModule,
-    MatIconModule,
     MatTooltipModule,
     FbButtonComponent,
     FbDividerComponent,

@@ -10,7 +10,6 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -51,7 +50,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
   selector: 'route-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatIconModule,
     MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,

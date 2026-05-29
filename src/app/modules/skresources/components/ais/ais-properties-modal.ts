@@ -9,7 +9,6 @@ import {
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 
 import {
   FbButtonComponent,
@@ -37,7 +36,6 @@ interface AISDisplay {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTooltipModule,
-    MatIconModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardHeaderComponent,
@@ -65,7 +63,7 @@ interface AISDisplay {
             matTooltip="Close"
             matTooltipPosition="below"
           >
-            <mat-icon>keyboard_arrow_down</mat-icon>
+            <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>
         </span>
       </fb-toolbar>
@@ -82,7 +80,7 @@ interface AISDisplay {
                 data.target.mmsi
               "
             >
-              <mat-icon>info</mat-icon>
+              <fb-icon name="info" ariaLabel=""></fb-icon>
             </a>
           </span>
           @if (showFlag()) {
@@ -266,7 +264,7 @@ export class AISPropertiesModal {
   /**
    * @description Return icon for AIS vessel type id
    * @param id AIS shipType identifier
-   * @returns mat-icon svgIcon value
+   * @returns fb-icon svgName value
    */
   protected getShipIcon(id: number | null | undefined): string {
     return getAisIcon(id ?? -1).svgIcon ?? '';

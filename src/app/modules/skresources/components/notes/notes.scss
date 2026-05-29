@@ -97,6 +97,10 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     width: 20px;
     height: 20px;
     pointer-events: none;
+
+    ::ng-deep .fb-icon__glyph {
+      font-size: 20px;
+    }
   }
 
   input {
@@ -148,10 +152,14 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
       color: var(--notes-text);
     }
 
-    mat-icon {
+    fb-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
+
+      ::ng-deep .fb-icon__glyph {
+        font-size: 18px;
+      }
     }
   }
 }
@@ -304,6 +312,10 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     font-size: 22px;
     width: 22px;
     height: 22px;
+
+    ::ng-deep .fb-icon__glyph {
+      font-size: 22px;
+    }
   }
 
   .card-title {
@@ -401,10 +413,14 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
       font-weight: 500;
       letter-spacing: 0.02em;
 
-      mat-icon {
+      fb-icon {
         font-size: 12px;
         width: 12px;
         height: 12px;
+
+        ::ng-deep .fb-icon__glyph {
+          font-size: 12px;
+        }
       }
     }
   }
@@ -419,12 +435,16 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
   color: var(--notes-text-faint);
   text-align: center;
 
-  mat-icon {
+  fb-icon {
     font-size: 56px;
     width: 56px;
     height: 56px;
     opacity: 0.5;
     margin-bottom: 14px;
+
+    ::ng-deep .fb-icon__glyph {
+      font-size: 56px;
+    }
   }
 
   p {

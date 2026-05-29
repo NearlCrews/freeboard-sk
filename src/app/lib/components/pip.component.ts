@@ -38,14 +38,8 @@ interface PiPVideoElement extends HTMLVideoElement {
         [disabled]="pipMode"
         (pressed)="initPiP()"
       ></fb-fab>
-      <!--<button mat-mini-fab [style.display]="pipMode ? 'block' : 'none'"
-                matTooltip="Mute Audio"
-                (click)="toggleMute()">
-                <mat-icon>{{muted ? 'volume_off' : 'volume_mute'}}</mat-icon>
-            </button>-->
     </div>
-  `,
-  styles: [``]
+  `
 })
 export class PiPVideoComponent implements OnInit, OnChanges {
   private pipVideo!: PiPVideoElement;
@@ -60,11 +54,8 @@ export class PiPVideoComponent implements OnInit, OnChanges {
   readonly click = output<boolean>();
   @ViewChild('vid', { static: true }) vid!: ElementRef;
 
-  //constructor() {}
-
   ngOnInit() {
     if (!('pictureInPictureEnabled' in document)) {
-      //console.log('The Picture-in-Picture Web API is not available.');
       this.pipMode = true; // disable button by mimicing pipMode
     }
 

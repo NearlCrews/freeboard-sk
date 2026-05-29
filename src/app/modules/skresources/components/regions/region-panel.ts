@@ -10,7 +10,6 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RemarkModule } from 'ngx-remark';
@@ -43,7 +42,6 @@ import { MatDialog } from '@angular/material/dialog';
   selector: 'region-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatIconModule,
     MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,

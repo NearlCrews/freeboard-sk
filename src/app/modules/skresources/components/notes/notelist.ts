@@ -13,7 +13,6 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -48,7 +47,6 @@ interface GroupChip {
     FbIconComponent,
     CommonModule,
     MatTooltipModule,
-    MatIconModule,
     ScrollingModule
   ]
 })

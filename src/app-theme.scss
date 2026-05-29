@@ -80,14 +80,16 @@ html {
     background-color: mat.get-theme-color($light-theme, primary) !important;
     color: mat.get-theme-color($light-theme, on-primary) !important;
   }
-  .bg-primary .mat-icon {
+  .bg-primary .mat-icon,
+  .bg-primary fb-icon {
     color: mat.get-theme-color($light-theme, on-primary) !important;
   }
   .bg-tertiary {
     background-color: mat.get-theme-color($light-theme, tertiary) !important;
     color: mat.get-theme-color($light-theme, on-tertiary) !important;
   }
-  .bg-tertiary .mat-icon {
+  .bg-tertiary .mat-icon,
+  .bg-tertiary fb-icon {
     color: mat.get-theme-color($light-theme, on-tertiary) !important;
   }
 
@@ -215,14 +217,16 @@ html {
       background-color: mat.get-theme-color($dark-theme, primary) !important;
       color: mat.get-theme-color($dark-theme, on-primary) !important;
     }
-    .bg-primary .mat-icon {
+    .bg-primary .mat-icon,
+    .bg-primary fb-icon {
       color: mat.get-theme-color($dark-theme, on-primary) !important;
     }
     .bg-tertiary {
       background-color: mat.get-theme-color($dark-theme, tertiary) !important;
       color: mat.get-theme-color($dark-theme, on-tertiary) !important;
     }
-    .bg-tertiary .mat-icon {
+    .bg-tertiary .mat-icon,
+    .bg-tertiary fb-icon {
       color: mat.get-theme-color($dark-theme, on-tertiary) !important;
     }
     .about-row .item a,

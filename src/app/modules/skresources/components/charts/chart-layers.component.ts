@@ -102,7 +102,10 @@ import { SKResourceService } from '../../resources.service';
         color: darkorange;
         text-align: left;
       }
-      .ap-confirm-icon .mat-icon {
+      .ap-confirm-icon fb-icon {
+        font-size: 25pt;
+      }
+      .ap-confirm-icon fb-icon ::ng-deep .fb-icon__glyph {
         font-size: 25pt;
       }
       .point-drop-placeholder {

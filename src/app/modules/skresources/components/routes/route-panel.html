@@ -1,14 +1,13 @@
 <fb-info-panel-layout ariaLabel="Route details">
   <span fbInfoPanelIcon>
-    @if (icon; as ic) { @if (!ic.svgIcon) {
-    <mat-icon [class]="ic.class ?? ''">{{ ic.name }}</mat-icon>
-    } @else {
+    @if (icon; as ic) {
     <fb-icon
-      [svgName]="ic.svgIcon"
       [class]="ic.class ?? ''"
+      [svgName]="ic.svgIcon ?? ''"
+      [name]="ic.name ?? ''"
       ariaLabel=""
     ></fb-icon>
-    } }
+    }
   </span>
 
   <span fbInfoPanelTitle>{{ _route().name || 'Route' }}</span>

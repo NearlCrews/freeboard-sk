@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -44,7 +43,6 @@ import { GeoUtils } from 'src/app/lib/geoutils';
 @Component({
   selector: 'anchor-watch',
   imports: [
-    MatIconModule,
     FormsModule,
     MatTooltipModule,
     FbButtonComponent,

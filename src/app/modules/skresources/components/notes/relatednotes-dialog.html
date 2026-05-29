@@ -1,8 +1,11 @@
 <div class="related-notes-dialog">
   <fb-toolbar class="related-toolbar">
-    <mat-icon fbToolbarLeading class="toolbar-icon" aria-hidden="true"
-      >local_offer</mat-icon
-    >
+    <fb-icon
+      fbToolbarLeading
+      class="toolbar-icon"
+      name="local_offer"
+      ariaLabel=""
+    ></fb-icon>
     <span fbToolbarTitle class="toolbar-title">{{ relatedBy }} Notes</span>
     <fb-button
       variant="ghost"
@@ -11,7 +14,7 @@
       matTooltip="Close"
       ariaLabel="Close"
     >
-      <mat-icon>close</mat-icon>
+      <fb-icon name="close" ariaLabel=""></fb-icon>
     </fb-button>
   </fb-toolbar>
 
@@ -31,7 +34,7 @@
             ariaLabel=""
           ></fb-icon>
           } @else {
-          <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
+          <fb-icon class="card-icon" name="local_offer" ariaLabel=""></fb-icon>
           }
           <div class="card-title">
             <h2>{{ n[1].name || 'Untitled note' }}</h2>
@@ -56,7 +59,7 @@
           </span>
           } @if (n[1].authors && n[1].authors.length) {
           <span class="pos-pill">
-            <mat-icon aria-hidden="true">person</mat-icon>
+            <fb-icon name="person" ariaLabel=""></fb-icon>
             {{ n[1].authors[0]?.name }}
           </span>
           }
@@ -71,7 +74,7 @@
             matTooltip="Open linked URL in a new tab"
             ariaLabel="Open link"
           >
-            <mat-icon>open_in_new</mat-icon>
+            <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
           </fb-button>
           } @if (!n[1].properties['readOnly']) {
           <fb-button
@@ -81,7 +84,7 @@
             matTooltip="Edit note"
             ariaLabel="Edit"
           >
-            <mat-icon>edit</mat-icon>
+            <fb-icon name="edit" ariaLabel=""></fb-icon>
           </fb-button>
           <fb-button
             variant="ghost"
@@ -90,7 +93,7 @@
             matTooltip="Delete note"
             ariaLabel="Delete"
           >
-            <mat-icon>delete</mat-icon>
+            <fb-icon name="delete" ariaLabel=""></fb-icon>
           </fb-button>
           }
         </div>
@@ -105,7 +108,7 @@
       [disabled]="data.readOnly"
       (pressed)="addNote()"
     >
-      <mat-icon>add</mat-icon>
+      <fb-icon name="add" ariaLabel=""></fb-icon>
       Add note
     </fb-button>
   </mat-dialog-actions>

@@ -7,7 +7,7 @@
       matTooltipPosition="right"
       ariaLabel="Close note list"
     >
-      <mat-icon>arrow_back</mat-icon>
+      <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
     </fb-button>
     <h1 class="notes-title">Notes</h1>
     <div class="header-actions">
@@ -18,7 +18,7 @@
         matTooltipPosition="below"
         ariaLabel="Reload notes"
       >
-        <mat-icon>refresh</mat-icon>
+        <fb-icon name="refresh" ariaLabel=""></fb-icon>
       </fb-button>
       <fb-button
         variant="ghost"
@@ -30,7 +30,7 @@
         [attr.aria-pressed]="draftOnly"
         ariaLabel="Show drafts only"
       >
-        <mat-icon>border_color</mat-icon>
+        <fb-icon name="border_color" ariaLabel=""></fb-icon>
       </fb-button>
       <fb-button
         variant="ghost"
@@ -42,13 +42,16 @@
         [attr.aria-pressed]="showNotes"
         ariaLabel="Show notes on map"
       >
-        <mat-icon>{{ showNotes ? 'visibility' : 'visibility_off' }}</mat-icon>
+        <fb-icon
+          [name]="showNotes ? 'visibility' : 'visibility_off'"
+          ariaLabel=""
+        ></fb-icon>
       </fb-button>
     </div>
   </header>
 
   <div class="notes-search">
-    <mat-icon class="search-icon">search</mat-icon>
+    <fb-icon class="search-icon" name="search" ariaLabel=""></fb-icon>
     <input
       #searchInput
       type="text"
@@ -66,7 +69,7 @@
       matTooltip="Clear search"
       aria-label="Clear search"
     >
-      <mat-icon>close</mat-icon>
+      <fb-icon name="close" ariaLabel=""></fb-icon>
     </button>
     }
   </div>
@@ -118,7 +121,7 @@
           ariaLabel=""
         ></fb-icon>
         } @else {
-        <mat-icon class="card-icon" aria-hidden="true">local_offer</mat-icon>
+        <fb-icon class="card-icon" name="local_offer" ariaLabel=""></fb-icon>
         }
         <div class="card-title">
           <h2>{{ r[1].name || 'Untitled note' }}</h2>
@@ -143,7 +146,7 @@
         </span>
         } @if (r[1].position) {
         <span class="pos-pill">
-          <mat-icon aria-hidden="true">place</mat-icon>
+          <fb-icon name="place" ariaLabel=""></fb-icon>
           {{ formatPos(r[1].position) }}
         </span>
         }
@@ -153,7 +156,7 @@
   </cdk-virtual-scroll-viewport>
   } @else {
   <div class="empty-state" role="status">
-    <mat-icon aria-hidden="true">note_alt</mat-icon>
+    <fb-icon name="note_alt" ariaLabel=""></fb-icon>
     @if (filterText || activeGroup || draftOnly) {
     <p>No notes match the current filter.</p>
     } @else {

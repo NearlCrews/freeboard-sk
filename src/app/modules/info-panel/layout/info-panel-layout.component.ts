@@ -109,11 +109,14 @@ export class FbInfoPanelRelatedDirective {}
       display: none;
     }
 
-    .ip-icon ::ng-deep mat-icon,
     .ip-icon ::ng-deep fb-icon {
       font-size: 26px;
       width: 26px;
       height: 26px;
+    }
+
+    .ip-icon ::ng-deep fb-icon .fb-icon__glyph {
+      font-size: 26px;
     }
 
     .ip-title-block {
@@ -163,11 +166,14 @@ export class FbInfoPanelRelatedDirective {}
       color: var(--color-text-muted);
     }
 
-    :host ::ng-deep .ip-meta > .pill fb-icon,
-    :host ::ng-deep .ip-meta > .pill mat-icon {
+    :host ::ng-deep .ip-meta > .pill fb-icon {
       font-size: var(--font-size-sm);
       width: var(--font-size-sm);
       height: var(--font-size-sm);
+    }
+
+    :host ::ng-deep .ip-meta > .pill fb-icon .fb-icon__glyph {
+      font-size: var(--font-size-sm);
     }
 
     :host ::ng-deep .ip-meta > .pill.pos {

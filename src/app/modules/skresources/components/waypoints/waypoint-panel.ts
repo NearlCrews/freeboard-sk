@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -45,7 +44,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
   selector: 'waypoint-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatIconModule,
     MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,
