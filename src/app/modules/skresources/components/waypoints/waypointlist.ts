@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -26,7 +25,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -50,7 +50,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
   styleUrls: ['../resourcelist.css'],
   imports: [
     CommonModule,
-    MatTooltipModule,
     ScrollingModule,
     FbButtonComponent,
     FbCardComponent,
@@ -60,7 +59,8 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbTooltipDirective
   ]
 })
 export class WaypointListComponent

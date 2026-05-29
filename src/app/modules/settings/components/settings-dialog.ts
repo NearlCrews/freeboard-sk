@@ -10,32 +10,28 @@ import {
 } from '@angular/core';
 
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FbListPaneComponent } from 'src/app/design-system/primitives/list-pane/list-pane.component';
-import { FbDetailPaneComponent } from 'src/app/design-system/primitives/detail-pane/detail-pane.component';
-import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
-import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
-import { FbInputComponent } from 'src/app/design-system/primitives/input/input.component';
 import {
-  FbSelectComponent,
-  type FbSelectOption
-} from 'src/app/design-system/primitives/select/select.component';
-import { FbCheckboxComponent } from 'src/app/design-system/primitives/checkbox/checkbox.component';
-import { FbSliderComponent } from 'src/app/design-system/primitives/slider/slider.component';
-import {
+  FbButtonComponent,
   FbCardComponent,
-  FbCardContentComponent
-} from 'src/app/design-system/primitives/card/card.component';
-import { FbDividerComponent } from 'src/app/design-system/primitives/divider/divider.component';
-import { FbHintComponent } from 'src/app/design-system/primitives/hint/hint.component';
-import { FbToolbarComponent } from 'src/app/design-system/primitives/toolbar/toolbar.component';
-import {
+  FbCardContentComponent,
+  FbCheckboxComponent,
+  FbDetailPaneComponent,
+  FbDividerComponent,
+  FbHintComponent,
+  FbIconComponent,
+  FbInputComponent,
+  FbListPaneComponent,
+  FbRadioComponent,
+  FbRadioGroupComponent,
+  FbSelectComponent,
   FbSelectionListComponent,
+  FbSliderComponent,
+  FbToolbarComponent,
+  FbTooltipDirective,
+  type FbSelectOption,
   type FbSelectionListOption
-} from 'src/app/design-system/primitives/list/list.component';
-import { FbRadioGroupComponent } from 'src/app/design-system/primitives/radio/radio-group.component';
-import { FbRadioComponent } from 'src/app/design-system/primitives/radio/radio.component';
+} from 'src/app/design-system/primitives';
 
 import type {
   LineStyleConfig,
@@ -68,7 +64,7 @@ export interface SettingsSection {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatTooltipModule,
+    FbTooltipDirective,
     FbListPaneComponent,
     FbDetailPaneComponent,
     FbButtonComponent,

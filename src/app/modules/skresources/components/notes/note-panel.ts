@@ -9,14 +9,14 @@ import {
   output
 } from '@angular/core';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './safe.pipe';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -35,9 +35,9 @@ import {
   selector: 'note-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,
+    FbTooltipDirective,
     FbInfoPanelLayoutComponent,
     CoordsPipe,
     AddTargetPipe,

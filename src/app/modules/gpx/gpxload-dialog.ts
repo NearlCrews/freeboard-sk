@@ -10,8 +10,6 @@ import {
   MAT_DIALOG_DATA,
   MatDialogModule
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
   FbCheckboxComponent,
@@ -21,7 +19,8 @@ import {
   FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbProgressBarComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -61,7 +60,7 @@ interface GPXDataSummary {
     FbProgressBarComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatTooltipModule
+    FbTooltipDirective
   ],
   templateUrl: './gpxload-dialog.html',
   styleUrls: ['./gpxload-dialog.css']

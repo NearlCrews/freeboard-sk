@@ -30,7 +30,7 @@
         size="sm"
         [disabled]="!!_region()?.feature?.properties?.['readOnly']"
         (pressed)="onEdit()"
-        matTooltip="Edit Region"
+        fbTooltip="Edit Region"
       >
         <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
@@ -39,7 +39,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onInfo()"
-        matTooltip="Show properties"
+        fbTooltip="Show properties"
       >
         <fb-icon name="description" ariaLabel=""></fb-icon>
         Info
@@ -48,7 +48,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onAddNote()"
-        matTooltip="Add note here"
+        fbTooltip="Add note here"
       >
         <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         Add Note
@@ -58,7 +58,7 @@
         size="sm"
         [disabled]="!app.featureFlags().resourceGroups"
         (pressed)="addToGroup()"
-        [matTooltip]="app.featureFlags().resourceGroups ? 'Add to Group' : 'Groups disabled'"
+        [fbTooltip]="app.featureFlags().resourceGroups ? 'Add to Group' : 'Groups disabled'"
       >
         <fb-icon name="category" ariaLabel=""></fb-icon>
         Group
@@ -67,7 +67,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onPanTo()"
-        matTooltip="Centre Region"
+        fbTooltip="Centre Region"
       >
         <fb-icon name="my_location" ariaLabel=""></fb-icon>
         Centre
@@ -77,7 +77,7 @@
         size="sm"
         [disabled]="!!_region()?.feature?.properties?.['readOnly']"
         (pressed)="onDelete()"
-        matTooltip="Delete Region"
+        fbTooltip="Delete Region"
       >
         <fb-icon name="delete" ariaLabel=""></fb-icon>
         Delete

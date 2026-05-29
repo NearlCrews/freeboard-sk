@@ -15,8 +15,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
@@ -35,6 +33,7 @@ import {
   FbSelectTriggerDirective,
   FbSwitchComponent,
   FbToolbarComponent,
+  FbTooltipDirective,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -65,7 +64,6 @@ interface DialogData {
     FormsModule,
     FormField,
     MatDialogModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
@@ -78,6 +76,7 @@ interface DialogData {
     FbSelectTriggerDirective,
     FbSwitchComponent,
     FbToolbarComponent,
+    FbTooltipDirective,
     AngularEditorModule,
     CoordsPipe,
     AddTargetPipe,

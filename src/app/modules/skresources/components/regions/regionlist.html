@@ -7,8 +7,8 @@
             <fb-button
               variant="ghost"
               (pressed)="close()"
-              matTooltip="Close Region List"
-              matTooltipPosition="right"
+              fbTooltip="Close Region List"
+              fbTooltipPosition="right"
               ariaLabel="Close Region List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -32,8 +32,8 @@
           <fb-button
             variant="ghost"
             (pressed)="initItems()"
-            matTooltip="Reload Regions"
-            matTooltipPosition="below"
+            fbTooltip="Reload Regions"
+            fbTooltipPosition="below"
             ariaLabel="Reload Regions"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -46,8 +46,8 @@
             [checked]="allSel"
             [indeterminate]="someSel"
             (checkedChange)="toggleAll($event)"
-            [matTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
-            matTooltipPosition="below"
+            [fbTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
+            fbTooltipPosition="below"
           >
           </fb-checkbox>
         </div>
@@ -99,8 +99,8 @@
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Show in Map"
-                matTooltipPosition="left"
+                fbTooltip="Show in Map"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -113,8 +113,8 @@
                 variant="ghost"
                 [disabled]="app.uiConfig().mapMove"
                 (pressed)="emitCenter(r[1])"
-                matTooltip="Center Region"
-                matTooltipPosition="above"
+                fbTooltip="Center Region"
+                fbTooltipPosition="above"
                 ariaLabel="Center Region"
               >
                 <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
@@ -123,8 +123,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Region Properties"
-                matTooltipPosition="above"
+                fbTooltip="Region Properties"
+                fbTooltipPosition="above"
                 ariaLabel="Region Properties"
               >
                 <fb-icon name="info" ariaLabel=""></fb-icon>
@@ -134,8 +134,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemAddToGroup(r[0])"
-                matTooltip="Add to Group"
-                matTooltipPosition="above"
+                fbTooltip="Add to Group"
+                fbTooltipPosition="above"
                 ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>

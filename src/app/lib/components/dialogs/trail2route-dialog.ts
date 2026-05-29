@@ -16,14 +16,13 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
   FbCheckboxComponent,
   FbIconComponent,
   FbSliderComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { FreeboardOpenlayersModule } from 'src/app/modules/map/ol';
@@ -44,8 +43,8 @@ import { AppFacade } from 'src/app/app.facade';
     FbIconComponent,
     FbSliderComponent,
     MatDialogModule,
-    MatTooltipModule,
     FbToolbarComponent,
+    FbTooltipDirective,
     FreeboardOpenlayersModule
   ],
   templateUrl: `./trail2route-dialog.html`,

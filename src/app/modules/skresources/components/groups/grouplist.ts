@@ -9,7 +9,6 @@ import {
   OnChanges
 } from '@angular/core';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -21,7 +20,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -44,7 +44,6 @@ import {
   styleUrls: ['../resourcelist.css'],
   imports: [
     FbButtonComponent,
-    MatTooltipModule,
     ScrollingModule,
     FbCardComponent,
     FbCardHeaderComponent,
@@ -53,7 +52,8 @@ import {
     FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbTooltipDirective
   ]
 })
 export class GroupListComponent implements OnInit, OnChanges {

@@ -7,8 +7,8 @@
             <fb-button
               variant="ghost"
               (pressed)="close()"
-              matTooltip="Close Track List"
-              matTooltipPosition="above"
+              fbTooltip="Close Track List"
+              fbTooltipPosition="above"
               ariaLabel="Close Track List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -32,8 +32,8 @@
           <fb-button
             variant="ghost"
             (pressed)="initItems()"
-            matTooltip="Reload Tracks"
-            matTooltipPosition="below"
+            fbTooltip="Reload Tracks"
+            fbTooltipPosition="below"
             ariaLabel="Reload Tracks"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -46,8 +46,8 @@
             [checked]="allSel"
             [indeterminate]="someSel"
             (checkedChange)="toggleAll($event)"
-            [matTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
-            matTooltipPosition="below"
+            [fbTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
+            fbTooltipPosition="below"
           >
           </fb-checkbox>
         </div>
@@ -103,8 +103,8 @@
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Show on Map"
-                matTooltipPosition="left"
+                fbTooltip="Show on Map"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -116,8 +116,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemDelete(r[0])"
-                matTooltip="Delete Track"
-                matTooltipPosition="above"
+                fbTooltip="Delete Track"
+                fbTooltipPosition="above"
                 ariaLabel="Delete Track"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
@@ -127,8 +127,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Track Properties"
-                matTooltipPosition="above"
+                fbTooltip="Track Properties"
+                fbTooltipPosition="above"
                 ariaLabel="Track Properties"
               >
                 <fb-icon name="edit" ariaLabel=""></fb-icon>
@@ -139,8 +139,8 @@
                 variant="ghost"
                 [disabled]="app.uiConfig().mapMove"
                 (pressed)="emitCenter(r[1].feature.geometry.coordinates[0][0])"
-                matTooltip="Center Track"
-                matTooltipPosition="above"
+                fbTooltip="Center Track"
+                fbTooltipPosition="above"
                 ariaLabel="Center Track"
               >
                 <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>

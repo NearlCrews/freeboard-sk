@@ -4,16 +4,15 @@ import {
   output,
   input
 } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 @Component({
   selector: 'route-nextpoint',
-  imports: [FbButtonComponent, MatTooltipModule, FbIconComponent],
+  imports: [FbButtonComponent, FbIconComponent, FbTooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -26,8 +25,8 @@ import {
             class="nav-button"
             variant="ghost"
             ariaLabel="Previous point"
-            matTooltip="Previous point"
-            matTootipPosition="top"
+            fbTooltip="Previous point"
+            fbTooltipPosition="above"
             [disabled]="!circular() && index() === 0"
             (pressed)="changeIndex(-1)"
           >
@@ -39,8 +38,8 @@ import {
             class="nav-button"
             variant="ghost"
             ariaLabel="Next point"
-            matTooltip="Next point"
-            matTootipPosition="top"
+            fbTooltip="Next point"
+            fbTooltipPosition="above"
             [disabled]="!circular() && index() >= total() - 1"
             (pressed)="changeIndex(1)"
           >

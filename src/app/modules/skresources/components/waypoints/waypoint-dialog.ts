@@ -20,7 +20,6 @@ import { CoordsPipe } from 'src/app/lib/pipes';
 import type { SKWaypoint } from '../../resource-classes';
 import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
-import { MatTooltip } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -29,6 +28,7 @@ import {
   FbSelectOptionTemplateDirective,
   FbSelectTriggerDirective,
   FbToolbarComponent,
+  FbTooltipDirective,
   type FbSelectGroup
 } from 'src/app/design-system/primitives';
 
@@ -89,11 +89,11 @@ interface WaypointTypeOption {
     MatDialogModule,
     CoordsPipe,
     FormField,
-    MatTooltip,
     FbSelectComponent,
     FbSelectOptionTemplateDirective,
     FbSelectTriggerDirective,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-waypoint">
@@ -206,7 +206,7 @@ interface WaypointTypeOption {
                       >
                         <fb-icon
                           [svgName]="i.svgIcon"
-                          [matTooltip]="i.svgIcon"
+                          [fbTooltip]="i.svgIcon"
                           ariaLabel=""
                         ></fb-icon>
                       </div>

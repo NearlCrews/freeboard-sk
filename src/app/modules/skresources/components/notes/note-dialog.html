@@ -82,7 +82,7 @@
                 size="sm"
                 ariaLabel="View group notes"
                 (pressed)="dialogRef.close({result:true, data: 'group', value: data.note.group})"
-                matTooltip="View Group Notes"
+                fbTooltip="View Group Notes"
               >
                 <fb-icon name="style" ariaLabel=""></fb-icon>
               </fb-button>
@@ -119,7 +119,7 @@
               size="sm"
               ariaLabel="Open note link"
               (pressed)="openNoteUrl()"
-              matTooltip="Open Note link in browser window"
+              fbTooltip="Open Note link in browser window"
             >
               <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
             </fb-button>
@@ -129,7 +129,7 @@
               size="sm"
               ariaLabel="Edit note"
               (pressed)="dialogRef.close({result:true, data: 'edit'})"
-              matTooltip="Edit Note"
+              fbTooltip="Edit Note"
             >
               <fb-icon name="edit" ariaLabel=""></fb-icon>
             </fb-button>
@@ -139,7 +139,7 @@
               size="sm"
               ariaLabel="Delete note"
               (pressed)="dialogRef.close({result:true, data: 'delete'})"
-              matTooltip="Delete Note"
+              fbTooltip="Delete Note"
             >
               <fb-icon name="delete" ariaLabel=""></fb-icon>
             </fb-button>
@@ -235,7 +235,7 @@
               (valueChange)="onIconSelected($event ?? '')"
             >
               <ng-template fbSelectOption let-option>
-                <span [matTooltip]="option.label">
+                <span [fbTooltip]="option.label">
                   @if (option.id) {
                   <fb-icon
                     [svgName]="asString(option.id)"

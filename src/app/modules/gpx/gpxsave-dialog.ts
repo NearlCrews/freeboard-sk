@@ -12,8 +12,6 @@ import {
   MAT_DIALOG_DATA,
   MatDialogModule
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
   FbCheckboxComponent,
@@ -21,7 +19,8 @@ import {
   FbExpansionPanelDescriptionDirective,
   FbExpansionPanelTitleDirective,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { GPXSaveFacade } from './gpxsave-dialog.facade';
@@ -42,7 +41,7 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
     FbIconComponent,
     FbToolbarComponent,
     MatDialogModule,
-    MatTooltipModule
+    FbTooltipDirective
   ],
   templateUrl: './gpxsave-dialog.html',
   styleUrls: ['./gpxsave-dialog.css']

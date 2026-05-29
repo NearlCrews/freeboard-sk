@@ -18,7 +18,8 @@ import {
   FbCardContentComponent,
   FbCardActionsComponent,
   FbIconComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -64,6 +65,7 @@ const SoundFiles: Record<ALARM_STATE, string> = {
     FbCardActionsComponent,
     FbIconComponent,
     FbProgressBarComponent,
+    FbTooltipDirective,
     TimerButtonComponent
   ],
   template: `
@@ -132,8 +134,8 @@ const SoundFiles: Record<ALARM_STATE, string> = {
                 } @else {
                   <fb-button
                     variant="primary"
-                    matTooltip="Dismiss"
-                    matTooltipPosition="left"
+                    fbTooltip="Dismiss"
+                    fbTooltipPosition="left"
                     (pressed)="hide()"
                   >
                     <fb-icon name="clear_all" ariaLabel=""></fb-icon>

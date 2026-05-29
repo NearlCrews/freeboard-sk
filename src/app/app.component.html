@@ -604,8 +604,8 @@
                       (pressed)="
                         openInstrumentsInNewWindow(); sideright.toggle()
                       "
-                      matTooltip="Open Instruments in window."
-                      matTooltipPosition="right"
+                      fbTooltip="Open Instruments in window."
+                      fbTooltipPosition="right"
                     >
                       <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
                     </fb-button>
@@ -618,8 +618,8 @@
                     [disabled]="
                       app.config.display.plugins.favourites.length === 0
                     "
-                    matTooltip="Previous plugin"
-                    matTooltipPosition="below"
+                    fbTooltip="Previous plugin"
+                    fbTooltipPosition="below"
                   >
                     <fb-icon name="arrow_back_ios" ariaLabel=""></fb-icon>
                   </fb-button>
@@ -630,8 +630,8 @@
                     [disabled]="
                       app.config.display.plugins.favourites.length === 0
                     "
-                    matTooltip="Next plugin"
-                    matTooltipPosition="below"
+                    fbTooltip="Next plugin"
+                    fbTooltipPosition="below"
                   >
                     <fb-icon name="arrow_forward_ios" ariaLabel=""></fb-icon>
                   </fb-button>
@@ -696,8 +696,8 @@
                     icon="menu"
                     ariaLabel="Menu"
                     [disabled]="isInteracting()"
-                    matTooltip="Menu"
-                    matTooltipPosition="right"
+                    fbTooltip="Menu"
+                    fbTooltipPosition="right"
                     (pressed)="openMainMenu($event)"
                   ></fb-fab>
                 </fb-badge>
@@ -716,8 +716,8 @@
                       variant="danger"
                       svgName="alert-list"
                       ariaLabel="Alarms"
-                      matTooltip="Alarms"
-                      matTooltipPosition="left"
+                      fbTooltip="Alarms"
+                      fbTooltipPosition="left"
                       (pressed)="toggleAlertList(true)"
                     ></fb-fab>
                   </fb-badge>
@@ -728,8 +728,8 @@
                     icon="layers"
                     ariaLabel="Resource layers"
                     [disabled]="isInteracting()"
-                    matTooltip="Routes, Waypoints, Notes, etc."
-                    matTooltipPosition="right"
+                    fbTooltip="Routes, Waypoints, Notes, etc."
+                    fbTooltipPosition="right"
                     (pressed)="openLayersMenu($event)"
                   ></fb-fab>
                 </div>
@@ -739,8 +739,8 @@
                     icon="edit"
                     ariaLabel="Draw, measure, or select"
                     [disabled]="isInteracting()"
-                    matTooltip="Draw / Measure / Select"
-                    matTooltipPosition="right"
+                    fbTooltip="Draw / Measure / Select"
+                    fbTooltipPosition="right"
                     (pressed)="openEditMenu($event)"
                   ></fb-fab>
                 </div>
@@ -759,12 +759,12 @@
                         ? 'Show Heading Up'
                         : 'Show North Up'
                     "
-                    [matTooltip]="
+                    [fbTooltip]="
                       app.uiConfig().mapNorthUp
                         ? 'Show Heading Up'
                         : 'Show North Up'
                     "
-                    matTooltipPosition="right"
+                    fbTooltipPosition="right"
                     (pressed)="toggleNorthUp()"
                   ></fb-fab>
                 </div>
@@ -778,12 +778,12 @@
                         : 'Follow Vessel'
                     "
                     [disabled]="!app.data.vessels.showSelf"
-                    [matTooltip]="
+                    [fbTooltip]="
                       app.uiConfig().mapMove
                         ? 'Turn off Follow Vessel'
                         : 'Follow Vessel'
                     "
-                    matTooltipPosition="right"
+                    fbTooltipPosition="right"
                     (pressed)="toggleMoveMap()"
                   ></fb-fab>
                 </div>
@@ -795,8 +795,8 @@
                       ariaLabel="Center Vessel"
                       (pressed)="centerVessel()"
                       [disabled]="!app.data.vessels.showSelf"
-                      matTooltip="Center Vessel"
-                      matTooltipPosition="right"
+                      fbTooltip="Center Vessel"
+                      fbTooltipPosition="right"
                     ></fb-fab>
                   </div>
                 }
@@ -806,8 +806,8 @@
                     icon="more_horiz"
                     ariaLabel="More actions"
                     [disabled]="isInteracting()"
-                    matTooltip="More actions"
-                    matTooltipPosition="right"
+                    fbTooltip="More actions"
+                    fbTooltipPosition="right"
                     (pressed)="openSettingsMenu($event)"
                   ></fb-fab>
                 </div>
@@ -818,8 +818,8 @@
                       variant="danger"
                       icon="cancel"
                       ariaLabel="Exit playback mode"
-                      matTooltip="Exit playback mode"
-                      matTooltipPosition="right"
+                      fbTooltip="Exit playback mode"
+                      fbTooltipPosition="right"
                       (pressed)="showSelectMode()"
                     ></fb-fab>
                   </div>
@@ -937,8 +937,8 @@
                   <fb-icon
                     name="visibility_off"
                     ariaLabel=""
-                    matTooltip="WakeLock is turned off"
-                    matTooltipPosition="below"
+                    fbTooltip="WakeLock is turned off"
+                    fbTooltipPosition="below"
                   ></fb-icon>
                 </div>
               }
@@ -947,8 +947,8 @@
                   <fb-icon
                     name="compare_arrows"
                     ariaLabel=""
-                    matTooltip="Course data is hidden"
-                    matTooltipPosition="below"
+                    fbTooltip="Course data is hidden"
+                    fbTooltipPosition="below"
                   ></fb-icon>
                 </div>
               }
@@ -957,8 +957,8 @@
                   <fb-icon
                     name="directions_boat"
                     ariaLabel=""
-                    matTooltip="Vessels are hidden"
-                    matTooltipPosition="below"
+                    fbTooltip="Vessels are hidden"
+                    fbTooltipPosition="below"
                   ></fb-icon>
                 </div>
               }
@@ -967,8 +967,8 @@
                   <fb-icon
                     name="local_offer"
                     ariaLabel=""
-                    matTooltip="Notes are hidden"
-                    matTooltipPosition="below"
+                    fbTooltip="Notes are hidden"
+                    fbTooltipPosition="below"
                   ></fb-icon>
                 </div>
               }
@@ -981,8 +981,8 @@
                       background-color: var(--color-error);
                       color: var(--color-on-primary);
                     "
-                    matTooltip="No server messages!"
-                    matTooltipPosition="below"
+                    fbTooltip="No server messages!"
+                    fbTooltipPosition="below"
                   ></fb-icon>
                 </div>
               }
@@ -1003,12 +1003,12 @@
                       : 'Show Toolbars'
                   "
                   (pressed)="toggleToolbarButtons()"
-                  [matTooltip]="
+                  [fbTooltip]="
                     app.uiConfig().toolbarButtons
                       ? 'Hide Toobars'
                       : 'Show Toobars'
                   "
-                  matTooltipPosition="before"
+                  fbTooltipPosition="before"
                 ></fb-fab>
               </div>
             </div>
@@ -1026,8 +1026,8 @@
                       icon="av_timer"
                       ariaLabel="Instruments"
                       (pressed)="sideright?.toggle()"
-                      matTooltip="Instruments"
-                      matTooltipPosition="before"
+                      fbTooltip="Instruments"
+                      fbTooltipPosition="before"
                     ></fb-fab>
                   }
                   <br />&nbsp;<br />&nbsp;
@@ -1040,8 +1040,8 @@
                       variant="secondary"
                       icon="volume_off"
                       ariaLabel="Enable Web Audio"
-                      matTooltip="Web Audio off! Click to enable."
-                      matTooltipPosition="before"
+                      fbTooltip="Web Audio off! Click to enable."
+                      fbTooltipPosition="before"
                       (pressed)="enableAudio()"
                     ></fb-fab>
                     <br />&nbsp;<br />
@@ -1066,12 +1066,12 @@
                         displayFullscreen().active ? 'primary' : 'secondary'
                       "
                       (pressed)="toggleFullscreen()"
-                      [matTooltip]="
+                      [fbTooltip]="
                         displayFullscreen().active
                           ? 'Exit Fullscreen '
                           : 'Go Fullscreen'
                       "
-                      matTooltipPosition="before"
+                      fbTooltipPosition="before"
                     ></fb-fab>
                     <br />&nbsp;<br />
                   </div>
@@ -1086,8 +1086,8 @@
                       app.uiConfig().mapConstrainZoom ? 'primary' : 'secondary'
                     "
                     (pressed)="toggleConstrainMapZoom()"
-                    matTooltip="Constrain map zoom."
-                    matTooltipPosition="before"
+                    fbTooltip="Constrain map zoom."
+                    fbTooltipPosition="before"
                   ></fb-fab>
                   <br />&nbsp;<br />
                 </div>
@@ -1101,8 +1101,8 @@
                       app.uiConfig().invertColor ? 'primary' : 'secondary'
                     "
                     (pressed)="invertFeatureLabelColor()"
-                    matTooltip="Invert feature text color."
-                    matTooltipPosition="before"
+                    fbTooltip="Invert feature text color."
+                    fbTooltipPosition="before"
                   ></fb-fab>
                   <br />&nbsp;<br />
                 </div>
@@ -1147,8 +1147,8 @@
                       "
                       svgName="command-autopilot"
                       ariaLabel="Autopilot"
-                      matTooltip="Autopilot"
-                      matTooltipPosition="before"
+                      fbTooltip="Autopilot"
+                      fbTooltipPosition="before"
                       (pressed)="toggleAutopilotConsole(true)"
                     ></fb-fab>
                     <br />&nbsp;<br />
@@ -1269,7 +1269,7 @@
                       <fb-button
                         variant="ghost"
                         ariaLabel="Course Settings"
-                        matTooltip="Course Settings"
+                        fbTooltip="Course Settings"
                         (pressed)="openCourseSettings()"
                       >
                         <fb-icon
@@ -1282,13 +1282,13 @@
                       <fb-button
                         variant="ghost"
                         ariaLabel="Engage Autopilot"
-                        matTooltip="Autopilot Console"
-                        matTooltipPosition="above"
+                        fbTooltip="Autopilot Console"
+                        fbTooltipPosition="above"
                         [disabled]="
                           !app.featureFlags().autopilotApi ||
                           !app.data.vessels.self.autopilot.default
                         "
-                        matTooltip="Engage Autopilot"
+                        fbTooltip="Engage Autopilot"
                         (pressed)="autopilot.engage()"
                       >
                         <fb-icon
@@ -1305,7 +1305,7 @@
                       <fb-button
                         variant="ghost"
                         ariaLabel="Restart XTE"
-                        matTooltip="Restart XTE"
+                        fbTooltip="Restart XTE"
                         (pressed)="course.courseRestart()"
                       >
                         <fb-icon name="replay" ariaLabel=""></fb-icon>
@@ -1314,8 +1314,8 @@
                       <fb-button
                         variant="ghost"
                         ariaLabel="Reverse route direction"
-                        matTooltip="Reverse route direction"
-                        matTooltipPosition="above"
+                        fbTooltip="Reverse route direction"
+                        fbTooltipPosition="above"
                         [disabled]="!app.data.activeRoute"
                         (pressed)="course.courseReverse()"
                       >

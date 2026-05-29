@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -25,7 +24,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -49,7 +49,6 @@ import { RemarkModule } from 'ngx-remark';
   styleUrls: ['../resourcelist.css'],
   imports: [
     FbButtonComponent,
-    MatTooltipModule,
     ScrollingModule,
     RemarkModule,
     FbCardComponent,
@@ -59,7 +58,8 @@ import { RemarkModule } from 'ngx-remark';
     FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbTooltipDirective
   ]
 })
 export class RouteListComponent

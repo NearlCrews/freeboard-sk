@@ -29,10 +29,10 @@ import {
   type FbMenuTemplateContext,
   type FbMenuTemplateRef,
   FbNavListComponent,
-  FbProgressBarComponent
+  FbProgressBarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   ETADialComponent,
   FileInputComponent,
@@ -133,7 +133,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   styleUrls: ['./app.component.css'],
   imports: [
     MatSidenavModule,
-    MatTooltipModule,
     FbBadgeComponent,
     FbButtonComponent,
     FbDividerComponent,
@@ -141,6 +140,7 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
     FbIconComponent,
     FbNavListComponent,
     FbProgressBarComponent,
+    FbTooltipDirective,
     CommonModule,
     TextDialComponent,
     TTGDialComponent,

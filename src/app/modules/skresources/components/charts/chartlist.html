@@ -7,8 +7,8 @@
             <fb-button
               variant="ghost"
               (pressed)="close()"
-              matTooltip="Close Chart List"
-              matTooltipPosition="right"
+              fbTooltip="Close Chart List"
+              fbTooltipPosition="right"
               ariaLabel="Close Chart List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -33,8 +33,8 @@
           <fb-button
             variant="ghost"
             (pressed)="initItems()"
-            matTooltip="Reload Charts"
-            matTooltipPosition="below"
+            fbTooltip="Reload Charts"
+            fbTooltipPosition="below"
             ariaLabel="Reload Charts"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -47,8 +47,8 @@
             [checked]="allSel"
             [indeterminate]="someSel"
             (checkedChange)="toggleAll($event)"
-            [matTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
-            matTooltipPosition="below"
+            [fbTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
+            fbTooltipPosition="below"
           >
           </fb-checkbox>
         </div>
@@ -73,16 +73,16 @@
         ariaLabel="Display chart boundaries"
         [checked]="app.data.chartBounds.show"
         (checkedChange)="toggleChartBoundaries()"
-        matTooltip="Display Chart Boundaries"
-        matTooltipPosition="above"
+        fbTooltip="Display Chart Boundaries"
+        fbTooltipPosition="above"
       >
         Boundaries
       </fb-switch-row>
       <fb-button
         variant="ghost"
         (pressed)="showChartLayers(true)"
-        matTooltip="Re-order Charts"
-        matTooltipPosition="above"
+        fbTooltip="Re-order Charts"
+        fbTooltipPosition="above"
       >
         <fb-icon name="import_export" ariaLabel=""></fb-icon>
         Re-order
@@ -90,8 +90,8 @@
 
       <fb-button
         variant="ghost"
-        matTooltip="Add Chart"
-        matTooltipPosition="above"
+        fbTooltip="Add Chart"
+        fbTooltipPosition="above"
         ariaLabel="Add Chart"
         (pressed)="openAddChartMenu($event)"
       >
@@ -151,8 +151,8 @@
               <fb-checkbox
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Show in Map"
-                matTooltipPosition="left"
+                fbTooltip="Show in Map"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -165,8 +165,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemDelete(r[0])"
-                matTooltip="Remove Chart"
-                matTooltipPosition="above"
+                fbTooltip="Remove Chart"
+                fbTooltipPosition="above"
                 ariaLabel="Remove Chart"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
@@ -177,8 +177,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Chart Properties"
-                matTooltipPosition="above"
+                fbTooltip="Chart Properties"
+                fbTooltipPosition="above"
                 ariaLabel="Chart Properties"
               >
                 <fb-icon name="info" ariaLabel=""></fb-icon>
@@ -189,8 +189,8 @@
                 variant="ghost"
                 [disabled]="!r[2]"
                 (pressed)="itemOpacity(r)"
-                matTooltip="Set Opacity"
-                matTooltipPosition="above"
+                fbTooltip="Set Opacity"
+                fbTooltipPosition="above"
                 ariaLabel="Set Opacity"
               >
                 <fb-icon name="opacity" ariaLabel=""></fb-icon>
@@ -201,8 +201,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="selectCacheArea(r[0])"
-                matTooltip="Cache Tiles"
-                matTooltipPosition="above"
+                fbTooltip="Cache Tiles"
+                fbTooltipPosition="above"
                 ariaLabel="Cache Tiles"
               >
                 <fb-icon name="download" ariaLabel=""></fb-icon>
@@ -213,8 +213,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemAddToGroup(r[0])"
-                matTooltip="Add to Group"
-                matTooltipPosition="above"
+                fbTooltip="Add to Group"
+                fbTooltipPosition="above"
                 ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>

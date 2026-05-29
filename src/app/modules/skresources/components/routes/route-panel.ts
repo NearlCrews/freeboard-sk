@@ -10,7 +10,6 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
@@ -26,7 +25,8 @@ import {
   FbNavListComponent,
   FbStepComponent,
   FbStepHeaderActionsDirective,
-  FbStepperComponent
+  FbStepperComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -50,7 +50,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
   selector: 'route-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,
     FbExpansionPanelComponent,
@@ -63,6 +62,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
     FbStepComponent,
     FbStepHeaderActionsDirective,
     FbStepperComponent,
+    FbTooltipDirective,
     RemarkModule
   ],
   templateUrl: `route-panel.html`,

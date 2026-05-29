@@ -74,7 +74,7 @@
           ariaLabel="Zoom out"
           (pressed)="zoomMap(false)"
           [disabled]="mapZoomLevel() <= app.MAP_ZOOM_EXTENT.min"
-          matTooltip="Zoom out"
+          fbTooltip="Zoom out"
         ></fb-fab>
         &nbsp;
         <fb-fab
@@ -83,7 +83,7 @@
           ariaLabel="Zoom in"
           (pressed)="zoomMap(true)"
           [disabled]="mapZoomLevel() >= app.MAP_ZOOM_EXTENT.max"
-          matTooltip="Zoom in"
+          fbTooltip="Zoom in"
         ></fb-fab>
       </div>
     </ol-content>

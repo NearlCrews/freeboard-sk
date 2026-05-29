@@ -36,7 +36,7 @@
         size="sm"
         [disabled]="!!_route()?.feature?.properties?.['readOnly']"
         (pressed)="onEdit()"
-        matTooltip="Edit Route"
+        fbTooltip="Edit Route"
       >
         <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
@@ -45,7 +45,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onInfo()"
-        matTooltip="Show properties"
+        fbTooltip="Show properties"
       >
         <fb-icon name="description" ariaLabel=""></fb-icon>
         Info
@@ -55,7 +55,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onGoto()"
-        matTooltip="Navigate To"
+        fbTooltip="Navigate To"
       >
         <fb-icon name="near_me" ariaLabel=""></fb-icon>
         Start
@@ -65,7 +65,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onGoto(-1)"
-        matTooltip="Clear Destination"
+        fbTooltip="Clear Destination"
       >
         <fb-icon name="clear_all" ariaLabel=""></fb-icon>
         Clear
@@ -75,7 +75,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onAddNote()"
-        matTooltip="Add note here"
+        fbTooltip="Add note here"
       >
         <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         Add Note
@@ -84,7 +84,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onPanTo()"
-        matTooltip="Centre Route"
+        fbTooltip="Centre Route"
       >
         <fb-icon name="my_location" ariaLabel=""></fb-icon>
         Centre
@@ -97,7 +97,7 @@
           app.data.activeRoute === id()
         "
         (pressed)="onDelete()"
-        matTooltip="Delete Route"
+        fbTooltip="Delete Route"
       >
         <fb-icon name="delete" ariaLabel=""></fb-icon>
         Delete
@@ -138,7 +138,7 @@
             variant="ghost"
             size="sm"
             ariaLabel="Re-order points"
-            matTooltip="Re-order points"
+            fbTooltip="Re-order points"
             (pressed)="arrangePoints()"
           >
             <fb-icon name="import_export" ariaLabel=""></fb-icon>
@@ -157,7 +157,7 @@
                 variant="ghost"
                 size="sm"
                 ariaLabel="Start here"
-                matTooltip="Start here"
+                fbTooltip="Start here"
                 (pressed)="onGoto(point.index)"
               >
                 <fb-icon name="near_me" ariaLabel=""></fb-icon>

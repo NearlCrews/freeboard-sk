@@ -1,10 +1,10 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { InfoPanelFacade } from './info-panel.facade';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 const RESOURCE_LABEL: Record<string, string> = {
@@ -38,7 +38,7 @@ const KIND_LABEL: Record<string, string> = {
           variant="ghost"
           ariaLabel="Close panel"
           (pressed)="close()"
-          matTooltip="Close panel"
+          fbTooltip="Close panel"
         >
           <fb-icon name="close" ariaLabel=""></fb-icon>
         </fb-button>
@@ -100,7 +100,7 @@ const KIND_LABEL: Record<string, string> = {
       min-height: var(--touch-secondary);
     }
   `,
-  imports: [FbIconComponent, FbButtonComponent, MatTooltipModule]
+  imports: [FbIconComponent, FbButtonComponent, FbTooltipDirective]
 })
 export class InfoPanelComponent {
   protected infoPanel = inject(InfoPanelFacade);

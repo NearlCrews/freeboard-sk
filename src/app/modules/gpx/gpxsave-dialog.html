@@ -4,8 +4,8 @@
       <fb-button
         variant="primary"
         style="width: 85px"
-        matTooltip="Save selected resources"
-        matTooltipPosition="right"
+        fbTooltip="Save selected resources"
+        fbTooltipPosition="right"
         [disabled]="!display.saveRoutesOK && !display.saveWaypointsOK && !display.saveTracksOK"
         (pressed)="save()"
       >
@@ -43,8 +43,8 @@
               [disabled]="resData.waypoints.length===0"
               (checkedChange)="checkWpt($event, -1)"
               (click)="$event.stopPropagation()"
-              matTooltip="Select all Waypoints"
-              matTooltipPosition="before"
+              fbTooltip="Select all Waypoints"
+              fbTooltipPosition="left"
             ></fb-checkbox>
           </div>
         </span>
@@ -57,8 +57,8 @@
               <fb-checkbox
                 [checked]="selWaypoints[i]"
                 (checkedChange)="checkWpt($event, i)"
-                matTooltip="Select Waypoint"
-                matTooltipPosition="below"
+                fbTooltip="Select Waypoint"
+                fbTooltipPosition="below"
               >
               </fb-checkbox>
             </div>
@@ -85,8 +85,8 @@
               [disabled]="resData.routes.length==0"
               (checkedChange)="checkRte($event, -1)"
               (click)="$event.stopPropagation()"
-              matTooltip="Select all Routes"
-              matTooltipPosition="before"
+              fbTooltip="Select all Routes"
+              fbTooltipPosition="left"
             ></fb-checkbox>
           </div>
         </span>
@@ -104,8 +104,8 @@
             </div>
             <div class="check">
               <fb-checkbox
-                matTooltip="Select this Route"
-                matTooltipPosition="below"
+                fbTooltip="Select this Route"
+                fbTooltipPosition="below"
                 [checked]="selRoutes[i]"
                 (checkedChange)="checkRte($event, i)"
               >
@@ -134,8 +134,8 @@
               [disabled]="resData.tracks.length==0"
               (checkedChange)="checkTrk($event, -1)"
               (click)="$event.stopPropagation()"
-              matTooltip="Vessel Trail to Track"
-              matTooltipPosition="before"
+              fbTooltip="Vessel Trail to Track"
+              fbTooltipPosition="left"
             >
             </fb-checkbox>
           </div>
@@ -153,8 +153,8 @@
             </div>
             <div class="check">
               <fb-checkbox
-                matTooltip="Select this Track"
-                matTooltipPosition="below"
+                fbTooltip="Select this Track"
+                fbTooltipPosition="below"
                 [checked]="selTracks[i]"
                 (checkedChange)="checkTrk($event, i)"
               >

@@ -149,6 +149,10 @@ export {
   FbToolbarComponent,
   type FbToolbarDensity
 } from './toolbar/toolbar.component';
+export {
+  FbTooltipDirective,
+  type FbTooltipPosition
+} from './tooltip/tooltip.directive';
 export { FbProgressBarComponent } from './progress-bar/progress-bar.component';
 
 /* Tier-3 list family + tabs. */

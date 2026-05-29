@@ -6,7 +6,7 @@ import {
   OnChanges
 } from '@angular/core';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { FbTooltipDirective } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from '../../../lib/pipes';
 
@@ -20,7 +20,7 @@ type SectionedItem = [number, string, any];
 
 @Component({
   selector: 'signalk-details-list',
-  imports: [MatTooltipModule, CoordsPipe],
+  imports: [CoordsPipe, FbTooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./signalk-details.component.css'],
   template: `
@@ -36,21 +36,21 @@ type SectionedItem = [number, string, any];
             }
             @if (item[2] !== null) {
               <div class="pathvalue">
-                <div class="path" [matTooltip]="item[1]">{{ item[1] }}</div>
+                <div class="path" [fbTooltip]="item[1]">{{ item[1] }}</div>
                 @if (item[1] === 'latitude') {
-                  <div class="value" [matTooltip]="item[2]">
+                  <div class="value" [fbTooltip]="item[2]">
                     {{
                       item[2] | coords: app.config.units.positionFormat : true
                     }}
                   </div>
                 } @else if (item[1] === 'longitude') {
-                  <div class="value" [matTooltip]="item[2]">
+                  <div class="value" [fbTooltip]="item[2]">
                     {{
                       item[2] | coords: app.config.units.positionFormat : false
                     }}
                   </div>
                 } @else {
-                  <div class="value" [matTooltip]="item[2]">{{ item[2] }}</div>
+                  <div class="value" [fbTooltip]="item[2]">{{ item[2] }}</div>
                 }
               </div>
             }

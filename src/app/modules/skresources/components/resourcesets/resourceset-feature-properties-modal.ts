@@ -3,14 +3,14 @@
 
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import {
   MatBottomSheetRef,
@@ -38,12 +38,12 @@ interface ResourceSetFeatureProperties {
   selector: 'ap-resourceset-feature-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-resource-set-feature">
@@ -56,8 +56,8 @@ interface ResourceSetFeatureProperties {
             variant="ghost"
             ariaLabel="Close"
             (pressed)="closeModal()"
-            matTooltip="Close"
-            matTooltipPosition="left"
+            fbTooltip="Close"
+            fbTooltipPosition="left"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>

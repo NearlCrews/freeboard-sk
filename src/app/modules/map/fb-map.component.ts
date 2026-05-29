@@ -19,12 +19,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
   FbFabComponent,
   FbIconComponent,
   FbMenuService,
+  FbTooltipDirective,
   type FbMenuTemplateContext,
   type FbMenuTemplateRef
 } from 'src/app/design-system/primitives';
@@ -139,9 +139,9 @@ const POSITIONABLE_OVERLAY_TYPES = new Set(['ais', 'aton', 'aircraft']);
 @Component({
   selector: 'fb-map',
   imports: [
-    MatTooltipModule,
-    FbIconComponent,
     FbFabComponent,
+    FbIconComponent,
+    FbTooltipDirective,
     CoordsPipe,
     FreeboardOpenlayersModule,
     PopoverComponent

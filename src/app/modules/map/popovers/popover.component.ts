@@ -10,13 +10,13 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { CountryFlagComponent } from 'src/app/lib/components/country-flags.component';
 import { AppFacade } from 'src/app/app.facade';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 /*********** Popover ***************
@@ -31,7 +31,7 @@ measure: boolean= measure mode;
     CommonModule,
     FbButtonComponent,
     FbIconComponent,
-    MatTooltipModule,
+    FbTooltipDirective,
     CountryFlagComponent
   ],
   template: `
@@ -78,7 +78,7 @@ measure: boolean= measure mode;
             <fb-button
               variant="ghost"
               ariaLabel="Navigate to here"
-              matTooltip="Navigate to here"
+              fbTooltip="Navigate to here"
               (pressed)="handleNavTo()"
             >
               <fb-icon name="near_me" ariaLabel=""></fb-icon>

@@ -10,7 +10,6 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RemarkModule } from 'ngx-remark';
 
@@ -22,7 +21,8 @@ import {
   FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbListItemComponent,
-  FbNavListComponent
+  FbNavListComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -42,7 +42,6 @@ import { MatDialog } from '@angular/material/dialog';
   selector: 'region-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,
     FbExpansionPanelComponent,
@@ -52,6 +51,7 @@ import { MatDialog } from '@angular/material/dialog';
     FbInfoPanelLayoutComponent,
     FbListItemComponent,
     FbNavListComponent,
+    FbTooltipDirective,
     RemarkModule
   ],
   templateUrl: `region-panel.html`,

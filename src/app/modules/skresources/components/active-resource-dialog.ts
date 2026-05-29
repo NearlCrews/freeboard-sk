@@ -6,7 +6,6 @@ import {
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -17,7 +16,8 @@ import {
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
@@ -40,12 +40,12 @@ interface CoordinatesMetaEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
     FbToolbarComponent,
+    FbTooltipDirective,
     CdkDrag,
     CdkDropList
   ],
@@ -59,7 +59,7 @@ interface CoordinatesMetaEntry {
                 <fb-button
                   variant="ghost"
                   (pressed)="deactivate()"
-                  [matTooltip]="clearButtonText"
+                  [fbTooltip]="clearButtonText"
                 >
                   <fb-icon name="clear_all" ariaLabel=""></fb-icon>
                   Clear
@@ -68,7 +68,7 @@ interface CoordinatesMetaEntry {
                 <fb-button
                   variant="primary"
                   (pressed)="startAt()"
-                  matTooltip="Start at nearest point."
+                  fbTooltip="Start at nearest point."
                 >
                   <fb-icon name="near_me" ariaLabel=""></fb-icon>
                   Start
@@ -87,8 +87,8 @@ interface CoordinatesMetaEntry {
               variant="ghost"
               ariaLabel="Close"
               (pressed)="close()"
-              matTooltip="Close"
-              matTooltipPosition="below"
+              fbTooltip="Close"
+              fbTooltipPosition="below"
             >
               <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
             </fb-button>
@@ -130,7 +130,7 @@ interface CoordinatesMetaEntry {
                         <fb-button
                           variant="ghost"
                           ariaLabel="Go to"
-                          matTooltip="Go to"
+                          fbTooltip="Go to"
                           (pressed)="startAt(i)"
                         >
                           <fb-icon name="near_me" ariaLabel=""></fb-icon>
@@ -169,7 +169,7 @@ interface CoordinatesMetaEntry {
                   @if (!readOnly && data.type === 'route') {
                     <div
                       cdkDragHandle
-                      matTooltip="Drag to re-order points"
+                      fbTooltip="Drag to re-order points"
                       style="cursor:grab"
                     >
                       <fb-icon name="drag_indicator" ariaLabel=""></fb-icon>

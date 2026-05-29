@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 
 import {
@@ -22,6 +21,7 @@ import {
   FbIconComponent,
   FbMenuService,
   FbSwitchComponent,
+  FbTooltipDirective,
   type FbMenuItem
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
@@ -34,14 +34,14 @@ import { alertSeverityClass } from './alert-severity';
 @Component({
   selector: 'alert-list',
   imports: [
-    MatTooltipModule,
     CommonModule,
     FormsModule,
     CdkDrag,
     FbButtonComponent,
     FbCardComponent,
     FbIconComponent,
-    FbSwitchComponent
+    FbSwitchComponent,
+    FbTooltipDirective
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./alert-list.component.css'],
@@ -53,7 +53,7 @@ import { alertSeverityClass } from './alert-severity';
             <div>
               <fb-button
                 variant="danger"
-                matTooltip="Raise Alarm"
+                fbTooltip="Raise Alarm"
                 ariaLabel="Raise alarm"
                 (pressed)="openAlarmsMenu($event)"
               >
@@ -76,7 +76,7 @@ import { alertSeverityClass } from './alert-severity';
           <div class="flex">
             <fb-button
               variant="ghost"
-              matTooltip="Silence All"
+              fbTooltip="Silence All"
               ariaLabel="Silence all alerts"
               (pressed)="silenceAll()"
             >
@@ -89,7 +89,7 @@ import { alertSeverityClass } from './alert-severity';
             &nbsp; &nbsp;
             <div>
               <fb-switch
-                matTooltip="Sound on /off"
+                fbTooltip="Sound on /off"
                 ariaLabel="Toggle alert sound"
                 [checked]="!this.app.config.display.muteSound"
                 (checkedChange)="togglePlaySound()"
@@ -98,7 +98,7 @@ import { alertSeverityClass } from './alert-severity';
             &nbsp;
             <fb-button
               variant="ghost"
-              matTooltip="Close"
+              fbTooltip="Close"
               ariaLabel="Close alert list"
               (pressed)="handleClose()"
             >
@@ -147,8 +147,8 @@ import { alertSeverityClass } from './alert-severity';
                     ) {
                       <fb-button
                         variant="ghost"
-                        [matTooltip]="item[1].silenced ? 'Silenced' : 'Silence'"
-                        matTooltipPosition="below"
+                        [fbTooltip]="item[1].silenced ? 'Silenced' : 'Silence'"
+                        fbTooltipPosition="below"
                         [ariaLabel]="
                           item[1].silenced ? 'Alert silenced' : 'Silence alert'
                         "
@@ -174,8 +174,8 @@ import { alertSeverityClass } from './alert-severity';
                       @if (!item[1].acknowledged) {
                         <fb-button
                           variant="ghost"
-                          matTooltip="Acknowledge"
-                          matTooltipPosition="below"
+                          fbTooltip="Acknowledge"
+                          fbTooltipPosition="below"
                           ariaLabel="Acknowledge alert"
                           [disabled]="item[1].acknowledged"
                           (pressed)="ackAlert(item[1].path)"
@@ -186,8 +186,8 @@ import { alertSeverityClass } from './alert-severity';
                         @if (item[1].canCancel) {
                           <fb-button
                             variant="ghost"
-                            matTooltip="Clear / Cancel"
-                            matTooltipPosition="below"
+                            fbTooltip="Clear / Cancel"
+                            fbTooltipPosition="below"
                             ariaLabel="Clear alert"
                             [disabled]="!item[1].acknowledged"
                             (pressed)="clearAlert(item[1].path)"

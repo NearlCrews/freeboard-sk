@@ -5,15 +5,14 @@ import {
   input,
   inject
 } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import {
   FbCardComponent,
   FbCardContentComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -25,11 +24,11 @@ import { SKResourceService } from '../../resources.service';
   selector: 'ap-chartlayers',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     DragDropModule,
     FbCardComponent,
     FbCardContentComponent,
-    FbIconComponent
+    FbIconComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-chartlayers">
@@ -61,7 +60,7 @@ import { SKResourceService } from '../../resources.service';
                     >
                       {{ ch[1].name }}
                     </div>
-                    <div cdkDragHandle matTooltip="Drag to re-order charts">
+                    <div cdkDragHandle fbTooltip="Drag to re-order charts">
                       <fb-icon name="drag_indicator" ariaLabel=""></fb-icon>
                     </div>
                   </div>

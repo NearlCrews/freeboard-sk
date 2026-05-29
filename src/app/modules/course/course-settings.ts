@@ -10,7 +10,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
@@ -23,6 +22,7 @@ import {
   FbSelectComponent,
   FbSwitchComponent,
   FbToolbarComponent,
+  FbTooltipDirective,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
@@ -58,14 +58,14 @@ interface CoursePutResponse {
   selector: 'ap-course-modal',
   imports: [
     FormsModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbDatepickerComponent,
     FbIconComponent,
     FbInputComponent,
     FbSelectComponent,
     FbSwitchComponent,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-course">
@@ -82,8 +82,8 @@ interface CoursePutResponse {
             size="sm"
             ariaLabel="Close"
             (pressed)="closeModal()"
-            matTooltip="Close"
-            matTooltipPosition="below"
+            fbTooltip="Close"
+            fbTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>
@@ -105,7 +105,7 @@ interface CoursePutResponse {
               (valueChange)="onArrivalCircleChange($event)"
               placeholder="100"
               ariaLabel="Arrival circle radius"
-              matTooltip="Enter Arrival circle radius"
+              fbTooltip="Enter Arrival circle radius"
             ></fb-input>
             <span>{{ renderSymbol(app.config.units.distance) }}</span>
           </div>

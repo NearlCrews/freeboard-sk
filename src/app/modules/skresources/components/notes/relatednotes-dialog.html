@@ -11,7 +11,7 @@
       variant="ghost"
       fbToolbarActions
       (pressed)="dialogRef.close({ result: false })"
-      matTooltip="Close"
+      fbTooltip="Close"
       ariaLabel="Close"
     >
       <fb-icon name="close" ariaLabel=""></fb-icon>
@@ -71,7 +71,7 @@
           <fb-button
             variant="ghost"
             (pressed)="openNoteUrl(n[1].url)"
-            matTooltip="Open linked URL in a new tab"
+            fbTooltip="Open linked URL in a new tab"
             ariaLabel="Open link"
           >
             <fb-icon name="open_in_new" ariaLabel=""></fb-icon>
@@ -81,7 +81,7 @@
             variant="ghost"
             [disabled]="data.readOnly"
             (pressed)="editNote(n[0])"
-            matTooltip="Edit note"
+            fbTooltip="Edit note"
             ariaLabel="Edit"
           >
             <fb-icon name="edit" ariaLabel=""></fb-icon>
@@ -90,7 +90,7 @@
             variant="ghost"
             [disabled]="data.readOnly"
             (pressed)="deleteNote(n[0])"
-            matTooltip="Delete note"
+            fbTooltip="Delete note"
             ariaLabel="Delete"
           >
             <fb-icon name="delete" ariaLabel=""></fb-icon>

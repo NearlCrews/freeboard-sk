@@ -16,7 +16,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
@@ -26,6 +25,7 @@ import {
   FbIconComponent,
   FbMenuService,
   FbSwitchComponent,
+  FbTooltipDirective,
   type FbMenuItem
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
@@ -35,7 +35,6 @@ import { AutopilotService } from './autopilot.service';
 @Component({
   selector: 'autopilot-console',
   imports: [
-    MatTooltipModule,
     CommonModule,
     DragDropModule,
     FbButtonComponent,
@@ -43,7 +42,8 @@ import { AutopilotService } from './autopilot.service';
     FormsModule,
     FbCardComponent,
     FbCardContentComponent,
-    FbIconComponent
+    FbIconComponent,
+    FbTooltipDirective
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./autopilot.component.css'],
@@ -59,7 +59,7 @@ import { AutopilotService } from './autopilot.service';
             <button
               type="button"
               class="icon-warn close-btn"
-              matTooltip="Close"
+              fbTooltip="Close"
               aria-label="Close autopilot console"
               (click)="handleClose()"
             >
@@ -137,7 +137,7 @@ import { AutopilotService } from './autopilot.service';
                         ? 'Disengage autopilot'
                         : 'Engage autopilot'
                     "
-                    [matTooltip]="apData().enabled ? 'Disengage' : 'Engage'"
+                    [fbTooltip]="apData().enabled ? 'Disengage' : 'Engage'"
                   ></fb-switch>
                 }
               </div>

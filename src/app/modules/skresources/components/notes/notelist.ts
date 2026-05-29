@@ -1,7 +1,8 @@
 import type { OnInit, OnChanges } from '@angular/core';
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import {
   Component,
@@ -12,7 +13,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -45,8 +45,8 @@ interface GroupChip {
   imports: [
     FbButtonComponent,
     FbIconComponent,
+    FbTooltipDirective,
     CommonModule,
-    MatTooltipModule,
     ScrollingModule
   ]
 })

@@ -3,8 +3,8 @@
     <fb-button
       variant="ghost"
       (pressed)="onClose()"
-      matTooltip="Close notes"
-      matTooltipPosition="right"
+      fbTooltip="Close notes"
+      fbTooltipPosition="right"
       ariaLabel="Close notes"
     >
       <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -14,8 +14,8 @@
       <fb-button
         variant="ghost"
         (pressed)="onRefresh()"
-        matTooltip="Reload notes"
-        matTooltipPosition="below"
+        fbTooltip="Reload notes"
+        fbTooltipPosition="below"
         ariaLabel="Reload notes"
       >
         <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -25,8 +25,8 @@
         class="action-toggle"
         [class.active]="showNotesOnMap()"
         (pressed)="toggleMapDisplay()"
-        matTooltip="Show notes on map"
-        matTooltipPosition="below"
+        fbTooltip="Show notes on map"
+        fbTooltipPosition="below"
         [attr.aria-pressed]="showNotesOnMap()"
         ariaLabel="Show notes on map"
       >
@@ -130,7 +130,7 @@
               variant="secondary"
               [disabled]="selectedNoteReadOnly()"
               (pressed)="onEdit()"
-              matTooltip="Edit note"
+              fbTooltip="Edit note"
             >
               <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
@@ -140,7 +140,7 @@
               class="danger"
               [disabled]="selectedNoteReadOnly()"
               (pressed)="onDelete()"
-              matTooltip="Delete note"
+              fbTooltip="Delete note"
             >
               <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete

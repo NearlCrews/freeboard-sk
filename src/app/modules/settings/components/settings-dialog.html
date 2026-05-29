@@ -37,7 +37,7 @@
                   </label>
                   <fb-select
                     name="display-darkmode"
-                    matTooltip="Dark Mode setting."
+                    fbTooltip="Dark Mode setting."
                     [options]="mapToNumberOptions(options.darkMode)"
                     [value]="facade.settings.display.darkMode.source"
                     (valueChange)="onDarkModeSource($event)"
@@ -49,7 +49,7 @@
                     [(checked)]="facade.settings.display.nightMode"
                     (checkedChange)="persistModel()"
                     ariaLabel="Auto-set Night Mode"
-                    matTooltip="Auto-set using environment.mode value."
+                    fbTooltip="Auto-set using environment.mode value."
                   >
                     Auto-set Night Mode
                   </fb-checkbox>
@@ -72,7 +72,7 @@
                     [(checked)]="facade.settings.display.disableWakelock"
                     (checkedChange)="doWakelock($event)"
                     ariaLabel="Allow Device to Sleep"
-                    matTooltip="Disable wake lock."
+                    fbTooltip="Disable wake lock."
                   >
                     Allow Device to Sleep
                   </fb-checkbox>
@@ -115,7 +115,7 @@
                     [(checked)]="facade.settings.display.plugins.startOnOpen"
                     (checkedChange)="persistModel('pluginStartOnOpen')"
                     ariaLabel="Halt App on hide"
-                    matTooltip="Stop instrument app when hidden"
+                    fbTooltip="Stop instrument app when hidden"
                   >
                     Halt App on hide
                   </fb-checkbox>
@@ -161,7 +161,7 @@
                     [(checked)]="facade.settings.display.muteSound"
                     (checkedChange)="persistModel()"
                     ariaLabel="Do not Play Sounds"
-                    matTooltip="Do not play sounds"
+                    fbTooltip="Do not play sounds"
                   >
                     Do not Play Sounds
                   </fb-checkbox>
@@ -181,7 +181,7 @@
                   </label>
                   <fb-select
                     name="alarm-smoothing"
-                    matTooltip="Period of time out of alarm state before re-triggering."
+                    fbTooltip="Period of time out of alarm state before re-triggering."
                     [disabled]="!facade.settings.display.depthAlarm.enabled"
                     [options]="mapToNumberOptions(options.alarm.smoothing)"
                     [value]="facade.settings.display.depthAlarm.smoothing"
@@ -211,7 +211,7 @@
                         [(checked)]="facade.settings.units.useServerPrefs"
                         (checkedChange)="raiseChange();persistModel()"
                         ariaLabel="Use Server Unit Preferences"
-                        matTooltip="Use the unit preferences configured on the server."
+                        fbTooltip="Use the unit preferences configured on the server."
                       >
                         Use Server Unit Preferences
                       </fb-checkbox>
@@ -370,7 +370,7 @@
                     [(checked)]="facade.settings.map.popoverMulti"
                     (checkedChange)="persistModel()"
                     ariaLabel="Popovers close with button"
-                    matTooltip="Add close button to popovers"
+                    fbTooltip="Add close button to popovers"
                   >
                     Popovers close with button
                   </fb-checkbox>
@@ -380,7 +380,7 @@
                     [(checked)]="facade.settings.map.doubleClickZoom"
                     (checkedChange)="persistModel()"
                     ariaLabel="Double click to Zoom"
-                    matTooltip="Double Click map to zoom"
+                    fbTooltip="Double Click map to zoom"
                   >
                     Double click to Zoom
                   </fb-checkbox>
@@ -390,7 +390,7 @@
                     [(checked)]="facade.settings.map.overZoomTiles"
                     (checkedChange)="persistModel()"
                     ariaLabel="Keep tiles visible on max zoom"
-                    matTooltip="Keep tiles visible when zooming past chart maxZoom"
+                    fbTooltip="Keep tiles visible when zooming past chart maxZoom"
                   >
                     Keep tiles visible on max zoom
                   </fb-checkbox>
@@ -400,7 +400,7 @@
                     [(checked)]="facade.settings.map.lockMoveMap"
                     (checkedChange)="persistModel()"
                     ariaLabel="Lock Follow Vessel"
-                    matTooltip="Do not exit follow vessel when map is panned."
+                    fbTooltip="Do not exit follow vessel when map is panned."
                   >
                     Lock Follow Vessel
                   </fb-checkbox>
@@ -591,7 +591,7 @@
                   </label>
                   <fb-select
                     name="course-trigger"
-                    matTooltip="Select the trigger for advancing to next point."
+                    fbTooltip="Select the trigger for advancing to next point."
                     [disabled]="!facade.settings.course.autoNextPointOnArrival"
                     [options]="listToOptions(options.course.nextPointTrigger)"
                     [value]="facade.settings.course.autoNextPointTrigger"
@@ -606,7 +606,7 @@
                   </label>
                   <fb-select
                     name="course-next-point-delay"
-                    matTooltip="Period of time before destination is advanced to next waypoint."
+                    fbTooltip="Period of time before destination is advanced to next waypoint."
                     [disabled]="!facade.settings.course.autoNextPointOnArrival"
                     [options]="mapToNumberOptions(options.course.nextPointDelay)"
                     [value]="facade.settings.course.autoNextPointDelay"
@@ -660,7 +660,7 @@
                       [(checked)]="facade.settings.vessels.fixedLocationMode"
                       (checkedChange)="persistModel()"
                       ariaLabel="Fixed Location Mode"
-                      matTooltip="e.g. Building, Camp, etc."
+                      fbTooltip="e.g. Building, Camp, etc."
                     >
                       Fixed Location Mode
                     </fb-checkbox>
@@ -755,7 +755,7 @@
                             </label>
                             <fb-select
                               name="vessel-heading-line"
-                              matTooltip="Length of heading line."
+                              fbTooltip="Length of heading line."
                               [options]="mapToNumberOptions(options.vessel.headingLine)"
                               [value]="facade.settings.vessels.selfLines.heading.length"
                               (valueChange)="onHeadingLineLength($event)"
@@ -785,7 +785,7 @@
                             </label>
                             <fb-select
                               name="vessel-cog-line"
-                              matTooltip="Length of COG line."
+                              fbTooltip="Length of COG line."
                               [options]="mapToNumberOptions(options.vessel.cogLine)"
                               [value]="facade.settings.vessels.selfLines.cog.length"
                               (valueChange)="onCogLineLength($event)"
@@ -903,7 +903,7 @@
                         [(checked)]="facade.settings.vessels.trailFromServer"
                         (checkedChange)="persistModel('trailFromServer')"
                         ariaLabel="Get Track from server"
-                        matTooltip="Select to source trail data from the server"
+                        fbTooltip="Select to source trail data from the server"
                       >
                         Get Track from server
                       </fb-checkbox>
@@ -1147,7 +1147,7 @@
                     [(checked)]="facade.settings.resources.notes.groupNameEdit"
                     (checkedChange)="persistModel()"
                     ariaLabel="Edit Group Names"
-                    matTooltip="Allow group name editing."
+                    fbTooltip="Allow group name editing."
                   >
                     Edit Group Names
                   </fb-checkbox>
@@ -1157,7 +1157,7 @@
                     [(checked)]="facade.settings.resources.notes.groupRequiresPosition"
                     (checkedChange)="persistModel()"
                     ariaLabel="Position Group Note"
-                    matTooltip="Require position information when adding notes to a group."
+                    fbTooltip="Require position information when adding notes to a group."
                   >
                     Position Group Note
                   </fb-checkbox>
@@ -1176,7 +1176,7 @@
                     Select custom resource types (./resources/&lt;name&gt;)
                   </div>
                   <fb-selection-list
-                    matTooltip="Select resource layers to show."
+                    fbTooltip="Select resource layers to show."
                     [options]="resourcePathOptions()"
                     [values]="resourcePathValues()"
                     (valuesChange)="onResPathSelected($event)"
@@ -1208,7 +1208,7 @@
                       [(checked)]="facade.settings.signalk.vessels"
                       (checkedChange)="persistModel()"
                       ariaLabel="Vessels (other than Self)"
-                      matTooltip="Check to receive other vessel data"
+                      fbTooltip="Check to receive other vessel data"
                     >
                       Vessels (other than Self)
                     </fb-checkbox>
@@ -1218,8 +1218,8 @@
                       [(checked)]="facade.settings.signalk.atons"
                       (checkedChange)="persistModel()"
                       ariaLabel="Aids to Navigation (AtoN)"
-                      matTooltip="Check to receive AtoN data"
-                      matTooltipPosition="below"
+                      fbTooltip="Check to receive AtoN data"
+                      fbTooltipPosition="below"
                     >
                       Aids to Navigation (AtoN)
                     </fb-checkbox>
@@ -1229,8 +1229,8 @@
                       [(checked)]="facade.settings.signalk.aircraft"
                       (checkedChange)="persistModel()"
                       ariaLabel="Aircraft"
-                      matTooltip="Check to receive aircraft data"
-                      matTooltipPosition="below"
+                      fbTooltip="Check to receive aircraft data"
+                      fbTooltipPosition="below"
                     >
                       Aircraft
                     </fb-checkbox>
@@ -1240,8 +1240,8 @@
                       [(checked)]="facade.settings.signalk.sar"
                       (checkedChange)="persistModel()"
                       ariaLabel="Search and Rescue (SaR)"
-                      matTooltip="Check to receive SaR data"
-                      matTooltipPosition="below"
+                      fbTooltip="Check to receive SaR data"
+                      fbTooltipPosition="below"
                     >
                       Search and Rescue (SaR)
                     </fb-checkbox>
@@ -1251,8 +1251,8 @@
                       [(checked)]="facade.settings.signalk.meteo"
                       (checkedChange)="persistModel()"
                       ariaLabel="Weather (Meteo)"
-                      matTooltip="Check to receive Weather / Meteo data"
-                      matTooltipPosition="below"
+                      fbTooltip="Check to receive Weather / Meteo data"
+                      fbTooltipPosition="below"
                     >
                       Weather (Meteo)
                     </fb-checkbox>
@@ -1268,8 +1268,8 @@
                       [options]="mapToNumberOptions(options.vessel.aisMaxRadius)"
                       [value]="facade.settings.signalk.maxRadius"
                       (valueChange)="onSignalkMaxRadius($event)"
-                      matTooltip="Only include AIS targets within this distance"
-                      matTooltipPosition="below"
+                      fbTooltip="Only include AIS targets within this distance"
+                      fbTooltipPosition="below"
                       ariaLabel="Max. distance from vessel"
                     ></fb-select>
                   </div>
@@ -1281,7 +1281,7 @@
                     variant="ghost"
                     size="sm"
                     ariaLabel="Clear auth token"
-                    matTooltip="Clear Auth Token"
+                    fbTooltip="Clear Auth Token"
                     (pressed)="clearAuthToken()"
                   >
                     <fb-icon name="key_off"></fb-icon>
@@ -1340,7 +1340,7 @@
                     [(checked)]="facade.settings.experiments"
                     (checkedChange)="persistModel()"
                     ariaLabel="Experimental Features"
-                    matTooltip="Enable ALL experimental Features"
+                    fbTooltip="Enable ALL experimental Features"
                   >
                     <fb-icon name="science"></fb-icon> Experimental Features
                   </fb-checkbox>

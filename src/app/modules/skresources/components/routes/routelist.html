@@ -7,8 +7,8 @@
             <fb-button
               variant="ghost"
               (pressed)="close()"
-              matTooltip="Close Route List"
-              matTooltipPosition="right"
+              fbTooltip="Close Route List"
+              fbTooltipPosition="right"
               ariaLabel="Close Route List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -33,8 +33,8 @@
             variant="ghost"
             [disabled]="disableRefresh"
             (pressed)="initItems()"
-            matTooltip="Reload Routes"
-            matTooltipPosition="below"
+            fbTooltip="Reload Routes"
+            fbTooltipPosition="below"
             ariaLabel="Reload Routes"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -47,8 +47,8 @@
             [checked]="allSel"
             [indeterminate]="someSel"
             (checkedChange)="toggleAll($event)"
-            [matTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
-            matTooltipPosition="below"
+            [fbTooltip]="(!selall.checked() || someSel) ? 'Select All' : 'Deselect All'"
+            fbTooltipPosition="below"
           >
           </fb-checkbox>
         </div>
@@ -108,8 +108,8 @@
                 [checked]="r[2]"
                 [disabled]="r[0] === activeRoute() || disableRefresh"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Show on Map"
-                matTooltipPosition="left"
+                fbTooltip="Show on Map"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -122,8 +122,8 @@
                 variant="ghost"
                 (pressed)="itemDelete(r[0])"
                 [disabled]="r[0] === activeRoute() || disableRefresh"
-                matTooltip="Delete Route"
-                matTooltipPosition="above"
+                fbTooltip="Delete Route"
+                fbTooltipPosition="above"
                 ariaLabel="Delete Route"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
@@ -131,8 +131,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemViewNotes(r)"
-                matTooltip="Route notes"
-                matTooltipPosition="above"
+                fbTooltip="Route notes"
+                fbTooltipPosition="above"
                 ariaLabel="Route notes"
               >
                 <fb-icon name="local_offer" ariaLabel=""></fb-icon>
@@ -141,8 +141,8 @@
                 variant="ghost"
                 [disabled]="disableRefresh"
                 (pressed)="itemViewPoints(r[0])"
-                matTooltip="Route points"
-                matTooltipPosition="above"
+                fbTooltip="Route points"
+                fbTooltipPosition="above"
                 ariaLabel="Route points"
               >
                 <fb-icon name="flag" ariaLabel=""></fb-icon>
@@ -152,8 +152,8 @@
                 variant="ghost"
                 [disabled]="disableRefresh"
                 (pressed)="itemSetActive(r[0])"
-                matTooltip="Start"
-                matTooltipPosition="above"
+                fbTooltip="Start"
+                fbTooltipPosition="above"
                 ariaLabel="Start"
               >
                 <fb-icon name="near_me" ariaLabel=""></fb-icon>
@@ -163,8 +163,8 @@
                 variant="ghost"
                 [disabled]="disableRefresh"
                 (pressed)="itemClearActive(r[0])"
-                matTooltip="Clear Active Route"
-                matTooltipPosition="above"
+                fbTooltip="Clear Active Route"
+                fbTooltipPosition="above"
                 ariaLabel="Clear Active Route"
               >
                 <fb-icon name="clear_all" ariaLabel=""></fb-icon>
@@ -176,8 +176,8 @@
                 variant="ghost"
                 [disabled]="disableRefresh"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Edit Route Properties"
-                matTooltipPosition="above"
+                fbTooltip="Edit Route Properties"
+                fbTooltipPosition="above"
                 ariaLabel="Edit Route Properties"
               >
                 <fb-icon name="edit" ariaLabel=""></fb-icon>
@@ -189,8 +189,8 @@
                 variant="ghost"
                 [disabled]="disableRefresh"
                 (pressed)="itemAddToGroup(r[0])"
-                matTooltip="Add to Group"
-                matTooltipPosition="above"
+                fbTooltip="Add to Group"
+                fbTooltipPosition="above"
                 ariaLabel="Add to Group"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>

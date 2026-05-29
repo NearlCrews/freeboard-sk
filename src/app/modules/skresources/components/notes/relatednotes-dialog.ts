@@ -5,13 +5,13 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RemarkModule } from 'ngx-remark';
 
 import {
   FbButtonComponent,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -32,8 +32,8 @@ interface DialogData {
     FbButtonComponent,
     FbIconComponent,
     MatDialogModule,
-    MatTooltipModule,
     FbToolbarComponent,
+    FbTooltipDirective,
     RemarkModule
   ],
   templateUrl: `relatednotes-dialog.html`,

@@ -10,14 +10,13 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -29,12 +28,12 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
   selector: 'ap-aton-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
     FbToolbarComponent,
+    FbTooltipDirective,
     SignalKDetailsComponent
   ],
   template: `
@@ -51,8 +50,8 @@ import { SignalKDetailsComponent } from '../../components/signalk-details.compon
             variant="ghost"
             ariaLabel="Close"
             (pressed)="modalRef.dismiss()"
-            matTooltip="Close"
-            matTooltipPosition="below"
+            fbTooltip="Close"
+            fbTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>

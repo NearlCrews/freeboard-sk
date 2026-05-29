@@ -41,7 +41,7 @@
         size="sm"
         [disabled]="!!_waypoint()?.feature?.properties?.['readOnly']"
         (pressed)="onEdit()"
-        matTooltip="Edit Waypoint"
+        fbTooltip="Edit Waypoint"
       >
         <fb-icon name="edit" ariaLabel=""></fb-icon>
         Edit
@@ -50,7 +50,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onInfo()"
-        matTooltip="Show properties"
+        fbTooltip="Show properties"
       >
         <fb-icon name="description" ariaLabel=""></fb-icon>
         Info
@@ -60,7 +60,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onGoto()"
-        matTooltip="Navigate To"
+        fbTooltip="Navigate To"
       >
         <fb-icon name="near_me" ariaLabel=""></fb-icon>
         Go to
@@ -70,7 +70,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onGoto(true)"
-        matTooltip="Clear Destination"
+        fbTooltip="Clear Destination"
       >
         <fb-icon name="clear_all" ariaLabel=""></fb-icon>
         Clear
@@ -80,7 +80,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onAddNote()"
-        matTooltip="Add note here"
+        fbTooltip="Add note here"
       >
         <fb-icon name="local_offer" ariaLabel=""></fb-icon>
         Add Note
@@ -89,7 +89,7 @@
         variant="secondary"
         size="sm"
         (pressed)="onPanTo()"
-        matTooltip="Centre Waypoint"
+        fbTooltip="Centre Waypoint"
       >
         <fb-icon name="my_location" ariaLabel=""></fb-icon>
         Centre
@@ -102,7 +102,7 @@
           app.data.activeWaypoint === id()
         "
         (pressed)="onDelete()"
-        matTooltip="Delete Waypoint"
+        fbTooltip="Delete Waypoint"
       >
         <fb-icon name="delete" ariaLabel=""></fb-icon>
         Delete

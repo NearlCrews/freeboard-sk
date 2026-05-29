@@ -10,11 +10,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbFabComponent,
   FbMenuService,
+  FbTooltipDirective,
   type FbMenuItem
 } from 'src/app/design-system/primitives';
 
@@ -22,15 +21,15 @@ import {
 @Component({
   selector: 'fb-experiments',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FbFabComponent, MatTooltipModule],
+  imports: [FbFabComponent, FbTooltipDirective],
   template: `
     <div>
       <fb-fab
         variant="secondary"
         icon="science"
         ariaLabel="Experiments menu"
-        matTooltip="Experiments"
-        matTooltipPosition="left"
+        fbTooltip="Experiments"
+        fbTooltipPosition="left"
         (pressed)="openExperimentsMenu($event)"
       ></fb-fab>
     </div>

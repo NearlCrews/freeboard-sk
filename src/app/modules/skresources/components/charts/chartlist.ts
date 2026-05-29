@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -24,8 +23,9 @@ import {
   FbIconComponent,
   FbMenuService,
   FbProgressBarComponent,
-  FbSwitchRowComponent,
   FbSearchInputComponent,
+  FbSwitchRowComponent,
+  FbTooltipDirective,
   type FbMenuItem
 } from 'src/app/design-system/primitives';
 
@@ -56,7 +56,6 @@ import { SKChart } from '../../resource-classes';
   styleUrls: ['../resourcelist.css'],
   imports: [
     FbButtonComponent,
-    MatTooltipModule,
     ScrollingModule,
     ChartLayers,
     FbCardComponent,
@@ -67,7 +66,8 @@ import { SKChart } from '../../resource-classes';
     FbIconComponent,
     FbProgressBarComponent,
     FbSwitchRowComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbTooltipDirective
   ]
 })
 export class ChartListComponent extends ResourceListBase implements OnInit {

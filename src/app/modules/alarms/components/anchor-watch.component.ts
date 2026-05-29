@@ -14,7 +14,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { NSEWButtonsComponent } from './nsew-buttons.component';
 
@@ -31,7 +30,8 @@ import {
   FbStepComponent,
   FbStepperComponent,
   FbStepActionsDirective,
-  FbSwitchComponent
+  FbSwitchComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AnchorService } from '../anchor.service';
@@ -44,7 +44,6 @@ import { GeoUtils } from 'src/app/lib/geoutils';
   selector: 'anchor-watch',
   imports: [
     FormsModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardHeaderComponent,
@@ -58,6 +57,7 @@ import { GeoUtils } from 'src/app/lib/geoutils';
     FbStepperComponent,
     FbStepActionsDirective,
     FbSwitchComponent,
+    FbTooltipDirective,
     NSEWButtonsComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

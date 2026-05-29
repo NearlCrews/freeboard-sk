@@ -5,22 +5,24 @@ import {
   inject,
   input
 } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { FbFabComponent } from 'src/app/design-system/primitives';
+import {
+  FbFabComponent,
+  FbTooltipDirective
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { RadarAPIService } from 'src/app/modules/radar/radar-api.service';
 
 @Component({
   selector: 'radar-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatTooltipModule, FbFabComponent],
+  imports: [FbFabComponent, FbTooltipDirective],
   template: `
     <fb-fab
       variant="primary"
       [svgName]="iconName()"
       ariaLabel="Toggle radar overlay"
-      matTooltip="Radar Overlay"
-      matTooltipPosition="above"
+      fbTooltip="Radar Overlay"
+      fbTooltipPosition="above"
       [disabled]="!active()"
       (pressed)="handleClick()"
     ></fb-fab>

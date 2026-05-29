@@ -13,14 +13,13 @@ import {
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
-
 import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { GeoJSONLoadFacade } from './geojson-dialog.facade';
@@ -32,12 +31,12 @@ import { AppFacade } from 'src/app/app.facade';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbIconComponent,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   templateUrl: './geojson-dialog.html',
   styleUrls: ['./geojson-dialog.css']

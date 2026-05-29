@@ -7,8 +7,8 @@
             <fb-button
               variant="ghost"
               (pressed)="close()"
-              matTooltip="Close Group List"
-              matTooltipPosition="right"
+              fbTooltip="Close Group List"
+              fbTooltipPosition="right"
               ariaLabel="Close Group List"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -32,8 +32,8 @@
           <fb-button
             variant="ghost"
             (pressed)="itemProperties(undefined)"
-            matTooltip="New Group"
-            matTooltipPosition="below"
+            fbTooltip="New Group"
+            fbTooltipPosition="below"
             ariaLabel="New Group"
           >
             <fb-icon name="add" ariaLabel=""></fb-icon>
@@ -41,8 +41,8 @@
           <fb-button
             variant="ghost"
             (pressed)="initItems()"
-            matTooltip="Reload Groups"
-            matTooltipPosition="below"
+            fbTooltip="Reload Groups"
+            fbTooltipPosition="below"
             ariaLabel="Reload Groups"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -92,8 +92,8 @@
                 [checked]="!!r[2]"
                 [disabled]="!!r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Display Group Resources"
-                matTooltipPosition="left"
+                fbTooltip="Display Group Resources"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -105,8 +105,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemDelete(r[0])"
-                matTooltip="Delete Group"
-                matTooltipPosition="above"
+                fbTooltip="Delete Group"
+                fbTooltipPosition="above"
                 ariaLabel="Delete Group"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
@@ -116,8 +116,8 @@
               <fb-button
                 variant="ghost"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Edit Group Properties"
-                matTooltipPosition="above"
+                fbTooltip="Edit Group Properties"
+                fbTooltipPosition="above"
                 ariaLabel="Edit Group Properties"
               >
                 <fb-icon name="edit" ariaLabel=""></fb-icon>

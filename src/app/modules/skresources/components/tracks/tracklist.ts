@@ -8,7 +8,6 @@ import {
   OnInit
 } from '@angular/core';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -20,7 +19,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbSearchInputComponent
+  FbSearchInputComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -38,7 +38,6 @@ import { RemarkModule } from 'ngx-remark';
   styleUrls: ['../resourcelist.css'],
   imports: [
     FbButtonComponent,
-    MatTooltipModule,
     ScrollingModule,
     RemarkModule,
     FbCardComponent,
@@ -48,7 +47,8 @@ import { RemarkModule } from 'ngx-remark';
     FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbSearchInputComponent
+    FbSearchInputComponent,
+    FbTooltipDirective
   ]
 })
 export class TrackListComponent extends ResourceListBase implements OnInit {

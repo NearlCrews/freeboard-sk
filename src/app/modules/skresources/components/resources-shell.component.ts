@@ -9,7 +9,6 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -17,6 +16,7 @@ import {
   FbFilterBarComponent,
   FbIconComponent,
   FbListPaneComponent,
+  FbTooltipDirective,
   type FbListPaneItem
 } from 'src/app/design-system/primitives';
 
@@ -113,10 +113,10 @@ const RESOURCE_KIND_META: Record<ResourceKind, ResourceKindMeta> = {
     FbButtonComponent,
     CommonModule,
     FbIconComponent,
-    MatTooltipModule,
     FbListPaneComponent,
     FbDetailPaneComponent,
     FbFilterBarComponent,
+    FbTooltipDirective,
     RoutePanel,
     WaypointPanel,
     RegionPanel

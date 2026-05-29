@@ -5,8 +5,8 @@
       <fb-button
         variant="primary"
         style="width: 85px"
-        matTooltip="Load selected resources"
-        matTooltipPosition="right"
+        fbTooltip="Load selected resources"
+        fbTooltipPosition="right"
         [disabled]="!display.loadRoutesOK && !display.loadWaypointsOK && !display.loadTracksOK"
         (pressed)="load()"
       >
@@ -88,8 +88,8 @@
                 [disabled]="gpxData.waypoints.length===0"
                 (checkedChange)="checkWpt($event, -1)"
                 (click)="$event.stopPropagation()"
-                matTooltip="Select all Waypoints"
-                matTooltipPosition="before"
+                fbTooltip="Select all Waypoints"
+                fbTooltipPosition="left"
               ></fb-checkbox>
             </span>
           </div>
@@ -103,8 +103,8 @@
               <fb-checkbox
                 [checked]="selWaypoints[i]"
                 (checkedChange)="checkWpt($event, i)"
-                matTooltip="Select Waypoint"
-                matTooltipPosition="below"
+                fbTooltip="Select Waypoint"
+                fbTooltipPosition="below"
               >
               </fb-checkbox>
             </div>
@@ -136,8 +136,8 @@
                 [disabled]="gpxData.routes.length==0"
                 (checkedChange)="checkRte($event, -1)"
                 (click)="$event.stopPropagation()"
-                matTooltip="Select all Routes"
-                matTooltipPosition="before"
+                fbTooltip="Select all Routes"
+                fbTooltipPosition="left"
               ></fb-checkbox>
             </span>
           </div>
@@ -149,8 +149,8 @@
             <div class="name">{{r.name}}</div>
             <div class="check">
               <fb-checkbox
-                matTooltip="Select this Route"
-                matTooltipPosition="below"
+                fbTooltip="Select this Route"
+                fbTooltipPosition="below"
                 [checked]="selRoutes[i]"
                 (checkedChange)="checkRte($event, i)"
               >
@@ -184,8 +184,8 @@
                 [disabled]="gpxData.tracks.length==0"
                 (checkedChange)="checkTrk($event, -1)"
                 (click)="$event.stopPropagation()"
-                matTooltip="Select all Tracks"
-                matTooltipPosition="before"
+                fbTooltip="Select all Tracks"
+                fbTooltipPosition="left"
               ></fb-checkbox>
             </span>
           </div>
@@ -197,8 +197,8 @@
             <div class="name">{{t.name}}</div>
             <div class="check">
               <fb-checkbox
-                matTooltip="Select this Track"
-                matTooltipPosition="below"
+                fbTooltip="Select this Track"
+                fbTooltipPosition="below"
                 [checked]="selTracks[i]"
                 (checkedChange)="checkTrk($event, i)"
               >

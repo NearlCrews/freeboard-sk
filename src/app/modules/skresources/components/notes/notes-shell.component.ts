@@ -9,7 +9,6 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -17,6 +16,7 @@ import {
   FbFilterBarComponent,
   FbIconComponent,
   FbListPaneComponent,
+  FbTooltipDirective,
   type FbFilterChip,
   type FbListPaneItem
 } from 'src/app/design-system/primitives';
@@ -61,10 +61,10 @@ const NAV_UNTAGGED = '__untagged';
     FbButtonComponent,
     CommonModule,
     FbIconComponent,
-    MatTooltipModule,
     FbListPaneComponent,
     FbDetailPaneComponent,
     FbFilterBarComponent,
+    FbTooltipDirective,
     NotePanel
   ],
   templateUrl: './notes-shell.component.html',

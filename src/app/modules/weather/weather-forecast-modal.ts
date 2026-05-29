@@ -10,16 +10,16 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA
 } from '@angular/material/bottom-sheet';
-import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
-import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import {
+  FbButtonComponent,
+  FbIconComponent,
   FbProgressBarComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -57,11 +57,11 @@ interface WeatherData {
   selector: 'weather-forecast-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbButtonComponent,
     FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent,
+    FbTooltipDirective,
     CoordsPipe
   ],
   template: `
@@ -78,8 +78,8 @@ interface WeatherData {
             variant="ghost"
             size="sm"
             ariaLabel="Close weather forecast"
-            matTooltip="Close"
-            matTooltipPosition="below"
+            fbTooltip="Close"
+            fbTooltipPosition="below"
             (pressed)="modalRef.dismiss()"
           >
             <fb-icon name="keyboard_arrow_down"></fb-icon>

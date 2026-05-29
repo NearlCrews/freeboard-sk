@@ -19,6 +19,7 @@ import {
   FbFormFieldComponent,
   FbIconComponent,
   FbSelectComponent,
+  FbTooltipDirective,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -31,7 +32,8 @@ import {
     FbDatepickerComponent,
     FbFormFieldComponent,
     FbIconComponent,
-    FbSelectComponent
+    FbSelectComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-playback">
@@ -91,7 +93,7 @@ import {
             <div>
               <fb-form-field #rateField label="Playback Rate" [widthPx]="150">
                 <fb-select
-                  matTooltip="Advance stream the selected number of seconds for every second of playback"
+                  fbTooltip="Advance stream the selected number of seconds for every second of playback"
                   [name]="rateField.controlId"
                   [options]="rateOptions"
                   [(value)]="playbackRate"

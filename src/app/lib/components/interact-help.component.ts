@@ -6,14 +6,14 @@ import {
   Signal
 } from '@angular/core';
 
-import { MatTooltip } from '@angular/material/tooltip';
 import { AppFacade } from 'src/app/app.facade';
 import { FBMapInteractService } from 'src/app/modules/map/fbmap-interact.service';
 import { Measurements } from './measurements.component';
 
 import {
   FbButtonComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
 // ********* Interaction Help Component ********
@@ -21,7 +21,12 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'fb-interact-help',
-  imports: [FbIconComponent, FbButtonComponent, MatTooltip, Measurements],
+  imports: [
+    FbIconComponent,
+    FbButtonComponent,
+    FbTooltipDirective,
+    Measurements
+  ],
   template: `
     <div class="mat-app-background _ap_interact_help">
       @if (showHelpPanel()) {
@@ -59,12 +64,12 @@ import {
               class="icon-warn"
               variant="primary"
               (pressed)="close()"
-              [matTooltip]="
+              [fbTooltip]="
                 mapInteract.isModifying()
                   ? 'Finish Editing'
                   : 'Cancel Operation'
               "
-              matTooltipPosition="left"
+              fbTooltipPosition="left"
             >
               <fb-icon name="close" ariaLabel="" class="icon-warn"></fb-icon>
               {{ mapInteract.isModifying() ? 'FINISH' : 'CANCEL' }}
@@ -74,7 +79,7 @@ import {
       }
       @if (showMeasurePanel()) {
         <fb-measurements
-          matTooltip="Click on the Map to start. Click cancel or the last point to end."
+          fbTooltip="Click on the Map to start. Click cancel or the last point to end."
           [coords]="mapInteract.measurement().coords"
           [index]="mapInteract.measurement().index"
           [totalOnly]="

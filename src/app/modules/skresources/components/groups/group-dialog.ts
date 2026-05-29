@@ -10,7 +10,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -29,6 +28,7 @@ import {
   FbTabsComponent,
   FbTextareaComponent,
   FbToolbarComponent,
+  FbTooltipDirective,
   type FbTabDef
 } from 'src/app/design-system/primitives';
 import type { SKResourceGroup } from './groups.service';
@@ -58,7 +58,6 @@ interface GroupItem {
   imports: [
     FormField,
     MatDialogModule,
-    MatTooltipModule,
     FbButtonComponent,
     FbCheckboxComponent,
     FbIconComponent,
@@ -68,7 +67,8 @@ interface GroupItem {
     FbTabPanelDirective,
     FbTabsComponent,
     FbTextareaComponent,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-group">
@@ -142,7 +142,7 @@ interface GroupItem {
                           variant="ghost"
                           size="sm"
                           ariaLabel="Remove"
-                          matTooltip="Remove"
+                          fbTooltip="Remove"
                           (pressed)="removeItem('route', i.id)"
                         >
                           <fb-icon
@@ -180,7 +180,7 @@ interface GroupItem {
                           variant="ghost"
                           size="sm"
                           ariaLabel="Remove"
-                          matTooltip="Remove"
+                          fbTooltip="Remove"
                           (pressed)="removeItem('waypoint', i.id)"
                         >
                           <fb-icon
@@ -218,7 +218,7 @@ interface GroupItem {
                           variant="ghost"
                           size="sm"
                           ariaLabel="Remove"
-                          matTooltip="Remove"
+                          fbTooltip="Remove"
                           (pressed)="removeItem('region', i.id)"
                         >
                           <fb-icon
@@ -249,7 +249,7 @@ interface GroupItem {
                           variant="ghost"
                           size="sm"
                           ariaLabel="Remove"
-                          matTooltip="Remove"
+                          fbTooltip="Remove"
                           (pressed)="removeItem('chart', i.id)"
                         >
                           <fb-icon
@@ -273,7 +273,7 @@ interface GroupItem {
             variant="primary"
             [disabled]="selTab === 0"
             (pressed)="addResources()"
-            matTooltip="Add Resource"
+            fbTooltip="Add Resource"
           >
             ADD
           </fb-button>

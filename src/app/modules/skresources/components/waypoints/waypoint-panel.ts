@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
@@ -24,7 +23,8 @@ import {
   FbExpansionPanelTitleDirective,
   FbIconComponent,
   FbListItemComponent,
-  FbNavListComponent
+  FbNavListComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -44,7 +44,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
   selector: 'waypoint-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbAccordionComponent,
     FbButtonComponent,
     FbExpansionPanelComponent,
@@ -54,6 +53,7 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
     FbInfoPanelLayoutComponent,
     FbListItemComponent,
     FbNavListComponent,
+    FbTooltipDirective,
     CoordsPipe,
     RemarkModule
   ],

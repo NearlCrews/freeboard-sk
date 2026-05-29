@@ -9,8 +9,8 @@
               size="sm"
               ariaLabel="Close waypoint list"
               (pressed)="close()"
-              matTooltip="Close Waypoint List"
-              matTooltipPosition="right"
+              fbTooltip="Close Waypoint List"
+              fbTooltipPosition="right"
             >
               <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
             </fb-button>
@@ -36,8 +36,8 @@
             ariaLabel="Reload waypoints"
             [disabled]="disableRefresh"
             (pressed)="initItems()"
-            matTooltip="Reload Waypoints"
-            matTooltipPosition="below"
+            fbTooltip="Reload Waypoints"
+            fbTooltipPosition="below"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
           </fb-button>
@@ -48,8 +48,8 @@
             [checked]="allSel"
             [indeterminate]="someSel"
             (checkedChange)="toggleAll($event)"
-            [matTooltip]="(!allSel || someSel) ? 'Select All' : 'Deselect All'"
-            matTooltipPosition="below"
+            [fbTooltip]="(!allSel || someSel) ? 'Select All' : 'Deselect All'"
+            fbTooltipPosition="below"
           >
           </fb-checkbox>
         </div>
@@ -89,8 +89,8 @@
                 [disabled]="r[0] === activeWaypoint() || disableRefresh"
                 [checked]="r[2]"
                 (checkedChange)="itemSelect($event, r[0])"
-                matTooltip="Show on Map"
-                matTooltipPosition="left"
+                fbTooltip="Show on Map"
+                fbTooltipPosition="left"
               >
               </fb-checkbox>
             </div>
@@ -105,8 +105,8 @@
                 ariaLabel="Delete waypoint"
                 [disabled]="r[0] === activeWaypoint() || disableRefresh"
                 (pressed)="itemDelete(r[0])"
-                matTooltip="Delete Waypoint"
-                matTooltipPosition="above"
+                fbTooltip="Delete Waypoint"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="delete" ariaLabel=""></fb-icon>
               </fb-button>
@@ -116,8 +116,8 @@
               size="sm"
               ariaLabel="Waypoint notes"
               (pressed)="itemViewNotes(r)"
-              matTooltip="Waypoint notes"
-              matTooltipPosition="above"
+              fbTooltip="Waypoint notes"
+              fbTooltipPosition="above"
             >
               <fb-icon name="local_offer" ariaLabel=""></fb-icon>
             </fb-button>
@@ -129,8 +129,8 @@
                 ariaLabel="Navigate to waypoint"
                 [disabled]="disableRefresh"
                 (pressed)="itemGoTo(r[0])"
-                matTooltip="Navigate to Waypoint"
-                matTooltipPosition="above"
+                fbTooltip="Navigate to Waypoint"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="near_me" ariaLabel=""></fb-icon>
               </fb-button>
@@ -141,8 +141,8 @@
                 ariaLabel="Clear destination"
                 [disabled]="disableRefresh"
                 (pressed)="itemClearActive()"
-                matTooltip="Clear Destination"
-                matTooltipPosition="above"
+                fbTooltip="Clear Destination"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="clear_all" ariaLabel=""></fb-icon>
               </fb-button>
@@ -155,8 +155,8 @@
                 ariaLabel="Center waypoint"
                 [disabled]="app.uiConfig().mapMove || !r[2]"
                 (pressed)="emitCenter(r[1].feature.geometry.coordinates)"
-                matTooltip="Center Waypoint"
-                matTooltipPosition="above"
+                fbTooltip="Center Waypoint"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="center_focus_strong" ariaLabel=""></fb-icon>
               </fb-button>
@@ -167,8 +167,8 @@
                 ariaLabel="Add to group"
                 [disabled]="disableRefresh"
                 (pressed)="itemAddToGroup(r[0])"
-                matTooltip="Add to Group"
-                matTooltipPosition="above"
+                fbTooltip="Add to Group"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="category" ariaLabel=""></fb-icon>
               </fb-button>
@@ -181,8 +181,8 @@
                 ariaLabel="Waypoint properties"
                 [disabled]="disableRefresh"
                 (pressed)="itemProperties(r[0])"
-                matTooltip="Waypoint Properties"
-                matTooltipPosition="above"
+                fbTooltip="Waypoint Properties"
+                fbTooltipPosition="above"
               >
                 <fb-icon name="info" ariaLabel=""></fb-icon>
               </fb-button>

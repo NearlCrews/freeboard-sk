@@ -8,9 +8,10 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { FbFabComponent } from 'src/app/design-system/primitives';
+import {
+  FbFabComponent,
+  FbTooltipDirective
+} from 'src/app/design-system/primitives';
 
 interface PiPVideoElement extends HTMLVideoElement {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +21,7 @@ interface PiPVideoElement extends HTMLVideoElement {
 //** Picture in Picture video component **
 @Component({
   selector: 'pip-video',
-  imports: [FbFabComponent, MatTooltipModule],
+  imports: [FbFabComponent, FbTooltipDirective],
   template: `
     <div
       style="border: var(--color-border) 1px solid;border-radius: var(--radius-md);display:none;"
@@ -33,8 +34,8 @@ interface PiPVideoElement extends HTMLVideoElement {
         icon="videocam"
         ariaLabel="Show Video"
         [style.display]="src ? 'block' : 'none'"
-        matTooltip="Show Video"
-        matTooltipPosition="left"
+        fbTooltip="Show Video"
+        fbTooltipPosition="left"
         [disabled]="pipMode"
         (pressed)="initPiP()"
       ></fb-fab>

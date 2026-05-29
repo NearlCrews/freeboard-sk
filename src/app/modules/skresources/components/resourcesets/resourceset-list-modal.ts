@@ -8,7 +8,6 @@ import {
   Inject,
   signal
 } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
@@ -17,7 +16,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbProgressBarComponent,
-  FbToolbarComponent
+  FbToolbarComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import {
   MatBottomSheetRef,
@@ -37,14 +37,14 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
   selector: 'ap-resourceset-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTooltipModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbCheckboxComponent,
     FbIconComponent,
     FbProgressBarComponent,
-    FbToolbarComponent
+    FbToolbarComponent,
+    FbTooltipDirective
   ],
   template: `
     <div class="_ap-resource-set">
@@ -56,8 +56,8 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             [disabled]="
               (app.config.selections.resourceSets[data.path]?.length ?? 0) === 0
             "
-            matTooltip="Clear selections"
-            matTooltipPosition="below"
+            fbTooltip="Clear selections"
+            fbTooltipPosition="below"
             (pressed)="clearSelections()"
           >
             <fb-icon name="clear_all" ariaLabel=""></fb-icon>
@@ -66,8 +66,8 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
           <fb-button
             variant="ghost"
             ariaLabel="Refresh list entries"
-            matTooltip="Refresh list entries"
-            matTooltipPosition="below"
+            fbTooltip="Refresh list entries"
+            fbTooltipPosition="below"
             (pressed)="getItems(true)"
           >
             <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -81,8 +81,8 @@ import type { FBResourceSet, FBResourceSets } from 'src/app/types';
             variant="ghost"
             ariaLabel="Close"
             (pressed)="closeModal()"
-            matTooltip="Close"
-            matTooltipPosition="below"
+            fbTooltip="Close"
+            fbTooltipPosition="below"
           >
             <fb-icon name="keyboard_arrow_down" ariaLabel=""></fb-icon>
           </fb-button>

@@ -3,8 +3,8 @@
     <fb-button
       variant="ghost"
       (pressed)="close()"
-      matTooltip="Close note list"
-      matTooltipPosition="right"
+      fbTooltip="Close note list"
+      fbTooltipPosition="right"
       ariaLabel="Close note list"
     >
       <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -14,8 +14,8 @@
       <fb-button
         variant="ghost"
         (pressed)="itemRefresh()"
-        matTooltip="Reload notes"
-        matTooltipPosition="below"
+        fbTooltip="Reload notes"
+        fbTooltipPosition="below"
         ariaLabel="Reload notes"
       >
         <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -25,8 +25,8 @@
         class="action-toggle"
         [class.active]="draftOnly"
         (pressed)="toggleDraftOnly()"
-        matTooltip="Show drafts only"
-        matTooltipPosition="below"
+        fbTooltip="Show drafts only"
+        fbTooltipPosition="below"
         [attr.aria-pressed]="draftOnly"
         ariaLabel="Show drafts only"
       >
@@ -37,8 +37,8 @@
         class="action-toggle"
         [class.active]="showNotes"
         (pressed)="toggleMapDisplay(!showNotes)"
-        matTooltip="Show notes on map"
-        matTooltipPosition="below"
+        fbTooltip="Show notes on map"
+        fbTooltipPosition="below"
         [attr.aria-pressed]="showNotes"
         ariaLabel="Show notes on map"
       >
@@ -66,8 +66,7 @@
       type="button"
       class="clear"
       (click)="filterKeyUp(''); searchInput.focus()"
-      matTooltip="Clear search"
-      aria-label="Clear search"
+      fbTooltip="Clear search"
     >
       <fb-icon name="close" ariaLabel=""></fb-icon>
     </button>

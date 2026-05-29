@@ -3,8 +3,8 @@
     <fb-button
       variant="ghost"
       (pressed)="onClose()"
-      matTooltip="Close resources"
-      matTooltipPosition="right"
+      fbTooltip="Close resources"
+      fbTooltipPosition="right"
       ariaLabel="Close resources"
     >
       <fb-icon name="arrow_back" ariaLabel=""></fb-icon>
@@ -14,8 +14,8 @@
       <fb-button
         variant="ghost"
         (pressed)="onRefresh()"
-        matTooltip="Reload"
-        matTooltipPosition="below"
+        fbTooltip="Reload"
+        fbTooltipPosition="below"
         ariaLabel="Reload resources"
       >
         <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -128,7 +128,7 @@
                 <fb-button
                   variant="secondary"
                   (pressed)="onDeactivateRoute()"
-                  matTooltip="Clear active route"
+                  fbTooltip="Clear active route"
                 >
                   <fb-icon name="cancel" ariaLabel=""></fb-icon>
                   Deactivate
@@ -137,7 +137,7 @@
                 <fb-button
                   variant="secondary"
                   (pressed)="onActivateRoute()"
-                  matTooltip="Activate route"
+                  fbTooltip="Activate route"
                 >
                   <fb-icon name="navigation" ariaLabel=""></fb-icon>
                   Activate
@@ -147,7 +147,7 @@
             <fb-button
               variant="secondary"
               (pressed)="onEdit()"
-              matTooltip="Edit"
+              fbTooltip="Edit"
             >
               <fb-icon name="edit" ariaLabel=""></fb-icon>
               Edit
@@ -156,7 +156,7 @@
               variant="secondary"
               class="danger"
               (pressed)="onDelete()"
-              matTooltip="Delete"
+              fbTooltip="Delete"
             >
               <fb-icon name="delete" ariaLabel=""></fb-icon>
               Delete

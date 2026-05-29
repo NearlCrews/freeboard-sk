@@ -11,7 +11,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -23,6 +22,7 @@ import {
   FbIconComponent,
   FbSelectComponent,
   FbToolbarComponent,
+  FbTooltipDirective,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 
@@ -38,12 +38,12 @@ import { AppFacade } from 'src/app/app.facade';
   styleUrls: ['./resource-upload-dialog.css'],
   imports: [
     FormsModule,
-    MatTooltipModule,
     MatDialogModule,
     FbButtonComponent,
     FbIconComponent,
     FbSelectComponent,
     FbToolbarComponent,
+    FbTooltipDirective,
     FileInputComponent
   ]
 })

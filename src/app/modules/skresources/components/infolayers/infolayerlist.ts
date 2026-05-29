@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -25,6 +24,7 @@ import {
   FbSearchInputComponent,
   FbSelectComponent,
   FbSliderComponent,
+  FbTooltipDirective,
   type FbMenuItem,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
@@ -61,7 +61,6 @@ import {
   styleUrls: ['../resourcelist.css'],
   imports: [
     FbButtonComponent,
-    MatTooltipModule,
     ScrollingModule,
     FbCardComponent,
     FbCardHeaderComponent,
@@ -73,7 +72,8 @@ import {
     FbProgressBarComponent,
     FbSearchInputComponent,
     FbSelectComponent,
-    FbSliderComponent
+    FbSliderComponent,
+    FbTooltipDirective
   ]
 })
 export class InfoLayerListComponent extends ResourceListBase implements OnInit {

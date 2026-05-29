@@ -11,12 +11,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   FbButtonComponent,
   FbCardComponent,
-  FbIconComponent
+  FbIconComponent,
+  FbTooltipDirective
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import {
@@ -39,13 +39,13 @@ interface BuildRoutePoint {
 @Component({
   selector: 'route-builder',
   imports: [
-    MatTooltipModule,
     CdkDrag,
     CdkDropList,
     FbButtonComponent,
+    FbCardComponent,
     FbIconComponent,
-    FormsModule,
-    FbCardComponent
+    FbTooltipDirective,
+    FormsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./build-route.component.css'],
@@ -57,7 +57,7 @@ interface BuildRoutePoint {
             <fb-button
               variant="ghost"
               ariaLabel="Refresh Waypoint list"
-              matTooltip="Refresh Waypoint list"
+              fbTooltip="Refresh Waypoint list"
               (pressed)="getWaypoints()"
             >
               <fb-icon name="refresh" ariaLabel=""></fb-icon>
@@ -105,7 +105,7 @@ interface BuildRoutePoint {
                     <div style="width:40px;">
                       <fb-icon name="room" ariaLabel=""></fb-icon>
                     </div>
-                    <div class="wpt-text" [matTooltip]="item.name">
+                    <div class="wpt-text" [fbTooltip]="item.name">
                       {{ item.name }}
                     </div>
                   </div>
@@ -127,7 +127,7 @@ interface BuildRoutePoint {
                     <div style="width:40px;">
                       <fb-icon name="room" ariaLabel=""></fb-icon>
                     </div>
-                    <div class="wpt-text" [matTooltip]="item.name">
+                    <div class="wpt-text" [fbTooltip]="item.name">
                       {{ item.name }}
                     </div>
                     <div style="width:40px;">
