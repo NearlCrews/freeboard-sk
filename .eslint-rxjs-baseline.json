@@ -1,11 +1,12 @@
 {
   "//": "Phase 0 monotonic-decrease baseline. See scripts/verify-baseline.mjs.",
-  "seededAt": "2026-05-27",
+  "seededAt": "2026-05-29",
   "totalViolations": 26,
-  "fileCount": 14,
+  "fileCount": 19,
   "perFile": {
     "src/app/app.component.ts": 1,
     "src/app/app.facade.ts": 1,
+    "src/app/modules/skresources/charts.collection.ts": 2,
     "src/app/modules/skresources/components/charts/chartlist.ts": 1,
     "src/app/modules/skresources/components/groups/groups.service.ts": 1,
     "src/app/modules/skresources/components/infolayers/infolayerlist.ts": 2,
@@ -15,7 +16,11 @@
     "src/app/modules/skresources/components/routes/routelist.ts": 1,
     "src/app/modules/skresources/components/waypoints/waypoint-panel.ts": 1,
     "src/app/modules/skresources/components/waypoints/waypointlist.ts": 1,
-    "src/app/modules/skresources/resources.service.ts": 10,
+    "src/app/modules/skresources/notes.collection.ts": 2,
+    "src/app/modules/skresources/regions.collection.ts": 1,
+    "src/app/modules/skresources/routes.collection.ts": 2,
+    "src/app/modules/skresources/tracks.collection.ts": 1,
+    "src/app/modules/skresources/waypoints.collection.ts": 2,
     "src/app/shell/dialog-orchestrator.service.ts": 3,
     "src/app/shell/signalk-connection.controller.ts": 1
   }
