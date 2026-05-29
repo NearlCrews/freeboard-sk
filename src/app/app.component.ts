@@ -625,18 +625,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     this.signalk.getLoginStatus().subscribe((r) => {
       this.app.data.loginRequired = r.authenticationRequired ?? false;
       this.app.isLoggedIn.update(() => r.status === 'loggedIn');
-      this.signalk.get('/plugins/signalk-open-binnacle').subscribe(
-        () => {
+      this.signalk.get('/plugins/signalk-open-binnacle').subscribe({
+        next: () => {
           this.app.debug('User Authenticated');
           this.app.isLoggedIn.set(true);
         },
-        (err: HttpErrorResponse) => {
+        error: (err: HttpErrorResponse) => {
           if (err.status === 401) {
             this.app.debug('User NOT Authenticated');
             this.app.isLoggedIn.set(false);
           }
         }
-      );
+      });
     });
   }
 
@@ -699,8 +699,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       playbackApi: false,
       buddyList: false
     };
-    this.signalk.get('/signalk/v2/features?enabled=1').subscribe(
-      (res: { apis: string[]; plugins: { id: string; version: string }[] }) => {
+    this.signalk.get('/signalk/v2/features?enabled=1').subscribe({
+      next: (res: {
+        apis: string[];
+        plugins: { id: string; version: string }[];
+      }) => {
         ff.weatherApi = res.apis.includes('weather');
         ff.autopilotApi = res.apis.includes('autopilot');
         ff.notificationApi = res.apis.includes('notifications');
@@ -722,14 +725,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             hasPlugin.pmTiles = true;
           }
         });
-        this.app.featureFlags.update((current) => {
-          return Object.assign({}, current, ff);
-        });
+        this.app.featureFlags.update((current) =>
+          Object.assign({}, current, ff)
+        );
       },
-      () => {
+      error: () => {
         this.app.debug('*** Features API not present!');
       }
-    );
+    });
 
     this.app.fetchUnitPrefsFromSKServer();
 
@@ -1414,8 +1417,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       );
     }
     this.app.alignCustomResourcesPaths();
-    this.signalk.api.getSelf().subscribe(
-      (r: { name?: string }) => {
+    this.signalk.api.getSelf().subscribe({
+      next: (r: { name?: string }) => {
         this.stream.post({
           cmd: 'vessel',
           options: { context: 'self', name: r.name ?? '' }
@@ -1428,13 +1431,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
           this.anchor.queryAnchorStatus(undefined, selfPos ?? undefined);
         }
       },
-      (err: HttpErrorResponse) => {
+      error: (err: HttpErrorResponse) => {
         if (err.status && err.status === 401) {
           this.showLogin(undefined, false, true);
         }
         this.app.debug('No vessel data available!');
       }
-    );
+    });
   }
 
   // ******** STREAM EVENT HANDLERS *************

@@ -10,19 +10,19 @@ html {
   }
 
   ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--color-surface-alt, var(--color-surface));
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--color-text-muted);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--color-text);
   }
 
   .popover-title {
-    border-bottom: 1px solid silver;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .popover > .arrow:after {
@@ -153,11 +153,11 @@ html {
   .dark-theme,
   &[data-theme='dark'] {
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--color-bg);
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: #999;
+      background: var(--color-text-muted);
     }
 
     .title-bar-bg {
