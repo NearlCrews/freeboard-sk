@@ -23,7 +23,7 @@
   margin-top: 3px;
   font-weight: 500;
   line-height: 23px;
-  color: black;
+  color: var(--color-text);
 }
 
 .sk-details .content {
@@ -59,7 +59,7 @@
   display: flex;
   flex-wrap: nowrap;
   width: 100%;
-  background-color: white;
+  background-color: var(--color-surface);
 }
 
 .sk-details .pathvalue .path {

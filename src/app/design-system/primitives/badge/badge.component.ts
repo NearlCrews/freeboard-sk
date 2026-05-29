@@ -100,7 +100,7 @@ export type FbBadgeSeverity = 'primary' | 'warn' | 'danger' | 'info';
       }
       .fb-badge__bubble--warn {
         background: var(--color-warning);
-        color: var(--color-text-inverse);
+        color: var(--color-on-warning, var(--color-text));
       }
       .fb-badge__bubble--danger {
         background: var(--color-error);

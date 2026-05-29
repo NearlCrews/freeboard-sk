@@ -329,13 +329,12 @@ interface WeatherData {
       }
 
       /* Banded row highlight pinned to a pale-mint sRGB that reads as a
-         meteorology grid, not a safety signal. Color and text deliberately
-         stay literal: in night-red the row must still read as a recessive
-         band, not be retinted to red. Candidate for a future
-         --weather-row-band token if the spec adds one. */
+         meteorology grid, not a safety signal. In night-red the band must
+         still read as a recessive band, not be retinted to red. Text
+         color tokenized so dark themes remain legible. */
       .meteo-row:nth-child(odd) div {
         background-color: rgb(209 243 209 / 60%);
-        color: black;
+        color: var(--color-text);
       }
     `
   ]

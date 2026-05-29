@@ -457,19 +457,10 @@ export class SignalKClient implements OnDestroy {
     return sub.asObservable();
   }
 
-  // Fetch login status from server.
+  // Fetch login status from server. The app requires SK server v2; the
+  // upstream pre-1.36 /loginstatus fallback was dropped to match.
   getLoginStatus(): Observable<any> {
-    let url = `/skServer/loginStatus`;
-    if (
-      this.server &&
-      this.server.info &&
-      this.server.info['id'] === 'signalk-server-node'
-    ) {
-      const ver = (this.server.info['version'] as string).split('.');
-      // Use legacy link for older versions.
-      url = ver[0] === '1' && Number(ver[1]) < 36 ? `/loginstatus` : url;
-    }
-    return this.get(url);
+    return this.get('/skServer/loginStatus');
   }
 
   // Get data via the snapshot HTTP API path for the supplied time.

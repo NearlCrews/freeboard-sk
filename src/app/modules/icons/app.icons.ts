@@ -129,7 +129,7 @@ export const getAlertIcon = (alert: AlertData): AppIconDef => {
   ) {
     return { class: 'ob', svgIcon: `alarm-${alert.type}` };
   } else if (alert.type === 'arrivalCircleEntered') {
-    return { svgIcon: 'alarm-arrival', name: 'arrival' };
+    return { svgIcon: 'alarm-arrival' };
   } else if (alert.type === 'anchor') {
     return { name: 'anchor' };
   } else if (alert.type === 'meteo') {
@@ -166,7 +166,7 @@ export const getAisIcon = (id: number | string): AppIconDef => {
   const svgIcon = AIS_TYPE_IDS[key];
   if (!id || !svgIcon) {
     const fallback = AIS_TYPE_IDS['default'] ?? 'ais_active';
-    return { svgIcon: fallback, name: 'default' };
+    return { svgIcon: fallback };
   }
   return { svgIcon, name: key };
 };

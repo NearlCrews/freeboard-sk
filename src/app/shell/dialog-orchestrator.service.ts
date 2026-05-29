@@ -304,8 +304,8 @@ export class DialogOrchestrator {
       },
       error: () => {
         this.app.persistToken(null);
-        this.signalk.isLoggedIn().subscribe((r) => {
-          this.app.isLoggedIn.set(r);
+        this.signalk.isLoggedIn().subscribe({
+          next: (r) => this.app.isLoggedIn.set(r)
         });
         if (onConnect) {
           this.app
@@ -336,8 +336,11 @@ export class DialogOrchestrator {
 
   private handleLoginCancel(cancelWarning: boolean, onConnect?: boolean): void {
     this.app.hasAuthToken.set(false);
-    this.signalk.isLoggedIn().subscribe((r: boolean) => {
-      this.app.isLoggedIn.set(r);
+    // Only flip isLoggedIn on a definitive logged-out response. If the
+    // status probe errors (5xx, timeout, network blip) leave the prior
+    // value alone; a transient blip should not silently log the user out.
+    this.signalk.isLoggedIn().subscribe({
+      next: (r: boolean) => this.app.isLoggedIn.set(r)
     });
     if (onConnect) {
       this.showLogin(undefined, false, true);

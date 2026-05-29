@@ -22,22 +22,26 @@
   text-rendering: geometricPrecision;
 }
 
-:host-context(body.dark-theme),
-:host-context(.dark-theme) {
-  --resources-bg: #0a0a0a;
-  --resources-surface: #161616;
-  --resources-surface-hover: #242424;
-  --resources-text: #ffffff;
-  --resources-text-muted: #d0d0d0;
-  --resources-text-faint: #888888;
-  --resources-accent: #6ea8ff;
-  --resources-accent-soft: #112244;
-  --resources-hairline: #3a3a3a;
+:host-context(.dark-theme),
+:host-context([data-theme='dark']),
+:host-context([data-theme='night-red']) {
+  --resources-bg: var(--color-bg);
+  --resources-surface: var(--color-surface);
+  --resources-surface-hover: var(--color-surface-alt, var(--color-surface));
+  --resources-text: var(--color-text);
+  --resources-text-muted: var(--color-text-muted);
+  --resources-text-faint: var(--color-text-muted);
+  --resources-accent: var(--color-primary);
+  --resources-accent-soft: var(
+    --color-primary-soft,
+    var(--color-surface-alt, var(--color-surface))
+  );
+  --resources-hairline: var(--color-border);
   --resources-shadow: 0 4px 16px -8px rgba(0, 0, 0, 0.7);
 
-  --resources-routes: #4cd6a3;
-  --resources-waypoints: #ffb84d;
-  --resources-regions: #b89cd9;
+  --resources-routes: var(--color-accent, var(--color-primary));
+  --resources-waypoints: var(--color-warning);
+  --resources-regions: var(--color-primary);
 }
 
 .resources-shell {
@@ -250,7 +254,7 @@
 }
 
 .danger {
-  color: #b00020;
+  color: var(--color-error);
 }
 
 @media (max-width: 900px) {

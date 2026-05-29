@@ -83,7 +83,7 @@
 
 .popover.measure {
   min-width: 100px;
-  background-color: #3399cc;
+  background-color: var(--color-primary);
 }
 
 .popover.measure > .popover-content {
@@ -91,7 +91,7 @@
 }
 
 .popover.measure > .popover-title {
-  color: white;
+  color: var(--color-on-primary);
   font-weight: bold;
   border-bottom: none;
   background-color: inherit;

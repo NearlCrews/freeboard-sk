@@ -192,11 +192,11 @@ interface CoordinatesMetaEntry {
         font-weight: bold;
       }
       ._ap-dest .selected {
-        background-color: silver;
+        background-color: var(--color-surface-alt, var(--color-bg));
       }
       .point-drop-placeholder {
-        background: #ccc;
-        border: dotted 3px #999;
+        background: var(--color-surface-alt, var(--color-bg));
+        border: dotted 3px var(--color-border);
         min-height: 60px;
         transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
       }

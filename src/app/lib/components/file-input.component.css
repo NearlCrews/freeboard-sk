@@ -32,9 +32,9 @@
 }
 
 .disabled {
-  color: rgba(33, 33, 33, 0.5) !important;
-  border-color: rgba(33, 33, 33, 0.5) !important;
-  cursor: none !important;
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-border) !important;
+  cursor: not-allowed !important;
 }
 
 #avatar {
@@ -49,5 +49,5 @@
 #avatar > button {
   background-color: inherit;
   border: 0;
-  color: red;
+  color: var(--color-danger);
 }
