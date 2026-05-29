@@ -160,6 +160,19 @@ export {
   FbDialogTitleDirective,
   type FbDialogActionsAlign
 } from './dialog/dialog.directives';
+export {
+  FbBottomSheetService,
+  FbBottomSheetRef,
+  FB_BOTTOM_SHEET_DATA,
+  type FbBottomSheetConfig
+} from './sheet/bottom-sheet.service';
+export {
+  FbSnackBarService,
+  FbSnackBarRef,
+  FB_SNACK_BAR_DATA,
+  type FbSnackBarConfig
+} from './snack-bar/snack-bar.service';
+export { FbIconRegistry } from './icon/icon-registry.service';
 
 /* Tier-3 list family + tabs. */
 export {

@@ -7,7 +7,7 @@ import {
   signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -300,8 +300,8 @@ export class ChartPropertiesDialog implements OnInit {
   });
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<ChartPropertiesDialog>);
-  protected data = inject<SKChart>(MAT_DIALOG_DATA);
+  protected dialogRef = inject(DialogRef<unknown, ChartPropertiesDialog>);
+  protected data = inject<SKChart>(DIALOG_DATA);
 
   constructor() {
     if (this.data.source?.toLowerCase() === 'resources-provider') {

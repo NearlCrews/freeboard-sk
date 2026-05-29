@@ -228,7 +228,8 @@ export class BuildRouteComponent implements AfterViewInit {
           'Unsaved Changes'
         )
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((res: { ok: boolean } | undefined) => {
+        .subscribe((result) => {
+          const res = result as { ok: boolean } | undefined;
           if (res?.ok) {
             this.doSave();
           } else {

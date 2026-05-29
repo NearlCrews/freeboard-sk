@@ -5,17 +5,15 @@ import {
   signal
 } from '@angular/core';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -223,11 +221,14 @@ export class AISPropertiesModal {
   };
 
   private app = inject(AppFacade);
-  protected modalRef = inject(MatBottomSheetRef<AISPropertiesModal>);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    AISPropertiesModal
+  >;
   protected data = inject<{
     title: string;
     target: SKVessel;
-  }>(MAT_BOTTOM_SHEET_DATA);
+  }>(FB_BOTTOM_SHEET_DATA);
 
   constructor() {
     this.flagIcon = `${this.app.hostDef.url}/signalk/v2/api/resources/flags/mmsi/${this.data.target.mmsi}`;

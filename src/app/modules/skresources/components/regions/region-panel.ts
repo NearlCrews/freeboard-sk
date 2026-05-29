@@ -22,7 +22,8 @@ import {
   FbIconComponent,
   FbListItemComponent,
   FbNavListComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FbDialogService
 } from 'src/app/design-system/primitives';
 import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
 
@@ -36,7 +37,6 @@ import {
   SKResourceGroupService
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'region-panel',
@@ -81,7 +81,7 @@ export class RegionPanel {
   protected app = inject(AppFacade);
   private skres = inject(SKResourceService);
   protected skgroups = inject(SKResourceGroupService);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -224,9 +224,9 @@ export class RegionPanel {
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'region', regionId);

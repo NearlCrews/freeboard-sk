@@ -11,10 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbDatepickerComponent,
   FbIconComponent,
@@ -23,6 +20,7 @@ import {
   FbSwitchComponent,
   FbToolbarComponent,
   FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA,
   type FbSelectOption
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
@@ -241,8 +239,8 @@ export class CourseSettingsModal implements OnInit {
     private cdr: ChangeDetectorRef,
     private signalk: SignalKClient,
     protected course: CourseService,
-    public modalRef: MatBottomSheetRef<CourseSettingsModal>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: CourseSettingsData
+    public modalRef: FbBottomSheetRef<unknown, CourseSettingsModal>,
+    @Inject(FB_BOTTOM_SHEET_DATA) public data: CourseSettingsData
   ) {}
 
   ngOnInit() {

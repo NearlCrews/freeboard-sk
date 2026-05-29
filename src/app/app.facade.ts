@@ -13,7 +13,7 @@ import {
   Injectable,
   isDevMode
 } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import type { DialogRef } from '@angular/cdk/dialog';
 import { FbIconRegistry } from './design-system/primitives/icon/icon-registry.service';
 
 import { AppDB, InfoService, AppInfoDef } from './lib/services';
@@ -490,7 +490,7 @@ export class AppFacade extends InfoService {
 
   showWelcome(
     suppressFirstRun: boolean
-  ): MatDialogRef<WelcomeDialog> | undefined {
+  ): DialogRef<unknown, WelcomeDialog> | undefined {
     return this.alarm.showWelcome(
       suppressFirstRun,
       this.launchStatus.result,

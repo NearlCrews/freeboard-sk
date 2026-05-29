@@ -7,16 +7,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -113,14 +111,17 @@ export class AtoNPropertiesModal implements OnInit {
 
   private app = inject(AppFacade);
   private sk = inject(SignalKClient);
-  protected modalRef = inject(MatBottomSheetRef<AtoNPropertiesModal>);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    AtoNPropertiesModal
+  >;
   protected data = inject<{
     title: string;
     target: SKAtoN;
     id: string;
     icon: string;
     type: 'aton' | 'sar' | 'meteo';
-  }>(MAT_BOTTOM_SHEET_DATA);
+  }>(FB_BOTTOM_SHEET_DATA);
   private destroyRef = inject(DestroyRef);
 
   constructor() {}

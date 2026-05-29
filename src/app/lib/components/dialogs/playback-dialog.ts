@@ -8,7 +8,7 @@ import {
   computed,
   signal
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import {
   FbButtonComponent,
   FbDatepickerComponent,
@@ -168,9 +168,9 @@ export class PlaybackDialog {
   ];
 
   constructor(
-    public dialogRef: MatDialogRef<PlaybackDialog>,
+    public dialogRef: DialogRef<unknown, PlaybackDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   submit(cancel = false) {

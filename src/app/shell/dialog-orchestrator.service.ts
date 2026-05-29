@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
+import {
+  FbBottomSheetService,
+  FbDialogService
+} from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -45,8 +47,8 @@ interface DialogHooks {
  */
 @Injectable({ providedIn: 'root' })
 export class DialogOrchestrator {
-  private readonly dialog = inject(MatDialog);
-  private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly dialog = inject(FbDialogService);
+  private readonly bottomSheet = inject(FbBottomSheetService);
   private readonly app = inject(AppFacade);
   // Phase 3 Batch 3: direct store injection for dialog and fetch-progress
   // surface. AppFacade is kept for data + config + login flow access.
@@ -86,8 +88,7 @@ export class DialogOrchestrator {
           url: this.app.url
         }
       })
-      .afterClosed()
-      .subscribe(() => this.focus());
+      .closed.subscribe(() => this.focus());
   }
 
   async openSettings(): Promise<void> {
@@ -96,12 +97,9 @@ export class DialogOrchestrator {
     this.dialog
       .open(SettingsDialog, {
         disableClose: true,
-        data: {},
-        maxWidth: '1000px',
-        minHeight: '80vh'
+        data: {}
       })
-      .afterClosed()
-      .subscribe(() => this.focus());
+      .closed.subscribe(() => this.focus());
   }
 
   /** Route GPX vs GeoJSON imports by sniffing file content. */
@@ -128,9 +126,11 @@ export class DialogOrchestrator {
         disableClose: true,
         data: { fileData: f.data, fileName: f.name }
       })
-      .afterClosed()
-      .subscribe((res: { errCount: number; errList: ErrorList }) => {
-        if (typeof res.errCount === 'undefined' || res.errCount < 0) {
+      .closed.subscribe((result) => {
+        const res = result as
+          | { errCount: number; errList: ErrorList }
+          | undefined;
+        if (!res || typeof res.errCount === 'undefined' || res.errCount < 0) {
           this.focus();
           return;
         }
@@ -158,9 +158,9 @@ export class DialogOrchestrator {
           tracks: [this.app.selfTrail()]
         }
       })
-      .afterClosed()
-      .subscribe((errCount) => {
-        if (errCount < 0) {
+      .closed.subscribe((result) => {
+        const errCount = result as number | undefined;
+        if (typeof errCount !== 'number' || errCount < 0) {
           this.focus();
           return;
         }
@@ -190,9 +190,9 @@ export class DialogOrchestrator {
         disableClose: true,
         data: { fileData: f.data, fileName: f.name }
       })
-      .afterClosed()
-      .subscribe((errCount) => {
-        if (errCount < 0) {
+      .closed.subscribe((result) => {
+        const errCount = result as number | undefined;
+        if (typeof errCount !== 'number' || errCount < 0) {
           return;
         }
         this.hooks?.fetchResources();
@@ -219,8 +219,8 @@ export class DialogOrchestrator {
         disableClose: true,
         data: {}
       })
-      .afterClosed()
-      .subscribe((res) => {
+      .closed.subscribe((result) => {
+        const res = result as { data: string; path: string } | undefined;
         if (!res) {
           return;
         }
@@ -250,8 +250,15 @@ export class DialogOrchestrator {
         disableClose: true,
         data: { message: message || 'Login to Signal K server.' }
       })
-      .afterClosed()
-      .subscribe((res) => {
+      .closed.subscribe((result) => {
+        const res = result as
+          | { cancel: boolean; user: string; pwd: string }
+          | undefined;
+        if (!res) {
+          this.handleLoginCancel(cancelWarning, onConnect);
+          this.focus();
+          return;
+        }
         if (!res.cancel) {
           this.handleLoginSubmit(res.user, res.pwd, onConnect);
         } else {
@@ -301,7 +308,8 @@ export class DialogOrchestrator {
               'Close'
             )
             .subscribe((r) => {
-              if (r) {
+              const result = r as boolean | undefined;
+              if (result) {
                 this.showLogin();
               }
             });
@@ -330,9 +338,11 @@ export class DialogOrchestrator {
       await import('src/app/lib/components/dialogs/playback-dialog');
     this.dialog
       .open(PlaybackDialog, { disableClose: false })
-      .afterClosed()
-      .subscribe((r) => {
-        if (r.result) {
+      .closed.subscribe((result) => {
+        const r = result as
+          | { result: boolean; query?: StreamOptions }
+          | undefined;
+        if (r?.result) {
           this.hooks?.switchMode(SKSTREAM_MODE.PLAYBACK, r.query);
         } else {
           this.hooks?.switchMode(SKSTREAM_MODE.REALTIME);
@@ -349,9 +359,10 @@ export class DialogOrchestrator {
         disableClose: true,
         data: { trail: this.app.selfTrail() }
       })
-      .afterClosed()
-      .subscribe((r) => {
-        if (r.result) {
+      .closed.subscribe((result) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const r = result as any;
+        if (r?.result) {
           this.skres.newRouteAt(r.data);
         }
         this.focus();
@@ -458,7 +469,8 @@ export class DialogOrchestrator {
         }
       })
       .afterDismissed()
-      .subscribe((deactivate: boolean) => {
+      .subscribe((result) => {
+        const deactivate = result as boolean | undefined;
         if (deactivate) {
           this.course.clearCourse();
         }

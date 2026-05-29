@@ -9,7 +9,7 @@ import {
   inject
 } from '@angular/core';
 
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
@@ -115,9 +115,9 @@ export class SliderInputDialog implements OnInit {
     suffix: string;
     icon: AppIconDef;
     onChange: (value: number) => void;
-  }>(MAT_DIALOG_DATA);
+  }>(DIALOG_DATA);
 
-  constructor(private dialogRef: MatDialogRef<SliderInputDialog>) {}
+  constructor(private dialogRef: DialogRef<unknown, SliderInputDialog>) {}
 
   ngOnInit() {
     this.formattedValue.set(this.data.value);

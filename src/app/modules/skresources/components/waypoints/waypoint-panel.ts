@@ -11,13 +11,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
 
 import {
   FbAccordionComponent,
   FbButtonComponent,
+  FbDialogService,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
   FbExpansionPanelTitleDirective,
@@ -88,7 +88,7 @@ export class WaypointPanel {
   private alarm = inject(AlarmStore);
   private skres = inject(SKResourceService);
   protected skgroups = inject(SKResourceGroupService);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -228,9 +228,9 @@ export class WaypointPanel {
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', wptId);

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 
 import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
@@ -17,12 +18,9 @@ import {
   FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
 import { AppFacade } from 'src/app/app.facade';
 import { FBCustomResourceService } from '../../custom-resources-service';
 import type { FBResourceSet, FBResourceSets } from 'src/app/types';
@@ -139,8 +137,8 @@ export class ResourceSetModal implements OnInit {
   constructor(
     public app: AppFacade,
     private skresOther: FBCustomResourceService,
-    protected modalRef: MatBottomSheetRef<ResourceSetModal>,
-    @Inject(MAT_BOTTOM_SHEET_DATA)
+    protected modalRef: FbBottomSheetRef<unknown, ResourceSetModal>,
+    @Inject(FB_BOTTOM_SHEET_DATA)
     public data: {
       path: string;
     }

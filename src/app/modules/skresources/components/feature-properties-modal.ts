@@ -1,18 +1,16 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
 import { SignalKDetailsComponent } from '../components/signalk-details.component';
 import { Feature } from 'geojson';
 
 import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 
 @Component({
@@ -121,8 +119,11 @@ export class FeaturePropertiesModal {
   protected display: Feature['properties'][] = [];
   protected currentPage = 1;
 
-  protected modalRef = inject(MatBottomSheetRef<FeaturePropertiesModal>);
-  protected data = inject<Feature[]>(MAT_BOTTOM_SHEET_DATA);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    FeaturePropertiesModal
+  >;
+  protected data = inject<Feature[]>(FB_BOTTOM_SHEET_DATA);
 
   constructor() {
     this.display = Array.isArray(this.data)

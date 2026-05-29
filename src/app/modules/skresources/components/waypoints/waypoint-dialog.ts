@@ -8,7 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { form, FormField, max, min, required } from '@angular/forms/signals';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import type { SKWaypoint } from '../../resource-classes';
@@ -343,8 +343,8 @@ export class WaypointDialog {
   protected selectableIcons = ['pseudoaton'];
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<WaypointDialog>);
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
+  protected dialogRef = inject(DialogRef<unknown, WaypointDialog>);
+  protected data = inject<DialogData>(DIALOG_DATA);
 
   constructor() {
     this.dialogIcon = this.data.addMode ? 'add_location' : 'edit_location';

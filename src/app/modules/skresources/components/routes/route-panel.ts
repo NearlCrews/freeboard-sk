@@ -10,13 +10,14 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialog } from '@angular/material/dialog';
 
 import { RemarkModule } from 'ngx-remark';
 
 import {
   FbAccordionComponent,
+  FbBottomSheetService,
   FbButtonComponent,
+  FbDialogService,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
   FbExpansionPanelTitleDirective,
@@ -44,7 +45,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
 import { CourseService } from 'src/app/modules/course';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { ActiveResourcePropertiesModal } from '../active-resource-dialog';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'route-panel',
@@ -110,8 +110,8 @@ export class RoutePanel {
   private skres = inject(SKResourceService);
   private course = inject(CourseService);
   protected skgroups = inject(SKResourceGroupService);
-  private dialog = inject(MatDialog);
-  private bottomSheet = inject(MatBottomSheet);
+  private dialog = inject(FbDialogService);
+  private bottomSheet = inject(FbBottomSheetService);
   private destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -388,9 +388,9 @@ export class RoutePanel {
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'route', routeId);

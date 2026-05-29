@@ -7,7 +7,7 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import {
   FbButtonComponent,
   FbCheckboxComponent,
@@ -78,9 +78,9 @@ export class GPXExportDialog implements OnInit, OnDestroy {
     protected app: AppFacade,
     private skres: SKResourceService,
     private facade: GPXSaveFacade,
-    protected dialogRef: MatDialogRef<GPXExportDialog>,
+    protected dialogRef: DialogRef<unknown, GPXExportDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   ngOnInit() {

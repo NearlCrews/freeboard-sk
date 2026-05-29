@@ -10,7 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
@@ -157,9 +157,9 @@ export class NoteDialog implements OnInit {
   protected icon: AppIconDef = {};
   protected poiIcons: { id: string; name: string }[] = [];
   protected poiIconOptions: readonly FbSelectOption<string>[] = [];
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
+  protected data = inject<DialogData>(DIALOG_DATA);
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<NoteDialog>);
+  protected dialogRef = inject(DialogRef<unknown, NoteDialog>);
 
   protected noteModel = signal<{ name: string }>({ name: '' });
   protected noteForm = form(this.noteModel, (p) => {

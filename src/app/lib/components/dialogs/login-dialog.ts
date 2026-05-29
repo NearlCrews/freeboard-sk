@@ -10,7 +10,7 @@ import {
   ViewChild,
   signal
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -108,9 +108,9 @@ export class LoginDialog implements OnInit, AfterViewInit {
     };
 
   constructor(
-    public dialogRef: MatDialogRef<LoginDialog>,
+    public dialogRef: DialogRef<unknown, LoginDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   ngOnInit() {

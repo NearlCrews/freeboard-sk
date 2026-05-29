@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
 
@@ -109,8 +109,8 @@ export class InfoLayerPropertiesDialog {
   protected icon = '';
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<InfoLayerPropertiesDialog>);
-  protected data = inject<SKInfoLayer>(MAT_DIALOG_DATA);
+  protected dialogRef = inject(DialogRef<unknown, InfoLayerPropertiesDialog>);
+  protected data = inject<SKInfoLayer>(DIALOG_DATA);
 
   constructor() {}
 }

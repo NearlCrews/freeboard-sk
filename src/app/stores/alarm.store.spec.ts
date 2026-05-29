@@ -1,17 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { of } from 'rxjs';
+import {
+  FbDialogService,
+  FbSnackBarService
+} from 'src/app/design-system/primitives';
 
 import { AlarmStore } from './alarm.store';
 
 function fakeDialogRef(value: unknown = undefined) {
-  return {
-    afterClosed: () => ({
-      subscribe: (cb: (v: unknown) => void) => cb(value)
-    })
-  };
+  return { closed: of(value) };
 }
 
 describe('AlarmStore', () => {
@@ -25,8 +24,11 @@ describe('AlarmStore', () => {
     snackSpy = vi.fn();
     TestBed.configureTestingModule({
       providers: [
-        { provide: MatDialog, useValue: { open: openSpy } },
-        { provide: MatSnackBar, useValue: { openFromComponent: snackSpy } }
+        { provide: FbDialogService, useValue: { open: openSpy } },
+        {
+          provide: FbSnackBarService,
+          useValue: { openFromComponent: snackSpy }
+        }
       ]
     });
     store = TestBed.inject(AlarmStore);
@@ -63,7 +65,7 @@ describe('AlarmStore', () => {
     });
   });
 
-  it('showMessage forwards to MatSnackBar.openFromComponent', () => {
+  it('showMessage forwards to FbSnackBarService.openFromComponent', () => {
     store.showMessage('hello', true, 1234);
     expect(snackSpy).toHaveBeenCalledTimes(1);
     const cfg = snackSpy.mock.calls[0]![1];

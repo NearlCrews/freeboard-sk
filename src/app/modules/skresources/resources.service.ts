@@ -1,8 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import type { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
 
+import { FbDialogService } from 'src/app/design-system/primitives';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { GeoUtils } from 'src/app/lib/geoutils';
@@ -142,7 +142,7 @@ export class SKResourceService {
   private reOpen: ReOpenState = {};
 
   private app = inject(AppFacade);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private signalk = inject(SignalKClient);
   private worker = inject(SKWorkerService);
 
@@ -786,7 +786,8 @@ export class SKResourceService {
         'YES',
         'NO'
       )
-      .subscribe((result: { ok: boolean }) => {
+      .subscribe((res) => {
+        const result = res as { ok: boolean } | undefined;
         if (result && result.ok) {
           this.deleteFromServer('charts', id, 'resources-provider').catch(
             (err: HttpErrorResponse) => this.app.parseHttpErrorResponse(err)
@@ -949,9 +950,9 @@ export class SKResourceService {
         disableClose: true,
         data: chart
       })
-      .afterClosed()
-      .subscribe(async (r: { save: boolean; chart: SKChart }) => {
-        if (r.save) {
+      .closed.subscribe(async (res) => {
+        const r = res as { save: boolean; chart: SKChart } | undefined;
+        if (r?.save) {
           try {
             const cht = await this.postToServer('charts', r.chart);
             if (cht.id) {
@@ -1003,9 +1004,9 @@ export class SKResourceService {
         disableClose: true,
         data: chart
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; chart: SKChart }) => {
-        if (r.save) {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; chart: SKChart } | undefined;
+        if (r?.save) {
           this.putToServer('charts', id, r.chart).catch((err) =>
             this.app.parseHttpErrorResponse(err)
           );
@@ -1044,9 +1045,9 @@ export class SKResourceService {
       .open(ChartSeedJobDialog, {
         data: { chart: chart, bbox: bbox }
       })
-      .afterClosed()
-      .subscribe((maxZoom: number) => {
-        if (maxZoom > 0) {
+      .closed.subscribe((res) => {
+        const maxZoom = res as number | undefined;
+        if (typeof maxZoom === 'number' && maxZoom > 0) {
           const req = {
             bbox: parsedBbox,
             maxZoom: maxZoom
@@ -1251,9 +1252,9 @@ export class SKResourceService {
           route: route
         }
       })
-      .afterClosed()
-      .subscribe(async (r: { save: boolean; route: SKRoute }) => {
-        if (r.save) {
+      .closed.subscribe(async (res) => {
+        const r = res as { save: boolean; route: SKRoute } | undefined;
+        if (r?.save) {
           try {
             const rte = await this.postToServer('routes', r.route);
             if (rte.id) {
@@ -1293,9 +1294,9 @@ export class SKResourceService {
           route: rte
         }
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; route: SKRoute }) => {
-        if (r.save) {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; route: SKRoute } | undefined;
+        if (r?.save) {
           this.putToServer('routes', id, r.route).catch((err) =>
             this.app.parseHttpErrorResponse(err)
           );
@@ -1322,7 +1323,8 @@ export class SKResourceService {
         'NO',
         checkText
       )
-      .subscribe(async (result: { ok: boolean; checked: boolean }) => {
+      .subscribe(async (res) => {
+        const result = res as { ok: boolean; checked: boolean } | undefined;
         if (result && result.ok) {
           try {
             await this.deleteFromServer('routes', id);
@@ -1530,9 +1532,9 @@ export class SKResourceService {
           waypoint: waypoint
         }
       })
-      .afterClosed()
-      .subscribe(async (r: { save: boolean; waypoint: SKWaypoint }) => {
-        if (r.save) {
+      .closed.subscribe(async (res) => {
+        const r = res as { save: boolean; waypoint: SKWaypoint } | undefined;
+        if (r?.save) {
           try {
             const w = await this.postToServer('waypoints', r.waypoint);
             if (w.id) {
@@ -1572,9 +1574,9 @@ export class SKResourceService {
           waypoint: wpt
         }
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; waypoint: SKWaypoint }) => {
-        if (r.save) {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; waypoint: SKWaypoint } | undefined;
+        if (r?.save) {
           this.putToServer('waypoints', id, r.waypoint).catch((err) =>
             this.app.parseHttpErrorResponse(err)
           );
@@ -1601,7 +1603,8 @@ export class SKResourceService {
         'NO',
         checkText
       )
-      .subscribe(async (result: { ok: boolean; checked: boolean }) => {
+      .subscribe(async (res) => {
+        const result = res as { ok: boolean; checked: boolean } | undefined;
         if (result && result.ok) {
           try {
             await this.deleteFromServer('waypoints', id);
@@ -1711,9 +1714,9 @@ export class SKResourceService {
           region: region
         }
       })
-      .afterClosed()
-      .subscribe(async (r: { save: boolean; region: SKRegion }) => {
-        if (r.save) {
+      .closed.subscribe(async (res) => {
+        const r = res as { save: boolean; region: SKRegion } | undefined;
+        if (r?.save) {
           try {
             const reg = await this.postToServer('regions', r.region);
             if (reg.id) {
@@ -1751,9 +1754,9 @@ export class SKResourceService {
           region: region
         }
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; region: SKRegion }) => {
-        if (r.save) {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; region: SKRegion } | undefined;
+        if (r?.save) {
           this.putToServer('regions', id, r.region).catch((err) =>
             this.app.parseHttpErrorResponse(err)
           );
@@ -1780,7 +1783,8 @@ export class SKResourceService {
         'NO',
         checkText
       )
-      .subscribe((result: { ok: boolean; checked: boolean }) => {
+      .subscribe((res) => {
+        const result = res as { ok: boolean; checked: boolean } | undefined;
         if (result && result.ok) {
           this.deleteFromServer('regions', id)
             .then(() => {
@@ -2010,8 +2014,6 @@ export class SKResourceService {
     this.dialog
       .open(NoteDialog, {
         disableClose: true,
-        minWidth: '50vw',
-        maxWidth: '400px',
         data: {
           note: e.note,
           editable: e.editable,
@@ -2019,8 +2021,8 @@ export class SKResourceService {
           title: e.title
         }
       })
-      .afterClosed()
-      .subscribe(async (r: { result?: boolean; data?: SKNote } | undefined) => {
+      .closed.subscribe(async (res) => {
+        const r = res as { result?: boolean; data?: SKNote } | undefined;
         if (r?.result && r.data) {
           // ** save / update **
           const note = r.data;
@@ -2114,45 +2116,45 @@ export class SKResourceService {
           disableClose: true,
           data: { notes: notes, relatedBy: relatedBy, readOnly: readOnly }
         })
-        .afterClosed()
-        .subscribe(
-          (r: { result?: boolean; data?: string; id?: string } | undefined) => {
-            if (!r?.result) {
-              return;
-            }
-            if (relatedBy) {
-              this.reOpen = {
-                key: relatedBy,
-                value: id,
-                readOnly: readOnly
-              };
-            } else {
-              this.reOpen = {};
-            }
-            switch (r.data) {
-              case 'edit':
-                if (r.id) {
-                  this.showNoteEditor({ id: r.id });
-                }
-                break;
-              case 'add':
-                if (relatedBy === 'group') {
-                  /** @deprecated legacy notes group*/
-                } else {
-                  this.showNoteEditor({
-                    type: relatedBy,
-                    href: { id: id, exists: true }
-                  });
-                }
-                break;
-              case 'delete':
-                if (r.id) {
-                  this.deleteNote(r.id);
-                }
-                break;
-            }
+        .closed.subscribe((res) => {
+          const r = res as
+            | { result?: boolean; data?: string; id?: string }
+            | undefined;
+          if (!r?.result) {
+            return;
           }
-        );
+          if (relatedBy) {
+            this.reOpen = {
+              key: relatedBy,
+              value: id,
+              readOnly: readOnly
+            };
+          } else {
+            this.reOpen = {};
+          }
+          switch (r.data) {
+            case 'edit':
+              if (r.id) {
+                this.showNoteEditor({ id: r.id });
+              }
+              break;
+            case 'add':
+              if (relatedBy === 'group') {
+                /** @deprecated legacy notes group*/
+              } else {
+                this.showNoteEditor({
+                  type: relatedBy,
+                  href: { id: id, exists: true }
+                });
+              }
+              break;
+            case 'delete':
+              if (r.id) {
+                this.deleteNote(r.id);
+              }
+              break;
+          }
+        });
     } catch (err) {
       this.app.sIsFetching.set(false);
       void err;
@@ -2278,29 +2280,27 @@ export class SKResourceService {
         disableClose: true,
         data: { note: note, editable: false }
       })
-      .afterClosed()
-      .subscribe(
-        (
-          r: { result?: boolean; data?: string; value?: string } | undefined
-        ) => {
-          if (!r?.result) {
-            return;
-          }
-          if (r.data === 'url') {
-            // ** open url in new tab **
-            window.open(note.url, 'note');
-          }
-          if (r.data === 'edit') {
-            this.showNoteEditor({ id: id });
-          }
-          if (r.data === 'delete') {
-            this.deleteNote(id);
-          }
-          if (r.data === 'group' && r.value) {
-            this.showRelatedNotes(r.value, r.data);
-          }
+      .closed.subscribe((res) => {
+        const r = res as
+          | { result?: boolean; data?: string; value?: string }
+          | undefined;
+        if (!r?.result) {
+          return;
         }
-      );
+        if (r.data === 'url') {
+          // ** open url in new tab **
+          window.open(note.url, 'note');
+        }
+        if (r.data === 'edit') {
+          this.showNoteEditor({ id: id });
+        }
+        if (r.data === 'delete') {
+          this.deleteNote(id);
+        }
+        if (r.data === 'group' && r.value) {
+          this.showRelatedNotes(r.value, r.data);
+        }
+      });
   }
 
   /**
@@ -2318,7 +2318,8 @@ export class SKResourceService {
         'YES',
         'NO'
       )
-      .subscribe(async (ok: { ok: boolean } | boolean | undefined) => {
+      .subscribe(async (res) => {
+        const ok = res as { ok: boolean } | boolean | undefined;
         const confirmed = typeof ok === 'boolean' ? ok : Boolean(ok && ok.ok);
         if (confirmed) {
           try {
@@ -2467,9 +2468,9 @@ export class SKResourceService {
           track: trk
         }
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; track: SKTrack }) => {
-        if (r.save) {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; track: SKTrack } | undefined;
+        if (r?.save) {
           this.putToServer('tracks', id, r.track);
         }
       });
@@ -2490,7 +2491,8 @@ export class SKResourceService {
         'YES',
         'NO'
       )
-      .subscribe(async (result: { ok: boolean; checked: boolean }) => {
+      .subscribe(async (res) => {
+        const result = res as { ok: boolean; checked: boolean } | undefined;
         if (result && result.ok) {
           try {
             await this.deleteFromServer('tracks', id);

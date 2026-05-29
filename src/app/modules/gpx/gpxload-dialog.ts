@@ -5,7 +5,7 @@ import {
   Inject,
   inject
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import {
   FbButtonComponent,
   FbCheckboxComponent,
@@ -98,13 +98,13 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   protected app = inject(AppFacade);
   // Phase 3 Batch 3: direct store injection for the fetch-progress signal.
   private settings = inject(SettingsStore);
-  protected dialogRef = inject(MatDialogRef<GPXImportDialog>);
+  protected dialogRef = inject(DialogRef<unknown, GPXImportDialog>);
   private skres = inject(SKResourceService);
   private signalk = inject(SignalKClient);
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   ngOnInit() {

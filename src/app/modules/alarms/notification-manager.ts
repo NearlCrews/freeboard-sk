@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { FbBottomSheetService } from 'src/app/design-system/primitives';
 import {
   ALARM_METHOD,
   NotificationMessage,
@@ -35,7 +35,7 @@ export class NotificationManager {
   private settings = inject(SettingsStore);
   private worker = inject(SKWorkerService);
   private signalk = inject(SignalKClient);
-  private bottomSheet = inject(MatBottomSheet);
+  private bottomSheet = inject(FbBottomSheetService);
 
   constructor() {
     this.alertMap = new Map();

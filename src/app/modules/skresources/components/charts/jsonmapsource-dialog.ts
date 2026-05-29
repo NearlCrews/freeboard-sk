@@ -5,7 +5,7 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -191,9 +191,9 @@ export class JsonMapSourceDialog {
   } = { type: '', name: '', version: '', layers: [] };
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<JsonMapSourceDialog>);
+  protected dialogRef = inject(DialogRef<unknown, JsonMapSourceDialog>);
   private http = inject(HttpClient);
-  protected data = inject<SKChart>(MAT_DIALOG_DATA);
+  protected data = inject<SKChart>(DIALOG_DATA);
   private destroyRef = inject(DestroyRef);
 
   constructor() {}

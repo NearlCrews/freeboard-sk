@@ -9,7 +9,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -117,8 +117,8 @@ export class RouteDialog implements OnInit {
   });
   protected saveDisabled = computed(() => this.rForm().invalid());
 
-  private dialogRef = inject(MatDialogRef<RouteDialog>);
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
+  private dialogRef = inject(DialogRef<unknown, RouteDialog>);
+  protected data = inject<DialogData>(DIALOG_DATA);
 
   ngOnInit() {
     this.rModel.set({ name: this.data.route.name ?? '' });

@@ -5,17 +5,15 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 
 import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
 import { AppFacade } from 'src/app/app.facade';
 import type { SKResourceSet } from '../../custom-resource-classes';
 
@@ -119,8 +117,8 @@ export class ResourceSetFeatureModal implements OnInit {
 
   constructor(
     public app: AppFacade,
-    public modalRef: MatBottomSheetRef<ResourceSetFeatureModal>,
-    @Inject(MAT_BOTTOM_SHEET_DATA)
+    public modalRef: FbBottomSheetRef<unknown, ResourceSetFeatureModal>,
+    @Inject(FB_BOTTOM_SHEET_DATA)
     public data: {
       id: string;
       item: SKResourceSet;

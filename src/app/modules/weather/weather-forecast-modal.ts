@@ -11,15 +11,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbIconComponent,
   FbProgressBarComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 import { AppFacade } from 'src/app/app.facade';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -361,9 +359,9 @@ export class WeatherForecastModal implements OnInit {
   constructor(
     public app: AppFacade,
     private sk: SignalKClient,
-    public modalRef: MatBottomSheetRef<WeatherForecastModal>,
+    public modalRef: FbBottomSheetRef<unknown, WeatherForecastModal>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any
+    @Inject(FB_BOTTOM_SHEET_DATA) public data: any
   ) {}
 
   ngOnInit() {

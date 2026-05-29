@@ -12,7 +12,7 @@ import {
   signal
 } from '@angular/core';
 
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
@@ -108,8 +108,8 @@ export class MultiSelectListDialog implements OnInit {
   );
 
   constructor(
-    private dialogRef: MatDialogRef<MultiSelectListDialog>,
-    @Inject(MAT_DIALOG_DATA)
+    private dialogRef: DialogRef<unknown, MultiSelectListDialog>,
+    @Inject(DIALOG_DATA)
     public data: {
       title: string;
       items: [{ id: string; name: string }];

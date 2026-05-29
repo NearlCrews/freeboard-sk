@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { FbDialogService } from 'src/app/design-system/primitives';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 import { ResourceStore } from 'src/app/stores';
@@ -41,7 +41,7 @@ export class FBCustomResourceService {
   private resource = inject(ResourceStore);
 
   constructor(
-    public dialog: MatDialog,
+    public dialog: FbDialogService,
     public signalk: SignalKClient,
     public app: AppFacade,
     private skres: SKResourceService

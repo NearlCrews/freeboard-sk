@@ -10,7 +10,7 @@ import {
   OnInit
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import type { DialogRef } from '@angular/cdk/dialog';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
@@ -20,6 +20,7 @@ import {
   FbCardContentComponent,
   FbCardActionsComponent,
   FbCheckboxComponent,
+  FbDialogService,
   FbIconComponent,
   FbMenuService,
   FbProgressBarComponent,
@@ -86,7 +87,7 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
   private alarm = inject(AlarmStore);
   private settings = inject(SettingsStore);
   private worker = inject(SKWorkerService);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private skgroups = inject(SKResourceGroupService);
   private mapInteract = inject(FBMapInteractService);
   private destroyRef = inject(DestroyRef);
@@ -283,9 +284,9 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
           }
         }
       })
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((result: SliderInputDialogResult | undefined) => {
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res) => {
+        const result = res as SliderInputDialogResult | undefined;
         if (result?.apply) {
           const op = toRatio(result.value);
           this.app.config.selections.chartOpacity[chart[0]] = op;
@@ -326,27 +327,25 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
    * @description Add new chart source to resources
    * */
   addChartSource(type: 'wms' | 'wmts' | 'json') {
-    let dref:
-      | MatDialogRef<WMTSDialog | WMSDialog | JsonMapSourceDialog>
-      | undefined;
+    let dref: DialogRef<unknown> | undefined;
 
     if (type === 'wmts') {
       dref = this.dialog.open(WMTSDialog, {
         disableClose: true,
         data: { format: 'chartprovider' }
-      });
+      }) as DialogRef<unknown>;
     }
     if (type === 'wms') {
       dref = this.dialog.open(WMSDialog, {
         disableClose: true,
         data: { format: 'chartprovider' }
-      });
+      }) as DialogRef<unknown>;
     }
     if (type === 'json') {
       dref = this.dialog.open(JsonMapSourceDialog, {
         disableClose: true,
         data: { format: 'chartprovider' }
-      });
+      }) as DialogRef<unknown>;
     }
     if (!dref) {
       this.alarm.showAlert(
@@ -355,27 +354,25 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
       );
       return;
     }
-    dref
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((sources: SKChart[] | undefined) => {
-        const first = sources?.[0];
-        if (!first) {
-          return;
-        }
-        if (type === 'wmts' || type === 'wms') {
-          first.source = 'resources-provider';
-          this.skres.newChart(first);
-          return;
-        }
-        if (type === 'json') {
-          first.source = 'resources-provider';
-          const c = new SKChart(first);
-          c.source = 'resources-provider';
-          this.skres.newChart(c);
-          return;
-        }
-      });
+    dref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      const sources = res as SKChart[] | undefined;
+      const first = sources?.[0];
+      if (!first) {
+        return;
+      }
+      if (type === 'wmts' || type === 'wms') {
+        first.source = 'resources-provider';
+        this.skres.newChart(first);
+        return;
+      }
+      if (type === 'json') {
+        first.source = 'resources-provider';
+        const c = new SKChart(first);
+        c.source = 'resources-provider';
+        this.skres.newChart(c);
+        return;
+      }
+    });
   }
 
   /**
@@ -419,9 +416,9 @@ export class ChartListComponent extends ResourceListBase implements OnInit {
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'chart', id);

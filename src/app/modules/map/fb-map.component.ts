@@ -19,8 +19,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {
+  FbBottomSheetService,
   FbFabComponent,
   FbIconComponent,
   FbMenuService,
@@ -279,7 +279,7 @@ export class FBMapComponent
   protected mapInteract = inject(FBMapInteractService);
   protected mapService = inject(MapService);
   private settings = inject(SettingsFacade);
-  private bottomSheet = inject(MatBottomSheet);
+  private bottomSheet = inject(FbBottomSheetService);
   private infoPanel = inject(InfoPanelFacade);
   private fbMenu = inject(FbMenuService);
   private viewContainerRef = inject(ViewContainerRef);

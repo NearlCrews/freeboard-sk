@@ -7,16 +7,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -115,13 +113,16 @@ export class AircraftPropertiesModal implements OnInit {
   protected properties: Record<string, string | number | null> = {};
 
   private sk = inject(SignalKClient);
-  protected modalRef = inject(MatBottomSheetRef<AircraftPropertiesModal>);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    AircraftPropertiesModal
+  >;
   protected data = inject<{
     title: string;
     target: SKAircraft;
     id: string;
     icon: string;
-  }>(MAT_BOTTOM_SHEET_DATA);
+  }>(FB_BOTTOM_SHEET_DATA);
   private destroyRef = inject(DestroyRef);
 
   constructor() {}

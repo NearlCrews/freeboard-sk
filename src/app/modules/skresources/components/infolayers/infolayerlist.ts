@@ -40,7 +40,8 @@ import {
 } from 'src/app/modules';
 import { FBInfoLayer, FBInfoLayers } from 'src/app/types';
 import { ResourceListBase } from '../resource-list-baseclass';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import type { DialogRef } from '@angular/cdk/dialog';
+import { FbDialogService } from 'src/app/design-system/primitives';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -104,7 +105,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
     protected app: AppFacade,
     protected override skres: SKResourceService,
     protected skresOther: FBCustomResourceService,
-    private dialog: MatDialog,
+    private dialog: FbDialogService,
     private signalk: SignalKClient
   ) {
     super('infolayers', skres);
@@ -282,7 +283,8 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
         'NO'
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(async (result: { ok: boolean } | undefined) => {
+      .subscribe(async (res) => {
+        const result = res as { ok: boolean } | undefined;
         if (result?.ok) {
           try {
             await this.skres.deleteFromServer('infolayers', id);
@@ -391,58 +393,56 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
 
   /** Add new layer */
   protected addLayer(type: 'wms' | 'wmts') {
-    let dref: MatDialogRef<WMTSDialog | WMSDialog> | undefined;
+    let dref: DialogRef<unknown> | undefined;
 
     if (type === 'wmts') {
       dref = this.dialog.open(WMTSDialog, {
         disableClose: true,
         data: { format: 'infolayer' }
-      });
+      }) as DialogRef<unknown>;
     }
     if (type === 'wms') {
       dref = this.dialog.open(WMSDialog, {
         disableClose: true,
         data: { format: 'infolayer' }
-      });
+      }) as DialogRef<unknown>;
     }
     if (!dref) {
       this.app.showAlert('Message', `Invalid source type (${type}) provided! `);
       return;
     }
-    dref
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((sources: unknown[] | undefined) => {
-        if (sources && sources.length !== 0) {
-          // signalk-http post returns any; the array carries one request per source.
-          const req = sources.map((cs) =>
-            this.signalk.api.post(
-              this.app.skApiVersion,
-              `/resources/infolayers?provider=resources-provider`,
-              cs
-            )
-          );
+    dref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      const sources = res as unknown[] | undefined;
+      if (sources && sources.length !== 0) {
+        // signalk-http post returns any; the array carries one request per source.
+        const req = sources.map((cs) =>
+          this.signalk.api.post(
+            this.app.skApiVersion,
+            `/resources/infolayers?provider=resources-provider`,
+            cs
+          )
+        );
 
-          const r = forkJoin(req).pipe(
-            catchError((error: unknown) => of(error)),
-            takeUntilDestroyed(this.destroyRef)
-          );
-          r.subscribe((res: unknown) => {
-            const errObj = (res as { error?: HttpErrorResponse })?.error;
-            if (errObj) {
-              this.app.showAlert(
-                'Add Overlay',
-                `Error saving overlay source!\n(${errObj.status}: ${errObj.message})`
-              );
-            } else {
-              this.app.showAlert(
-                'Add Overlay',
-                'Overlay sources added successfully.'
-              );
-              this.initItems();
-            }
-          });
-        }
-      });
+        const r = forkJoin(req).pipe(
+          catchError((error: unknown) => of(error)),
+          takeUntilDestroyed(this.destroyRef)
+        );
+        r.subscribe((res: unknown) => {
+          const errObj = (res as { error?: HttpErrorResponse })?.error;
+          if (errObj) {
+            this.app.showAlert(
+              'Add Overlay',
+              `Error saving overlay source!\n(${errObj.status}: ${errObj.message})`
+            );
+          } else {
+            this.app.showAlert(
+              'Add Overlay',
+              'Overlay sources added successfully.'
+            );
+            this.initItems();
+          }
+        });
+      }
+    });
   }
 }

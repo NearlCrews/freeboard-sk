@@ -1,6 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { RemarkModule } from 'ngx-remark';
 
 import {
@@ -41,9 +41,9 @@ interface DialogData {
 export class RelatedNotesDialog implements OnInit {
   protected relatedBy = '';
 
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
+  protected data = inject<DialogData>(DIALOG_DATA);
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<RelatedNotesDialog>);
+  protected dialogRef = inject(DialogRef<unknown, RelatedNotesDialog>);
 
   ngOnInit() {
     const r = this.data.relatedBy;

@@ -6,7 +6,7 @@ import {
   OnInit,
   signal
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
@@ -152,8 +152,8 @@ export class ChartSeedJobDialog implements OnInit {
   );
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<ChartSeedJobDialog>);
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
+  protected dialogRef = inject(DialogRef<unknown, ChartSeedJobDialog>);
+  protected data = inject<DialogData>(DIALOG_DATA);
 
   constructor() {}
 

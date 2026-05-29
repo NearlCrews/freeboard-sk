@@ -10,17 +10,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialog
-} from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
   FbCheckboxComponent,
   FbDialogActionsDirective,
   FbDialogContentDirective,
+  FbDialogService,
   FbIconComponent,
   FbInputComponent,
   FbListComponent,
@@ -351,13 +348,16 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
   });
   protected saveDisabled = computed(() => this.gForm().invalid());
 
-  private dialogRef = inject(MatDialogRef<ResourceGroupDialog>);
+  private dialogRef = inject(DialogRef) as DialogRef<
+    unknown,
+    ResourceGroupDialog
+  >;
   private skres = inject(SKResourceService);
-  protected dialog = inject(MatDialog);
+  protected dialog = inject(FbDialogService);
   protected data = inject<{
     addMode: boolean;
     group: SKResourceGroup;
-  }>(MAT_DIALOG_DATA);
+  }>(DIALOG_DATA);
   private destroyRef = inject(DestroyRef);
 
   constructor() {}
@@ -553,9 +553,9 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
           items: this.sortIt(rList)
         }
       })
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((items: RListEntry[] | undefined) => {
+      .closed.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res) => {
+        const items = res as RListEntry[] | undefined;
         if (items) {
           if (this.selTab === 1) {
             this.gItem.routes = [...this.gItem.routes, ...items];

@@ -1,7 +1,10 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import type { DialogRef } from '@angular/cdk/dialog';
+import {
+  FbDialogService,
+  FbSnackBarService
+} from 'src/app/design-system/primitives';
 
 import {
   AlertDialog,
@@ -65,8 +68,8 @@ interface WelcomeContentItem {
  */
 @Injectable({ providedIn: 'root' })
 export class AlarmStore {
-  private readonly dialog = inject(MatDialog);
-  private readonly snackbar = inject(MatSnackBar);
+  private readonly dialog = inject(FbDialogService);
+  private readonly snackbar = inject(FbSnackBarService);
 
   /** Inhibit context menus while an alert is showing. Mirror of uiCtrl flag. */
   private readonly _inhibitContextMenu = signal<boolean>(false);
@@ -81,30 +84,24 @@ export class AlarmStore {
   // ----- dialog primitives -----
 
   showMsgBox(title: string, message: string, btn?: string) {
-    return this.dialog
-      .open(MsgBox, {
-        disableClose: false,
-        data: { message, title, buttonText: btn }
-      })
-      .afterClosed();
+    return this.dialog.open(MsgBox, {
+      disableClose: false,
+      data: { message, title, buttonText: btn }
+    }).closed;
   }
 
   showAlert(title: string, message: string, btn?: string) {
-    return this.dialog
-      .open(AlertDialog, {
-        disableClose: false,
-        data: { message, title, buttonText: btn }
-      })
-      .afterClosed();
+    return this.dialog.open(AlertDialog, {
+      disableClose: false,
+      data: { message, title, buttonText: btn }
+    }).closed;
   }
 
   showErrorList(errList: ErrorList, btn?: string) {
-    return this.dialog
-      .open(ErrorListDialog, {
-        disableClose: false,
-        data: { errorList: errList, buttonText: btn }
-      })
-      .afterClosed();
+    return this.dialog.open(ErrorListDialog, {
+      disableClose: false,
+      data: { errorList: errList, buttonText: btn }
+    }).closed;
   }
 
   showMessage(message: string, sound = false, duration = 5000): void {
@@ -121,18 +118,16 @@ export class AlarmStore {
     btn2?: string,
     checkText?: string
   ) {
-    return this.dialog
-      .open(ConfirmDialog, {
-        disableClose: true,
-        data: {
-          message,
-          title,
-          button1Text: btn1,
-          button2Text: btn2,
-          checkText
-        }
-      })
-      .afterClosed();
+    return this.dialog.open(ConfirmDialog, {
+      disableClose: true,
+      data: {
+        message,
+        title,
+        button1Text: btn1,
+        button2Text: btn2,
+        checkText
+      }
+    }).closed;
   }
 
   /**
@@ -145,7 +140,7 @@ export class AlarmStore {
     launchResult: LaunchResult,
     data: FBAppData,
     kioskMode: boolean
-  ): MatDialogRef<WelcomeDialog> | undefined {
+  ): DialogRef<unknown, WelcomeDialog> | undefined {
     if (kioskMode || !['first_run', 'major', 'minor'].includes(launchResult)) {
       return undefined;
     }

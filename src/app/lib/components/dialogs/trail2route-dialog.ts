@@ -10,7 +10,7 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -77,9 +77,9 @@ export class Trail2RouteDialog implements OnInit {
     private skres: SKResourceService,
     protected app: AppFacade,
     private stream: SKStreamFacade,
-    public dialogRef: MatDialogRef<Trail2RouteDialog>,
+    public dialogRef: DialogRef<unknown, Trail2RouteDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
 
+import { FbDialogService } from 'src/app/design-system/primitives';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 
@@ -26,7 +26,7 @@ export type FBResourceGroups = FBResourceGroup[];
 @Injectable({ providedIn: 'root' })
 export class SKResourceGroupService {
   constructor(
-    private dialog: MatDialog,
+    private dialog: FbDialogService,
     private signalk: SignalKClient,
     private app: AppFacade
   ) {}
@@ -164,8 +164,8 @@ export class SKResourceGroupService {
           group: grp
         }
       })
-      .afterClosed()
-      .subscribe((r: { save: boolean; group: SKResourceGroup } | undefined) => {
+      .closed.subscribe((res) => {
+        const r = res as { save: boolean; group: SKResourceGroup } | undefined;
         if (r?.save) {
           if (id) {
             this.putToServer(id, r.group).catch((err) =>
@@ -193,7 +193,8 @@ export class SKResourceGroupService {
         'YES',
         'NO'
       )
-      .subscribe(async (result: { ok: boolean } | undefined) => {
+      .subscribe(async (res) => {
+        const result = res as { ok: boolean } | undefined;
         if (result?.ok) {
           try {
             await this.deleteFromServer(id);

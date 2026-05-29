@@ -9,7 +9,7 @@ import {
   effect
 } from '@angular/core';
 
-import { MatDialogRef } from '@angular/material/dialog';
+import { DialogRef } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -150,7 +150,7 @@ export class SettingsDialog implements OnInit {
   constructor(
     protected facade: SettingsFacade,
     protected myElement: ElementRef,
-    protected dialogRef: MatDialogRef<SettingsDialog>,
+    protected dialogRef: DialogRef<unknown, SettingsDialog>,
     protected wakeLock: WakeLockService,
     private s57: S57Service,
     protected app: AppFacade

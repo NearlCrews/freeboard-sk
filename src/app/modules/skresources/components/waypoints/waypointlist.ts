@@ -14,7 +14,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatDialog } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
@@ -23,6 +22,7 @@ import {
   FbCardContentComponent,
   FbCardActionsComponent,
   FbCheckboxComponent,
+  FbDialogService,
   FbIconComponent,
   FbProgressBarComponent,
   FbSearchInputComponent,
@@ -82,7 +82,7 @@ export class WaypointListComponent
 
   protected app = inject(AppFacade);
   private worker = inject(SKWorkerService);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private skgroups = inject(SKResourceGroupService);
   private destroyRef = inject(DestroyRef);
 
@@ -243,9 +243,9 @@ export class WaypointListComponent
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'waypoint', id);

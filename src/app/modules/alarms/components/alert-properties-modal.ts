@@ -6,16 +6,14 @@ import {
   inject
 } from '@angular/core';
 import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
-import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 
 import { SignalKDetailsComponent } from '../../skresources';
@@ -159,10 +157,13 @@ export class AlertPropertiesModal implements OnInit {
   protected raisedAt!: string;
 
   protected notiMgr = inject(NotificationManager);
-  protected modalRef = inject(MatBottomSheetRef<AlertPropertiesModal>);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    AlertPropertiesModal
+  >;
 
   constructor(
-    @Inject(MAT_BOTTOM_SHEET_DATA)
+    @Inject(FB_BOTTOM_SHEET_DATA)
     public data: {
       alert: AlertData;
     }

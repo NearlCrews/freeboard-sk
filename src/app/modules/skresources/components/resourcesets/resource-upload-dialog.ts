@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -66,9 +66,9 @@ export class ResourceImportDialog implements OnInit {
   constructor(
     public app: AppFacade,
     public skclient: SignalKClient,
-    public dialogRef: MatDialogRef<ResourceImportDialog>,
+    public dialogRef: DialogRef<unknown, ResourceImportDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: Record<string, any>
+    @Inject(DIALOG_DATA) public data: Record<string, any>
   ) {}
 
   ngOnInit() {

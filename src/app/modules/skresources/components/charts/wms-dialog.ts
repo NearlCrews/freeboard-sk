@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -131,9 +131,9 @@ export class WMSDialog {
   protected dataSource: LayerNode[] = [];
 
   protected app = inject(AppFacade);
-  protected dialogRef = inject(MatDialogRef<WMSDialog>);
+  protected dialogRef = inject(DialogRef<unknown, WMSDialog>);
   protected data = inject<{ format: 'chartprovider' | 'infolayer' }>(
-    MAT_DIALOG_DATA
+    DIALOG_DATA
   );
 
   constructor() {}

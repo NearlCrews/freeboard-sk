@@ -23,7 +23,8 @@ import {
   FbCheckboxComponent,
   FbIconComponent,
   FbSearchInputComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FbDialogService
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -32,7 +33,6 @@ import { Position, FBRegions, FBRegion, FBResourceSelect } from 'src/app/types';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { ResourceListBase } from '../resource-list-baseclass';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
-import { MatDialog } from '@angular/material/dialog';
 import { SKRegion } from '../../resource-classes';
 import { SKResourceGroupService } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
@@ -73,7 +73,7 @@ export class RegionListComponent
 
   protected app = inject(AppFacade);
   private worker = inject(SKWorkerService);
-  private dialog = inject(MatDialog);
+  private dialog = inject(FbDialogService);
   private skgroups = inject(SKResourceGroupService);
   private destroyRef = inject(DestroyRef);
 
@@ -212,9 +212,9 @@ export class RegionListComponent
             items: glist
           }
         })
-        .afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async (selGrp) => {
+        .closed.pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (res) => {
+          const selGrp = res as { id: string } | undefined;
           if (selGrp) {
             try {
               await this.skgroups.addToGroup(selGrp.id, 'region', id);

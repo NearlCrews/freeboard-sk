@@ -672,8 +672,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
               if (!loaded && this.app.launchStatus.result === 'first_run') {
                 const wr = this.app.showWelcome(false);
                 if (wr) {
-                  wr.afterClosed().subscribe((r) => {
-                    if (r) this.openSettings();
+                  wr.closed.subscribe((r) => {
+                    const result = r as boolean | undefined;
+                    if (result) this.openSettings();
                   });
                 }
               } else {
@@ -1332,7 +1333,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         'Save Changes'
       )
       .subscribe((result) => {
-        this.applyModifyDecision(result, forSave);
+        this.applyModifyDecision(result as boolean, forSave);
         this.mapInteract.draw.forSave = null;
         this.shell.focusMap();
       });

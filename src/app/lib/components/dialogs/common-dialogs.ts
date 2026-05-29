@@ -3,8 +3,7 @@
 
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -12,7 +11,8 @@ import {
   FbDialogActionsDirective,
   FbDialogContentDirective,
   FbDialogTitleDirective,
-  FbIconComponent
+  FbIconComponent,
+  FB_SNACK_BAR_DATA
 } from 'src/app/design-system/primitives';
 
 /*********** MsgBox ***************
@@ -63,9 +63,9 @@ export class MsgBox implements OnInit {
   public msglines = [];
 
   constructor(
-    public dialogRef: MatDialogRef<MsgBox>,
+    public dialogRef: DialogRef<unknown, MsgBox>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -134,9 +134,9 @@ export class AlertDialog implements OnInit {
   public image = null;
 
   constructor(
-    public dialogRef: MatDialogRef<AlertDialog>,
+    public dialogRef: DialogRef<unknown, AlertDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -226,9 +226,9 @@ export class ConfirmDialog implements OnInit {
   public checked = false;
 
   constructor(
-    public dialogRef: MatDialogRef<ConfirmDialog>,
+    public dialogRef: DialogRef<unknown, ConfirmDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 
   //** lifecycle: events **
@@ -267,7 +267,7 @@ export class ConfirmDialog implements OnInit {
 })
 export class MessageBarComponent {
   constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
+    @Inject(FB_SNACK_BAR_DATA)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public data: any
   ) {}
@@ -384,8 +384,8 @@ export class WelcomeDialog {
   public currentPage = 1;
 
   constructor(
-    public dialogRef: MatDialogRef<WelcomeDialog>,
+    public dialogRef: DialogRef<unknown, WelcomeDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA) public data: any
   ) {}
 }

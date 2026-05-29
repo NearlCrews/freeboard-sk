@@ -6,18 +6,16 @@ import {
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA
-} from '@angular/material/bottom-sheet';
 
 import {
+  FbBottomSheetRef,
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
   FbIconComponent,
   FbToolbarComponent,
-  FbTooltipDirective
+  FbTooltipDirective,
+  FB_BOTTOM_SHEET_DATA
 } from 'src/app/design-system/primitives';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
@@ -229,7 +227,10 @@ export class ActiveResourcePropertiesModal implements OnInit {
   protected closestPoint = signal<number>(-1);
 
   protected app = inject(AppFacade);
-  protected modalRef = inject(MatBottomSheetRef<ActiveResourcePropertiesModal>);
+  protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
+    unknown,
+    ActiveResourcePropertiesModal
+  >;
   protected course = inject(CourseService);
   protected skres = inject(SKResourceService);
   protected data = inject<{
@@ -237,7 +238,7 @@ export class ActiveResourcePropertiesModal implements OnInit {
     type: string;
     resource: FBRoute | FBWaypoint;
     noButtons: boolean;
-  }>(MAT_BOTTOM_SHEET_DATA);
+  }>(FB_BOTTOM_SHEET_DATA);
 
   constructor() {}
 

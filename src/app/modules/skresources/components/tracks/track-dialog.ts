@@ -9,7 +9,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 
 import {
   FbButtonComponent,
@@ -118,8 +118,8 @@ export class TrackDialog implements OnInit {
   });
   protected saveDisabled = computed(() => this.tForm().invalid());
 
-  protected data = inject<DialogData>(MAT_DIALOG_DATA);
-  private dialogRef = inject(MatDialogRef<TrackDialog>);
+  protected data = inject<DialogData>(DIALOG_DATA);
+  private dialogRef = inject(DialogRef<unknown, TrackDialog>);
 
   ngOnInit() {
     const props = this.data.track.feature?.properties;
