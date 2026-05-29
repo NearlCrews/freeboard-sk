@@ -19,3 +19,5 @@ out-tsc
 /zoomed*.png
 /page-*.png
 /.superpowers/
+.eslintcache
+.eslintcache-baseline
