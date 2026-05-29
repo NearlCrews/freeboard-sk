@@ -8,14 +8,6 @@ import { AppFacade } from 'src/app/app.facade';
 import { GeoUtils } from 'src/app/lib/geoutils';
 
 import type { SKInfoLayer } from '.';
-import {
-  RegionDialog,
-  RouteDialog,
-  WaypointDialog,
-  RelatedNotesDialog,
-  TrackDialog,
-  ChartPropertiesDialog
-} from '.';
 import { processUrlTokens } from 'src/app/app.config';
 
 import {
@@ -60,7 +52,6 @@ import type {
   PathValue
 } from 'src/app/types';
 import { SKWorkerService } from '../skstream/skstream.service';
-import { ChartSeedJobDialog } from './components/charts/chart-seedjob-dialog';
 
 // Single source of truth for SKResourceType. The tuple drives the
 // compile-time union AND the runtime guard so a string can't be
@@ -941,10 +932,12 @@ export class SKResourceService {
    * @description Create new Chart and save to server
    * @param chart
    */
-  public newChart(chart: SKChart): void {
+  public async newChart(chart: SKChart): Promise<void> {
     if (!chart) {
       return;
     }
+    const { ChartPropertiesDialog } =
+      await import('./components/charts/chart-properties-dialog');
     this.dialog
       .open(ChartPropertiesDialog, {
         disableClose: true,
@@ -999,6 +992,8 @@ export class SKResourceService {
         return;
       }
     }
+    const { ChartPropertiesDialog } =
+      await import('./components/charts/chart-properties-dialog');
     this.dialog
       .open(ChartPropertiesDialog, {
         disableClose: true,
@@ -1041,6 +1036,8 @@ export class SKResourceService {
       maxLat: ne[1]
     };
     // confirm cache seeding job submission
+    const { ChartSeedJobDialog } =
+      await import('./components/charts/chart-seedjob-dialog');
     this.dialog
       .open(ChartSeedJobDialog, {
         data: { chart: chart, bbox: bbox }
@@ -1240,10 +1237,11 @@ export class SKResourceService {
    * @description Create new Route and save to server
    * @param route
    */
-  private newRoute(route: SKRoute): void {
+  private async newRoute(route: SKRoute): Promise<void> {
     if (!route) {
       return;
     }
+    const { RouteDialog } = await import('./components/routes/route-dialog');
     this.dialog
       .open(RouteDialog, {
         disableClose: true,
@@ -1285,6 +1283,7 @@ export class SKResourceService {
       this.app.parseHttpErrorResponse(err);
       return;
     }
+    const { RouteDialog } = await import('./components/routes/route-dialog');
     this.dialog
       .open(RouteDialog, {
         disableClose: true,
@@ -1520,10 +1519,12 @@ export class SKResourceService {
    * @description Create new Waypoint and save to server
    * @param waypoint
    */
-  private newWaypoint(waypoint: SKWaypoint): void {
+  private async newWaypoint(waypoint: SKWaypoint): Promise<void> {
     if (!waypoint) {
       return;
     }
+    const { WaypointDialog } =
+      await import('./components/waypoints/waypoint-dialog');
     this.dialog
       .open(WaypointDialog, {
         disableClose: true,
@@ -1565,6 +1566,8 @@ export class SKResourceService {
       this.app.parseHttpErrorResponse(err);
       return;
     }
+    const { WaypointDialog } =
+      await import('./components/waypoints/waypoint-dialog');
     this.dialog
       .open(WaypointDialog, {
         disableClose: true,
@@ -1703,10 +1706,11 @@ export class SKResourceService {
    * @description Create new Region and save to server
    * @param region
    */
-  public newRegion(region: SKRegion): void {
+  public async newRegion(region: SKRegion): Promise<void> {
     if (!region) {
       return;
     }
+    const { RegionDialog } = await import('./components/regions/region-dialog');
     this.dialog
       .open(RegionDialog, {
         disableClose: true,
@@ -1747,6 +1751,7 @@ export class SKResourceService {
       this.app.parseHttpErrorResponse(err);
       return;
     }
+    const { RegionDialog } = await import('./components/regions/region-dialog');
     this.dialog
       .open(RegionDialog, {
         disableClose: true,
@@ -2111,6 +2116,8 @@ export class SKResourceService {
         `${paramName}=${id}`
       );
       this.app.sIsFetching.set(false);
+      const { RelatedNotesDialog } =
+        await import('./components/notes/relatednotes-dialog');
       this.dialog
         .open(RelatedNotesDialog, {
           disableClose: true,
@@ -2459,6 +2466,7 @@ export class SKResourceService {
       this.app.parseHttpErrorResponse(err);
       return;
     }
+    const { TrackDialog } = await import('./components/tracks/track-dialog');
     this.dialog
       .open(TrackDialog, {
         disableClose: true,

@@ -8,24 +8,16 @@ import { AlarmStore, SettingsStore } from 'src/app/stores';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppShellService } from './app-shell.service';
 import {
-  ActiveResourcePropertiesModal,
-  AircraftPropertiesModal,
-  AISPropertiesModal,
-  AtoNPropertiesModal,
   CourseService,
-  CourseSettingsModal,
   FBCustomResourceService,
   NotificationManager,
-  ResourceSetFeatureModal,
-  ResourceSetModal,
   SKAircraft,
   SKAtoN,
   SKResourceService,
   SKSaR,
   SKSTREAM_MODE,
   SKVessel,
-  StreamOptions,
-  WeatherForecastModal
+  StreamOptions
 } from 'src/app/modules';
 import { ErrorList } from 'src/app/types';
 import { SKRoute } from 'src/app/modules/skresources';
@@ -388,12 +380,14 @@ export class DialogOrchestrator {
       });
   }
 
-  // ----- eager bottom sheets -----
+  // ----- lazy bottom sheets -----
 
-  showWeather(mode: string): void {
+  async showWeather(mode: string): Promise<void> {
     if (mode !== 'forecast') {
       return;
     }
+    const { WeatherForecastModal } =
+      await import('src/app/modules/weather/weather-forecast-modal');
     this.bottomSheet
       .open(WeatherForecastModal, {
         disableClose: true,
@@ -407,7 +401,9 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  openCourseSettings(): void {
+  async openCourseSettings(): Promise<void> {
+    const { CourseSettingsModal } =
+      await import('src/app/modules/course/course-settings');
     this.bottomSheet
       .open(CourseSettingsModal, {
         disableClose: true,
@@ -417,10 +413,12 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  openResourceSet(path: string): void {
+  async openResourceSet(path: string): Promise<void> {
     if (!this.app.config.resources.paths.includes(path)) {
       return;
     }
+    const { ResourceSetModal } =
+      await import('src/app/modules/skresources/components/resourcesets/resourceset-list-modal');
     this.bottomSheet
       .open(ResourceSetModal, {
         disableClose: true,
@@ -475,6 +473,8 @@ export class DialogOrchestrator {
     if (!v) {
       return;
     }
+    const { ActiveResourcePropertiesModal } =
+      await import('src/app/modules/skresources/components/active-resource-dialog');
     this.bottomSheet
       .open(ActiveResourcePropertiesModal, {
         disableClose: true,
@@ -494,7 +494,10 @@ export class DialogOrchestrator {
       });
   }
 
-  private openAtonProperties(e: { id: string; type: string }): void {
+  private async openAtonProperties(e: {
+    id: string;
+    type: string;
+  }): Promise<void> {
     let v: SKSaR | SKAtoN | undefined;
     let title: string;
     let icon: string;
@@ -518,6 +521,8 @@ export class DialogOrchestrator {
     if (!v) {
       return;
     }
+    const { AtoNPropertiesModal } =
+      await import('src/app/modules/skresources/components/ais/aton-properties-modal');
     this.bottomSheet
       .open(AtoNPropertiesModal, {
         disableClose: true,
@@ -527,11 +532,13 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  private openAircraftProperties(id: string): void {
+  private async openAircraftProperties(id: string): Promise<void> {
     const v: SKAircraft | undefined = this.app.data.aircraft.get(id);
     if (!v) {
       return;
     }
+    const { AircraftPropertiesModal } =
+      await import('src/app/modules/skresources/components/ais/aircraft-properties-modal');
     this.bottomSheet
       .open(AircraftPropertiesModal, {
         disableClose: true,
@@ -541,11 +548,13 @@ export class DialogOrchestrator {
       .subscribe(() => this.focus());
   }
 
-  private openResourceSetFeature(id: string): void {
+  private async openResourceSetFeature(id: string): Promise<void> {
     const v = this.skresOther.fromResourceSetCache(id);
     if (!v) {
       return;
     }
+    const { ResourceSetFeatureModal } =
+      await import('src/app/modules/skresources/components/resourcesets/resourceset-feature-properties-modal');
     this.bottomSheet
       .open(ResourceSetFeatureModal, {
         disableClose: true,
@@ -580,6 +589,8 @@ export class DialogOrchestrator {
     if (!v) {
       return;
     }
+    const { AISPropertiesModal } =
+      await import('src/app/modules/skresources/components/ais/ais-properties-modal');
     this.bottomSheet
       .open(AISPropertiesModal, {
         disableClose: true,
