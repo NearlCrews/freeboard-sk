@@ -29,10 +29,7 @@ import { FbButtonComponent } from 'src/app/design-system/primitives/button/butto
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import { CompassComponent } from 'src/app/modules/map/popovers/compass.component';
 
-interface PanCenter {
-  center: Position;
-  zoomLevel?: number;
-}
+import type { PanCenter } from '../pan-center';
 
 @Component({
   selector: 'fb-vessel-info-panel',

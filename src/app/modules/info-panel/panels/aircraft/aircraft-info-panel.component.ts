@@ -11,7 +11,6 @@ import { AppFacade } from 'src/app/app.facade';
 import { SKAircraft } from 'src/app/modules';
 import { Convert } from 'src/app/lib/convert';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { Position } from 'src/app/types';
 
 import {
   FbInfoPanelLayoutComponent,
@@ -24,10 +23,7 @@ import {
 import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 
-interface PanCenter {
-  center: Position;
-  zoomLevel?: number;
-}
+import type { PanCenter } from '../pan-center';
 
 @Component({
   selector: 'fb-aircraft-info-panel',

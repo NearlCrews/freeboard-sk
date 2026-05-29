@@ -1,3 +1,4 @@
+import type { Position as ServerApiPosition } from '@signalk/server-api';
 import {
   PointFeature,
   LineStringFeature,
@@ -5,11 +6,14 @@ import {
   MultiPolygonFeature
 } from './geojson';
 
-export interface SKPosition {
-  latitude: number;
-  longitude: number;
-  altitude?: number;
-}
+/**
+ * Lat/lon/altitude position. Re-exports `Position` from
+ * `@signalk/server-api` so the codebase stays aligned with the upstream
+ * Signal K type and the local GeoJSON tuple `Position` (which lives in
+ * ./geojson) keeps its short name. Use SKPosition whenever the value is
+ * an object with `latitude`/`longitude`, never the tuple form.
+ */
+export type SKPosition = ServerApiPosition;
 
 export type Routes = Record<string, RouteResource>;
 export type Waypoints = Record<string, WaypointResource>;

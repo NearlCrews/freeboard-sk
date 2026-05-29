@@ -11,7 +11,6 @@ import { AppFacade } from 'src/app/app.facade';
 import { SKAtoN, SKMeteo } from 'src/app/modules';
 import { Convert } from 'src/app/lib/convert';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import { Position } from 'src/app/types';
 
 import {
   FbInfoPanelLayoutComponent,
@@ -25,10 +24,7 @@ import { FbButtonComponent } from 'src/app/design-system/primitives/button/butto
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import { NorthUpCompassComponent } from 'src/app/modules/map/popovers/compass.component';
 
-interface PanCenter {
-  center: Position;
-  zoomLevel?: number;
-}
+import type { PanCenter } from '../pan-center';
 
 @Component({
   selector: 'fb-aton-info-panel',

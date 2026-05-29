@@ -1,5 +1,7 @@
 /** Signal K Types */
 
+import type { SKPosition } from './resources/signalk';
+
 // Notification types
 export enum ALARM_STATE {
   nominal = 'nominal',
@@ -42,12 +44,6 @@ export interface ActionResult {
   statusCode?: number;
   message?: string;
   timestamp?: string;
-}
-
-export interface SKPosition {
-  latitude: number;
-  longitude: number;
-  altitude?: number;
 }
 
 /***************** */
