@@ -29,9 +29,10 @@
       pos.longitude | coords: app.config.units.positionFormat : false }}
     </span>
     } @if ($any(_note()).timestamp; as ts) {
-    <span class="pill">
+    <span class="pill pill--timestamp">
       <fb-icon name="schedule" ariaLabel=""></fb-icon>
-      {{ timeAgo(ts) }}
+      <span class="pill__label">Last updated</span>
+      <span class="pill__value">{{ timeAgo(ts) }}</span>
     </span>
     }
   </div>
@@ -122,16 +123,22 @@
     } @if (pluginInfo(); as plugin) {
     <p class="ip-attribution">
       @if (plugin.name) {
-      <span class="ip-attribution__line">
-        Source:
-        <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
-          >{{ plugin.name }}</a
-        >
-      </span>
+      <span class="ip-attribution__line"
+        ><span
+          >Source:
+          <a [href]="plugin.url" target="_blank" rel="noopener noreferrer"
+            >{{ plugin.name }}</a
+          ></span
+        ></span
+      >
       @if (plugin.attribution) {
-      <span class="ip-attribution__line">{{ plugin.attribution }}</span>
+      <span class="ip-attribution__line"
+        ><span>{{ plugin.attribution }}</span></span
+      >
       } } @else if (plugin.attribution) {
-      <span class="ip-attribution__line">{{ plugin.attribution }}</span>
+      <span class="ip-attribution__line"
+        ><span>{{ plugin.attribution }}</span></span
+      >
       }
     </p>
     }

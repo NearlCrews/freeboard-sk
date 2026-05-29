@@ -188,6 +188,25 @@ export class FbInfoPanelRelatedDirective {}
       border-color: var(--color-primary);
     }
 
+    /* Timestamp pill: quieter than the other meta pills (it is reference
+       info, not status). Italic label distinguishes "Last updated" from
+       the value, and a softer background reads as an aside. */
+    :host ::ng-deep .ip-meta > .pill.pill--timestamp {
+      background: var(--color-surface-alt, var(--color-surface));
+      color: var(--color-text-muted);
+      border-color: var(--color-border);
+      font-weight: var(--font-weight-medium);
+      letter-spacing: normal;
+      text-transform: none;
+    }
+    :host ::ng-deep .ip-meta > .pill.pill--timestamp .pill__label {
+      font-style: italic;
+      color: var(--color-text-muted);
+    }
+    :host ::ng-deep .ip-meta > .pill.pill--timestamp .pill__value {
+      color: var(--color-text);
+    }
+
     :host ::ng-deep .ip-meta > .pill.draft,
     :host ::ng-deep .ip-meta > .pill.warn {
       border-color: var(--color-warning);
@@ -351,19 +370,18 @@ export class FbInfoPanelRelatedDirective {}
       letter-spacing: 0.02em;
     }
     :host ::ng-deep .ip-body .ip-attribution__line {
-      display: block;
-      padding-left: 0.9em;
-      text-indent: -0.9em;
+      display: flex;
+      align-items: baseline;
+      gap: 0.35em;
     }
     :host ::ng-deep .ip-body .ip-attribution__line::before {
-      content: '\\00B7';
-      display: inline-block;
-      width: 0.9em;
-      margin: 0;
+      content: '\\2022';
+      flex: 0 0 auto;
       color: var(--color-text-muted);
+      line-height: 1;
     }
     :host ::ng-deep .ip-body .ip-attribution__line + .ip-attribution__line {
-      margin-top: var(--space-xs);
+      margin-top: 0.15em;
     }
     :host ::ng-deep .ip-body .ip-attribution a {
       color: var(--color-primary);

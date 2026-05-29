@@ -407,6 +407,7 @@ $mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
     }
 
     .pos-pill {
+      flex-basis: 100%;
       background: transparent;
       border: 1px solid var(--notes-text-faint);
       color: var(--notes-text-muted);
