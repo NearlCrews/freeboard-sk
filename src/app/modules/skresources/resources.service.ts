@@ -53,6 +53,7 @@ import type {
 } from 'src/app/types';
 import { SKWorkerService } from '../skstream/skstream.service';
 import { SelectionsManager } from './selections-manager';
+import { ChartsCollection } from './charts.collection';
 import { RegionsCollection } from './regions.collection';
 import { RoutesCollection } from './routes.collection';
 import { TracksCollection } from './tracks.collection';
@@ -136,6 +137,7 @@ export class SKResourceService {
   private worker = inject(SKWorkerService);
 
   private readonly selectionsManager = inject(SelectionsManager);
+  private readonly chartsCollection = inject(ChartsCollection);
   private readonly regionsCollection = inject(RegionsCollection);
   private readonly routesCollection = inject(RoutesCollection);
   private readonly tracksCollection = inject(TracksCollection);
@@ -204,17 +206,10 @@ export class SKResourceService {
    * @param collection
    * @returns Reference to resource cache
    */
-  private getCacheRef(
-    collection: Exclude<
-      SKResourceType,
-      'tracks' | 'regions' | 'waypoints' | 'routes'
-    >
-  ) {
+  private getCacheRef(collection: Extract<SKResourceType, 'notes'>) {
     switch (collection) {
       case 'notes':
         return this.noteCacheSignal;
-      case 'charts':
-        return this.chartCacheSignal;
     }
   }
 
@@ -250,13 +245,16 @@ export class SKResourceService {
     if (collection === 'routes') {
       return this.routesCollection.fromCache(id);
     }
+    if (collection === 'charts') {
+      return this.chartsCollection.fromCache(id);
+    }
     if (CACHED_COLLECTIONS.has(collection)) {
       const cache = this.getCacheRef(collection);
       if (!cache) {
         this.app.showAlert('Error', 'Collection not found!');
         return undefined;
       }
-      return cache().find((r) => r[0] === id) as FBNote | FBChart | undefined;
+      return cache().find((r) => r[0] === id) as FBNote | undefined;
     }
     return undefined;
   }
@@ -385,7 +383,7 @@ export class SKResourceService {
       case 'notes':
         return this.transformNote(resource as NoteResource, id);
       case 'charts':
-        return this.transformChart(resource as ChartResource, id);
+        return this.chartsCollection.transform(resource as ChartResource, id);
       case 'tracks':
         return this.tracksCollection.transform(resource as TrackResource);
     }
@@ -556,453 +554,64 @@ export class SKResourceService {
     }
   }
 
-  // **** CHARTS ****
+  // **** CHARTS (delegated to ChartsCollection) ****
 
-  private chartCacheSignal = signal<FBCharts>([]);
-  readonly charts = this.chartCacheSignal.asReadonly();
+  readonly charts = this.chartsCollection.charts;
 
-  /**
-   * @description Add OSM charts to supplied chart list
-   * @param chtList List of FBChart objects
-   * @returns Updated FBChart array
-   */
   public appendOSM(chtList: FBCharts): FBCharts {
-    const isChartSelected = (id: string): boolean => {
-      if (!this.app) {
-        return true;
-      }
-      if (!this.selectionIsFiltered('charts')) {
-        return true;
-      }
-      return this.selectionHas('charts', id);
-    };
-    const openStreetMap: FBChart = [
-      'openstreetmap',
-      new SKChart({
-        name: 'World Map',
-        description: 'Open Street Map'
-      }),
-      isChartSelected('openstreetmap')
-    ];
-    const openSeaMap: FBChart = [
-      'openseamap',
-      new SKChart({
-        name: 'Sea Map',
-        description: 'Open Sea Map',
-        url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
-        minzoom: 1,
-        maxzoom: 24,
-        bounds: [-180, -90, 180, 90],
-        type: 'tilelayer'
-      }),
-      isChartSelected('openseamap')
-    ];
-    chtList.push(openSeaMap);
-    chtList.unshift(openStreetMap);
-    return chtList;
+    return this.chartsCollection.appendOSM(chtList);
   }
 
-  /**
-   * @description Refresh Chart cache with entries fetched from sk server
-   * @param query Filter criteria for charts in placed in the cache
-   */
-  public async refreshCharts(query?: string) {
-    if (query && !query.startsWith('?')) {
-      query = '?' + query;
-    }
-    this.app.debug(`** refreshCharts(): ${query}`);
-    try {
-      const chts = await this.listFromServer<FBChart>('charts', query);
-      this.appendOSM(chts);
-      let flist = chts.filter((chart: FBChart) => chart[2]);
-      flist = this.sortByScaleDesc(flist);
-      flist = this.arrangeChartLayers(flist);
-      // set map zoom extent
-      this.setMapZoomRange();
-      this.chartCacheSignal.set(flist);
-    } catch (err) {
-      this.app.debug('** refreshCharts:', err);
-      const flist = this.appendOSM([]);
-      this.setMapZoomRange();
-      this.chartCacheSignal.set(flist);
-    }
+  public refreshCharts(query?: string): Promise<void> {
+    return this.chartsCollection.refresh(query);
   }
 
-  /**
-   * @description Signal K v2 API transformation
-   * @param chart Chart entry from server
-   * @param id Chart resource identifier
-   * @returns SKChart object
-   */
-  private transformChart(chart: ChartResource, id: string): SKChart {
-    // v1->2 alignment
-    if (chart.tilemapUrl) {
-      chart.url = chart.tilemapUrl;
-    }
-    if (chart.chartLayers) {
-      chart.layers = chart.chartLayers;
-    }
-    if (chart.serverType && !chart.type) {
-      chart.type = chart.serverType;
-    }
-    if (chart.type) {
-      // ensure host is in url
-      if (
-        chart.url &&
-        (chart.url.startsWith('/') || !chart.url.startsWith('http'))
-      ) {
-        chart.url = (this.app.hostDef.url ?? '') + chart.url;
-      }
-    }
-    // map local chart opacity (chartOpacity is a Record<string, number>)
-    const localOpacity = this.app.config.selections.chartOpacity[id];
-    if (typeof localOpacity === 'number') {
-      chart.defaultOpacity = localOpacity;
-    }
-    return new SKChart(chart);
-  }
-
-  /**
-   * @description Calculate the aggregated min / max zoom from the selected charts
-   * @param useDefault Uses the default extent when true
-   */
   public setMapZoomRange(useDefault?: boolean): void {
-    const defaultExtent = {
-      min: 2,
-      max: 28
-    };
-
-    if (useDefault || !this.app.uiConfig().mapConstrainZoom) {
-      this.app.MAP_ZOOM_EXTENT = defaultExtent;
-    } else {
-      const derivedExtent = {
-        min: 1000,
-        max: -1
-      };
-      this.chartCacheSignal().forEach((c: FBChart) => {
-        if (c[2]) {
-          // selected
-          if (c[1].minZoom < derivedExtent.min) {
-            derivedExtent.min = c[1].minZoom;
-          }
-          if (c[1].maxZoom > derivedExtent.max) {
-            derivedExtent.max = c[1].maxZoom;
-          }
-        }
-        this.app.MAP_ZOOM_EXTENT.min =
-          derivedExtent.min === 1000 ? defaultExtent.min : derivedExtent.min;
-        this.app.MAP_ZOOM_EXTENT.max =
-          derivedExtent.max === -1 ? defaultExtent.max : derivedExtent.max;
-      });
-      this.app.debug('*** MAP_ZOOM_EXTENT', this.app.MAP_ZOOM_EXTENT);
-    }
+    this.chartsCollection.setMapZoomRange(useDefault);
   }
 
-  /**
-   * @description Confirm Chart Deletion
-   * @param id Chart identifier
-   */
-  public deleteChart(id: string) {
-    if (!id) {
-      return;
-    }
-    this.app
-      .showConfirm(
-        'Do you want to delete this Chart source?\n',
-        'Delete Chart:',
-        'YES',
-        'NO'
-      )
-      .subscribe((res) => {
-        const result = res as { ok: boolean } | undefined;
-        if (result && result.ok) {
-          this.deleteFromServer('charts', id, 'resources-provider').catch(
-            (err: HttpErrorResponse) => this.app.parseHttpErrorResponse(err)
-          );
-        }
-      });
+  public deleteChart(id: string): void {
+    this.chartsCollection.delete(id);
   }
 
-  /**
-   * @description Sort charts by scale (descending)
-   * @param chartList FBChart array
-   * @returns Sorted FBChart array
-   */
-  private sortByScaleDesc(chartList: FBCharts): FBCharts {
-    return chartList.sort((a: FBChart, b: FBChart) => {
-      return b[1].scale - a[1].scale;
-    });
+  public arrangeChartLayers(chartList: FBCharts): FBCharts {
+    return this.chartsCollection.arrangeLayers(chartList);
   }
 
-  /**
-   * @description Arrange chart layers in defined order (app.config.selections.chartOrder).
-   * @param chartList FBChart array
-   * @returns Ordered FBChart array
-   */
-  public arrangeChartLayers(chartList: FBCharts) {
-    if (!Array.isArray(this.app.config.selections.chartOrder)) {
-      this.app.config.selections.chartOrder = [];
-    }
-    const chartOrder = this.app.config.selections.chartOrder;
-    // ensure chartList ids are included in chartOrder
-    chartList.forEach((c: FBChart) => {
-      if (!chartOrder.includes(c[0])) {
-        chartOrder.push(c[0]);
-      }
-    });
-
-    const chtIds = new Set(chartList.map((c: FBChart) => c[0]));
-    const refList = chartOrder.filter((i: string) => chtIds.has(i));
-
-    for (let destidx = 0; destidx < refList.length; destidx++) {
-      const srcidx = chartList.findIndex(
-        (c: FBChart) => c[0] === refList[destidx]
-      );
-      if (srcidx !== -1) {
-        moveItemInArray(chartList, srcidx, destidx + 1);
-      }
-    }
-    return chartList.slice();
+  public chartReorder(): void {
+    this.chartsCollection.reorder();
   }
 
-  /**
-   * @description Trigger re-order of chart cache entries
-   */
-  public chartReorder() {
-    this.chartCacheSignal.update((current: FBCharts) => {
-      return this.arrangeChartLayers(current);
-    });
+  public chartAddFromServer(ids?: string[]): void {
+    this.chartsCollection.addFromServer(ids);
   }
 
-  /**
-   * @description Add FBChart objects to the Chart Cache
-   * @param ids Array of chart identifiers. If not supplied all charts will be added.
-   */
-  public chartAddFromServer(ids?: string[]) {
-    if (!ids) {
-      // add all charts retrieved from server
-      this.selectionUnfilter('charts');
-    } else {
-      if (this.selectionIsFiltered('charts')) {
-        this.selectionAdd('charts', ids);
-      }
-    }
-    this.refreshCharts();
+  public chartAdd(charts: FBCharts): void {
+    this.chartsCollection.add(charts);
   }
 
-  /**
-   * @description Add FBChart objects to the Chart Cache
-   * @param charts FBChart array
-   */
-  public chartAdd(charts: FBCharts) {
-    this.chartCacheSignal.update((current: FBCharts) => {
-      if (this.selectionIsFiltered('charts')) {
-        this.selectionAdd(
-          'charts',
-          charts.map((c: FBChart) => c[0])
-        );
-      }
-      return this.arrangeChartLayers(current.concat(charts));
-    });
+  public chartRemove(ids?: string[]): void {
+    this.chartsCollection.remove(ids);
   }
 
-  /**
-   * @description Remove FBChart objects from the Chart Cache
-   * @param ids Array of chart identifiers. If not supplied all charts are removed.
-   */
-  public chartRemove(ids?: string[]) {
-    this.chartCacheSignal.update((current: FBCharts) => {
-      if (!ids) {
-        // remove all entries
-        this.selectionClear('charts');
-        this.app.saveConfig();
-        return [];
-      } else {
-        this.selectionRemove('charts', ids);
-        return current.filter((c) => !ids.includes(c[0]));
-      }
-    });
-  }
-
-  /**
-   * @description Update opacity value of Chart object in the Chart Cache
-   * @param id Chart identifier
-   * @param value Opacity value to set (0-1)
-   */
   public chartSetOpacity(id: string, value: number): void {
-    if (!id || !Number.isFinite(value)) {
-      return;
-    }
-    const idx = this.chartCacheSignal().findIndex((c: FBChart) => c[0] === id);
-    if (idx !== -1) {
-      this.chartCacheSignal.update((current: FBCharts) => {
-        return current.map((c: FBChart): FBChart => {
-          if (c[0] !== id) {
-            return c;
-          }
-          const updated = new SKChart(c[1]);
-          updated.defaultOpacity = value;
-          return c[2] === undefined ? [c[0], updated] : [c[0], updated, c[2]];
-        });
-      });
-    }
+    this.chartsCollection.setOpacity(id, value);
   }
 
-  /**
-   * @description Select the charts with the supplied ids for inclusion into the cache.
-   * @param ids Array of chart identifiers
-   */
-  public chartSelected(ids: string | string[]) {
-    ids = !Array.isArray(ids) ? [ids] : ids;
-    ids.forEach((id: string) => {
-      if (!this.selectionHas('charts', id)) {
-        this.selectionAdd('charts', id);
-      } else {
-        this.selectionRemove('charts', id);
-      }
-    });
-    this.refreshCharts();
+  public chartSelected(ids: string | string[]): void {
+    this.chartsCollection.toggleSelection(ids);
   }
 
-  /**
-   * @description Create new Chart and save to server
-   * @param chart
-   */
-  public async newChart(chart: SKChart): Promise<void> {
-    if (!chart) {
-      return;
-    }
-    const { ChartPropertiesDialog } =
-      await import('./components/charts/chart-properties-dialog');
-    this.dialog
-      .open(ChartPropertiesDialog, {
-        disableClose: true,
-        data: chart
-      })
-      .closed.subscribe(async (res) => {
-        const r = res as { save: boolean; chart: SKChart } | undefined;
-        if (r?.save) {
-          try {
-            const cht = await this.postToServer('charts', r.chart);
-            if (cht.id) {
-              this.selectionAdd('charts', cht.id);
-            }
-          } catch (err) {
-            this.app.parseHttpErrorResponse(err);
-          }
-        }
-      });
+  public newChart(chart: SKChart): Promise<void> {
+    return this.chartsCollection.create(chart);
   }
 
-  /**
-   * @description Fetch Chart with supplied id and display edit dialog
-   * @param id chart identifier
-   */
-  public async editChartInfo(id: string): Promise<void> {
-    if (!id) {
-      return;
-    }
-    let chart: SKChart;
-    if (['openseamap', 'openstreetmap'].includes(id)) {
-      const host =
-        id === 'openseamap'
-          ? 'tiles.openseamap.org/seamark'
-          : 'tile.openstreetmap.org';
-      chart = new SKChart({
-        name: id === 'openseamap' ? 'Sea Map' : 'World Map',
-        description: id === 'openseamap' ? 'Open Sea Map' : 'Open Street Map',
-        url: `https://${host}/{z}/{x}/{y}.png`,
-        minzoom: 1,
-        maxzoom: 24,
-        bounds: [-180, -90, 180, 90],
-        type: 'tilelayer'
-      });
-    } else {
-      try {
-        this.app.sIsFetching.set(true);
-        chart = await this.fromServer('charts', id);
-        this.app.sIsFetching.set(false);
-      } catch (err) {
-        this.app.sIsFetching.set(false);
-        this.app.parseHttpErrorResponse(err);
-        return;
-      }
-    }
-    const { ChartPropertiesDialog } =
-      await import('./components/charts/chart-properties-dialog');
-    this.dialog
-      .open(ChartPropertiesDialog, {
-        disableClose: true,
-        data: chart
-      })
-      .closed.subscribe((res) => {
-        const r = res as { save: boolean; chart: SKChart } | undefined;
-        if (r?.save) {
-          this.putToServer('charts', id, r.chart).catch((err) =>
-            this.app.parseHttpErrorResponse(err)
-          );
-        }
-      });
+  public editChartInfo(id: string): Promise<void> {
+    return this.chartsCollection.editInfo(id);
   }
 
-  /**
-   * @description Seed chart cache for the selected area (charts-plugin)
-   * @param chart FBChart tuple [id, SKChart, selected]
-   * @param bbox Bounding box [southwest, northeast]
-   */
-  public async seedChartCache(chart: FBChart, bbox: Position[]): Promise<void> {
-    if (!chart || !Array.isArray(bbox)) {
-      this.app.showAlert('Selection Error', 'Invalid selection data!');
-      return;
-    }
-    if (bbox.length !== 2) {
-      this.app.showAlert('Selection Error', 'Invalid selection!');
-      return;
-    }
-    const sw = bbox[0];
-    const ne = bbox[1];
-    if (!sw || !ne) {
-      this.app.showAlert('Selection Error', 'Invalid selection!');
-      return;
-    }
-    const parsedBbox = {
-      minLon: sw[0],
-      minLat: sw[1],
-      maxLon: ne[0],
-      maxLat: ne[1]
-    };
-    // confirm cache seeding job submission
-    const { ChartSeedJobDialog } =
-      await import('./components/charts/chart-seedjob-dialog');
-    this.dialog
-      .open(ChartSeedJobDialog, {
-        data: { chart: chart, bbox: bbox }
-      })
-      .closed.subscribe((res) => {
-        const maxZoom = res as number | undefined;
-        if (typeof maxZoom === 'number' && maxZoom > 0) {
-          const req = {
-            bbox: parsedBbox,
-            maxZoom: maxZoom
-          };
-          this.app.debug(
-            `Submit chart seed job ${JSON.stringify(req)} for chart ${chart[0]}`
-          );
-          this.signalk
-            .post(`/signalk/chart-tiles/cache/${chart[0]}`, req)
-            .subscribe({
-              next: () => {
-                this.app.showAlert(
-                  'Chart Cache',
-                  `Tile cache seed job created successfully.`
-                );
-              },
-              error: (err: HttpErrorResponse) => {
-                this.app.parseHttpErrorResponse(err);
-              }
-            });
-        }
-      });
+  public seedChartCache(chart: FBChart, bbox: Position[]): Promise<void> {
+    return this.chartsCollection.seedCache(chart, bbox);
   }
 
   // **** ROUTES (delegated to RoutesCollection) ****
@@ -1051,8 +660,6 @@ export class SKResourceService {
   ): void {
     this.routesCollection.updateCoords(id, coords, coordsMeta);
   }
-
-  // **** ROUTES OLD CODE (TO REMOVE) ****
 
   // **** WAYPOINTS (delegated to WaypointsCollection) ****
 
