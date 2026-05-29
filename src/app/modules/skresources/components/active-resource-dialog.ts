@@ -24,7 +24,7 @@ import { AppFacade } from 'src/app/app.facade';
 
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKResourceService } from '../resources.service';
-import { CourseService } from '../../course';
+import { CourseService } from '../../course/course.service';
 import { Convert } from 'src/app/lib/convert';
 
 interface CoordinatesMetaEntry {

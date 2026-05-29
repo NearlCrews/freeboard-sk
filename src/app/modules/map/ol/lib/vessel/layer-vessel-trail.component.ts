@@ -19,7 +19,7 @@ import { MultiLineString, LineString } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords } from '../util';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { AsyncSubject } from 'rxjs';
 
 // ** Open Binnacle Vessel trail component **

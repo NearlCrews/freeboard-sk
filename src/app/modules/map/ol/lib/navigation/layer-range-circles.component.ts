@@ -21,7 +21,7 @@ import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { AsyncSubject } from 'rxjs';
 import { Convert, TARGET_UNIT } from '../../../../../lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';

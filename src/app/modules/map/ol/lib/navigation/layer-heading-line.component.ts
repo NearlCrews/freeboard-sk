@@ -21,7 +21,7 @@ import { LineString, Point } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray } from '../util';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { AsyncSubject } from 'rxjs';
 import { LineStyleDef } from 'src/app/modules/settings/components/linestyle-select.component';
 

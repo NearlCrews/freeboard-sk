@@ -15,7 +15,7 @@ import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBWaypoints } from 'src/app/types';
 import { SKWaypoint } from 'src/app/modules/skresources';
 import { MapImageRegistry } from '../map-image-registry.service';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 
 // ** Open Binnacle resource collection format **

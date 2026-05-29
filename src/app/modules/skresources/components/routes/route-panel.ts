@@ -29,7 +29,7 @@ import {
   FbStepperComponent,
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
-import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout/info-panel-layout.component';
 
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';
@@ -42,7 +42,7 @@ import {
   SKResourceGroupService
 } from '../groups/groups.service';
 import { SingleSelectListDialog } from 'src/app/lib/components';
-import { CourseService } from 'src/app/modules/course';
+import { CourseService } from 'src/app/modules/course/course.service';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { ActiveResourcePropertiesModal } from '../active-resource-dialog';
 

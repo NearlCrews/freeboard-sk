@@ -24,7 +24,7 @@ import {
   FbInfoPanelMetaDirective,
   FbInfoPanelActionsDirective,
   FbInfoPanelBodyDirective
-} from 'src/app/modules/info-panel/layout';
+} from 'src/app/modules/info-panel/layout/info-panel-layout.component';
 import { FbButtonComponent } from 'src/app/design-system/primitives/button/button.component';
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import { CompassComponent } from 'src/app/modules/map/popovers/compass.component';

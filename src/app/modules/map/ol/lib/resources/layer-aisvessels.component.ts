@@ -17,7 +17,7 @@ import { AISBaseLayerComponent } from './ais-base.component';
 import { SKVessel } from 'src/app/modules/skresources';
 import { fromLonLatArray } from '../util';
 import { MapImageRegistry } from '../map-image-registry.service';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 
 // Reused transparent fill for COG segment markers; new Fill() per segment per
 // render was a measurable allocation churn when many AIS targets had cog lines.

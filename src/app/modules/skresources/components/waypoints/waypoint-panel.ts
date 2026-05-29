@@ -26,7 +26,7 @@ import {
   FbNavListComponent,
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
-import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout/info-panel-layout.component';
 
 import { AppFacade } from 'src/app/app.facade';
 import { AlarmStore } from 'src/app/stores';

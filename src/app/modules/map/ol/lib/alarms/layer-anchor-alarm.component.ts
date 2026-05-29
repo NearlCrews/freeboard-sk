@@ -22,7 +22,7 @@ import { fromLonLat } from 'ol/proj';
 import { MapComponent } from '../map.component';
 import { Extent, Coordinate } from '../models';
 import { fromLonLatArray, mapifyCoords, mapifyRadius } from '../util';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { AsyncSubject } from 'rxjs';
 
 // ** Open Binnacle Anchor Alarm component **

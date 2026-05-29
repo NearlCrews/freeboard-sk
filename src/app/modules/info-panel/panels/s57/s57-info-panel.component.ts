@@ -11,7 +11,7 @@ import {
   FbInfoPanelTitleDirective,
   FbInfoPanelMetaDirective,
   FbInfoPanelBodyDirective
-} from 'src/app/modules/info-panel/layout';
+} from 'src/app/modules/info-panel/layout/info-panel-layout.component';
 import { FbIconComponent } from 'src/app/design-system/primitives/icon/icon.component';
 import { S57_NAMES } from 'src/app/modules/map/popovers/s57-consts';
 

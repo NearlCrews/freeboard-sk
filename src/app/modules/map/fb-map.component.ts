@@ -97,7 +97,10 @@ import {
 } from './ol/lib/map.component';
 import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { chartNightMode } from './ol/lib/charts/night-mode-filter';
-import { applyNightMode, removeNightMode } from './ol/lib/webgl';
+import {
+  applyNightMode,
+  removeNightMode
+} from './ol/lib/webgl/night-mode-webgl';
 import { FeatureLike } from 'ol/Feature';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {

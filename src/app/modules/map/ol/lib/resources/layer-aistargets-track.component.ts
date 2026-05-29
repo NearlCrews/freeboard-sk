@@ -12,7 +12,7 @@ import { MultiLineString } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { AISBaseLayerComponent } from './ais-base.component';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 
 // ** Signal K AIS targets track  **
 @Component({

@@ -14,7 +14,7 @@ import { MapComponent, zoomOffsetLevel } from '../map.component';
 import { AISBaseLayerComponent } from './ais-base.component';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { SKVessel } from 'src/app/modules/skresources';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 
 // ** Signal K AIS Vessel Wind vector  **
 @Component({

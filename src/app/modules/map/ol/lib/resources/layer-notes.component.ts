@@ -14,7 +14,7 @@ import { MapComponent } from '../map.component';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
 import { FBNotes, NoteResource } from 'src/app/types';
 import { MapImageRegistry } from '../map-image-registry.service';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { SKNote } from 'src/app/modules/skresources';
 

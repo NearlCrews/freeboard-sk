@@ -26,7 +26,7 @@ import { AppFacade } from 'src/app/app.facade';
 import { NotificationManager } from '../notification-manager';
 import { AppIconDef } from '../../icons';
 import { ALARM_STATE } from 'src/app/types/stream';
-import { CourseService } from '../../course';
+import { CourseService } from '../../course/course.service';
 import { alertSeverityClass } from './alert-severity';
 
 export interface AlertData {

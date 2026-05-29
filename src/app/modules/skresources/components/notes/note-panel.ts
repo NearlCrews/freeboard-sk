@@ -18,13 +18,13 @@ import {
   FbIconComponent,
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
-import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout';
+import { FbInfoPanelLayoutComponent } from 'src/app/modules/info-panel/layout/info-panel-layout.component';
 
 import { AppFacade } from 'src/app/app.facade';
 import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon } from 'src/app/modules/icons';
 import { SKNote } from '../../resource-classes';
-import { CourseService } from 'src/app/modules/course';
+import { CourseService } from 'src/app/modules/course/course.service';
 import type { Position } from 'src/app/types';
 import {
   groupColor as groupColorOf,

@@ -12,7 +12,7 @@ import { Polygon, MultiPolygon } from 'ol/geom';
 import { MapComponent } from '../map.component';
 import { fromLonLatArray, mapifyCoords } from '../util';
 import { FBFeatureLayerComponent } from '../sk-feature.component';
-import { MapThemeService } from '../theme';
+import { MapThemeService } from '../theme/map-theme.service';
 import { FEATURE_ID_PREFIX } from './feature-id-prefix';
 import { FBRegions } from 'src/app/types';
 

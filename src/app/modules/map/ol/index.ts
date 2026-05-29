@@ -168,5 +168,7 @@ export class OpenBinnacleOpenlayersModule {}
 
 // Re-export Phase 4b additions so they enter the TS program graph
 // and consumers can import via the ol barrel.
-export * from './lib/theme';
-export * from './lib/webgl';
+export { MapThemeService } from './lib/theme/map-theme.service';
+export type { MapThemePalette } from './lib/theme/map-theme.service';
+export { applyNightMode, removeNightMode } from './lib/webgl/night-mode-webgl';
+export { WebGLAISLayerComponent } from './lib/webgl/layer-ais-webglpoints.component';
