@@ -32,7 +32,6 @@ export type FbBadgeSeverity = 'primary' | 'warn' | 'danger' | 'info';
     </span>
   `,
   host: {
-    '[attr.aria-hidden]': 'hidden() ? "true" : null',
     '[attr.data-position]': 'position()',
     '[attr.data-size]': 'size()',
     '[attr.data-severity]': 'severity()'
@@ -153,7 +152,7 @@ export type FbBadgeSeverity = 'primary' | 'warn' | 'danger' | 'info';
   ]
 })
 export class FbBadgeComponent {
-  readonly value = input<string>('');
+  readonly value = input<string | number>('');
   readonly hidden = input<boolean>(false);
   readonly overlap = input<boolean>(true);
   readonly position = input<FbBadgePosition>('above after');
@@ -162,7 +161,7 @@ export class FbBadgeComponent {
   readonly ariaLabel = input<string>('');
 
   readonly bubbleClasses = computed(() => {
-    const variant = this.value() === '' ? 'dot' : 'text';
+    const variant = String(this.value()) === '' ? 'dot' : 'text';
     const positionClass = `pos-${this.position().replace(' ', '-')}`;
     const overlapClass = this.overlap() ? 'overlap' : 'no-overlap';
     return [

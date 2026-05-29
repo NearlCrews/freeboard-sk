@@ -332,15 +332,13 @@
           class="fb-menu-item"
           (click)="showLogin(undefined, false); close()"
         >
-          <fb-icon
-            name="account_circle"
-            ariaLabel=""
-            matBadge="!"
-            matBadgeOverlap="true"
-            matBadgeSize="medium"
-            matBadgePosition="below after"
-            [matBadgeHidden]="app.isLoggedIn()"
-          ></fb-icon>
+          <fb-badge
+            value="!"
+            position="below after"
+            [hidden]="app.isLoggedIn()"
+          >
+            <fb-icon name="account_circle" ariaLabel=""></fb-icon>
+          </fb-badge>
           <span>{{ app.isLoggedIn() ? 'Change User' : 'Login' }}</span>
         </button>
         <hr class="fb-menu-divider" />
@@ -692,34 +690,37 @@
             <!-- left button bar -->
             <div class="leftTop buttonPanel">
               <div class="buttonPanelItem">
-                <fb-fab
-                  variant="secondary"
-                  icon="menu"
-                  ariaLabel="Menu"
-                  [disabled]="isInteracting()"
-                  matBadge="!"
-                  matBadgeOverlap="true"
-                  [matBadgeHidden]="app.isLoggedIn()"
-                  matTooltip="Menu"
-                  matTooltipPosition="right"
-                  (pressed)="openMainMenu($event)"
-                ></fb-fab>
+                <fb-badge value="!" [hidden]="app.isLoggedIn()">
+                  <fb-fab
+                    variant="secondary"
+                    icon="menu"
+                    ariaLabel="Menu"
+                    [disabled]="isInteracting()"
+                    matTooltip="Menu"
+                    matTooltipPosition="right"
+                    (pressed)="openMainMenu($event)"
+                  ></fb-fab>
+                </fb-badge>
               </div>
             </div>
             @if (app.uiConfig().toolbarButtons) {
               <div class="buttonPanel left">
                 <div class="buttonPanelItem">
-                  <fb-fab
-                    variant="danger"
-                    svgName="alert-list"
-                    ariaLabel="Alarms"
-                    matTooltip="Alarms"
-                    matTooltipPosition="left"
-                    [matBadge]="notiMgr.alerts().length"
-                    matBadgeOverlap="true"
-                    [matBadgeHidden]="notiMgr.alerts().length === 0"
-                    (pressed)="toggleAlertList(true)"
-                  ></fb-fab>
+                  <fb-badge
+                    [value]="notiMgr.alerts().length"
+                    severity="danger"
+                    [ariaLabel]="notiMgr.alerts().length + ' active alarms'"
+                    [hidden]="notiMgr.alerts().length === 0"
+                  >
+                    <fb-fab
+                      variant="danger"
+                      svgName="alert-list"
+                      ariaLabel="Alarms"
+                      matTooltip="Alarms"
+                      matTooltipPosition="left"
+                      (pressed)="toggleAlertList(true)"
+                    ></fb-fab>
+                  </fb-badge>
                 </div>
                 <div class="buttonPanelItem">
                   <fb-fab
