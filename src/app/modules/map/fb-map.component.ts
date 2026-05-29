@@ -112,6 +112,7 @@ import { ScaleLine } from 'ol/control';
 import { Units } from 'ol/control/ScaleLine';
 import { DragBoxEvent } from 'ol/interaction/DragBox';
 import { MapService } from './ol/lib/map.service';
+import { MapPersistenceController } from './map-persistence.controller';
 import { FEATURE_ID_PREFIX_TO_RESOURCE_TYPE } from './ol/lib/resources/feature-id-prefix';
 
 interface IResource {
@@ -253,9 +254,6 @@ export class FBMapComponent
     closest: []
   };
 
-  private saveTimer: ReturnType<typeof setInterval> | null = null;
-  private isDirty = false;
-
   protected mouse: {
     pixel: number[] | null;
     coords: Position;
@@ -286,6 +284,7 @@ export class FBMapComponent
   private infoPanel = inject(InfoPanelFacade);
   private fbMenu = inject(FbMenuService);
   private viewContainerRef = inject(ViewContainerRef);
+  private readonly persistence = inject(MapPersistenceController);
 
   constructor() {
     effect(() => {
@@ -350,7 +349,7 @@ export class FBMapComponent
   }
 
   ngOnDestroy() {
-    this.stopSaveTimer();
+    this.persistence.stop();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -369,9 +368,9 @@ export class FBMapComponent
     const movingMapChange = changes['movingMap'];
     if (movingMapChange && !movingMapChange.firstChange) {
       if (movingMapChange.currentValue) {
-        this.startSaveTimer();
+        this.persistence.start();
       } else {
-        this.stopSaveTimer();
+        this.persistence.stop();
       }
       this.centerVessel();
     }
@@ -423,25 +422,6 @@ export class FBMapComponent
     return {
       LAYERS: chart.layers ? chart.layers.join(',') : ''
     };
-  }
-
-  // ** periodically persist state (used in movingMap mode)
-  private startSaveTimer() {
-    if (!this.saveTimer) {
-      this.saveTimer = setInterval(() => {
-        if (this.isDirty) {
-          this.app.saveConfig();
-          this.isDirty = false;
-        }
-      }, 30000);
-    }
-  }
-
-  private stopSaveTimer() {
-    if (this.saveTimer) {
-      clearInterval(this.saveTimer);
-      this.saveTimer = null;
-    }
   }
 
   // ********** EVENT HANDLERS *****************
@@ -624,9 +604,9 @@ export class FBMapComponent
     this.drawVesselLines();
     if (!this.movingMap) {
       this.app.saveConfig();
-      this.isDirty = false;
+      this.persistence.markClean();
     } else {
-      this.isDirty = true;
+      this.persistence.markDirty();
     }
 
     // render map features
