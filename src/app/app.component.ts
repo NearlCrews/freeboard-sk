@@ -32,7 +32,6 @@ import {
   FbProgressBarComponent,
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import {
   ETADialComponent,
   FileInputComponent,
@@ -132,7 +131,6 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   imports: [
-    MatSidenavModule,
     FbBadgeComponent,
     FbButtonComponent,
     FbDividerComponent,
@@ -180,7 +178,21 @@ import { chartNightMode } from './modules/map/ol/lib/charts/night-mode-filter';
   ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-  @ViewChild('sideright', { static: false }) sideright?: MatSidenav;
+  protected rightOpen = signal(false);
+
+  protected toggleRight(): void {
+    const next = !this.rightOpen();
+    this.rightOpen.set(next);
+    this.rightSideNavAction(next);
+  }
+
+  protected closeRight(): void {
+    if (this.rightOpen()) {
+      this.rightOpen.set(false);
+      this.rightSideNavAction(false);
+    }
+  }
+
   @ViewChild(FBMapComponent) private fbMap?: FBMapComponent;
 
   @ViewChild('layersmenuTpl', { static: true })
@@ -1199,7 +1211,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.app.data.vessels.activeId = null;
       } else {
         this.app.data.vessels.active = av;
-        this.sideright?.close();
+        this.closeRight();
       }
     }
     this.app.data.activeRoute = null;

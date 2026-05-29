@@ -1,14 +1,40 @@
 /** main app styles **/
 
-/** Material style overrides **/
-mat-sidenav-container {
+/** App shell three-pane layout: left info panel, main map, right plugin pane. */
+.app-shell {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   height: 100%;
+  width: 100%;
 }
-mat-sidenav {
-  width: 200px;
+.app-shell__left {
+  width: 0;
+  overflow: hidden;
+  transition: width 220ms ease;
 }
-mat-nav-list {
-  padding-top: 0;
+.app-shell__left--open {
+  width: 380px;
+  overflow: visible;
+}
+.app-shell__right {
+  width: 0;
+  overflow: hidden;
+  transition: width 220ms ease;
+}
+.app-shell__right--open {
+  width: 350px;
+  overflow: visible;
+}
+.app-shell__main {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell__left,
+  .app-shell__right {
+    transition: none;
+  }
 }
 
 /** Main App fullscreen Frame **/

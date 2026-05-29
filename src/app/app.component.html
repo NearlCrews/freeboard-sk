@@ -433,15 +433,11 @@
 
     <!-- content -->
     <div class="view" theme-main>
-      <mat-sidenav-container hasBackdrop="false">
+      <div class="app-shell">
         <!--info-panel-->
-        <mat-sidenav
-          #sideleft
-          [disableClose]="false"
-          [opened]="infoPanel.opened()"
-          mode="side"
-          position="start"
-          style="width: 380px"
+        <aside
+          class="app-shell__left"
+          [class.app-shell__left--open]="infoPanel.opened()"
         >
           <info-panel>
             @if (infoPanel.item(); as ipItem) {
@@ -573,16 +569,13 @@
               }
             }
           </info-panel>
-        </mat-sidenav>
+        </aside>
 
         <!--instrument-panel-->
         @if (app.instrumentPanelAvailable()) {
-          <mat-sidenav
-            #sideright
-            mode="side"
-            position="end"
-            (openedChange)="rightSideNavAction($event)"
-            style="width: 350px"
+          <aside
+            class="app-shell__right"
+            [class.app-shell__right--open]="rightOpen()"
           >
             <div
               style="display: flex; flex-direction: column; position: relative"
@@ -592,7 +585,7 @@
                   <fb-button
                     variant="ghost"
                     ariaLabel="Close instruments panel"
-                    (pressed)="sideright.toggle()"
+                    (pressed)="toggleRight()"
                   >
                     <fb-icon name="arrow_forward" ariaLabel=""></fb-icon>
                   </fb-button>
@@ -601,9 +594,7 @@
                     <fb-button
                       variant="ghost"
                       ariaLabel="Open instruments in a new window"
-                      (pressed)="
-                        openInstrumentsInNewWindow(); sideright.toggle()
-                      "
+                      (pressed)="openInstrumentsInNewWindow(); toggleRight()"
                       fbTooltip="Open Instruments in window."
                       fbTooltipPosition="right"
                     >
@@ -657,9 +648,9 @@
                 }
               </div>
             </div>
-          </mat-sidenav>
+          </aside>
         }
-        <mat-sidenav-content style="overflow: hidden">
+        <main class="app-shell__main">
           @if (app.sIsFetching()) {
             <div
               style="
@@ -1025,7 +1016,7 @@
                       variant="secondary"
                       icon="av_timer"
                       ariaLabel="Instruments"
-                      (pressed)="sideright?.toggle()"
+                      (pressed)="toggleRight()"
                       fbTooltip="Instruments"
                       fbTooltipPosition="before"
                     ></fb-fab>
@@ -1411,8 +1402,8 @@
           @if (!isInteracting() && !app.kioskMode()) {
             <mfb-container [action]="app.config.display.fab"> </mfb-container>
           }
-        </mat-sidenav-content>
-      </mat-sidenav-container>
+        </main>
+      </div>
     </div>
     <!-- /content -->
   </div>
