@@ -1,14 +1,12 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RemarkModule } from 'ngx-remark';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbToolbarComponent,
   FbTooltipDirective
@@ -30,8 +28,9 @@ interface DialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
-    MatDialogModule,
     FbToolbarComponent,
     FbTooltipDirective,
     RemarkModule

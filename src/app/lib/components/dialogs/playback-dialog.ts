@@ -8,14 +8,13 @@ import {
   computed,
   signal
 } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   FbButtonComponent,
   FbDatepickerComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbFormFieldComponent,
   FbIconComponent,
   FbSelectComponent,
@@ -27,9 +26,11 @@ import {
   selector: 'ap-playbackdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
     FbDatepickerComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
     FbFormFieldComponent,
     FbIconComponent,
     FbSelectComponent,
@@ -38,12 +39,12 @@ import {
   template: `
     <div class="_ap-playback">
       <div>
-        <h1 mat-dialog-title>
+        <h1 fbDialogTitle>
           <fb-icon name="history" ariaLabel=""></fb-icon>&nbsp;
           &nbsp;&nbsp;History Playback
         </h1>
       </div>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex">
           <div>
             <div>
@@ -103,8 +104,8 @@ import {
             </div>
           </div>
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions>
+      </div>
+      <div fbDialogActions>
         <div style="text-align:center;width:100%;">
           <fb-button
             variant="primary"
@@ -115,7 +116,7 @@ import {
           </fb-button>
           <fb-button variant="ghost" (pressed)="submit(true)">CANCEL</fb-button>
         </div>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

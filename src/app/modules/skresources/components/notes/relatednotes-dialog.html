@@ -18,7 +18,7 @@
     </fb-button>
   </fb-toolbar>
 
-  <mat-dialog-content class="related-content">
+  <div fbDialogContent class="related-content">
     <div class="related-notes-grid">
       @for (n of data.notes; track n[0]) {
       <article
@@ -100,9 +100,9 @@
       </article>
       }
     </div>
-  </mat-dialog-content>
+  </div>
 
-  <mat-dialog-actions class="related-actions" align="end">
+  <div fbDialogActions class="related-actions" align="end">
     <fb-button
       variant="primary"
       [disabled]="data.readOnly"
@@ -111,5 +111,5 @@
       <fb-icon name="add" ariaLabel=""></fb-icon>
       Add note
     </fb-button>
-  </mat-dialog-actions>
+  </div>
 </div>

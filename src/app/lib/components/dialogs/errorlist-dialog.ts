@@ -4,14 +4,13 @@ import {
   Inject,
   OnInit
 } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent,
   FbListComponent,
   FbListItemComponent
@@ -27,16 +26,18 @@ import {
   selector: 'ap-errorlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
-    FbIconComponent,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
+    FbIconComponent,
     FbListComponent,
     FbListItemComponent
   ],
   template: `
     <div class="_ap-errlist">
       <div>
-        <h1 mat-dialog-title>
+        <h1 fbDialogTitle>
           <fb-icon
             name="warning"
             ariaLabel=""
@@ -45,7 +46,7 @@ import {
           &nbsp;{{ data.errorList?.length }} Errors Encountered
         </h1>
       </div>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <fb-list>
           @for (err of data.errorList; track err) {
             <fb-list-item>
@@ -54,12 +55,12 @@ import {
             </fb-list-item>
           }
         </fb-list>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

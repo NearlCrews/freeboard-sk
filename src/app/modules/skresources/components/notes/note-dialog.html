@@ -58,7 +58,7 @@
   </fb-toolbar>
 
   @if(!data.editable) {
-  <mat-dialog-content>
+  <div fbDialogContent>
     <fb-card variant="outlined">
       <fb-card-content>
         @if(data.note.properties['draft']) {
@@ -168,9 +168,9 @@
       </fb-card-actions>
       }
     </fb-card>
-  </mat-dialog-content>
+  </div>
   } @else {
-  <mat-dialog-content>
+  <div fbDialogContent>
     <div class="flex">
       <div class="flex-auto">
         <div>
@@ -278,8 +278,8 @@
         </div>
       </div>
     </div>
-  </mat-dialog-content>
-  <mat-dialog-actions align="right">
+  </div>
+  <div fbDialogActions align="end">
     <div style="display: flex; align-items: center; gap: var(--space-sm)">
       <span>Draft:</span>
       <fb-switch
@@ -296,6 +296,6 @@
     >
       SAVE
     </fb-button>
-  </mat-dialog-actions>
+  </div>
   }
 </div>

@@ -10,15 +10,13 @@ import {
   Inject
 } from '@angular/core';
 
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
   FbButtonComponent,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent,
   FbListComponent,
   FbListItemComponent
@@ -35,8 +33,9 @@ import {
   selector: 'ap-singleselectlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
     FbIconComponent,
     FbListComponent,
     FbListItemComponent
@@ -55,7 +54,7 @@ import {
           }
         </div>
         <div class="flex-auto">
-          <h1 mat-dialog-title>{{ data.title ?? 'Select Item' }}</h1>
+          <h1 fbDialogTitle>{{ data.title ?? 'Select Item' }}</h1>
         </div>
         <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">
           <fb-button
@@ -69,7 +68,7 @@ import {
         </div>
       </div>
 
-      <mat-dialog-content style="padding-top: var(--space-xs);">
+      <div fbDialogContent style="padding-top: var(--space-xs);">
         <fb-list>
           @for (i of this.data.items; track i.id) {
             <fb-list-item interactive (activated)="handleClose(i)">
@@ -77,7 +76,7 @@ import {
             </fb-list-item>
           }
         </fb-list>
-      </mat-dialog-content>
+      </div>
     </div>
   `,
   styles: [

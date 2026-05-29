@@ -8,11 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { form, FormField, max, min, required } from '@angular/forms/signals';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import type { SKWaypoint } from '../../resource-classes';
@@ -21,6 +17,8 @@ import { getResourceIcon, getSvgList } from 'src/app/modules/icons';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbSelectComponent,
@@ -83,6 +81,8 @@ interface WaypointTypeOption {
   imports: [
     CommonModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbSelectComponent,
@@ -91,7 +91,6 @@ interface WaypointTypeOption {
     FbTextareaComponent,
     FbToolbarComponent,
     FbTooltipDirective,
-    MatDialogModule,
     CoordsPipe,
     FormField
   ],
@@ -116,7 +115,7 @@ interface WaypointTypeOption {
           </fb-button>
         </div>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex">
           <div class="flex-auto">
             <div>
@@ -274,9 +273,9 @@ interface WaypointTypeOption {
             </div>
           </div>
         </div>
-      </mat-dialog-content>
+      </div>
       @if (!wptReadOnly) {
-        <mat-dialog-actions align="end">
+        <div fbDialogActions align="end">
           <fb-button
             variant="primary"
             [disabled]="saveDisabled() || wptReadOnly"
@@ -284,7 +283,7 @@ interface WaypointTypeOption {
           >
             SAVE
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

@@ -9,15 +9,14 @@ import {
   inject
 } from '@angular/core';
 
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent,
   FbSliderComponent
 } from 'src/app/design-system/primitives';
@@ -32,8 +31,10 @@ export interface SliderInputDialogResult {
   selector: 'ap-slider-input-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
     FbIconComponent,
     FbSliderComponent
   ],
@@ -51,7 +52,7 @@ export interface SliderInputDialogResult {
           }
         </div>
         <div class="flex-auto">
-          <h1 mat-dialog-title>{{ data.title ?? '' }}</h1>
+          <h1 fbDialogTitle>{{ data.title ?? '' }}</h1>
         </div>
         <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">
           <fb-button
@@ -65,7 +66,7 @@ export interface SliderInputDialogResult {
         </div>
       </div>
 
-      <mat-dialog-content style="padding-top: var(--space-xs);">
+      <div fbDialogContent style="padding-top: var(--space-xs);">
         <div
           style="display: flex; align-items: center; margin-bottom: var(--space-sm)"
         >
@@ -86,12 +87,12 @@ export interface SliderInputDialogResult {
             {{ formattedValue() }}{{ this.data.suffix ?? '%' }}
           </div>
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions>
+      </div>
+      <div fbDialogActions>
         <fb-button variant="primary" (pressed)="handleClose(true)"
           >APPLY</fb-button
         >
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

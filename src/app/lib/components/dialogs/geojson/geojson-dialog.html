@@ -19,14 +19,14 @@
 
   @if(display.notValid) {
   <div>
-    <div mat-dialog-content>
+    <div fbDialogContent>
       <b>Invalid GeoJSON Data:</b><br /><br />
       <i
         >Selected file does not contain valid GeoJSON data or<br />
         does not define a valid FeatureCollection. </i
       ><br />
     </div>
-    <div mat-dialog-actions align="center">
+    <div fbDialogActions align="center">
       <fb-button variant="primary" (pressed)="app.showHelp('geojson')">
         <fb-icon name="help" ariaLabel=""></fb-icon>
         Help
@@ -34,7 +34,7 @@
     </div>
   </div>
   } @else {
-  <div mat-dialog-content>
+  <div fbDialogContent>
     <!--valid GeoJSON file-->
     <div class="card-group">
       <div class="card-group-title">
@@ -152,7 +152,7 @@
     </div>
     }
 
-    <div mat-dialog-actions align="center">
+    <div fbDialogActions align="center">
       <fb-button
         variant="primary"
         fbTooltip="Load features"

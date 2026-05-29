@@ -1,14 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AppFacade } from 'src/app/app.facade';
 import { SKInfoLayer } from '../../custom-resource-classes';
 
 import {
   FbButtonComponent,
+  FbDialogContentDirective,
   FbIconComponent,
   FbToolbarComponent
 } from 'src/app/design-system/primitives';
@@ -19,7 +16,7 @@ import {
   imports: [
     FbIconComponent,
     FbButtonComponent,
-    MatDialogModule,
+    FbDialogContentDirective,
     FbToolbarComponent
   ],
   template: `
@@ -39,7 +36,7 @@ import {
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex flex-col">
           <div class="flex">
             <div class="key-label">Name:</div>
@@ -77,7 +74,7 @@ import {
             </div>
           </div>
         </div>
-      </mat-dialog-content>
+      </div>
     </div>
   `,
   styles: [

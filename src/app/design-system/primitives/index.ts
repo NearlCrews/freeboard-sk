@@ -154,6 +154,12 @@ export {
   type FbTooltipPosition
 } from './tooltip/tooltip.directive';
 export { FbProgressBarComponent } from './progress-bar/progress-bar.component';
+export {
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
+  type FbDialogActionsAlign
+} from './dialog/dialog.directives';
 
 /* Tier-3 list family + tabs. */
 export {

@@ -9,7 +9,7 @@ import {
   effect
 } from '@angular/core';
 
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
@@ -17,6 +17,7 @@ import {
   FbCardContentComponent,
   FbCheckboxComponent,
   FbDetailPaneComponent,
+  FbDialogContentDirective,
   FbDividerComponent,
   FbHintComponent,
   FbIconComponent,
@@ -63,7 +64,7 @@ export interface SettingsSection {
   selector: 'settings-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
+    FbDialogContentDirective,
     FbTooltipDirective,
     FbListPaneComponent,
     FbDetailPaneComponent,

@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbProgressBarComponent,
@@ -25,8 +23,9 @@ import { NodeTreeSelect } from './node-tree-select';
   selector: 'wms-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbProgressBarComponent,
@@ -51,7 +50,7 @@ import { NodeTreeSelect } from './node-tree-select';
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <label for="wms-host" class="block font-semibold"> WMS host. </label>
         <div class="flex items-center" style="gap: var(--space-sm)">
           <fb-input
@@ -95,9 +94,9 @@ import { NodeTreeSelect } from './node-tree-select';
             </node-tree-select>
           }
         }
-      </mat-dialog-content>
+      </div>
       @if (data.format !== 'chartprovider') {
-        <mat-dialog-actions align="right">
+        <div fbDialogActions align="end">
           <fb-button
             variant="primary"
             [disabled]="this.selections.length === 0"
@@ -105,7 +104,7 @@ import { NodeTreeSelect } from './node-tree-select';
           >
             Save
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

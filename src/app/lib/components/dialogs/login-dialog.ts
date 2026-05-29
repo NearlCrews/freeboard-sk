@@ -10,11 +10,7 @@ import {
   ViewChild,
   signal
 } from '@angular/core';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
@@ -22,6 +18,7 @@ import {
   FbCardHeaderComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbDialogContentDirective,
   FbFormFieldComponent,
   FbIconComponent,
   FbInputComponent
@@ -38,19 +35,19 @@ import {
   selector: 'ap-login-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardHeaderComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbDialogContentDirective,
     FbFormFieldComponent,
     FbIconComponent,
     FbInputComponent
   ],
   styles: [],
   template: `
-    <mat-dialog-content>
+    <div fbDialogContent>
       <fb-card>
         <fb-card-header>
           <span fbCardTitle>
@@ -92,7 +89,7 @@ import {
           </fb-button>
         </fb-card-actions>
       </fb-card>
-    </mat-dialog-content>
+    </div>
   `
 })
 export class LoginDialog implements OnInit, AfterViewInit {

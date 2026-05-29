@@ -7,16 +7,14 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
   FbCardComponent,
   FbCardContentComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbToolbarComponent,
   FbTooltipDirective
@@ -30,10 +28,11 @@ import { AppFacade } from 'src/app/app.facade';
   selector: 'geojson-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbToolbarComponent,
     FbTooltipDirective

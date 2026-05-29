@@ -11,14 +11,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogContentDirective,
   FbIconComponent,
   FbSelectComponent,
   FbToolbarComponent,
@@ -38,8 +35,8 @@ import { AppFacade } from 'src/app/app.facade';
   styleUrls: ['./resource-upload-dialog.css'],
   imports: [
     FormsModule,
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogContentDirective,
     FbIconComponent,
     FbSelectComponent,
     FbToolbarComponent,

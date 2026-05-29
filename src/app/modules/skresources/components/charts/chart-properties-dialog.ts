@@ -7,14 +7,12 @@ import {
   signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbProgressBarComponent,
@@ -38,8 +36,9 @@ import { NodeListSelect } from './node-list-select';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbProgressBarComponent,
@@ -66,7 +65,7 @@ import { NodeListSelect } from './node-list-select';
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex flex-col">
           <div class="flex">
             <div class="key-label">Name:</div>
@@ -229,9 +228,9 @@ import { NodeListSelect } from './node-list-select';
             </div>
           }
         </div>
-      </mat-dialog-content>
+      </div>
       @if (isEditable()) {
-        <mat-dialog-actions align="right">
+        <div fbDialogActions align="end">
           <fb-button
             variant="primary"
             [disabled]="
@@ -243,7 +242,7 @@ import { NodeListSelect } from './node-list-select';
           >
             SAVE
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

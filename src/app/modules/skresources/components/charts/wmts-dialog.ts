@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbListComponent,
@@ -22,8 +20,9 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
   selector: 'wmts-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbListComponent,
@@ -49,7 +48,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <label for="wmts-host" class="block font-semibold"> WMTS host. </label>
         <div class="flex items-center" style="gap: var(--space-sm)">
           <fb-input
@@ -106,9 +105,9 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
             </div>
           }
         }
-      </mat-dialog-content>
+      </div>
       @if (data.format !== 'chartprovider') {
-        <mat-dialog-actions align="right">
+        <div fbDialogActions align="end">
           <fb-button
             variant="primary"
             [disabled]="selections.length === 0"
@@ -116,7 +115,7 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
           >
             Save
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

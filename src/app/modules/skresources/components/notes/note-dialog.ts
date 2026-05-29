@@ -10,11 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import type { AngularEditorConfig } from '@kolkov/angular-editor';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { RemarkModule } from 'ngx-remark';
@@ -25,6 +21,8 @@ import {
   FbCardComponent,
   FbCardContentComponent,
   FbCardActionsComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbTextareaComponent,
@@ -63,11 +61,12 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatDialogModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
     FbCardActionsComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbTextareaComponent,

@@ -253,3 +253,47 @@ html {
     }
   }
 }
+
+/* fb-dialog directive styling.
+   These classes are applied by [fbDialogTitle], [fbDialogContent], and
+   [fbDialogActions] directives. They mirror the visual surface that
+   mat-dialog-content / mat-dialog-actions / mat-dialog-title used to
+   provide so the consumer markup did not need to learn new metrics. */
+.fb-dialog-title {
+  display: block;
+  margin: 0 0 var(--space-md);
+  padding: var(--space-lg) var(--space-xl) 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+.fb-dialog-content {
+  display: block;
+  padding: 0 var(--space-xl) var(--space-md);
+  overflow: auto;
+  max-height: 65vh;
+  color: var(--color-text);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+.fb-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl) var(--space-lg);
+  flex-wrap: wrap;
+}
+.fb-dialog-actions[data-align='start'] {
+  justify-content: flex-start;
+}
+.fb-dialog-actions[data-align='center'] {
+  justify-content: center;
+}
+.fb-dialog-actions[data-align='end'] {
+  justify-content: flex-end;
+}

@@ -10,15 +10,13 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbSliderComponent,
   FbToolbarComponent,
@@ -40,9 +38,10 @@ import { AppFacade } from 'src/app/app.facade';
   imports: [
     FbButtonComponent,
     FbCheckboxComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbSliderComponent,
-    MatDialogModule,
     FbToolbarComponent,
     FbTooltipDirective,
     FreeboardOpenlayersModule

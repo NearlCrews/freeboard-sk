@@ -11,7 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { form, FormField, required } from '@angular/forms/signals';
 import {
-  MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA,
   MatDialog
@@ -20,6 +19,8 @@ import {
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbListComponent,
@@ -57,9 +58,10 @@ interface GroupItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    MatDialogModule,
     FbButtonComponent,
     FbCheckboxComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbListComponent,
@@ -91,7 +93,7 @@ interface GroupItem {
         </div>
       </fb-toolbar>
 
-      <mat-dialog-content>
+      <div fbDialogContent>
         <fb-tabs
           [tabs]="visibleTabs()"
           [activeId]="activeTabId()"
@@ -266,8 +268,8 @@ interface GroupItem {
             </ng-template>
           }
         </fb-tabs>
-      </mat-dialog-content>
-      <mat-dialog-actions align="left">
+      </div>
+      <div fbDialogActions align="start">
         <div style="text-align:left;flex: 1;">
           <fb-button
             variant="primary"
@@ -287,7 +289,7 @@ interface GroupItem {
             SAVE
           </fb-button>
         </div>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

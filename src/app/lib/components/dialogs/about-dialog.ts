@@ -2,14 +2,13 @@
  ****************************/
 
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent
 } from 'src/app/design-system/primitives';
 
@@ -25,13 +24,19 @@ import {
 @Component({
   selector: 'ap-about-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
+  imports: [
+    FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
+    FbIconComponent
+  ],
   template: `
     <div>
-      <h1 mat-dialog-title>
+      <h1 fbDialogTitle>
         <fb-icon name="info" ariaLabel=""></fb-icon>&nbsp;About
       </h1>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="about-row">
           <div class="item"><img [src]="data.logo" /></div>
           <div class="item">
@@ -45,8 +50,8 @@ import {
             <br /><br />
           </div>
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         @if (data.url) {
           <fb-button variant="ghost" [href]="data.url" target="_blank">
             Visit Website
@@ -56,7 +61,7 @@ import {
         <fb-button variant="primary" (pressed)="dialogRef.close(false)">
           Close
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

@@ -6,11 +6,7 @@ import {
   OnInit,
   signal
 } from '@angular/core';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { AppFacade } from 'src/app/app.facade';
 import { CoordsPipe } from 'src/app/lib/pipes';
@@ -18,6 +14,8 @@ import { FBChart, Position } from 'src/app/types';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbSelectComponent,
   FbToolbarComponent,
@@ -33,9 +31,10 @@ interface DialogData {
   selector: 'ap-chartproperties',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FormsModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbSelectComponent,
     FbToolbarComponent,
@@ -59,7 +58,7 @@ interface DialogData {
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div>
           <div class="flex-auto">{{ data.chart[1].name }}</div>
           @if (data.bbox) {
@@ -106,12 +105,12 @@ interface DialogData {
             ></fb-select>
           </div>
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions align="right">
+      </div>
+      <div fbDialogActions align="end">
         <fb-button variant="primary" (pressed)="dialogRef.close(selZoom)">
           Submit
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

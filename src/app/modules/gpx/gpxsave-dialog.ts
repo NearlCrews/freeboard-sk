@@ -7,14 +7,11 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDialogContentDirective,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
   FbExpansionPanelTitleDirective,
@@ -35,12 +32,12 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   imports: [
     FbButtonComponent,
     FbCheckboxComponent,
+    FbDialogContentDirective,
     FbExpansionPanelComponent,
     FbExpansionPanelDescriptionDirective,
     FbExpansionPanelTitleDirective,
     FbIconComponent,
     FbToolbarComponent,
-    MatDialogModule,
     FbTooltipDirective
   ],
   templateUrl: './gpxsave-dialog.html',

@@ -3,16 +3,15 @@
 
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent
 } from 'src/app/design-system/primitives';
 
@@ -26,24 +25,29 @@ import {
 @Component({
   selector: 'ap-msgbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, FbButtonComponent],
+  imports: [
+    FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective
+  ],
   template: `
     <div class="_ap-msgbox">
       <div>
-        <h1 mat-dialog-title>{{ data.title }}</h1>
+        <h1 fbDialogTitle>{{ data.title }}</h1>
       </div>
-      <mat-dialog-content>
+      <div fbDialogContent>
         @for (line of msglines; track line) {
           <div>
             <div>{{ line }}&nbsp;</div>
           </div>
         }
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [
@@ -80,11 +84,17 @@ export class MsgBox implements OnInit {
 ***********************************/
 @Component({
   selector: 'ap-alertdialog',
-  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
+  imports: [
+    FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
+    FbIconComponent
+  ],
   template: `
     <div class="_ap-alert">
       <div>
-        <h1 mat-dialog-title>
+        <h1 fbDialogTitle>
           <fb-icon
             name="warning"
             ariaLabel=""
@@ -93,7 +103,7 @@ export class MsgBox implements OnInit {
           &nbsp;{{ data.title }}
         </h1>
       </div>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex">
           <div class="pl-md">
             @for (line of msglines; track line) {
@@ -103,12 +113,12 @@ export class MsgBox implements OnInit {
             }
           </div>
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         <fb-button variant="primary" (pressed)="dialogRef.close(true)">
           {{ data.buttonText }}
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [
@@ -148,15 +158,17 @@ export class AlertDialog implements OnInit {
 @Component({
   selector: 'ap-confirmdialog',
   imports: [
-    MatDialogModule,
-    FbIconComponent,
+    FbButtonComponent,
     FbCheckboxComponent,
-    FbButtonComponent
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
+    FbIconComponent
   ],
   template: `
     <div class="_ap-confirm">
       <div>
-        <h1 mat-dialog-title>
+        <h1 fbDialogTitle>
           <fb-icon
             name="help"
             ariaLabel=""
@@ -165,7 +177,7 @@ export class AlertDialog implements OnInit {
           &nbsp;{{ data.title }}
         </h1>
       </div>
-      <mat-dialog-content style="overflow:unset">
+      <div fbDialogContent style="overflow:unset">
         <div class="flex">
           <div class="pl-md">
             @for (line of msglines; track line) {
@@ -186,8 +198,8 @@ export class AlertDialog implements OnInit {
             </div>
           }
         </div>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         <fb-button
           variant="primary"
           (pressed)="dialogRef.close({ ok: true, checked: checked })"
@@ -197,7 +209,7 @@ export class AlertDialog implements OnInit {
         <fb-button variant="ghost" (pressed)="dialogRef.close(null)">
           {{ data.button2Text }}
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [
@@ -269,9 +281,9 @@ export class MessageBarComponent {
 ***************************************/
 @Component({
   selector: 'ap-welcome-dialog',
-  imports: [MatDialogModule, FbIconComponent, FbButtonComponent],
+  imports: [FbButtonComponent, FbDialogContentDirective, FbIconComponent],
   template: `
-    <mat-dialog-content>
+    <div fbDialogContent>
       <div class="welcome">
         @for (c of data.content; track c; let i = $index) {
           @if (currentPage - 1 === i) {
@@ -330,7 +342,7 @@ export class MessageBarComponent {
           <br />&nbsp;
         </div>
       </div>
-    </mat-dialog-content>
+    </div>
   `,
   styles: [
     `

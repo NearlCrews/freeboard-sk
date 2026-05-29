@@ -9,14 +9,12 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbTextareaComponent,
@@ -35,8 +33,9 @@ interface DialogData {
   imports: [
     FormsModule,
     FormField,
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbTextareaComponent,
@@ -61,7 +60,7 @@ interface DialogData {
         </div>
       </fb-toolbar>
 
-      <mat-dialog-content>
+      <div fbDialogContent>
         <div class="flex">
           <div class="flex-auto">
             <div>
@@ -86,9 +85,9 @@ interface DialogData {
             </div>
           </div>
         </div>
-      </mat-dialog-content>
+      </div>
       @if (!readOnly) {
-        <mat-dialog-actions align="right">
+        <div fbDialogActions align="end">
           <fb-button
             variant="primary"
             [disabled]="saveDisabled()"
@@ -96,7 +95,7 @@ interface DialogData {
           >
             SAVE
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

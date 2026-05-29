@@ -12,15 +12,14 @@ import {
   signal
 } from '@angular/core';
 
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import type { AppIconDef } from 'src/app/modules/icons';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
+  FbDialogTitleDirective,
   FbIconComponent,
   FbSelectionListComponent,
   type FbSelectionListOption
@@ -38,8 +37,10 @@ import {
   selector: 'ap-multiselectlistdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
+    FbDialogTitleDirective,
     FbIconComponent,
     FbSelectionListComponent
   ],
@@ -57,7 +58,7 @@ import {
           }
         </div>
         <div class="flex-auto">
-          <h1 mat-dialog-title>{{ this.data.title ?? 'Select Items' }}</h1>
+          <h1 fbDialogTitle>{{ this.data.title ?? 'Select Items' }}</h1>
         </div>
         <div style="width:50px;padding: var(--space-lg) 0 0 var(--space-md);">
           <fb-button
@@ -71,14 +72,14 @@ import {
         </div>
       </div>
 
-      <mat-dialog-content style="padding-top: var(--space-xs);">
+      <div fbDialogContent style="padding-top: var(--space-xs);">
         <fb-selection-list
           [options]="options()"
           [values]="selectedIds()"
           (valuesChange)="selectedIds.set($event)"
         ></fb-selection-list>
-      </mat-dialog-content>
-      <mat-dialog-actions align="center">
+      </div>
+      <div fbDialogActions align="center">
         <fb-button
           variant="primary"
           [disabled]="selectedIds().length === 0"
@@ -86,7 +87,7 @@ import {
         >
           OK
         </fb-button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
   styles: [

@@ -18,7 +18,7 @@ export type FbBadgeSeverity = 'primary' | 'warn' | 'danger' | 'info';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="fb-badge" [class.fb-badge--hidden]="hidden()">
+    <span class="fb-badge">
       <ng-content></ng-content>
       @if (!hidden()) {
         <span
@@ -47,9 +47,6 @@ export type FbBadgeSeverity = 'primary' | 'warn' | 'danger' | 'info';
         display: inline-flex;
         align-items: center;
         justify-content: center;
-      }
-      .fb-badge--hidden {
-        opacity: 0;
       }
       .fb-badge__bubble {
         position: absolute;

@@ -5,14 +5,12 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  MatDialogModule,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import {
   FbButtonComponent,
+  FbDialogActionsDirective,
+  FbDialogContentDirective,
   FbIconComponent,
   FbInputComponent,
   FbProgressBarComponent,
@@ -59,8 +57,9 @@ interface TileJson {
   selector: 'json-mapsource-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatDialogModule,
     FbButtonComponent,
+    FbDialogActionsDirective,
+    FbDialogContentDirective,
     FbIconComponent,
     FbInputComponent,
     FbProgressBarComponent,
@@ -84,7 +83,7 @@ interface TileJson {
           </fb-button>
         </span>
       </fb-toolbar>
-      <mat-dialog-content>
+      <div fbDialogContent>
         <label for="json-mapsource-host" class="block font-semibold">
           Map Server host.
         </label>
@@ -151,13 +150,13 @@ interface TileJson {
             </div>
           }
         }
-      </mat-dialog-content>
+      </div>
       @if (provider) {
-        <mat-dialog-actions align="right">
+        <div fbDialogActions align="end">
           <fb-button variant="primary" (pressed)="handleSave()">
             Save
           </fb-button>
-        </mat-dialog-actions>
+        </div>
       }
     </div>
   `,

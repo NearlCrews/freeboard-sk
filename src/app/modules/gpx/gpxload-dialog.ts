@@ -5,14 +5,11 @@ import {
   Inject,
   inject
 } from '@angular/core';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   FbButtonComponent,
   FbCheckboxComponent,
+  FbDialogContentDirective,
   FbDividerComponent,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
@@ -52,6 +49,7 @@ interface GPXDataSummary {
   imports: [
     FbButtonComponent,
     FbCheckboxComponent,
+    FbDialogContentDirective,
     FbDividerComponent,
     FbExpansionPanelComponent,
     FbExpansionPanelDescriptionDirective,
@@ -59,7 +57,6 @@ interface GPXDataSummary {
     FbIconComponent,
     FbProgressBarComponent,
     FbToolbarComponent,
-    MatDialogModule,
     FbTooltipDirective
   ],
   templateUrl: './gpxload-dialog.html',
