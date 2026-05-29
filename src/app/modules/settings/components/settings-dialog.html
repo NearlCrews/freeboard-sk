@@ -495,64 +495,70 @@
               </div>
               <div class="setting-card-row pb-md">
                 <div class="setting-card-row-item">
-                  <label class="setting-label" for="s57-shallow-depth">
-                    Shallow depth (m)
-                  </label>
-                  <fb-input
-                    name="s57-shallow-depth"
-                    type="number"
-                    [min]="0"
-                    [value]="facade.settings.map.s57Options.shallowDepth"
-                    (valueChange)="onS57ShallowDepth($event)"
-                    [invalid]="facade.settings.map.s57Options.shallowDepth === null || facade.settings.map.s57Options.shallowDepth < 0"
-                    ariaLabel="Shallow depth in metres"
-                  ></fb-input>
-                  @if(facade.settings.map.s57Options.shallowDepth === null ||
-                  facade.settings.map.s57Options.shallowDepth < 0) {
-                  <fb-hint variant="error">
-                    Please enter a positive number
-                  </fb-hint>
-                  }
+                  <fb-form-field
+                    #s57ShallowField
+                    label="Shallow depth (m)"
+                    [error]="
+                      facade.settings.map.s57Options.shallowDepth === null ||
+                      facade.settings.map.s57Options.shallowDepth < 0
+                        ? 'Please enter a positive number'
+                        : ''
+                    "
+                  >
+                    <fb-input
+                      [name]="s57ShallowField.controlId"
+                      type="number"
+                      [min]="0"
+                      [value]="facade.settings.map.s57Options.shallowDepth"
+                      (valueChange)="onS57ShallowDepth($event)"
+                      [invalid]="facade.settings.map.s57Options.shallowDepth === null || facade.settings.map.s57Options.shallowDepth < 0"
+                      ariaLabel="Shallow depth in metres"
+                    ></fb-input>
+                  </fb-form-field>
                 </div>
                 <div class="setting-card-row-item">
-                  <label class="setting-label" for="s57-safety-depth">
-                    Safety depth (m)
-                  </label>
-                  <fb-input
-                    name="s57-safety-depth"
-                    type="number"
-                    [min]="0"
-                    [value]="facade.settings.map.s57Options.safetyDepth"
-                    (valueChange)="onS57SafetyDepth($event)"
-                    [invalid]="facade.settings.map.s57Options.safetyDepth === null || facade.settings.map.s57Options.safetyDepth < 0"
-                    ariaLabel="Safety depth in metres"
-                  ></fb-input>
-                  @if(facade.settings.map.s57Options.safetyDepth === null ||
-                  facade.settings.map.s57Options.safetyDepth < 0) {
-                  <fb-hint variant="error">
-                    Please enter a positive number
-                  </fb-hint>
-                  }
+                  <fb-form-field
+                    #s57SafetyField
+                    label="Safety depth (m)"
+                    [error]="
+                      facade.settings.map.s57Options.safetyDepth === null ||
+                      facade.settings.map.s57Options.safetyDepth < 0
+                        ? 'Please enter a positive number'
+                        : ''
+                    "
+                  >
+                    <fb-input
+                      [name]="s57SafetyField.controlId"
+                      type="number"
+                      [min]="0"
+                      [value]="facade.settings.map.s57Options.safetyDepth"
+                      (valueChange)="onS57SafetyDepth($event)"
+                      [invalid]="facade.settings.map.s57Options.safetyDepth === null || facade.settings.map.s57Options.safetyDepth < 0"
+                      ariaLabel="Safety depth in metres"
+                    ></fb-input>
+                  </fb-form-field>
                 </div>
                 <div class="setting-card-row-item">
-                  <label class="setting-label" for="s57-deep-depth">
-                    Deep depth (m)
-                  </label>
-                  <fb-input
-                    name="s57-deep-depth"
-                    type="number"
-                    [min]="0"
-                    [value]="facade.settings.map.s57Options.deepDepth"
-                    (valueChange)="onS57DeepDepth($event)"
-                    [invalid]="facade.settings.map.s57Options.deepDepth === null || facade.settings.map.s57Options.deepDepth < 0"
-                    ariaLabel="Deep depth in metres"
-                  ></fb-input>
-                  @if(facade.settings.map.s57Options.deepDepth === null ||
-                  facade.settings.map.s57Options.deepDepth < 0) {
-                  <fb-hint variant="error">
-                    Please enter a positive number
-                  </fb-hint>
-                  }
+                  <fb-form-field
+                    #s57DeepField
+                    label="Deep depth (m)"
+                    [error]="
+                      facade.settings.map.s57Options.deepDepth === null ||
+                      facade.settings.map.s57Options.deepDepth < 0
+                        ? 'Please enter a positive number'
+                        : ''
+                    "
+                  >
+                    <fb-input
+                      [name]="s57DeepField.controlId"
+                      type="number"
+                      [min]="0"
+                      [value]="facade.settings.map.s57Options.deepDepth"
+                      (valueChange)="onS57DeepDepth($event)"
+                      [invalid]="facade.settings.map.s57Options.deepDepth === null || facade.settings.map.s57Options.deepDepth < 0"
+                      ariaLabel="Deep depth in metres"
+                    ></fb-input>
+                  </fb-form-field>
                 </div>
                 <div class="setting-card-row-item">
                   <label class="setting-label" for="s57-layers"> Layers </label>
@@ -581,24 +587,26 @@
             <fb-card-content>
               <div class="setting-card-row pb-md">
                 <div class="setting-card-row-item">
-                  <label class="setting-label" for="course-arrival-circle">
-                    Arrival Circle (m)
-                  </label>
-                  <fb-input
-                    name="course-arrival-circle"
-                    type="number"
-                    [min]="0"
-                    [value]="facade.settings.course.arrivalCircle"
-                    (valueChange)="onArrivalCircle($event)"
-                    [invalid]="facade.settings.course.arrivalCircle === null || facade.settings.course.arrivalCircle < 0"
-                    ariaLabel="Arrival circle radius in metres"
-                  ></fb-input>
-                  @if(facade.settings.course.arrivalCircle === null ||
-                  facade.settings.course.arrivalCircle < 0) {
-                  <fb-hint variant="error">
-                    Please enter a number &gt; 0
-                  </fb-hint>
-                  }
+                  <fb-form-field
+                    #arrivalCircleField
+                    label="Arrival Circle (m)"
+                    [error]="
+                      facade.settings.course.arrivalCircle === null ||
+                      facade.settings.course.arrivalCircle < 0
+                        ? 'Please enter a number > 0'
+                        : ''
+                    "
+                  >
+                    <fb-input
+                      [name]="arrivalCircleField.controlId"
+                      type="number"
+                      [min]="0"
+                      [value]="facade.settings.course.arrivalCircle"
+                      (valueChange)="onArrivalCircle($event)"
+                      [invalid]="facade.settings.course.arrivalCircle === null || facade.settings.course.arrivalCircle < 0"
+                      ariaLabel="Arrival circle radius in metres"
+                    ></fb-input>
+                  </fb-form-field>
                 </div>
               </div>
 
@@ -697,51 +705,54 @@
                   </legend>
                   <div class="setting-card-row pb-md">
                     <div class="setting-card-row-item">
-                      <label class="setting-label" for="vessel-fixed-lat">
-                        Latitude
-                      </label>
-                      <fb-input
-                        name="vessel-fixed-lat"
-                        type="number"
-                        [min]="-90"
-                        [max]="90"
-                        [value]="facade.fixedPosition[1]"
-                        (valueChange)="onFixedLat($event)"
-                        [disabled]="!facade.settings.vessels.fixedLocationMode"
-                        [invalid]="facade.fixedPosition[1] === null || facade.fixedPosition[1] < -90 || facade.fixedPosition[1] > 90"
-                        ariaLabel="Fixed location latitude"
-                      ></fb-input>
-                      @if(facade.fixedPosition[1] === null ||
-                      facade.fixedPosition[1] < -90 || facade.fixedPosition[1] >
-                      90) {
-                      <fb-hint variant="error">
-                        Please enter a value between -90 and 90 (max 9 decimals)
-                      </fb-hint>
-                      }
+                      <fb-form-field
+                        #fixedLatField
+                        label="Latitude"
+                        [error]="
+                          facade.fixedPosition[1] === null ||
+                          facade.fixedPosition[1] < -90 ||
+                          facade.fixedPosition[1] > 90
+                            ? 'Please enter a value between -90 and 90 (max 9 decimals)'
+                            : ''
+                        "
+                      >
+                        <fb-input
+                          [name]="fixedLatField.controlId"
+                          type="number"
+                          [min]="-90"
+                          [max]="90"
+                          [value]="facade.fixedPosition[1]"
+                          (valueChange)="onFixedLat($event)"
+                          [disabled]="!facade.settings.vessels.fixedLocationMode"
+                          [invalid]="facade.fixedPosition[1] === null || facade.fixedPosition[1] < -90 || facade.fixedPosition[1] > 90"
+                          ariaLabel="Fixed location latitude"
+                        ></fb-input>
+                      </fb-form-field>
                     </div>
                     <div class="setting-card-row-item">
-                      <label class="setting-label" for="vessel-fixed-lon">
-                        Longitude
-                      </label>
-                      <fb-input
-                        name="vessel-fixed-lon"
-                        type="number"
-                        [min]="-180"
-                        [max]="180"
-                        [value]="facade.fixedPosition[0]"
-                        (valueChange)="onFixedLon($event)"
-                        [disabled]="!facade.settings.vessels.fixedLocationMode"
-                        [invalid]="facade.fixedPosition[0] === null || facade.fixedPosition[0] < -180 || facade.fixedPosition[0] > 180"
-                        ariaLabel="Fixed location longitude"
-                      ></fb-input>
-                      @if(facade.fixedPosition[0] === null ||
-                      facade.fixedPosition[0] < -180 || facade.fixedPosition[0]
-                      > 180) {
-                      <fb-hint variant="error">
-                        Please enter a value between -180 and 180 (max 9
-                        decimals)
-                      </fb-hint>
-                      }
+                      <fb-form-field
+                        #fixedLonField
+                        label="Longitude"
+                        [error]="
+                          facade.fixedPosition[0] === null ||
+                          facade.fixedPosition[0] < -180 ||
+                          facade.fixedPosition[0] > 180
+                            ? 'Please enter a value between -180 and 180 (max 9 decimals)'
+                            : ''
+                        "
+                      >
+                        <fb-input
+                          [name]="fixedLonField.controlId"
+                          type="number"
+                          [min]="-180"
+                          [max]="180"
+                          [value]="facade.fixedPosition[0]"
+                          (valueChange)="onFixedLon($event)"
+                          [disabled]="!facade.settings.vessels.fixedLocationMode"
+                          [invalid]="facade.fixedPosition[0] === null || facade.fixedPosition[0] < -180 || facade.fixedPosition[0] > 180"
+                          ariaLabel="Fixed location longitude"
+                        ></fb-input>
+                      </fb-form-field>
                     </div>
                   </div>
                 </fieldset>
@@ -887,25 +898,26 @@
                       </fb-checkbox>
                     </div>
                     <div class="setting-card-row-item">
-                      <label class="setting-label" for="vessel-range-distance">
-                        Distance between circles
-                        ({{renderSymbol(facade.settings.units.distance)}})
-                      </label>
-                      <fb-input
-                        name="vessel-range-distance"
-                        type="number"
-                        [min]="1"
-                        [value]="formattedNumberModel.rangeCirclesDistance"
-                        (valueChange)="onRangeCirclesDistance($event)"
-                        [disabled]="!facade.settings.vessels.rangeCircles || !facade.settings.vessels.rangeCirclesFixed"
-                        [invalid]="formattedNumberModel.rangeCirclesDistance < 1"
-                        ariaLabel="Distance between circles"
-                      ></fb-input>
-                      @if(formattedNumberModel.rangeCirclesDistance < 1) {
-                      <fb-hint variant="error">
-                        Please enter a number &gt;= 1.
-                      </fb-hint>
-                      }
+                      <fb-form-field
+                        #rangeDistanceField
+                        [label]="'Distance between circles (' + renderSymbol(facade.settings.units.distance) + ')'"
+                        [error]="
+                          formattedNumberModel.rangeCirclesDistance < 1
+                            ? 'Please enter a number >= 1.'
+                            : ''
+                        "
+                      >
+                        <fb-input
+                          [name]="rangeDistanceField.controlId"
+                          type="number"
+                          [min]="1"
+                          [value]="formattedNumberModel.rangeCirclesDistance"
+                          (valueChange)="onRangeCirclesDistance($event)"
+                          [disabled]="!facade.settings.vessels.rangeCircles || !facade.settings.vessels.rangeCirclesFixed"
+                          [invalid]="formattedNumberModel.rangeCirclesDistance < 1"
+                          ariaLabel="Distance between circles"
+                        ></fb-input>
+                      </fb-form-field>
                     </div>
                   </div>
                 </fieldset>
@@ -1232,18 +1244,20 @@
                   </fb-checkbox>
                 </div>
                 <div class="setting-card-row-item">
-                  <label class="setting-label" for="video-url">url:</label>
-                  <fb-input
-                    name="video-url"
-                    [disabled]="!facade.settings.resources.video.enable"
-                    [invalid]="!videoUrl"
-                    [(value)]="videoUrl"
-                    placeholder="Video stream URL"
-                    ariaLabel="Enter URL of video stream"
-                  ></fb-input>
-                  @if(!videoUrl) {
-                  <fb-hint variant="error">Value required.</fb-hint>
-                  }
+                  <fb-form-field
+                    #videoUrlField
+                    label="url:"
+                    [error]="!videoUrl ? 'Value required.' : ''"
+                  >
+                    <fb-input
+                      [name]="videoUrlField.controlId"
+                      [disabled]="!facade.settings.resources.video.enable"
+                      [invalid]="!videoUrl"
+                      [(value)]="videoUrl"
+                      placeholder="Video stream URL"
+                      ariaLabel="Enter URL of video stream"
+                    ></fb-input>
+                  </fb-form-field>
                 </div>
               </div>
             </fb-card-content>
