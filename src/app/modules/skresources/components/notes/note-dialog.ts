@@ -51,12 +51,16 @@ interface ColorSwatch {
   readonly value: string | null;
 }
 
+// Palette references design tokens so note ink theme-switches with the rest
+// of the app (light, dark, night-red). Tiptap's setColor accepts any CSS
+// color string, including `var(...)`. When the saved HTML renders in a
+// non-Open-Binnacle viewer, the `var()` falls back to inherit (no harm).
 const NOTE_COLOR_PALETTE: readonly ColorSwatch[] = [
   { label: 'Default', value: null },
-  { label: 'Danger (red)', value: 'oklch(60% 0.2 25)' },
-  { label: 'Caution (amber)', value: 'oklch(75% 0.18 70)' },
-  { label: 'Safe (green)', value: 'oklch(60% 0.15 145)' },
-  { label: 'Info (blue)', value: 'oklch(55% 0.15 250)' }
+  { label: 'Danger', value: 'var(--color-error)' },
+  { label: 'Caution', value: 'var(--color-warning)' },
+  { label: 'Safe', value: 'var(--color-success)' },
+  { label: 'Info', value: 'var(--color-primary)' }
 ];
 
 // StarterKit 3.x bundles Underline and Link with defaults. We register them
