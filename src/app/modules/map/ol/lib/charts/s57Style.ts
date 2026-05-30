@@ -1108,24 +1108,30 @@ export class S57Style {
     return 0;
   }
 
+  /** Current S-52 SAFCON value (shallowest contour at or above safetyDepth). */
+  public get safeContour(): number {
+    return this.selectedSafeContour;
+  }
+
   // Lowers `selectedSafeContour` toward the shallowest contour value that is
-  // still at or above the user's safetyDepth, per S-52 SAFCON. Called from
-  // getStyle so every visible feature is visited deterministically; the prior
-  // implementation ran from a sort comparator and visited an order-dependent
-  // subset of pairs, leaving the wrong contour highlighted as the safety
-  // contour. Streaming caveat: vector-tile loads still arrive incrementally,
-  // so the FIRST render after a fresh tile load may show a stale value; the
-  // next render after all visible tiles resolve is correct.
-  private updateSafeContour(feature: Feature): void {
+  // still at or above the user's safetyDepth, per S-52 SAFCON. Returns true
+  // when the running min decreased so the caller can decide whether to force
+  // a layer redraw. Called from both getStyle (deterministic per-feature
+  // visit during render) and the vector-tile-source tileloadend handler in
+  // VectorLayerStyleFactory (so freshly-loaded tiles update the value before
+  // the next render rather than after).
+  public updateSafeContour(feature: Feature): boolean {
     const properties = feature.getProperties();
     const candidate = properties['DRVAL1'] ?? properties['VALDCO'];
-    if (typeof candidate !== 'number') return;
+    if (typeof candidate !== 'number') return false;
     if (
       candidate >= this.s57Service.options.safetyDepth &&
       candidate < this.selectedSafeContour
     ) {
       this.selectedSafeContour = candidate;
+      return true;
     }
+    return false;
   }
 
   public renderOrder = (feature1: Feature, feature2: Feature): number => {
