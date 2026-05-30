@@ -1,3 +1,16 @@
+.nosmall {
+  display: none;
+}
+
+@media only screen and (min-width: 600px) {
+  .nosmall {
+    display: flex;
+  }
+  .nosmall.block {
+    display: block;
+  }
+}
+
 .tiptap-shell {
   display: flex;
   flex-direction: column;
@@ -16,53 +29,23 @@
   background: var(--color-surface-raised);
 }
 
-.tiptap-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--touch-secondary);
-  height: var(--touch-secondary);
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.tiptap-btn:hover {
-  background: color-mix(in oklch, var(--color-text) 8%, transparent);
-}
-
-.tiptap-btn:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-.tiptap-sep {
-  width: 1px;
-  height: 1.25rem;
-  background: var(--color-border);
-  margin: 0 var(--space-2xs);
-}
-
 :host ::ng-deep .tiptap-editable {
   min-height: 150px;
   padding: var(--space-sm);
   outline: none;
   color: var(--color-text);
-}
 
-:host ::ng-deep .tiptap-editable p {
-  margin: 0 0 var(--space-xs) 0;
-}
+  p {
+    margin: 0 0 var(--space-xs) 0;
+  }
 
-:host ::ng-deep .tiptap-editable b,
-:host ::ng-deep .tiptap-editable strong {
-  font-weight: bold;
-}
+  b,
+  strong {
+    font-weight: bold;
+  }
 
-:host ::ng-deep .tiptap-editable a {
-  color: var(--color-primary);
-  text-decoration: underline;
+  a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
 }

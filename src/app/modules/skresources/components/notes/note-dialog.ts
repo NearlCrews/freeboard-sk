@@ -24,6 +24,7 @@ import {
   FbCardActionsComponent,
   FbDialogActionsDirective,
   FbDialogContentDirective,
+  FbDividerComponent,
   FbIconComponent,
   FbInputComponent,
   FbTextareaComponent,
@@ -62,6 +63,7 @@ interface DialogData {
     FbCardActionsComponent,
     FbDialogActionsDirective,
     FbDialogContentDirective,
+    FbDividerComponent,
     FbIconComponent,
     FbInputComponent,
     FbTextareaComponent,
@@ -87,7 +89,8 @@ export class NoteDialog implements OnInit, OnDestroy {
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, NoteDialog>);
 
-  protected editor!: Editor;
+  // Created only for HTML notes; markdown notes use fb-textarea instead.
+  protected editor?: Editor;
 
   protected noteModel = signal<{ name: string }>({ name: '' });
   protected noteForm = form(this.noteModel, (p) => {
@@ -118,19 +121,21 @@ export class NoteDialog implements OnInit, OnDestroy {
     }));
     this.noteModel.set({ name: this.data.note.name ?? '' });
 
-    this.editor = new Editor({
-      extensions: [
-        StarterKit,
-        Link.configure({ openOnClick: false, autolink: true })
-      ],
-      content: this.data.note.description ?? '',
-      editorProps: {
-        attributes: {
-          'aria-label': 'Note description',
-          class: 'tiptap-editable'
+    if (!this.data.note.mimeType.includes('markdown')) {
+      this.editor = new Editor({
+        extensions: [
+          StarterKit,
+          Link.configure({ openOnClick: false, autolink: true })
+        ],
+        content: this.data.note.description ?? '',
+        editorProps: {
+          attributes: {
+            'aria-label': 'Note description',
+            class: 'tiptap-editable'
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -156,6 +161,7 @@ export class NoteDialog implements OnInit, OnDestroy {
   }
 
   protected toggleLink() {
+    if (!this.editor) return;
     if (this.editor.isActive('link')) {
       this.editor.chain().focus().unsetLink().run();
       return;
@@ -174,7 +180,6 @@ export class NoteDialog implements OnInit, OnDestroy {
 
   onSave() {
     this.data.note.name = this.noteModel().name;
-    this.data.note.description = this.editor.getHTML();
     this.dialogRef.close({
       result: true,
       data: this.data.note,
