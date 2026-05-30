@@ -19,14 +19,8 @@ import { MVT } from 'ol/format';
 import { assignImageBlob } from './chart-utils';
 
 // Lazy-load pmtiles so the v4 decoder stays out of the eager main bundle.
-// First call triggers the chunk; the module promise is cached.
-let pmtilesModulePromise: Promise<typeof import('pmtiles')> | undefined;
-function loadPmtilesModule(): Promise<typeof import('pmtiles')> {
-  if (pmtilesModulePromise === undefined) {
-    pmtilesModulePromise = import('pmtiles');
-  }
-  return pmtilesModulePromise;
-}
+// ESM `import()` is spec-guaranteed to return the same Promise for repeat
+// calls of the same specifier, so no manual cache is needed.
 
 // OpenLayers builds the tile URL via the template, so we have to parse z/x/y
 // back out here. Hoisted to module scope to avoid recompiling per tile load.
@@ -48,7 +42,7 @@ export async function initPMTilesXYZLayer(
   chart: SKChart,
   zIndex: number
 ): Promise<TileLayer<XYZ>> {
-  const { PMTiles } = await loadPmtilesModule();
+  const { PMTiles } = await import('pmtiles');
   const tiles = new PMTiles(chart.url);
 
   const loader: LoadFunction = (tile: Tile, url: string) => {
@@ -91,7 +85,7 @@ export async function initPMTilesVectorLayer(
   chart: SKChart,
   zIndex: number
 ): Promise<VectorTileLayer> {
-  const { PMTiles } = await loadPmtilesModule();
+  const { PMTiles } = await import('pmtiles');
   const tiles = new PMTiles(chart.url);
 
   const loader: LoadFunction = (tile: Tile, url: string) => {

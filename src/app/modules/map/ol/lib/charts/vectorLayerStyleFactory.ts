@@ -11,16 +11,10 @@ import type { StyleFunction } from 'ol/style/Style';
 import type { OrderFunction } from 'ol/render';
 
 // S57Style and its ~1200-line symbol/style dispatch table are loaded only
-// when the first S57 chart layer is created. The chunk promise is cached so
-// subsequent S57 charts reuse the in-flight or resolved module.
+// when the first S57 chart layer is created. ESM `import()` is
+// spec-guaranteed to return the same Promise for repeat calls of the same
+// specifier, so no manual cache is needed.
 type S57StyleModule = typeof import('./s57Style');
-let s57StyleModulePromise: Promise<S57StyleModule> | undefined;
-function loadS57StyleModule(): Promise<S57StyleModule> {
-  if (s57StyleModulePromise === undefined) {
-    s57StyleModulePromise = import('./s57Style');
-  }
-  return s57StyleModulePromise;
-}
 
 export abstract class VectorLayerStyler {
   public MinZ: number;
@@ -93,7 +87,7 @@ export class VectorLayerStyleFactory {
   ): Promise<VectorLayerStyler> {
     if (chart.type === 'S-57' || chart.type === 's-57') {
       this.s57service.fetchSymbols();
-      const { S57Style } = await loadS57StyleModule();
+      const { S57Style } = await import('./s57Style');
       return new S57LayerStyler(chart, this.s57service, S57Style);
     }
     throw new Error(`Unsupported chart type for vector layer: ${chart.type}`);

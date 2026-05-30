@@ -4,16 +4,8 @@ import type VectorTileLayer from 'ol/layer/VectorTile';
 
 // Lazy-load ol-mapbox-style so the (~150 KB gzipped) MapLibre style spec,
 // CSS-font helper, and sprite/expression machinery stay out of the eager
-// main bundle. First call triggers the chunk; the module promise is cached.
-let mapboxStyleModulePromise:
-  | Promise<typeof import('ol-mapbox-style')>
-  | undefined;
-function loadMapboxStyleModule(): Promise<typeof import('ol-mapbox-style')> {
-  if (mapboxStyleModulePromise === undefined) {
-    mapboxStyleModulePromise = import('ol-mapbox-style');
-  }
-  return mapboxStyleModulePromise;
-}
+// main bundle. ESM `import()` is spec-guaranteed to return the same Promise
+// for repeat calls of the same specifier, so no manual cache is needed.
 
 /**
  * Apply a Mapbox/MapLibre Style (URL or inline object) to an existing vector
@@ -25,7 +17,7 @@ export async function applyMapboxStyle(
   layer: VectorTileLayer | VectorLayer,
   glStyle: string | object
 ): Promise<void> {
-  const { applyStyle } = await loadMapboxStyleModule();
+  const { applyStyle } = await import('ol-mapbox-style');
   await applyStyle(layer, glStyle);
 }
 
@@ -39,6 +31,6 @@ export async function applyMapboxStyleToGroup(
   group: LayerGroup,
   styleUrl: string
 ): Promise<void> {
-  const { apply } = await loadMapboxStyleModule();
+  const { apply } = await import('ol-mapbox-style');
   await apply(group, styleUrl);
 }
