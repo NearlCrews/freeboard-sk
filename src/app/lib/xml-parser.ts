@@ -14,6 +14,10 @@ const PARSER_OPTIONS = {
 
 const parser = new XMLParser(PARSER_OPTIONS);
 
-export function parseXmlString(xml: string): object {
-  return parser.parse(xml) as object;
+// XML is inherently dynamic; consumers access nested keys defensively. Return
+// `any` here mirrors what xml2js exposed implicitly via its d.ts and keeps the
+// per-file explicit-any count outside callers.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseXmlString(xml: string): any {
+  return parser.parse(xml);
 }

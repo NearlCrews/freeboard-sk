@@ -132,7 +132,7 @@ const parseWMSCapabilities = async (
     throw new Error('Error: Invalid response received!');
   }
 
-  const json = parseXmlString(xml) as Record<string, any>;
+  const json = parseXmlString(xml);
   if (!json.WMS_Capabilities && !json.WMT_MS_Capabilities) {
     throw new Error('Error: No Capabilities found!');
   }
@@ -260,7 +260,7 @@ const parseWMTSCapabilities = async (
   if (!xml.includes('<Capabilities')) {
     throw new Error('Error: Invalid response received!');
   }
-  const json = parseXmlString(xml) as Record<string, any>;
+  const json = parseXmlString(xml);
   if (!hasValue(json.Capabilities?.Contents)) {
     throw new Error('Error: No Capabilities found!');
   }
