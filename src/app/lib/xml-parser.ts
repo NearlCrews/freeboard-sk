@@ -1,4 +1,4 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser, type X2jOptions } from 'fast-xml-parser';
 
 const PARSER_OPTIONS = {
   ignoreAttributes: false,
@@ -8,20 +8,12 @@ const PARSER_OPTIONS = {
   parseAttributeValue: false,
   parseTagValue: false,
   trimValues: true,
-  isArray: (
-    _name: string,
-    jPath: string | { getCurrentTag(): string | undefined },
-    _isLeafNode: boolean,
-    isAttribute: boolean
-  ) => !isAttribute && typeof jPath === 'string' && jPath.includes('.')
-};
+  isArray: (_name, jPath, _isLeafNode, isAttribute) =>
+    !isAttribute && (jPath as string).includes('.')
+} satisfies X2jOptions;
 
 const parser = new XMLParser(PARSER_OPTIONS);
 
 export function parseXmlString(xml: string): object {
   return parser.parse(xml) as object;
-}
-
-export function parseStringPromise(xml: string): Promise<object> {
-  return Promise.resolve(parseXmlString(xml));
 }

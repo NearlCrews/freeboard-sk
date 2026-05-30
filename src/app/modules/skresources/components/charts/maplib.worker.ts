@@ -5,7 +5,7 @@ import {
   WMTSLayerDef,
   TimeDimension
 } from './maplib';
-import { parseStringPromise } from 'src/app/lib/xml-parser';
+import { parseXmlString } from 'src/app/lib/xml-parser';
 
 interface WorkerMessage {
   sourceType: 'wms' | 'wmts';
@@ -18,10 +18,7 @@ interface WorkerMessageOptions {
   maxDepth?: number;
 }
 
-type WorkerResult =
-  | object // xml2json
-  | WMSCapabilitiesDef
-  | WMTSCapabilitiesDef;
+type WorkerResult = object | WMSCapabilitiesDef | WMTSCapabilitiesDef;
 
 const FETCH_ABORT_TIMEOUT = 8000;
 
@@ -135,7 +132,7 @@ const parseWMSCapabilities = async (
     throw new Error('Error: Invalid response received!');
   }
 
-  const json = await parseStringPromise(xml);
+  const json = parseXmlString(xml) as Record<string, any>;
   if (!json.WMS_Capabilities && !json.WMT_MS_Capabilities) {
     throw new Error('Error: No Capabilities found!');
   }
@@ -263,7 +260,7 @@ const parseWMTSCapabilities = async (
   if (!xml.includes('<Capabilities')) {
     throw new Error('Error: Invalid response received!');
   }
-  const json = await parseStringPromise(xml);
+  const json = parseXmlString(xml) as Record<string, any>;
   if (!hasValue(json.Capabilities?.Contents)) {
     throw new Error('Error: No Capabilities found!');
   }
@@ -293,17 +290,7 @@ const parseWMTSCapabilities = async (
   return wmts;
 };
 
-/**
- * Check xml2json attribute has a value
- * @param val Value to test
- * @returns true if value is an Array with length > 0
- */
 const hasValue = (val: any) => Array.isArray(val) && val.length !== 0;
-/**
- * Check xml2json attribute has a value
- * @param val Value to test
- * @returns true if value is an Array with length > 0
- */
 const getValue = (val: any) => val._ ?? val;
 
 interface DurationDef {

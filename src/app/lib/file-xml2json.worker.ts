@@ -1,4 +1,4 @@
-import { parseStringPromise } from './xml-parser';
+import { parseXmlString } from './xml-parser';
 
 interface WorkerMessage {
   sourceType: 'xml';
@@ -7,12 +7,12 @@ interface WorkerMessage {
 
 type WorkerResult = object | null;
 
-self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
+self.onmessage = (event: MessageEvent<WorkerMessage>) => {
   const { sourceType, value } = event.data;
   let result: WorkerResult = null;
   try {
     if (sourceType === 'xml') {
-      result = await parseStringPromise(value);
+      result = parseXmlString(value);
     }
     self.postMessage(result);
   } catch {

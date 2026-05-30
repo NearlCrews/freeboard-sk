@@ -11,16 +11,8 @@ export { DefaultOptions } from './s57-options';
 export type { Options } from './s57-options';
 
 // XML parser is loaded lazily from fetchSymbols so it stays out of the eager
-// main bundle. Module promise is cached so subsequent S57 charts reuse the
-// same chunk.
-type XmlParserModule = typeof import('src/app/lib/xml-parser');
-let xmlParserModulePromise: Promise<XmlParserModule> | undefined;
-function loadXmlParser(): Promise<XmlParserModule> {
-  if (xmlParserModulePromise === undefined) {
-    xmlParserModulePromise = import('src/app/lib/xml-parser');
-  }
-  return xmlParserModulePromise;
-}
+// main bundle. The bundler dedupes repeat `import()` of the same specifier,
+// so no manual module-promise cache is needed.
 
 interface Symbol {
   image: HTMLImageElement | null;
@@ -121,7 +113,7 @@ export class S57Service {
       .get('assets/s57/chartsymbols.xml', { responseType: 'text' })
       .subscribe({
         next: (symbolsXml) => {
-          void loadXmlParser().then(({ parseXmlString }) => {
+          void import('src/app/lib/xml-parser').then(({ parseXmlString }) => {
             const symbolsJs = parseXmlString(symbolsXml);
             this.processSymbols(symbolsJs);
             this.processLookup(symbolsJs);
