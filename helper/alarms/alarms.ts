@@ -350,7 +350,7 @@ const initAlarmEndpoints = async () => {
       server.debug(`** ${req.method} ${req.path}`);
 
       const id = req.params['id'];
-      if (!id) {
+      if (typeof id !== 'string' || id.length === 0) {
         res.status(400).json({
           state: 'FAILED',
           statusCode: 400,
@@ -421,7 +421,7 @@ const initAlarmEndpoints = async () => {
     (req: Request, res: Response, next: NextFunction) => {
       server.debug(`** ${req.method} ${req.path}`);
       const id = req.params['id'];
-      if (!id) {
+      if (typeof id !== 'string' || id.length === 0) {
         res.status(400).json({
           state: 'FAILED',
           statusCode: 400,
@@ -460,7 +460,7 @@ const initAlarmEndpoints = async () => {
       server.debug(`** ${req.method} ${req.path}`);
 
       const id = req.params['id'];
-      if (!id) {
+      if (typeof id !== 'string' || id.length === 0) {
         res.status(400).json({
           state: 'FAILED',
           statusCode: 400,
