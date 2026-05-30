@@ -1099,39 +1099,43 @@ export class S57Style {
     }
   }
 
-  private updateSafeContour(feature: Feature): number {
+  // Returns the depth value (DRVAL1 or VALDCO) for layer-order comparison
+  // without side effects. The safe-contour tracking lives in updateSafeContour.
+  private depthValue(feature: Feature): number {
     const properties = feature.getProperties();
-    if (properties['DRVAL1']) {
-      const drval1 = properties['DRVAL1'];
-      if (
-        drval1 >= this.s57Service.options.safetyDepth &&
-        drval1 < this.selectedSafeContour
-      ) {
-        this.selectedSafeContour = drval1;
-      }
-      return drval1;
-    }
-    if (properties['VALDCO']) {
-      const valdco = properties['VALDCO'];
-      if (
-        valdco >= this.s57Service.options.safetyDepth &&
-        valdco < this.selectedSafeContour
-      ) {
-        this.selectedSafeContour = valdco;
-      }
-      return valdco;
-    }
+    if (properties['DRVAL1']) return properties['DRVAL1'];
+    if (properties['VALDCO']) return properties['VALDCO'];
     return 0;
+  }
+
+  // Lowers `selectedSafeContour` toward the shallowest contour value that is
+  // still at or above the user's safetyDepth, per S-52 SAFCON. Called from
+  // getStyle so every visible feature is visited deterministically; the prior
+  // implementation ran from a sort comparator and visited an order-dependent
+  // subset of pairs, leaving the wrong contour highlighted as the safety
+  // contour. Streaming caveat: vector-tile loads still arrive incrementally,
+  // so the FIRST render after a fresh tile load may show a stale value; the
+  // next render after all visible tiles resolve is correct.
+  private updateSafeContour(feature: Feature): void {
+    const properties = feature.getProperties();
+    const candidate = properties['DRVAL1'] ?? properties['VALDCO'];
+    if (typeof candidate !== 'number') return;
+    if (
+      candidate >= this.s57Service.options.safetyDepth &&
+      candidate < this.selectedSafeContour
+    ) {
+      this.selectedSafeContour = candidate;
+    }
   }
 
   public renderOrder = (feature1: Feature, feature2: Feature): number => {
     const l1 = this.layerOrder(feature1);
     const l2 = this.layerOrder(feature2);
-    // TODO: updateSafeContour has side effects inside a sort comparator,
-    // making selectedSafeContour depend on sort traversal order.
-    // Proper fix: compute safe contour in a pre-render pass over all features.
-    const o1 = this.updateSafeContour(feature1);
-    const o2 = this.updateSafeContour(feature2);
+    // updateSafeContour now runs from getStyle, which visits every feature
+    // deterministically. Read the depth value here without mutating shared
+    // state.
+    const o1 = this.depthValue(feature1);
+    const o2 = this.depthValue(feature2);
     let lupIndex1 = feature1.get(LOOKUPINDEXKEY) as number | undefined;
     let lupIndex2 = feature2.get(LOOKUPINDEXKEY) as number | undefined;
     if (lupIndex1 === undefined) {
@@ -1168,6 +1172,7 @@ export class S57Style {
 
   public getStyle = (feature: Feature, resolution: number): Style[] | void => {
     this.currentResolution = resolution;
+    this.updateSafeContour(feature);
     let lupIndex = feature.get(LOOKUPINDEXKEY) as number | undefined | null;
     if (lupIndex === undefined || lupIndex === null) {
       lupIndex = this.s57Service.selectLookup(feature);
