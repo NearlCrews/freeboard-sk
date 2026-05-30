@@ -214,6 +214,15 @@
               >
                 <fb-icon name="format_italic" ariaLabel=""></fb-icon>
               </fb-button>
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Underline"
+                fbTooltip="Underline"
+                (pressed)="ed.chain().focus().toggleUnderline().run()"
+              >
+                <fb-icon name="format_underlined" ariaLabel=""></fb-icon>
+              </fb-button>
               <fb-divider orientation="vertical"></fb-divider>
               <fb-button
                 variant="ghost"

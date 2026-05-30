@@ -13,6 +13,7 @@ import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { Editor } from '@tiptap/core';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Link } from '@tiptap/extension-link';
+import { Underline } from '@tiptap/extension-underline';
 import { TiptapEditorDirective } from 'ngx-tiptap';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './add-target.pipe';
@@ -125,6 +126,7 @@ export class NoteDialog implements OnInit, OnDestroy {
       this.editor = new Editor({
         extensions: [
           StarterKit,
+          Underline,
           Link.configure({ openOnClick: false, autolink: true })
         ],
         content: this.data.note.description ?? '',
