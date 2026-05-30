@@ -1,4 +1,4 @@
-import { parseStringPromise } from 'xml2js';
+import { parseStringPromise } from './xml-parser';
 
 interface WorkerMessage {
   sourceType: 'xml';

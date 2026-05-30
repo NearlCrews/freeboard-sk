@@ -5,7 +5,7 @@ import {
   WMTSLayerDef,
   TimeDimension
 } from './maplib';
-import { parseStringPromise } from 'xml2js';
+import { parseStringPromise } from 'src/app/lib/xml-parser';
 
 interface WorkerMessage {
   sourceType: 'wms' | 'wmts';
