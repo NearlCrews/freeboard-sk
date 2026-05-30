@@ -59,11 +59,9 @@ import {
   FbAccordionComponent,
   FbExpansionPanelComponent,
   FbExpansionPanelDescriptionDirective,
-  FbExpansionPanelIconDirective,
   FbExpansionPanelTitleDirective
 } from './primitives/expansion-panel/expansion-panel.component';
 import {
-  FbStepActionsDirective,
   FbStepComponent,
   FbStepHeaderActionsDirective,
   FbStepperComponent
@@ -157,10 +155,8 @@ export class FbDemoDialogBodyComponent {
     FbExpansionPanelComponent,
     FbExpansionPanelTitleDirective,
     FbExpansionPanelDescriptionDirective,
-    FbExpansionPanelIconDirective,
     FbStepperComponent,
     FbStepComponent,
-    FbStepActionsDirective,
     FbStepHeaderActionsDirective,
     FbDatepickerComponent,
     FbTreeComponent,
