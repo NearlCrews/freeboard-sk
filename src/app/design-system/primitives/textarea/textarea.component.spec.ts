@@ -55,13 +55,13 @@ describe('FbTextareaComponent', () => {
   });
 
   it('renders a textarea with default rows=3', () => {
-    expect(query().rows).toBe(3);
+    expect(Number(query().rows)).toBe(3);
   });
 
   it('reflects rows changes', () => {
     host.rows.set(6);
     fixture.detectChanges();
-    expect(query().rows).toBe(6);
+    expect(Number(query().rows)).toBe(6);
   });
 
   it('marks aria-invalid when invalid', () => {
