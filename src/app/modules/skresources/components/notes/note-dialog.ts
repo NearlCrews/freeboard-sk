@@ -12,8 +12,23 @@ import { CoordsPipe } from 'src/app/lib/pipes';
 import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { Editor } from '@tiptap/core';
 import { StarterKit } from '@tiptap/starter-kit';
+import { Color } from '@tiptap/extension-color';
 import { Link } from '@tiptap/extension-link';
+import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
+
+interface ColorSwatch {
+  readonly label: string;
+  readonly value: string | null;
+}
+
+const NOTE_COLOR_PALETTE: readonly ColorSwatch[] = [
+  { label: 'Default', value: null },
+  { label: 'Danger (red)', value: 'oklch(60% 0.2 25)' },
+  { label: 'Caution (amber)', value: 'oklch(75% 0.18 70)' },
+  { label: 'Safe (green)', value: 'oklch(60% 0.15 145)' },
+  { label: 'Info (blue)', value: 'oklch(55% 0.15 250)' }
+];
 import { TiptapEditorDirective } from 'ngx-tiptap';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './add-target.pipe';
@@ -93,6 +108,9 @@ export class NoteDialog implements OnInit, OnDestroy {
   // Created only for HTML notes; markdown notes use fb-textarea instead.
   protected editor?: Editor;
 
+  protected readonly colorPalette = NOTE_COLOR_PALETTE;
+  protected colorPickerOpen = signal(false);
+
   protected linkEditorOpen = signal(false);
   protected linkUrl = signal('');
 
@@ -130,6 +148,8 @@ export class NoteDialog implements OnInit, OnDestroy {
         extensions: [
           StarterKit,
           Underline,
+          TextStyle,
+          Color,
           Link.configure({ openOnClick: false, autolink: true })
         ],
         content: this.data.note.description ?? '',
@@ -165,6 +185,25 @@ export class NoteDialog implements OnInit, OnDestroy {
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
   }
 
+  protected toggleColorPicker() {
+    if (!this.editor) return;
+    this.colorPickerOpen.update((v) => !v);
+    if (this.colorPickerOpen()) {
+      this.linkEditorOpen.set(false);
+    }
+  }
+
+  protected applyColor(value: string | null) {
+    if (!this.editor) return;
+    const chain = this.editor.chain().focus();
+    if (value === null) {
+      chain.unsetColor().run();
+    } else {
+      chain.setColor(value).run();
+    }
+    this.colorPickerOpen.set(false);
+  }
+
   protected openLinkEditor() {
     if (!this.editor) return;
     if (this.linkEditorOpen()) {
@@ -176,6 +215,7 @@ export class NoteDialog implements OnInit, OnDestroy {
       | undefined;
     this.linkUrl.set(previousUrl ?? '');
     this.linkEditorOpen.set(true);
+    this.colorPickerOpen.set(false);
   }
 
   protected applyLink() {

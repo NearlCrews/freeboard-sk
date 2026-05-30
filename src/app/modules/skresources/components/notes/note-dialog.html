@@ -223,6 +223,15 @@
               >
                 <fb-icon name="format_underlined" ariaLabel=""></fb-icon>
               </fb-button>
+              <fb-button
+                variant="ghost"
+                size="sm"
+                ariaLabel="Text color"
+                fbTooltip="Text color"
+                (pressed)="toggleColorPicker()"
+              >
+                <fb-icon name="format_color_text" ariaLabel=""></fb-icon>
+              </fb-button>
               <fb-divider orientation="vertical"></fb-divider>
               <fb-button
                 variant="ghost"
@@ -234,7 +243,25 @@
                 <fb-icon name="link" ariaLabel=""></fb-icon>
               </fb-button>
             </div>
-            @if (linkEditorOpen()) {
+            @if (colorPickerOpen()) {
+            <div
+              class="tiptap-color-swatches"
+              role="group"
+              aria-label="Text color"
+            >
+              @for (swatch of colorPalette; track swatch.label) {
+              <button
+                type="button"
+                class="tiptap-swatch"
+                [class.tiptap-swatch--clear]="swatch.value === null"
+                [style.background]="swatch.value ?? 'transparent'"
+                [attr.aria-label]="swatch.label"
+                [fbTooltip]="swatch.label"
+                (click)="applyColor(swatch.value)"
+              ></button>
+              }
+            </div>
+            } @if (linkEditorOpen()) {
             <div
               class="tiptap-link-edit"
               role="group"
