@@ -28,12 +28,7 @@
               "src/favicon.ico",
               "src/assets",
               "src/manifest.json",
-              "src/browserconfig.xml",
-              {
-                "glob": "**/*",
-                "input": "node_modules/@kolkov/angular-editor/assets/icons",
-                "output": "assets/ae-icons/"
-              }
+              "src/browserconfig.xml"
             ],
             "styles": [
               "src/styles.scss",

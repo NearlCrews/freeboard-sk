@@ -350,6 +350,7 @@
               name="note-mime"
               [options]="mimeTypeOptions"
               [(value)]="data.note.mimeType"
+              (valueChange)="onMimeTypeChange()"
             ></fb-select>
           </div>
           @if(data.position && data.note.position; as pos) {

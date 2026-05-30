@@ -16,19 +16,6 @@ import { Color } from '@tiptap/extension-color';
 import { Link } from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Underline } from '@tiptap/extension-underline';
-
-interface ColorSwatch {
-  readonly label: string;
-  readonly value: string | null;
-}
-
-const NOTE_COLOR_PALETTE: readonly ColorSwatch[] = [
-  { label: 'Default', value: null },
-  { label: 'Danger (red)', value: 'oklch(60% 0.2 25)' },
-  { label: 'Caution (amber)', value: 'oklch(75% 0.18 70)' },
-  { label: 'Safe (green)', value: 'oklch(60% 0.15 145)' },
-  { label: 'Info (blue)', value: 'oklch(55% 0.15 250)' }
-];
 import { TiptapEditorDirective } from 'ngx-tiptap';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './add-target.pipe';
@@ -58,6 +45,30 @@ import type { AppIconDef } from 'src/app/modules/icons';
 import { getResourceIcon, listPoiIds } from 'src/app/modules/icons';
 import type { SKNote } from '../../resource-classes';
 import type { SKPosition } from 'src/app/types';
+
+interface ColorSwatch {
+  readonly label: string;
+  readonly value: string | null;
+}
+
+const NOTE_COLOR_PALETTE: readonly ColorSwatch[] = [
+  { label: 'Default', value: null },
+  { label: 'Danger (red)', value: 'oklch(60% 0.2 25)' },
+  { label: 'Caution (amber)', value: 'oklch(75% 0.18 70)' },
+  { label: 'Safe (green)', value: 'oklch(60% 0.15 145)' },
+  { label: 'Info (blue)', value: 'oklch(55% 0.15 250)' }
+];
+
+// StarterKit 3.x bundles Underline and Link with defaults. We register them
+// separately to override defaults (no openOnClick), so disable the bundled
+// versions to avoid duplicate-extension warnings and double event handlers.
+const NOTE_EDITOR_EXTENSIONS = [
+  StarterKit.configure({ underline: false, link: false }),
+  Underline,
+  TextStyle,
+  Color,
+  Link.configure({ openOnClick: false, autolink: true })
+];
 
 interface DialogData {
   title: string;
@@ -105,8 +116,11 @@ export class NoteDialog implements OnInit, OnDestroy {
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, NoteDialog>);
 
-  // Created only for HTML notes; markdown notes use fb-textarea instead.
-  protected editor?: Editor;
+  // Created only for editable HTML notes; markdown notes use fb-textarea and
+  // read-only notes use [innerHTML]. Recreated reactively if the user toggles
+  // the Format select mid-edit. Typed with explicit `undefined` (not `?:`) so
+  // syncEditorToMimeType can clear it under exactOptionalPropertyTypes.
+  protected editor: Editor | undefined;
 
   protected readonly colorPalette = NOTE_COLOR_PALETTE;
   protected colorPickerOpen = signal(false);
@@ -142,16 +156,19 @@ export class NoteDialog implements OnInit, OnDestroy {
       label: p.name
     }));
     this.noteModel.set({ name: this.data.note.name ?? '' });
+    this.syncEditorToMimeType();
+  }
 
-    if (!this.data.note.mimeType.includes('markdown')) {
+  protected onMimeTypeChange() {
+    this.syncEditorToMimeType();
+  }
+
+  private syncEditorToMimeType() {
+    const wantsEditor =
+      this.data.editable && !this.data.note.mimeType.includes('markdown');
+    if (wantsEditor && !this.editor) {
       this.editor = new Editor({
-        extensions: [
-          StarterKit,
-          Underline,
-          TextStyle,
-          Color,
-          Link.configure({ openOnClick: false, autolink: true })
-        ],
+        extensions: NOTE_EDITOR_EXTENSIONS,
         content: this.data.note.description ?? '',
         editorProps: {
           attributes: {
@@ -160,6 +177,9 @@ export class NoteDialog implements OnInit, OnDestroy {
           }
         }
       });
+    } else if (!wantsEditor && this.editor) {
+      this.editor.destroy();
+      this.editor = undefined;
     }
   }
 
@@ -220,18 +240,24 @@ export class NoteDialog implements OnInit, OnDestroy {
 
   protected applyLink() {
     if (!this.editor) return;
-    const url = this.linkUrl().trim();
-    if (url === '') {
-      this.editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    } else {
-      this.editor
-        .chain()
-        .focus()
-        .extendMarkRange('link')
-        .setLink({ href: url })
-        .run();
+    const raw = this.linkUrl().trim();
+    if (raw === '') {
+      this.removeLink();
+      return;
     }
-    this.linkEditorOpen.set(false);
+    // Tiptap's setLink silently rejects URLs without a recognized protocol
+    // (http, https, ftp, mailto, tel, etc.). Prepend https:// when the user
+    // entered a bare host so the common case works without a feedback gap.
+    const url = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+    const ok = this.editor
+      .chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink({ href: url })
+      .run();
+    if (ok) {
+      this.linkEditorOpen.set(false);
+    }
   }
 
   protected removeLink() {
