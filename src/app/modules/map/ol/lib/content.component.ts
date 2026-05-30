@@ -13,6 +13,4 @@ import {
 })
 export class ContentComponent {
   protected elementRef = inject(ElementRef);
-
-  constructor() {}
 }

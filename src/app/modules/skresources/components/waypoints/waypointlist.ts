@@ -11,7 +11,6 @@ import {
   OnChanges
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
@@ -30,7 +29,6 @@ import {
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   Position,
   FBWaypoints,
@@ -49,7 +47,6 @@ import { SingleSelectListDialog } from 'src/app/lib/components';
   templateUrl: './waypointlist.html',
   styleUrls: ['../resourcelist.css'],
   imports: [
-    CommonModule,
     ScrollingModule,
     FbButtonComponent,
     FbCardComponent,

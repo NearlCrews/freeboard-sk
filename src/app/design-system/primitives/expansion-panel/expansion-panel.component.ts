@@ -4,7 +4,6 @@ import {
   Component,
   Directive,
   ElementRef,
-  HostListener,
   computed,
   contentChildren,
   inject,
@@ -234,7 +233,8 @@ export interface AccordionHost {
   template: `<ng-content></ng-content>`,
   host: {
     role: 'region',
-    '[attr.aria-label]': 'ariaLabel() || null'
+    '[attr.aria-label]': 'ariaLabel() || null',
+    '(keydown)': 'onKeyDown($event)'
   },
   styles: [
     `
@@ -274,7 +274,6 @@ export class FbAccordionComponent implements AfterContentInit {
     }
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     const key = event.key;
     if (

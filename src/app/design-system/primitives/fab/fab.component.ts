@@ -42,12 +42,7 @@ export type FbFabPosition =
       [disabled]="disabled()"
       (click)="onClick($event)"
     >
-      <fb-icon
-        class="ob"
-        [name]="icon()"
-        [svgName]="svgName()"
-        size="md"
-      ></fb-icon>
+      <fb-icon [name]="icon()" [svgName]="svgName()" size="md"></fb-icon>
     </button>
   `,
   styles: [

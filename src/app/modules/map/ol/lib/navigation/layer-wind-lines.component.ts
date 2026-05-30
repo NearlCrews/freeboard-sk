@@ -91,12 +91,7 @@ export class WindLinesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(_changes: SimpleChanges) {
-    const layer = this.layer;
-    if (layer) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const properties: Record<string, any> = {};
-      layer.setProperties(properties, false);
-    }
+    // Inputs are signal-based; signal effect handles redraws.
   }
 
   ngOnDestroy() {

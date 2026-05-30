@@ -15,7 +15,6 @@ import type {
   FBRoute,
   FBWaypoint,
   NoteResource,
-  Position,
   RegionResource,
   ResourceSet,
   RouteResource,
@@ -157,9 +156,6 @@ export class InfoPanelFacade {
     });
   }
 
-  /**
-   * Fetch SignalK resource by id and open the panel.
-   */
   public async open(resourceType: SKResourceType, id: string) {
     if (!id) {
       return;
@@ -184,9 +180,6 @@ export class InfoPanelFacade {
     }
   }
 
-  /**
-   * Open with an already-loaded resource record.
-   */
   public openWith(
     resourceType: SKResourceType,
     resource: FBNote | FBRegion | FBWaypoint | FBRoute

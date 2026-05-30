@@ -11,7 +11,7 @@
 }
 
 .anchorwatch .title-block .title-text {
-  font-family: roboto;
+  font-family: var(--font-family-sans);
   font-size: 14pt;
   font-weight: 500;
 }

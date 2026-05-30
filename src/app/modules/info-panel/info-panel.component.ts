@@ -1,4 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject
+} from '@angular/core';
 import { InfoPanelFacade } from './info-panel.facade';
 
 import {
@@ -105,7 +110,7 @@ const KIND_LABEL: Record<string, string> = {
 export class InfoPanelComponent {
   protected infoPanel = inject(InfoPanelFacade);
 
-  protected label = () => {
+  protected label = computed(() => {
     const item = this.infoPanel.item();
     if (!item) {
       return '';
@@ -114,7 +119,7 @@ export class InfoPanelComponent {
       return RESOURCE_LABEL[item.type] ?? item.type;
     }
     return KIND_LABEL[item.kind] ?? item.kind;
-  };
+  });
 
   close() {
     this.infoPanel.close();

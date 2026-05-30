@@ -22,35 +22,22 @@ export interface FeatureUrl {
   providedIn: 'root'
 })
 export class MapService {
-  maps: Map[];
+  maps: Map[] = [];
 
   private _featureInfo = signal<FeatureUrl[]>([]);
   public readonly featureUrls = this._featureInfo.asReadonly();
 
-  constructor() {
-    this.maps = [];
-  }
-
-  /**
-   * Retrieves all the maps
-   */
   getMaps(): Map[] {
     return this.maps;
   }
 
-  /**
-   * Returns a map object from the maps array
-   */
   getMapById(id: string): Map | null {
-    let map: Map | null = null;
-    for (let i = 0; i < this.maps.length; i++) {
-      const candidate = this.maps[i];
-      if (candidate && candidate.getTarget() === id) {
-        map = candidate;
-        break;
+    for (const candidate of this.maps) {
+      if (candidate.getTarget() === id) {
+        return candidate;
       }
     }
-    return map;
+    return null;
   }
 
   getLayerByKey(key: string, value: string): BaseLayer | undefined {
@@ -91,14 +78,9 @@ export class MapService {
   }
 
   addFeatureUrls(v: FeatureUrl | FeatureUrl[]) {
-    this._featureInfo.update((current) => {
-      if (Array.isArray(v)) {
-        return current.concat(v);
-      } else {
-        current.push(v);
-        return current;
-      }
-    });
+    this._featureInfo.update((current) =>
+      Array.isArray(v) ? current.concat(v) : [...current, v]
+    );
   }
 
   clearFeatureUrls() {

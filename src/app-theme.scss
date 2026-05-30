@@ -1,8 +1,3 @@
-/* App theme rules built on the OKLCH design tokens declared in tokens.css.
-   Every color, background, and surface reference resolves through CSS
-   custom properties that re-theme automatically when the [data-theme]
-   attribute or .dark-theme class flips on the body. */
-
 html {
   ::-webkit-scrollbar {
     width: 6px;
@@ -52,9 +47,6 @@ html {
     color: var(--color-on-accent) !important;
   }
 
-  .icon-note {
-    color: unset;
-  }
   .icon-region {
     color: var(--color-icon-region) !important;
   }

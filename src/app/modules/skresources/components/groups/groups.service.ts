@@ -99,7 +99,7 @@ export class SKResourceGroupService {
    * @param data Resource data
    * @returns Promise<ActionResult> (rejects with HTTPErrorResponse)
    */
-  public putToServer(id: string, data: SKResourceGroup): Promise<any> {
+  public putToServer(id: string, data: SKResourceGroup): Promise<ActionResult> {
     return new Promise((resolve, reject) => {
       this.signalk.api
         .put(this.app.skApiVersion, `/resources/groups/${id}`, data)
@@ -115,7 +115,7 @@ export class SKResourceGroupService {
    * @param data Resource data
    * @returns Promise<ActionResult> (rejects with HTTPErrorResponse)
    */
-  public postToServer(data: SKResourceGroup): Promise<any> {
+  public postToServer(data: SKResourceGroup): Promise<ActionResult> {
     return new Promise((resolve, reject) => {
       this.signalk.api
         .post(this.app.skApiVersion, `/resources/groups`, data)

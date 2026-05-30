@@ -8,7 +8,6 @@ import {
   output,
   signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import {
   FbButtonComponent,
@@ -111,7 +110,6 @@ const RESOURCE_KIND_META: Record<ResourceKind, ResourceKindMeta> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
-    CommonModule,
     FbIconComponent,
     FbListPaneComponent,
     FbDetailPaneComponent,

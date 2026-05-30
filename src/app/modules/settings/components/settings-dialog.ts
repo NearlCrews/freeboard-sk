@@ -59,7 +59,6 @@ export interface SettingsSection {
   readonly label: string;
 }
 
-//** Settings **
 @Component({
   selector: 'settings-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -116,7 +115,6 @@ export class SettingsDialog implements OnInit {
     anchored: false
   };
 
-  // model to hold numbers that require unit conversion
   protected formattedNumberModel = {
     rangeCirclesDistance: 1000
   };
@@ -125,7 +123,6 @@ export class SettingsDialog implements OnInit {
 
   private saveOnClose = false;
 
-  // Phase 3 Batch 3: direct store injection for unit-preference helpers.
   protected settings = inject(SettingsStore);
 
   constructor(
@@ -153,7 +150,6 @@ export class SettingsDialog implements OnInit {
     });
   }
 
-  // format numbers in model used for form fields
   formatNumberModel() {
     this.formattedNumberModel = {
       rangeCirclesDistance:
@@ -177,9 +173,6 @@ export class SettingsDialog implements OnInit {
     this.unitsChangedSignal.update((current) => current + 1);
   }
 
-  /**
-   * handle dialog close action
-   */
   handleClose() {
     if (this.saveOnClose) {
       this.persistModel();
@@ -187,7 +180,6 @@ export class SettingsDialog implements OnInit {
     this.dialogRef.close();
   }
 
-  /** apply wakelock state */
   doWakelock(checked: boolean) {
     this.persistModel();
     if (checked) {
@@ -197,7 +189,6 @@ export class SettingsDialog implements OnInit {
     }
   }
 
-  /** apply S57 Options  */
   doS57() {
     this.facade.settings.map.s57Options.depthUnit =
       this.facade.settings.units.depth;
@@ -205,7 +196,6 @@ export class SettingsDialog implements OnInit {
     this.s57.setOptions(this.facade.settings.map.s57Options);
   }
 
-  /** handle line style change */
   onLineStyle(
     lineType: 'cog' | 'heading',
     value: { lineStyle: LineStyleDef; config: LineStyleConfig }
@@ -224,59 +214,40 @@ export class SettingsDialog implements OnInit {
     }
   }
 
-  /**
-   * toggle display of favourites
-   */
   toggleFavourites() {
     this.show.favourites.update((current) => !current);
   }
 
-  /**
-   * Persist Settings after model change
-   */
   persistModel(value?: string) {
     this.facade.applySettings();
     this.facade.emitChangeEvent(value ?? '');
   }
 
-  /**
-   * Defer persisting Settings until dialog close
-   */
   deferPersist(value?: string) {
     this.saveOnClose = true;
     this.facade.emitChangeEvent(value ?? '');
   }
 
-  /**
-   * Handle default intrument app selection
-   */
   onInstrumentApp() {
     this.persistModel('pluginInstruments');
     this.facade.buildFavouritesList();
   }
 
-  /**
-   * Handle Preferred Paths component event
-   * @param e
-   */
   onPreferredPaths(e: PreferredPathsResult) {
     if (e.save) {
-      this.facade.settings.units.preferredPaths = e.value as any;
+      this.facade.settings.units.preferredPaths = {
+        ...this.facade.settings.units.preferredPaths,
+        ...e.value
+      };
       this.persistModel();
     }
   }
 
-  /**
-   * Handle favourites multi-selection change.
-   */
   onFavSelected(urls: readonly string[]) {
     this.facade.settings.display.plugins.favourites = [...urls];
     this.persistModel();
   }
 
-  /**
-   * Handle AIS state filter change
-   */
   onAisStateFilter() {
     const s: string[] = [];
     for (const i in this.aisStateFilter) {
@@ -288,18 +259,12 @@ export class SettingsDialog implements OnInit {
     this.persistModel();
   }
 
-  /**
-   * Handle custom resource path selection changes
-   */
   onResPathSelected(paths: readonly string[]) {
     this.facade.settings.resources.paths = [...paths];
-    //ensure all selected paths have relevant 'selections' entry
     this.facade.settings.resources.paths.forEach((i: string) => {
-      if (i in this.facade.settings.selections.resourceSets) {
-        /* already has selection array */
-      } else {
+      if (!(i in this.facade.settings.selections.resourceSets)) {
         this.facade.settings.selections.resourceSets[i] = [];
-      } //create selection array
+      }
     });
     this.persistModel();
   }
@@ -325,9 +290,6 @@ export class SettingsDialog implements OnInit {
     return Convert.getSymbol(unit);
   }
 
-  // Convert a Map<string-literal, string> options source to FbSelectOption[].
-  // Accepts string-literal keys (e.g. 'kilometer' | 'naut-mile') by widening to
-  // string for fb-select consumption.
   protected mapToOptions(
     m: ReadonlyMap<string, string>
   ): readonly FbSelectOption[];
@@ -346,7 +308,6 @@ export class SettingsDialog implements OnInit {
     return out;
   }
 
-  // Convert a Map<number, string> options source to FbSelectOption<number>[].
   protected mapToNumberOptions(
     m: ReadonlyMap<number, string>
   ): readonly FbSelectOption<number>[] {
@@ -357,19 +318,16 @@ export class SettingsDialog implements OnInit {
     return out;
   }
 
-  // Convert a string[][] (pairs of [id, label]) to FbSelectOption[].
   protected pairsToOptions(
     pairs: readonly (readonly [string, string])[] | readonly string[][]
   ): readonly FbSelectOption[] {
     return pairs.map((p) => ({ id: p[0] as string, label: p[1] as string }));
   }
 
-  // Convert a string[] of identical id/label values to FbSelectOption[].
   protected listToOptions(list: readonly string[]): readonly FbSelectOption[] {
     return list.map((v) => ({ id: v, label: v }));
   }
 
-  // Convert a number[] of identical id/label values to FbSelectOption<number>[].
   protected numberListToOptions(
     list: readonly number[]
   ): readonly FbSelectOption<number>[] {
@@ -386,7 +344,6 @@ export class SettingsDialog implements OnInit {
     return out;
   }
 
-  // Convert facade urls to a selection-list option set, skipping null urls.
   protected favouritesOptions(): readonly FbSelectionListOption[] {
     const activeInstrument =
       this.facade.settings.display.plugins.instruments ?? '';
@@ -449,14 +406,11 @@ export class SettingsDialog implements OnInit {
     this.persistModel();
   }
 
-  // Trail duration is numeric in storage. fb-slider models number directly.
   protected onTrailDuration(value: number): void {
     this.facade.settings.vessels.trailDuration = value;
     this.deferPersist();
   }
 
-  // Setters that round-trip narrow string-literal union values through
-  // fb-select's generic `string | null` model() without losing strict types.
   protected onFab(v: string | null): void {
     if (v === null) return;
     this.facade.settings.display.fab = v as MFBAction;
@@ -566,8 +520,6 @@ export class SettingsDialog implements OnInit {
     this.persistModel();
   }
 
-  // Numeric setters for fb-select<number> models. Skip null inputs so the
-  // empty/cleared state is a no-op rather than zeroing a value out.
   protected onDarkModeSource(v: number | null): void {
     if (v === null) return;
     this.facade.settings.display.darkMode.source = v as 0 | 1 | -1;

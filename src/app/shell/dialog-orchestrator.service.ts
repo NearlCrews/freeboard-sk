@@ -11,17 +11,18 @@ import {
   CourseService,
   FBCustomResourceService,
   NotificationManager,
+  SKResourceService,
+  SKSTREAM_MODE
+} from 'src/app/modules';
+import type {
   SKAircraft,
   SKAtoN,
-  SKResourceService,
   SKSaR,
-  SKSTREAM_MODE,
   SKVessel,
   StreamOptions
 } from 'src/app/modules';
-import { ErrorList } from 'src/app/types';
-import { SKRoute } from 'src/app/modules/skresources';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { ErrorList, LineString } from 'src/app/types';
+import type { SKRoute } from 'src/app/modules/skresources';
 
 interface DialogHooks {
   fetchResources: () => void;
@@ -54,6 +55,8 @@ export class DialogOrchestrator {
   private readonly notiMgr = inject(NotificationManager);
 
   private hooks: DialogHooks | null = null;
+  private settingsDialogOpen = false;
+  private loginDialogOpen = false;
 
   /** Register the cross-cutting hooks the shell still owns. */
   registerHooks(hooks: DialogHooks): void {
@@ -63,8 +66,6 @@ export class DialogOrchestrator {
   private focus(): void {
     this.shell.focusMap();
   }
-
-  // ----- lazy-imported dialogs -----
 
   async openAbout(): Promise<void> {
     const { AboutDialog } =
@@ -100,8 +101,6 @@ export class DialogOrchestrator {
         this.focus();
       });
   }
-
-  private settingsDialogOpen = false;
 
   /** Route GPX vs GeoJSON imports by sniffing file content. */
   importFile(f: { data: string | ArrayBuffer; name: string }): void {
@@ -239,8 +238,6 @@ export class DialogOrchestrator {
       });
   }
 
-  private loginDialogOpen = false;
-
   async showLogin(
     message?: string,
     cancelWarning = true,
@@ -371,16 +368,13 @@ export class DialogOrchestrator {
         data: { trail: this.app.selfTrail() }
       })
       .closed.subscribe((result) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const r = result as any;
+        const r = result as { result: boolean; data: LineString } | undefined;
         if (r?.result) {
           this.skres.newRouteAt(r.data);
         }
         this.focus();
       });
   }
-
-  // ----- lazy bottom sheets -----
 
   async showWeather(mode: string): Promise<void> {
     if (mode !== 'forecast') {

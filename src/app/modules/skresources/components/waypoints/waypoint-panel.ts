@@ -206,7 +206,7 @@ export class WaypointPanel {
       const glist = groups.map((g) => {
         return { id: g[0], name: g[1].name };
       });
-      if (glist.length) {
+      if (!glist.length) {
         this.app
           .showConfirm(
             'There are currently no groups defined.\nYou will need to first create a group and then add the resource.\n\nDo you want to create a new group?',

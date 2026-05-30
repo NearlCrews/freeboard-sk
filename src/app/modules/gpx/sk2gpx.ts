@@ -1,6 +1,3 @@
-/** ******************************
- * SignalK to GPX resource handler
- * ******************************/
 import {
   GPX,
   GPXRoute,
@@ -26,18 +23,13 @@ export class SK2GPX {
     return this.gpx.toXML();
   }
 
-  /** add GPXRoutes to GPX object from supplied SK resources
-   * add only routes with supplied ids (add all if ids=undefined)
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setRoutes(routes: Record<string, any>, ids?: string[]) {
     if (!ids) {
-      // ** process all
       for (const i in routes) {
         this.gpx.rte.push(this.packageRoute(i, routes[i]));
       }
     } else {
-      // ** process selected ids
       ids.forEach((i) => {
         if (routes[i]) {
           this.gpx.rte.push(this.packageRoute(i, routes[i]));
@@ -46,7 +38,6 @@ export class SK2GPX {
     }
   }
 
-  // ** return GPXRoute from SK Route wpt: waypoints to get start, end details
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   packageRoute(uuid: string, r: any) {
     const rte = new GPXRoute();
@@ -56,14 +47,12 @@ export class SK2GPX {
       sk['distance'] = r.distance;
     }
     rte.extensions['signalk'] = sk;
-    // ** route properties **
     rte.name = r.name || null;
     rte.desc = r.description || null;
     rte.cmt = r.feature.properties.cmt || null;
     rte.src = r.feature.properties.src || null;
     rte.number = r.feature.properties.number || null;
     rte.type = r.feature.properties.type || null;
-    // ** add points **
     for (const p of r.feature.geometry.coordinates) {
       const pt = new GPXWaypoint();
       pt.lon = p[0];
@@ -75,18 +64,13 @@ export class SK2GPX {
     return rte;
   }
 
-  /** add GPXWaypoints to GPX object from supplied SK waypoints
-   * add only waypoints with supplied ids (add all if ids=null)
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setWaypoints(waypoints: Record<string, any>, ids?: string[]) {
     if (!ids) {
-      // ** process all
       for (const i in waypoints) {
         this.gpx.wpt.push(this.packageWaypoint(i, waypoints[i]));
       }
     } else {
-      // ** process selected ids
       ids.forEach((i) => {
         if (waypoints[i]) {
           this.gpx.wpt.push(this.packageWaypoint(i, waypoints[i]));
@@ -95,12 +79,10 @@ export class SK2GPX {
     }
   }
 
-  // ** return GPXWaypoint from SK Waypoint
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   packageWaypoint(uuid: string, w: any) {
     const wpt = new GPXWaypoint();
     wpt.extensions['signalk'] = { uuid };
-    // ** waypoint properties **
     wpt.name = w.name || '';
     wpt.desc = w.description || '';
     wpt.cmt = w.feature.properties.cmt || null;
@@ -122,18 +104,13 @@ export class SK2GPX {
     return wpt;
   }
 
-  /** add GPXTracks to GPX object from supplied SK tracks
-   * add only tracks with supplied ids (add all if ids=null)
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setTracks(tracks: Record<string, any>, ids?: string[]) {
     if (!ids) {
-      // ** process all
       for (const i in tracks) {
         this.gpx.trk.push(this.packageTrack(i, tracks[i]));
       }
     } else {
-      // ** process selected ids
       ids.forEach((i) => {
         if (tracks[i]) {
           this.gpx.trk.push(this.packageTrack(i, tracks[i]));
@@ -142,12 +119,10 @@ export class SK2GPX {
     }
   }
 
-  // ** return GPXTrack from SK Track
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   packageTrack(uuid: string, t: any) {
     const trk = new GPXTrack();
     trk.extensions['signalk'] = { uuid };
-    // ** track properties **
     trk.name = t.feature.properties.name || null;
     trk.desc = t.feature.properties.description || null;
     trk.cmt = t.feature.properties.cmt || null;
@@ -155,7 +130,6 @@ export class SK2GPX {
     trk.number = t.feature.properties.number || null;
     trk.type = t.feature.properties.type || null;
 
-    // ** add segments **
     for (const s of t.feature.geometry.coordinates) {
       const seg = new GPXTrackSegment();
       for (const p of s) {

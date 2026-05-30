@@ -72,8 +72,7 @@ export class CourseStore {
     id: string | null,
     opts: { reversed?: boolean; circular?: boolean; editing?: boolean } = {}
   ): void {
-    const view = data as FBAppDataMutable;
-    view.activeRoute = id;
+    (data as FBAppDataMutable).activeRoute = id;
     if (typeof opts.reversed === 'boolean') {
       data.activeRouteReversed = opts.reversed;
     }

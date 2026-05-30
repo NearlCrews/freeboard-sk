@@ -220,7 +220,7 @@ export class RangeCirclesComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       // default style
       cs = new Style({
-        fill: new Fill({ color: 'transparent' }),
+        fill: TRANSPARENT_FILL,
         stroke: new Stroke({
           color: this.mapTheme.palette().rangeCircle,
           width: 1.5,

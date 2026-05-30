@@ -1,6 +1,4 @@
-import DataTile from 'ol/source/DataTile';
 import TileLayer from 'ol/layer/Tile';
-import WebGLTileLayer from 'ol/layer/WebGLTile';
 import { XYZ } from 'ol/source';
 import TileState from 'ol/TileState';
 import type ImageTile from 'ol/ImageTile';
@@ -44,54 +42,6 @@ function parsePmtilesUrl(
     return undefined;
   }
   return [+zStr, +xStr, +yStr];
-}
-
-export async function initPMTilesWebGLLayer(
-  url: string,
-  minZoom: number,
-  maxZoom: number,
-  zIndex: number
-): Promise<WebGLTileLayer> {
-  const { PMTiles } = await loadPmtilesModule();
-  const tiles = new PMTiles(url);
-
-  function loadImage(src: string): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.addEventListener('load', () => resolve(img));
-      img.addEventListener('error', () => reject(new Error('load failed')));
-      img.src = src;
-    });
-  }
-
-  async function loader(
-    z: number,
-    x: number,
-    y: number
-  ): Promise<HTMLImageElement> {
-    const response = await tiles.getZxy(z, x, y);
-    if (!response) {
-      throw new Error('pmtiles tile not found');
-    }
-    const blob = new Blob([response.data]);
-    const src = URL.createObjectURL(blob);
-    try {
-      return await loadImage(src);
-    } finally {
-      URL.revokeObjectURL(src);
-    }
-  }
-
-  return new WebGLTileLayer({
-    source: new DataTile({
-      loader,
-      wrapX: true,
-      maxZoom: maxZoom,
-      minZoom: minZoom
-    }),
-    style: {},
-    zIndex: zIndex
-  });
 }
 
 export async function initPMTilesXYZLayer(

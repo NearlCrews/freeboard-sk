@@ -42,7 +42,6 @@ interface GPXDataSummary {
   tracks: { name: string; description: string }[];
 }
 
-//** GPXLoad dialog **
 @Component({
   selector: 'gpxload-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,7 +70,6 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   };
 
   public selRoutes: boolean[] = [];
-  public selectedRoute: number | null = null;
   public selWaypoints: boolean[] = [];
   public selTracks: boolean[] = [];
 
@@ -96,19 +94,17 @@ export class GPXImportDialog implements OnInit, OnDestroy {
   private gpx: GPX | null = null;
 
   protected app = inject(AppFacade);
-  // Phase 3 Batch 3: direct store injection for the fetch-progress signal.
   private settings = inject(SettingsStore);
   protected dialogRef = inject(DialogRef<unknown, GPXImportDialog>);
   private skres = inject(SKResourceService);
   private signalk = inject(SignalKClient);
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA)
+    public data: { fileData: string; fileName?: string }
   ) {}
 
   ngOnInit() {
-    this.data.fileData = this.data.fileData || null;
     this.parseGPXData(this.data.fileData);
   }
 
@@ -116,7 +112,6 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     this.clear();
   }
 
-  // ** load selected resources **
   load() {
     this.uploadToServer({
       rte: { selected: this.selRoutes },
@@ -184,7 +179,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     }
   }
 
-  // ** select Route idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkRte(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {
@@ -210,7 +205,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       this.display.allRoutesChecked || selcount === 0 ? false : true;
   }
 
-  // ** select Waypoint idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkWpt(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {
@@ -236,7 +231,7 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       this.display.allWaypointsChecked || selcount === 0 ? false : true;
   }
 
-  // ** select Track idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkTrk(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {
@@ -262,12 +257,10 @@ export class GPXImportDialog implements OnInit, OnDestroy {
       this.display.allTracksChecked || selcount === 0 ? false : true;
   }
 
-  // ** delete GPX object data **
   public clear() {
     this.gpx = null;
   }
 
-  // ** parse GPX file
   public async parseFileData(data: string): Promise<GPXDataSummary | null> {
     const gpxData: GPXDataSummary = {
       name: '',
@@ -313,7 +306,6 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     return gpxData;
   }
 
-  // ** upload selected resources to Signal K server **
   public async uploadToServer(res: {
     rte: { selected: boolean[] };
     wpt: { selected: boolean[] };
@@ -392,7 +384,6 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     this.errorList.push({ status: err.status, message: msg });
   }
 
-  // ** check all submissions are resolved and emit result$
   private checkComplete() {
     if (this.subCount === 0) {
       this.settings.sIsFetching.set(false);
@@ -405,7 +396,6 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     }
   }
 
-  // ** transform and upload route
   private transformRoute(r: GPXRoute) {
     const skObj = this.skres.buildRoute(
       r.rtept.map((pt): [number, number] => [pt.lon, pt.lat])
@@ -440,11 +430,13 @@ export class GPXImportDialog implements OnInit, OnDestroy {
     this.subCount++;
     this.signalk.api
       .put(this.app.skApiVersion, `/resources/routes/${skObj[0]}`, skObj[1])
-      .subscribe(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (r: any) => {
+      .subscribe({
+        next: (r: { statusCode?: number }) => {
           this.subCount--;
-          if (Math.floor(r.statusCode / 100) === 2) {
+          if (
+            typeof r.statusCode === 'number' &&
+            Math.floor(r.statusCode / 100) === 2
+          ) {
             this.app.debug('SUCCESS: Route added.');
             this.app.config.selections.routes.push(skObj[0]);
           } else {
@@ -452,16 +444,15 @@ export class GPXImportDialog implements OnInit, OnDestroy {
           }
           this.checkComplete();
         },
-        (err: HttpErrorResponse) => {
+        error: (err: HttpErrorResponse) => {
           this.errorCount++;
           this.subCount--;
           this.logError(err);
           this.checkComplete();
         }
-      );
+      });
   }
 
-  // ** transform and upload waypoint
   private transformWaypoint(pt: GPXWaypoint) {
     const wptObj = this.skres.buildWaypoint([pt.lon, pt.lat]);
     const wpt = wptObj[1];
@@ -497,11 +488,13 @@ export class GPXImportDialog implements OnInit, OnDestroy {
         `/resources/waypoints/${wptObj[0]}`,
         wptObj[1]
       )
-      .subscribe(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (r: any) => {
+      .subscribe({
+        next: (r: { statusCode?: number }) => {
           this.subCount--;
-          if (Math.floor(r.statusCode / 100) === 2) {
+          if (
+            typeof r.statusCode === 'number' &&
+            Math.floor(r.statusCode / 100) === 2
+          ) {
             this.app.debug('SUCCESS: Waypoint added.');
             this.app.config.selections.waypoints.push(wptObj[0]);
           } else {
@@ -509,16 +502,15 @@ export class GPXImportDialog implements OnInit, OnDestroy {
           }
           this.checkComplete();
         },
-        (err: HttpErrorResponse) => {
+        error: (err: HttpErrorResponse) => {
           this.errorCount++;
           this.subCount--;
           this.logError(err);
           this.checkComplete();
         }
-      );
+      });
   }
 
-  // ** transform and upload track
   private transformTrack(gpxtrk: GPXTrack) {
     const trk = {
       feature: {

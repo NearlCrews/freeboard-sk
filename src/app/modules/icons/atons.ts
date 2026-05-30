@@ -1,5 +1,3 @@
-// AtoN Icons
-
 import { AppIconSet } from './app.icons';
 import { MapIconDef } from '../map/ol/lib/map-image-registry.service';
 
@@ -70,9 +68,6 @@ const WeatherStation: MapIconDef = {
   scale: 0.75
 };
 
-/**
- * @description Build MapIcon definitions for use by MapImageRegistry
- */
 type AtoNGroup = Record<string, MapIconDef>;
 type AtoNList = Record<string, AtoNGroup>;
 

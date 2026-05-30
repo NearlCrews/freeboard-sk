@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   booleanAttribute,
   computed,
   input,
@@ -306,7 +305,8 @@ export class FbListItemComponent {
     role: 'listbox',
     'aria-multiselectable': 'true',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '(keydown)': 'onKeyDown($event)'
+    '(keydown)': 'onKeyDown($event)',
+    '(focus)': 'onFocus()'
   },
   styles: [
     `
@@ -403,7 +403,6 @@ export class FbSelectionListComponent {
     this.values.set(next);
   }
 
-  @HostListener('focus')
   onFocus(): void {
     const refs = this.optionRefs();
     const target = refs[this.rovingIndex()];

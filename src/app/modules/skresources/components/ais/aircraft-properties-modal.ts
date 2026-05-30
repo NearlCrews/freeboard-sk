@@ -125,8 +125,6 @@ export class AircraftPropertiesModal implements OnInit {
   }>(FB_BOTTOM_SHEET_DATA);
   private destroyRef = inject(DestroyRef);
 
-  constructor() {}
-
   ngOnInit() {
     this.getAircraftInfo();
   }

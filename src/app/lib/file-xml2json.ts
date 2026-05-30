@@ -13,7 +13,7 @@ export const xml2JsonInWorker = (xml: string): Promise<object> => {
       { type: 'module' }
     );
 
-    const finalise = (result: any) => {
+    const finalise = (result: object | null) => {
       worker.terminate();
       if (result) {
         resolve(result);
@@ -22,7 +22,8 @@ export const xml2JsonInWorker = (xml: string): Promise<object> => {
       }
     };
 
-    worker.onmessage = (event) => finalise(event.data);
+    worker.onmessage = (event: MessageEvent<object | null>) =>
+      finalise(event.data);
     worker.onerror = () => finalise(null);
     worker.postMessage({
       sourceType: 'xml',

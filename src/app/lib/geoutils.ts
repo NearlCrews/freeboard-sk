@@ -69,7 +69,7 @@ export class GeoUtils {
   }
 
   /** Calculate the great circle distance between two points in metres **/
-  static distanceTo(srcpt: Position, destpt: Position) {
+  static distanceTo(srcpt: Position, destpt: Position): number {
     // ol/sphere.getDistance (haversine, mean WGS84 radius) replaces geolib's
     // spherical-cosines + equatorial radius. Differences are ~0.11%
     // (sub-meter at typical navigation ranges), acceptable for display.
@@ -77,7 +77,7 @@ export class GeoUtils {
   }
 
   /** Calculate the length of an array of points in metres **/
-  static routeLength(points: Position[]) {
+  static routeLength(points: Position[]): number {
     let total = 0;
     for (let i = 1; i < points.length; ++i) {
       total += getDistance(points[i - 1]!, points[i]!);
@@ -249,12 +249,12 @@ export class GeoUtils {
    * @param zoneValue lower end of 180 to xx range within which Longitude must fall for retun value to be true
    * @param position Coordinate to test
    **/
-  static inDLCrossingZone(coord: Position, zoneValue = 170) {
+  static inDLCrossingZone(coord: Position, zoneValue = 170): boolean {
     return Math.abs(coord[0]) >= zoneValue;
   }
 
   // returns true if point is inside the supplied extent
-  static inBounds(point: Position, extent: Extent) {
+  static inBounds(point: Position, extent: Extent): boolean {
     // Extent is an axis-aligned bbox in lon/lat, so a direct bbox test via
     // ol/extent.containsCoordinate is equivalent to ray-casting against the
     // rectangular polygon geolib was given and is materially faster.
@@ -356,9 +356,14 @@ export class GeoUtils {
       return point;
     }
     if (Array.isArray(coords[0])) {
-      const arr = coords as Position[] | Position[][];
-      arr.forEach((c) => GeoUtils.normaliseCoords(c as Position));
-      return arr;
+      for (const c of coords as (Position | Position[])[]) {
+        if (typeof c[0] === 'number') {
+          GeoUtils.normaliseCoords(c as Position);
+        } else {
+          GeoUtils.normaliseCoords(c as Position[]);
+        }
+      }
+      return coords;
     }
     return coords;
   }

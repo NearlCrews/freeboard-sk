@@ -10,7 +10,6 @@ import {
 import { AppFacade } from 'src/app/app.facade';
 import { AlertData } from 'src/app/modules/alarms';
 import { CoordsPipe } from 'src/app/lib/pipes';
-import type { Position } from 'src/app/types';
 import { ALARM_STATE } from 'src/app/types/stream';
 
 import {

@@ -196,8 +196,6 @@ export class JsonMapSourceDialog {
   protected data = inject<SKChart>(DIALOG_DATA);
   private destroyRef = inject(DestroyRef);
 
-  constructor() {}
-
   handleSave() {
     this.dialogRef.close([this.provider]);
   }

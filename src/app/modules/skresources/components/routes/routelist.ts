@@ -29,7 +29,6 @@ import {
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   FBRoute,
   FBResourceSelect,

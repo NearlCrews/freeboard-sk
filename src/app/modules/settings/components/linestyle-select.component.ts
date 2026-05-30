@@ -1,4 +1,3 @@
-import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -128,7 +127,7 @@ export type LineStyleDash = 'none' | 'short' | 'medium' | 'long' | 'alt';
   `,
   styles: []
 })
-export class LineStyleSelectComponent implements OnInit {
+export class LineStyleSelectComponent {
   color = input<string>('#ff0000');
   dash = input<LineStyleDash>('none');
   weight = input<number>(1);
@@ -165,10 +164,6 @@ export class LineStyleSelectComponent implements OnInit {
     { id: 'long', label: 'Long dashes' },
     { id: 'alt', label: 'Alternating' }
   ];
-
-  constructor() {}
-
-  ngOnInit() {}
 
   onColorChange(value: string): void {
     this._color.set(value);

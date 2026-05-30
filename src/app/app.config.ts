@@ -3,19 +3,16 @@ import { Convert } from './lib/convert';
 import { SKVessel } from './modules';
 import { DefaultOptions } from './modules/map/ol/lib/charts/s57-options';
 
-// validate supplied settings against base config
 export function validateConfig(settings: IAppConfig): boolean {
-  let result = true;
-  const skeys = Object.keys(settings);
-  Object.keys(defaultConfig()).forEach((i) => {
-    if (!skeys.includes(i)) {
-      result = false;
+  const skeys = new Set(Object.keys(settings));
+  for (const i of Object.keys(defaultConfig())) {
+    if (!skeys.has(i)) {
+      return false;
     }
-  });
-  return result;
+  }
+  return true;
 }
 
-// clean loaded app config
 export function cleanConfig(
   settings: IAppConfig,
   hostParams: Record<string, unknown>
@@ -78,21 +75,23 @@ export function cleanConfig(
   }
   settings.units.temperature =
     settings.units.temperature.toUpperCase() as TemperatureUnitDef;
-  settings.units.depth =
-    (settings.units.depth as any) === 'ft' ? 'foot' : settings.units.depth;
+  const legacyDepth = settings.units.depth as unknown as string;
+  settings.units.depth = legacyDepth === 'ft' ? 'foot' : settings.units.depth;
   if (typeof settings.units.length === 'undefined') {
     settings.units.length = settings.units.depth ?? 'm';
   }
+  const legacySpeed = settings.units.speed as unknown as string;
   settings.units.speed =
-    (settings.units.speed as any) === 'msec'
+    legacySpeed === 'msec'
       ? 'm/s'
-      : (settings.units.speed as any) === 'kmh'
+      : legacySpeed === 'kmh'
         ? 'km/h'
         : settings.units.speed;
+  const legacyDistance = settings.units.distance as unknown as string;
   settings.units.distance =
-    (settings.units.distance as any) === 'm'
+    legacyDistance === 'm'
       ? 'kilometer'
-      : (settings.units.distance as any) === 'ft'
+      : legacyDistance === 'ft'
         ? 'naut-mile'
         : settings.units.distance;
 
@@ -222,23 +221,26 @@ export function cleanConfig(
       settings.vessels.rangeCirclesDistance = 1000;
     }
     if (typeof settings.vessels.selfLines === 'undefined') {
+      const legacy = settings.vessels as unknown as {
+        cogLine?: number;
+        headingLineSize?: number;
+      };
       settings.vessels.selfLines = {
         cog: {
-          length: (settings as any).vessels.cogLine ?? 10,
+          length: legacy.cogLine ?? 10,
           color: 'rgba(204, 12, 225, 0.7)',
           weight: 1,
           dash: 'none'
         },
         heading: {
-          length: (settings as any).vessels.headingLineSize ?? -1,
+          length: legacy.headingLineSize ?? -1,
           color: 'rgba(221, 99, 0, 0.5)',
           weight: 4,
           dash: 'none'
         }
       };
-      // @todo remove (implemented) v2.22.2
-      delete (settings as any).vessels.cogLine;
-      delete (settings as any).vessels.headingLineSize;
+      delete legacy.cogLine;
+      delete legacy.headingLineSize;
     }
   }
 
@@ -374,7 +376,6 @@ export function cleanConfig(
   }
 }
 
-// initialise default configuration
 export function defaultConfig(): IAppConfig {
   return {
     ui: {
@@ -547,7 +548,6 @@ export function defaultConfig(): IAppConfig {
   };
 }
 
-// initialise state data
 export function initData(): FBAppData {
   // FBAppData declares many string and reference fields as non-nullable, but at
   // first boot they really are null (no self vessel, no server data, no active
@@ -597,7 +597,6 @@ export function initData(): FBAppData {
   } as unknown as FBAppData;
 }
 
-// process url tokens from settings
 export const processUrlTokens = (s: string, config: IAppConfig): string => {
   if (!s) {
     return s;

@@ -73,7 +73,11 @@
   bottom: 0;
   padding-left: 0px;
   z-index: 5000;
-  background-color: rgba(200, 200, 200, 0.4);
+  background-color: color-mix(
+    in oklch,
+    var(--color-surface-raised) 60%,
+    transparent
+  );
   width: 400px;
 }
 

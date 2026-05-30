@@ -1,14 +1,11 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { HttpErrorResponse } from '@angular/common/http';
 
-import { FbDialogService } from 'src/app/design-system/primitives';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
-import { GeoUtils } from 'src/app/lib/geoutils';
 
 import type { SKInfoLayer } from '.';
-import { processUrlTokens } from 'src/app/app.config';
 
 import {
   SKChart,
@@ -81,12 +78,6 @@ export const isSKResourceType = (v: unknown): v is SKResourceType =>
 
 export type SKSelection = SKResourceType | 'aisTargets' | 'infolayers';
 
-interface ReOpenState {
-  key?: string;
-  value?: string;
-  readOnly?: boolean;
-}
-
 // Server response shape for the v1 /vessels endpoint, narrowed to the
 // fields transformVessel reads. All nested values are best-effort; the
 // SK delta model marks every leaf optional.
@@ -124,10 +115,7 @@ type RawVessels = Record<string, RawVessel>;
 // ** Signal K resource operations
 @Injectable({ providedIn: 'root' })
 export class SKResourceService {
-  private reOpen: ReOpenState = {};
-
   private app = inject(AppFacade);
-  private dialog = inject(FbDialogService);
   private signalk = inject(SignalKClient);
   private worker = inject(SKWorkerService);
 
@@ -138,10 +126,12 @@ export class SKResourceService {
   private readonly routesCollection = inject(RoutesCollection);
   private readonly tracksCollection = inject(TracksCollection);
   private readonly waypointsCollection = inject(WaypointsCollection);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.worker
       .resource$()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg: PathValue[]) => this.processResourceMessage(msg));
   }
 

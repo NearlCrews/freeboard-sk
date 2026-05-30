@@ -3,7 +3,6 @@ import {
   Component,
   Directive,
   ElementRef,
-  HostListener,
   TemplateRef,
   computed,
   contentChild,
@@ -133,6 +132,7 @@ export class FbSelectOptionTemplateDirective {
     FbIconComponent,
     NgTemplateOutlet
   ],
+  host: { '(keydown)': 'onKeyDown($event)' },
   template: `
     <button
       #trigger
@@ -482,16 +482,11 @@ export class FbSelectComponent<T extends string | number | null = string> {
     this.close();
   }
 
-  setActive(index: number): void {
-    this.activeIndex.set(index);
-  }
-
   setActiveById(id: T): void {
     const idx = this.flatOptions().findIndex((o) => o.id === id);
     if (idx >= 0) this.activeIndex.set(idx);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const key = event.key;

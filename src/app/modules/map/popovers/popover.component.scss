@@ -22,11 +22,9 @@
   word-spacing: normal;
   word-wrap: normal;
   white-space: normal;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
   border-radius: var(--radius-md);
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px color-mix(in oklch, var(--color-text) 20%, transparent);
 
   line-break: auto;
 }
@@ -40,7 +38,7 @@
   display: flex;
   line-height: 2.5em;
   font-size: 12pt;
-  background-color: rgba(250, 250, 250, 0.51);
+  background-color: color-mix(in oklch, var(--color-surface) 50%, transparent);
   border-radius: var(--radius-md) 5px 0 0;
   min-width: 110px;
 }

@@ -1,17 +1,15 @@
 import { signal } from '@angular/core';
-import { FBResource } from 'src/app/types';
 import { SKResourceService, SKSelection } from '../resources.service';
 
-/**
- * Base class for Resource Lists
- */
+type ResourceTupleLike = [string, { name?: string }, boolean?];
+
 export class ResourceListBase {
   protected collection!: SKSelection;
   protected filterText = '';
   protected someSel = false;
   protected allSel = false;
-  protected fullList: any[] = [];
-  protected filteredList = signal<any>([]);
+  protected fullList: ResourceTupleLike[] = [];
+  protected filteredList = signal<ResourceTupleLike[]>([]);
 
   constructor(
     collection: SKSelection,
@@ -33,7 +31,7 @@ export class ResourceListBase {
    * filter & sort resource entries
    */
   protected doFilter() {
-    let fl: FBResource[];
+    let fl: ResourceTupleLike[];
     if (this.filterText.length === 0) {
       fl = this.fullList.slice(0);
     } else {
@@ -43,7 +41,7 @@ export class ResourceListBase {
       );
     }
     fl.sort((a, b) => (a[1].name ?? '').localeCompare(b[1].name ?? ''));
-    this.filteredList.update(() => fl.slice(0));
+    this.filteredList.set(fl);
     this.alignSelections();
   }
 
@@ -51,14 +49,14 @@ export class ResourceListBase {
    * Align select all / some / none checkbox with entry selections
    */
   protected alignSelections() {
-    let c = false;
-    let u = false;
-    this.filteredList().forEach((i: FBResource) => {
-      c = i[2] ? true : c;
-      u = !i[2] ? true : u;
+    let anySelected = false;
+    let anyUnselected = false;
+    this.filteredList().forEach((i) => {
+      if (i[2]) anySelected = true;
+      else anyUnselected = true;
     });
-    this.allSel = c && !u ? true : false;
-    this.someSel = c && u ? true : false;
+    this.allSel = anySelected && !anyUnselected;
+    this.someSel = anySelected && anyUnselected;
   }
 
   /**
@@ -69,7 +67,7 @@ export class ResourceListBase {
     // fullList update
     this.fullList.forEach((item) => (item[2] = checked));
     // filteredList update
-    this.filteredList.update((fl: FBResource[]) => {
+    this.filteredList.update((fl) => {
       fl.forEach((item) => (item[2] = checked));
       return fl;
     });
@@ -79,7 +77,7 @@ export class ResourceListBase {
       this.skres.selectionClear(this.collection);
     }
     this.someSel = false;
-    this.allSel = checked ? true : false;
+    this.allSel = checked;
   }
 
   /**
@@ -96,7 +94,7 @@ export class ResourceListBase {
       }
     }
     // filteredList update
-    this.filteredList.update((fl: FBResource[]) => {
+    this.filteredList.update((fl) => {
       idx = fl.findIndex((item) => item[0] === id);
       if (idx !== -1) {
         const entry = fl[idx];

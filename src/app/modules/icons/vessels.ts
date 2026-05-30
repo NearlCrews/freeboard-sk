@@ -1,5 +1,3 @@
-// Vessel Icons
-
 import { AppIconSet } from './app.icons';
 import { MapIconDef } from '../map/ol/lib/map-image-registry.service';
 
@@ -61,9 +59,6 @@ export const AIS_MOORED_STYLE_IDS: Record<string, [string, string]> = {
   buddy: ['white', '#4CFF00']
 };
 
-/**
- * @description Build MapIcon definitions for use by MapImageRegistry
- */
 export const getVesselDefs = (): Record<string, MapIconDef> => {
   const vesselList: Record<string, MapIconDef> = {};
 

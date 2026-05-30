@@ -210,16 +210,12 @@ export class Measurements implements OnChanges {
   }
 
   setButtonState() {
-    if (this.index > 0 || (this.index === -1 && this.coords.length > 2)) {
-      this.btnDisable.prev = false;
-    } else {
-      this.btnDisable.prev = true;
-    }
-
-    if (this.index !== -1 && this.index < this.coords.length - 2) {
-      this.btnDisable.next = false;
-    } else {
-      this.btnDisable.next = true;
-    }
+    this.btnDisable.prev = !(
+      this.index > 0 ||
+      (this.index === -1 && this.coords.length > 2)
+    );
+    this.btnDisable.next = !(
+      this.index !== -1 && this.index < this.coords.length - 2
+    );
   }
 }

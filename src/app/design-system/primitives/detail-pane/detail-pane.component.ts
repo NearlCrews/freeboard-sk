@@ -63,6 +63,7 @@ import { NgTemplateOutlet } from '@angular/common';
         background: var(--ds-surface-2, var(--color-surface-raised));
         color: var(--color-text);
         font-family: var(--font-family-sans);
+        position: relative;
       }
       .fb-detail-pane__header {
         padding: var(--space-lg) var(--space-xl);
@@ -93,9 +94,6 @@ import { NgTemplateOutlet } from '@angular/common';
       }
       .fb-detail-pane__body:empty {
         padding: 0;
-      }
-      :host {
-        position: relative;
       }
       .fb-detail-pane__empty {
         display: none;

@@ -1,5 +1,3 @@
-/** Signal K Stream Provider abstraction Facade
- * ************************************/
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject } from 'rxjs';
@@ -29,7 +27,6 @@ export interface StreamOptions {
 
 @Injectable({ providedIn: 'root' })
 export class SKStreamFacade {
-  // **************** ATTRIBUTES ***************************
   private onConnect = new Subject<UpdateMessage>();
   private onClose = new Subject<UpdateMessage>();
   private onError = new Subject<UpdateMessage>();
@@ -40,7 +37,7 @@ export class SKStreamFacade {
     data: MultiLineString;
   }>();
   private vesselsUpdate = new Subject<void>();
-  // **************** SIGNALS ***********************************
+
   private anchorSignal = signal<{
     maxRadius?: number;
     radius?: number | null;
@@ -74,7 +71,6 @@ export class SKStreamFacade {
     private course: CourseService,
     private settings: SettingsFacade
   ) {
-    // ** SIGNAL K STREAM **
     this.worker
       .message$()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -100,7 +96,6 @@ export class SKStreamFacade {
         }
       });
 
-    // ** Handle app.config$ / settings.change$ events
     this.settings.change$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.sendConfig());
@@ -112,7 +107,7 @@ export class SKStreamFacade {
         }
       });
   }
-  // ** SKStream WebSocket messages **
+
   connect$(): Observable<UpdateMessage> {
     return this.onConnect.asObservable();
   }
@@ -133,7 +128,6 @@ export class SKStreamFacade {
     return this.onSelfTrail.asObservable();
   }
 
-  // ** Data centric messages
   vessels$(): Observable<void> {
     return this.vesselsUpdate.asObservable();
   }
@@ -150,7 +144,6 @@ export class SKStreamFacade {
     this.worker.postMessage(msg);
   }
 
-  // ** open Signal K Stream
   open(options?: StreamOptions) {
     const wsBase = this.signalk.resolveStreamEndpoint();
     if (!wsBase) return;
@@ -178,7 +171,6 @@ export class SKStreamFacade {
     }
   }
 
-  /** subscribe to signal k paths */
   subscribe() {
     this.worker.postMessage({
       cmd: 'subscribe',
@@ -253,9 +245,6 @@ export class SKStreamFacade {
     });
   }
 
-  /** Send config to stream worker
-   * @param config App config. If not supplied uses AppFacade.config
-   */
   sendConfig(config?: IAppConfig) {
     this.worker.postMessage({
       cmd: 'settings',
@@ -263,9 +252,6 @@ export class SKStreamFacade {
     });
   }
 
-  /**
-   * Send command message to fetch vessel trail from server
-   * Trail message handler => this.parseSelfTrail() */
   requestTrailFromServer() {
     this.worker.postMessage({
       cmd: 'trail',
@@ -276,15 +262,11 @@ export class SKStreamFacade {
     });
   }
 
-  /**
-   * Refresh the aisLifecycle().updated list.
-   */
   aisTargetUpdated() {
     const updated = Array.from(this.app.data.vessels.aisTargets.keys());
     this.aisLifecycle.update((current) => ({ ...current, updated }));
   }
 
-  // ** process selfTrail message from worker and emit trail$ **
   private parseSelfTrail(msg: TrailMessage) {
     if (msg.result) {
       if (!this.app.data.serverTrail) {
@@ -297,37 +279,25 @@ export class SKStreamFacade {
     }
   }
 
-  // ** parse delta message and update Vessel Data -> vesselsUpdate.next()
   private parseUpdateMessage(msg: UpdateMessage) {
     if (msg.action === 'update') {
-      // delta message
-
       this.parseVesselSelf(msg.result.self);
 
       this.parseVesselOther(msg.result.aisTargets);
 
       this.app.data.vessels.prefAvailablePaths = msg.result.paths;
 
-      // ** update active vessel map display **
       this.app.data.vessels.active = this.app.data.vessels.activeId
         ? (this.app.data.vessels.aisTargets.get(
             this.app.data.vessels.activeId
           ) ?? this.app.data.vessels.self)
         : this.app.data.vessels.self;
 
-      // process AtoNs
       this.app.data.atons = msg.result.atons;
-
-      // process SaR
       this.app.data.sar = msg.result.sar;
-
-      // process Meteo
       this.app.data.meteo = msg.result.meteo;
-
-      // process Aircraft
       this.app.data.aircraft = msg.result.aircraft;
 
-      // update AIS Lifecycle signal
       const aisStatus = msg.result.aisStatus;
       this.aisLifecycle.set({
         updated: aisStatus.updated,
@@ -335,7 +305,6 @@ export class SKStreamFacade {
         expired: aisStatus.expired
       });
 
-      // process AIS tracks
       const aisTracks = this.app.data.vessels.aisTracks;
       const aisTargets = this.app.data.vessels.aisTargets;
       const aircraft = this.app.data.aircraft;
@@ -415,7 +384,6 @@ export class SKStreamFacade {
     });
   }
 
-  // process vessel data and true / magnetic preference
   private processVessel(d: SKVessel) {
     d.cog = this.app.useMagnetic ? d.cogMagnetic : d.cogTrue;
     d.heading = this.app.useMagnetic ? d.headingMagnetic : d.headingTrue;

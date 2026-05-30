@@ -67,10 +67,8 @@ export class AppShellService {
    * resolution so two calls within the same second still emit a fresh
    * signal value to the FBMap input binding. */
   focusMap(): void {
-    this._mapSetFocus.set(String(Date.now()));
+    this._mapSetFocus.set(`${Date.now()}`);
   }
-
-  // ----- toolbar toggles -----
 
   toggleMoveMap(exit = false): void {
     this.settings.uiConfig.update((c) => ({
@@ -144,15 +142,11 @@ export class AppShellService {
     this.focusMap();
   }
 
-  // ----- map orientation -----
-
   getOrientation(): string {
     return this.settings.uiConfig().mapNorthUp
       ? 'rotate(0deg)'
       : 'rotate(' + (0 - this.app.data.vessels.active.orientation) + 'rad)';
   }
-
-  // ----- dark theme -----
 
   /** Apply or remove the .dark-theme class on the CDK overlay container. */
   setDarkTheme(): void {

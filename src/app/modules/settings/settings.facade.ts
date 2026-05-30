@@ -1,5 +1,3 @@
-/** Settings Service
- * ************************************/
 import { Injectable } from '@angular/core';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -12,7 +10,7 @@ interface SKAppsList {
   description: string;
   license: string;
   location: string;
-  _location: string; //npm linked app
+  _location: string;
   name: string;
   version: string;
 }
@@ -31,7 +29,6 @@ type ResourceTypeList = Record<
   }
 >;
 
-/** Settings Option Choices */
 export class SettingsOptions {
   private symDegree = String.fromCharCode(186);
 
@@ -113,8 +110,6 @@ export class SettingsOptions {
         [0, 'Day Bright'],
         [1, 'Day Black Background'],
         [2, 'Day White Background']
-        /*[3, 'Dusk'],
-        [4, 'Night']*/
       ]),
       otherLayers: new Map([
         ['SOUNDG', 'Depth Soundings'],
@@ -247,15 +242,14 @@ export class SettingsOptions {
 
 @Injectable({ providedIn: 'root' })
 export class SettingsFacade {
-  applicationList: AppListEntry[] = []; // installed webapp list
-  favouritesList: AppListEntry[] = []; // favourite webapp selections
-  resourcePathList: string[] = []; // resource layer list
+  applicationList: AppListEntry[] = [];
+  favouritesList: AppListEntry[] = [];
+  resourcePathList: string[] = [];
   fixedPosition: Position = [0, 0];
 
   settings!: IAppConfig;
   data!: FBAppData;
 
-  // Observables
   protected changeEvent = new Subject<string[]>();
   public change$: Observable<string[]> = this.changeEvent.asObservable();
 
@@ -270,18 +264,15 @@ export class SettingsFacade {
       this.settings.vessels.fixedPosition.slice() as Position;
   }
 
-  /** Notify of setting attribute change */
   emitChangeEvent(value: string) {
     const v = value ? [value] : [];
     this.changeEvent.next(v);
   }
 
-  /** Delete auth token */
   clearToken() {
     this.app.persistToken(null);
   }
 
-  /** Refresh dynamic data from sources */
   refresh() {
     this.settings = this.app.config;
     this.fixedPosition =
@@ -291,31 +282,28 @@ export class SettingsFacade {
     this.app.fetchUnitPrefsFromSKServer();
   }
 
-  /** Populate list of available non-standard resource paths */
   private getResourcePaths() {
-    this.signalk.api.get(this.app.skApiVersion, 'resources').subscribe(
-      (r: ResourceTypeList) => {
+    this.signalk.api.get(this.app.skApiVersion, 'resources').subscribe({
+      next: (r: ResourceTypeList) => {
         this.resourcePathList = Object.keys(r)
           .filter((i: string) => {
             return !this.app.resource.IGNORE_RESOURCES.includes(i);
           })
           .sort();
       },
-      () => (this.resourcePathList = [])
-    );
+      error: () => (this.resourcePathList = [])
+    });
   }
 
-  /** Populate applications list */
   private getApps() {
-    this.signalk.listApps().subscribe(
-      (a: SKAppsList[]) => {
+    this.signalk.listApps().subscribe({
+      next: (a: SKAppsList[]) => {
         this.applicationList = a
           .map((i): AppListEntry | null => {
             if (i.name === 'signalk-open-binnacle') {
               return null;
             }
             if (!i._location && !i.location) {
-              // npm linked app
               return {
                 name: i.name,
                 description: i.description,
@@ -323,7 +311,6 @@ export class SettingsFacade {
               };
             }
             if (typeof i._location !== 'undefined') {
-              // legacywebapps list
               const x = i._location.indexOf('/signalk-server/');
               return {
                 name: i.name,
@@ -349,18 +336,16 @@ export class SettingsFacade {
 
         this.buildFavouritesList();
       },
-      () => {
+      error: () => {
         this.app.debug('ERROR retrieving AppList!');
       }
-    );
+    });
   }
 
-  /** Favourited plugins / apps */
   buildFavouritesList() {
     this.favouritesList = this.applicationList.slice(1);
   }
 
-  /** Apply / persist settings */
   applySettings() {
     this.app.debug('Saving Settings..');
     if (!this.app.config.vessels.trail) {

@@ -83,34 +83,16 @@ import {
         font-family: arial;
         min-width: 300px;
       }
-      .ap-confirm-icon {
-        min-width: 35px;
-        max-width: 35px;
-        color: darkorange;
-        text-align: left;
-      }
 
       ._ap-infolayer .key-label {
         width: 150px;
         font-weight: 500;
       }
-
-      @media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
-        only screen and (min-width: 800px) {
-        .ap-confirm-icon {
-          min-width: 25%;
-          max-width: 25%;
-        }
-      }
     `
   ]
 })
 export class InfoLayerPropertiesDialog {
-  protected icon = '';
-
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, InfoLayerPropertiesDialog>);
   protected data = inject<SKInfoLayer>(DIALOG_DATA);
-
-  constructor() {}
 }

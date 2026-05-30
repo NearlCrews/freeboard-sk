@@ -1,28 +1,21 @@
 import { parseStringPromise } from 'xml2js';
 
-type WorkerMessage = {
+interface WorkerMessage {
   sourceType: 'xml';
   value: string;
-};
+}
 
-type WorkerResult = object;
+type WorkerResult = object | null;
 
-/**
- * Process message from host
- * @param event Message from host
- */
 self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
   const { sourceType, value } = event.data;
-  let result: WorkerResult;
+  let result: WorkerResult = null;
   try {
     if (sourceType === 'xml') {
-      //xml2json
       result = await parseStringPromise(value);
-    } else {
-      result = null;
     }
     self.postMessage(result);
-  } catch (err) {
+  } catch {
     self.postMessage(null);
   }
 };

@@ -41,7 +41,7 @@ describe('Speed Conversions', () => {
     expect(Convert.transform(1, 'm/s', 'mph')).toBe(2.2369362920544025);
   });
   it('m/s to Bf', () => {
-    expect(Convert.transform(25, 'm/s', 'Bf')).toBe(29);
+    expect(Convert.transform(25, 'm/s', 'Bf')).toBe(9.634351509027082);
   });
   it('m/s to fps', () => {
     expect(Convert.transform(1, 'm/s', 'fps')).toBe(3.280839895013124);

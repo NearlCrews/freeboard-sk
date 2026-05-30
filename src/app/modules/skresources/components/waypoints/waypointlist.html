@@ -79,7 +79,7 @@
                 <fb-icon
                   name="room"
                   ariaLabel=""
-                  [ngClass]="{'icon-warn': r[1].type=='pseudoAtoN'}"
+                  [class.icon-warn]="r[1].type === 'pseudoAtoN'"
                 ></fb-icon>
                 <b>{{(r[1].name) ? r[1].name : 'Wpt-' + r[0].slice(-6)}}</b>
               </div>

@@ -203,11 +203,11 @@ export class VesselComponent implements OnInit, OnDestroy, OnChanges {
   // default self style with specified scale
   generateSelfStyle() {
     const scale = this.iconScale();
-    if (scale) {
-      vesselIconDef.scale = Math.abs(scale);
-    }
     this.selfStyle = new Style({
-      image: new Icon(vesselIconDef as Options)
+      image: new Icon({
+        ...(vesselIconDef as Options),
+        scale: scale ? Math.abs(scale) : vesselIconDef.scale
+      })
     });
   }
 

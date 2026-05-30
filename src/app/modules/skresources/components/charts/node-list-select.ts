@@ -2,13 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
   input,
   output,
   signal
 } from '@angular/core';
-
-import { AppFacade } from 'src/app/app.facade';
 
 import {
   FbListComponent,
@@ -60,10 +57,6 @@ export class NodeListSelect {
   protected readonly activeId = computed<string | null>(
     () => this.selectedId() ?? this.preSelect()[0] ?? null
   );
-
-  protected app = inject(AppFacade);
-
-  constructor() {}
 
   /**
    * Handle list item activation; emits the single selected layer id.

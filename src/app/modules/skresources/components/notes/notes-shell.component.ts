@@ -8,7 +8,6 @@ import {
   output,
   signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import {
   FbButtonComponent,
@@ -59,7 +58,6 @@ const NAV_UNTAGGED = '__untagged';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FbButtonComponent,
-    CommonModule,
     FbIconComponent,
     FbListPaneComponent,
     FbDetailPaneComponent,

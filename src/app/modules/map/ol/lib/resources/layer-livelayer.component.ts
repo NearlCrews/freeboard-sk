@@ -237,17 +237,6 @@ export class OpenBinnacleLiveLayerComponent
     return undefined;
   }
 
-  /** remove layer and render map */
-  private removeLayer(id: string) {
-    const map = this.mapComponent.getMap();
-    if (!map) return;
-    const entry = this.layerMap.get(id);
-    if (!entry || !this.layerGroup) return;
-    const lc = this.layerGroup.getLayers();
-    lc.remove(entry.layer);
-    map.render();
-  }
-
   /** @returns WMS tile source */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private setWMSSource(ldef: any): TileWMS {

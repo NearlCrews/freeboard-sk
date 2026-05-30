@@ -1,4 +1,4 @@
-import { Directive, HostBinding, input } from '@angular/core';
+import { Directive, input } from '@angular/core';
 
 export type FbDialogActionsAlign = 'start' | 'center' | 'end';
 
@@ -19,12 +19,11 @@ export class FbDialogContentDirective {}
 @Directive({
   selector: '[fbDialogActions]',
   standalone: true,
-  host: { class: 'fb-dialog-actions' }
+  host: {
+    class: 'fb-dialog-actions',
+    '[attr.data-align]': 'align()'
+  }
 })
 export class FbDialogActionsDirective {
   readonly align = input<FbDialogActionsAlign>('end');
-
-  @HostBinding('attr.data-align') get alignAttr(): string {
-    return this.align();
-  }
 }

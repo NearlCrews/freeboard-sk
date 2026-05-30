@@ -19,7 +19,11 @@ import { AppComponent } from './app/app.component';
 // can still opt out by passing `willReadFrequently: false`.
 (() => {
   const proto = HTMLCanvasElement.prototype;
-  const original = proto.getContext;
+  const original = proto.getContext as (
+    this: HTMLCanvasElement,
+    type: string,
+    options?: unknown
+  ) => RenderingContext | null;
   proto.getContext = function (
     this: HTMLCanvasElement,
     type: string,
@@ -34,8 +38,7 @@ import { AppComponent } from './app/app.component';
         });
       }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (original as any).call(this, type, options);
+    return original.call(this, type, options);
   } as typeof proto.getContext;
 })();
 
@@ -64,24 +67,12 @@ if (SENTRY_DSN && !isDevMode()) {
   });
 }
 
-/**
- * Lazy /design-system route.
- *
- * The Angular router is not currently wired into this app; AppComponent is
- * bootstrapped directly. Rather than introduce the router runtime in this
- * batch (and bundle its overhead into every app load), we gate the
- * design-system showcase behind a path check and dynamic import.
- *
- * Why this is "lazy" enough:
- *  - `import('./app/design-system/design-system-showcase.component')` is a
- *    code-split point in esbuild/Angular CLI builds, so the design-system
- *    chunk is its own JS file that never ships to the AppComponent route.
- *  - The chunk is only fetched when the URL path contains `/design-system`.
- *
- * Path matching: substring match on pathname so any base href (signalk-server
- * mounts the webapp under `/signalk-open-binnacle/`, dev server at `/`)
- * resolves the same way.
- */
+// AppComponent is bootstrapped directly: @angular/router is not wired in,
+// so the design-system showcase loads via a path check plus dynamic import.
+// The dynamic import is a code-split point, so the showcase chunk never
+// ships in the AppComponent path. Substring match on pathname keeps it
+// working under any base href (signalk-server mounts at
+// /signalk-open-binnacle/, dev server at /).
 function isDesignSystemRoute(): boolean {
   return window.location.pathname.includes('/design-system');
 }

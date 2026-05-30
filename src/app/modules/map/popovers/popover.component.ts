@@ -8,36 +8,21 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
-
 import {
   FbButtonComponent,
   FbIconComponent,
   FbTooltipDirective
 } from 'src/app/design-system/primitives';
 
-/*********** Popover ***************
-title: string -  title text,
-canClose: boolean - show close button
-measure: boolean= measure mode;
-***********************************/
 @Component({
   selector: 'ap-popover',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FbButtonComponent,
-    FbIconComponent,
-    FbTooltipDirective
-  ],
+  imports: [FbButtonComponent, FbIconComponent, FbTooltipDirective],
   template: `
-    <div
-      class="popover top in fb-app-background"
-      [ngClass]="{ measure: measure }"
-    >
+    <div class="popover top in fb-app-background" [class.measure]="measure">
       <div class="popover-title">
         <div
-          [ngClass]="{ measure: measure }"
+          [class.measure]="measure"
           style="flex: 1 1 auto;overflow: hidden;
                                 display: -webkit-box;
                                 -webkit-box-orient: vertical;

@@ -7,16 +7,16 @@ import {
 } from './maplib';
 import { parseStringPromise } from 'xml2js';
 
-type WorkerMessage = {
+interface WorkerMessage {
   sourceType: 'wms' | 'wmts';
   url?: string;
   options?: WorkerMessageOptions;
-};
+}
 
-type WorkerMessageOptions = {
+interface WorkerMessageOptions {
   maxNodes?: number;
   maxDepth?: number;
-};
+}
 
 type WorkerResult =
   | object // xml2json
@@ -43,7 +43,7 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
       result = null;
     }
     self.postMessage(result);
-  } catch (err) {
+  } catch {
     self.postMessage(null);
   }
 };
@@ -60,22 +60,15 @@ const wmsGetInfo = async (
   const url = hostUrl + `?request=getcapabilities&service=wms`;
   const abortCtrl = new AbortController();
   const abortTimer = setTimeout(() => abortCtrl.abort(), FETCH_ABORT_TIMEOUT);
-  try {
-    const res = await fetch(url, {
-      signal: abortCtrl.signal
-    });
-    clearTimeout(abortTimer);
-    if (!res.ok) {
-      throw new Error(
-        `(${res.status}) Error fetching capabilities.. ${res.statusText}`
-      );
-    }
-    const xml = await res.text();
-    const wmsInfo = await parseWMSCapabilities(xml, url, options);
-    return wmsInfo;
-  } catch (err) {
-    throw err;
+  const res = await fetch(url, { signal: abortCtrl.signal });
+  clearTimeout(abortTimer);
+  if (!res.ok) {
+    throw new Error(
+      `(${res.status}) Error fetching capabilities.. ${res.statusText}`
+    );
   }
+  const xml = await res.text();
+  return parseWMSCapabilities(xml, url, options);
 };
 
 /**
@@ -97,7 +90,7 @@ const parseWMSCapabilities = async (
    * @param parent Parent LayerNode
    * @param depth Index of the depth of the layer in the tree
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const processWMSLayer = (
     layer: any,
     cList: LayerNode[],
@@ -119,7 +112,7 @@ const parseWMSCapabilities = async (
       node.title = getValue(layer.Title[0]);
     }
     if (Array.isArray(layer.Dimension)) {
-      for (let d of layer.Dimension) {
+      for (const d of layer.Dimension) {
         if (d.$?.name.toLowerCase() === 'time' && d.$?.units === 'ISO8601') {
           node.time = Object.assign(
             { current: d.$?.default ?? null },
@@ -138,10 +131,10 @@ const parseWMSCapabilities = async (
     cList.push(node);
   };
 
-  if (xml.indexOf('<Capability') === -1) {
+  if (!xml.includes('<Capability')) {
     throw new Error('Error: Invalid response received!');
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const json = await parseStringPromise(xml);
   if (!json.WMS_Capabilities && !json.WMT_MS_Capabilities) {
     throw new Error('Error: No Capabilities found!');
@@ -194,22 +187,15 @@ const wmtsGetInfo = async (
   const url = hostUrl + `?request=GetCapabilities&service=wmts`;
   const abortCtrl = new AbortController();
   const abortTimer = setTimeout(() => abortCtrl.abort(), FETCH_ABORT_TIMEOUT);
-  try {
-    const res = await fetch(url, {
-      signal: abortCtrl.signal
-    });
-    clearTimeout(abortTimer);
-    if (!res.ok) {
-      throw new Error(
-        `(${res.status}) Error fetching capabilities.. ${res.statusText}`
-      );
-    }
-    const xml = await res.text();
-    const wmtsInfo = await parseWMTSCapabilities(xml, url, options);
-    return wmtsInfo;
-  } catch (err) {
-    throw err;
+  const res = await fetch(url, { signal: abortCtrl.signal });
+  clearTimeout(abortTimer);
+  if (!res.ok) {
+    throw new Error(
+      `(${res.status}) Error fetching capabilities.. ${res.statusText}`
+    );
   }
+  const xml = await res.text();
+  return parseWMTSCapabilities(xml, url, options);
 };
 
 /**
@@ -257,7 +243,7 @@ const parseWMTSCapabilities = async (
     }
     if (hasValue(layer.Format)) {
       const f = getValue(layer.Format[0]);
-      l.format = f.indexOf('jpg') !== -1 ? 'jpg' : 'png';
+      l.format = f.includes('jpg') ? 'jpg' : 'png';
     } else {
       l.format = 'png';
     }
@@ -274,7 +260,7 @@ const parseWMTSCapabilities = async (
     return l;
   };
 
-  if (xml.indexOf('<Capabilities') === -1) {
+  if (!xml.includes('<Capabilities')) {
     throw new Error('Error: Invalid response received!');
   }
   const json = await parseStringPromise(xml);
@@ -338,7 +324,7 @@ interface DurationDef {
 const parseIso8601Duration = (value: string): DurationDef => {
   const regex =
     /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/;
-  const match = value.match(regex);
+  const match = regex.exec(value);
   if (!match) {
     return {
       years: 0,
@@ -449,7 +435,7 @@ const parseIsoTimeValue = (value: string): string => {
       value += `:00:00.000Z`;
     }
     return new Date(value).toISOString();
-  } catch (err) {
+  } catch {
     throw new Error(`Unhandled Date format (${value})`);
   }
 };

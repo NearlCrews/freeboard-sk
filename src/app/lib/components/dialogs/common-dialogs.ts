@@ -60,7 +60,7 @@ import {
   ]
 })
 export class MsgBox implements OnInit {
-  public msglines = [];
+  public msglines: string[] = [];
 
   constructor(
     public dialogRef: DialogRef<unknown, MsgBox>,
@@ -130,8 +130,7 @@ export class MsgBox implements OnInit {
   ]
 })
 export class AlertDialog implements OnInit {
-  public msglines = [];
-  public image = null;
+  public msglines: string[] = [];
 
   constructor(
     public dialogRef: DialogRef<unknown, AlertDialog>,
@@ -222,7 +221,7 @@ export class AlertDialog implements OnInit {
   ]
 })
 export class ConfirmDialog implements OnInit {
-  public msglines = [];
+  public msglines: string[] = [];
   public checked = false;
 
   constructor(
@@ -356,31 +355,6 @@ export class MessageBarComponent {
       }
       .welcome h3 {
         font-weight: 500;
-      }
-      .welcome-row {
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        align-content: stretch;
-        font-family: roboto, Arial, Helvetica, sans-serif;
-      }
-      .welcome-row .item.stretch {
-        text-align: center;
-        width: 100%;
-      }
-      .welcome-row .item {
-        padding-left: 5px;
-      }
-      .welcome-row img {
-        width: 42px;
-      }
-      .welcome-row .description {
-        font-size: 12pt;
       }
     `
   ]

@@ -97,11 +97,9 @@ export class DirectionOfTravelComponent
             this.source.clear();
             this.source.addFeatures(this.features);
           }
-        } else if (key === 'mapZoom') {
-          this.handleLabelZoomChange(key);
         } else if (key === 'layerProperties') {
           layer.setProperties(properties, false);
-        } else {
+        } else if (key !== 'mapZoom') {
           properties[key] = change.currentValue;
         }
       }
@@ -158,18 +156,6 @@ export class DirectionOfTravelComponent
     });
   }
 
-  // return a Style with rotation set
-  setRotation(s: Style, index: number): Style {
-    const cs = s.clone();
-    const im = cs.getImage();
-    if (im) {
-      const o = this.getOrientation(index);
-      im.setRotation(o);
-      cs.setImage(im);
-    }
-    return cs;
-  }
-
   getOrientation(idx: number) {
     const a = this.points[idx]! as Position;
     const b = this.points[idx + 1]! as Position;
@@ -177,25 +163,5 @@ export class DirectionOfTravelComponent
       ? GeoUtils.rhumbLineBearing(b, a)
       : GeoUtils.rhumbLineBearing(a, b);
     return (Math.PI / 180) * o;
-  }
-
-  // ** assess attribute change **
-  handleLabelZoomChange(key: string) {
-    if (key === 'labelMinZoom') {
-      if (typeof this.mapZoom !== 'undefined') {
-        //this.updateLabel();
-      }
-    } else if (key === 'mapZoom') {
-      /*if (typeof this.labelMinZoom !== 'undefined') {
-        if (
-          (change.currentValue >= this.labelMinZoom &&
-            change.previousValue < this.labelMinZoom) ||
-          (change.currentValue < this.labelMinZoom &&
-            change.previousValue >= this.labelMinZoom)
-        ) {
-          this.updateLabel();
-        }
-      }*/
-    }
   }
 }

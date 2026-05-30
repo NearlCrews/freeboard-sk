@@ -14,8 +14,7 @@ import {
 } from 'src/app/design-system/primitives';
 
 interface PiPVideoElement extends HTMLVideoElement {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  requestPictureInPicture(): any;
+  requestPictureInPicture(): Promise<PictureInPictureWindow>;
 }
 
 //** Picture in Picture video component **
@@ -44,8 +43,7 @@ interface PiPVideoElement extends HTMLVideoElement {
 })
 export class PiPVideoComponent implements OnInit, OnChanges {
   private pipVideo!: PiPVideoElement;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private pipWindow: any;
+  private pipWindow: PictureInPictureWindow | null = null;
   pipMode = false;
   vidUrl = '';
   @Input() src = '';
@@ -62,10 +60,11 @@ export class PiPVideoComponent implements OnInit, OnChanges {
 
     this.pipVideo = this.vid.nativeElement;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.pipVideo.addEventListener('enterpictureinpicture', (event: any) => {
+    this.pipVideo.addEventListener('enterpictureinpicture', (event: Event) => {
       this.pipMode = true;
-      this.pipWindow = event.pictureInPictureWindow;
+      this.pipWindow = (
+        event as Event & { pictureInPictureWindow: PictureInPictureWindow }
+      ).pictureInPictureWindow;
       this.pipWindow.addEventListener(
         'resize',
         this.onPipWindowResize.bind(this)
@@ -76,7 +75,7 @@ export class PiPVideoComponent implements OnInit, OnChanges {
     this.pipVideo.addEventListener('leavepictureinpicture', () => {
       this.pipMode = false;
       this.pipVideo.pause();
-      this.pipWindow.removeEventListener('resize', this.onPipWindowResize);
+      this.pipWindow?.removeEventListener('resize', this.onPipWindowResize);
       this.change.emit(this.pipMode);
     });
   }
@@ -87,24 +86,22 @@ export class PiPVideoComponent implements OnInit, OnChanges {
     }
   }
 
-  // ** pipWindow resize event handler **
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPipWindowResize(event: any) {
-    this.resize.emit([event.srcElement.width, event.srcElement.height]);
+  onPipWindowResize(event: Event): void {
+    const target = event.target as PictureInPictureWindow;
+    this.resize.emit([target.width, target.height]);
   }
 
   toggleMute() {
     this.muted = !this.muted;
   }
 
-  // ** initialise picture in picture mode
   async initPiP() {
     try {
       await this.pipVideo.requestPictureInPicture();
       this.pipMode = true;
       this.vid.nativeElement.play();
       this.click.emit(true);
-    } catch (e) {
+    } catch {
       this.pipMode = false;
     }
   }

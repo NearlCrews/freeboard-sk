@@ -25,7 +25,6 @@ import {
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
-import { HttpErrorResponse } from '@angular/common/http';
 import { SKResourceService } from '../../resources.service';
 import { SKWorkerService } from 'src/app/modules/skstream/skstream.service';
 import { SignalKClient } from 'src/lib/signalk-client';
@@ -137,7 +136,7 @@ export class GroupListComponent implements OnInit, OnChanges {
       const y = b[1].name?.toLowerCase() ?? '';
       return x > y ? 1 : -1;
     });
-    this.filteredList.update(() => fl.slice(0));
+    this.filteredList.set(fl);
   }
 
   /**

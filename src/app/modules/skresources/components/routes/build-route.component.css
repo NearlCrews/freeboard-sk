@@ -47,7 +47,7 @@
 }
 
 .wpt-list {
-  border: solid 1px rgba(200, 200, 200, 0.3);
+  border: solid 1px var(--color-border);
   min-height: 99%;
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -56,7 +56,7 @@
 
 .wpt-box {
   padding: 15px 10px;
-  border-bottom: solid 1px #ccc;
+  border-bottom: solid 1px var(--color-border);
   display: flex;
   flex-direction: row;
   align-items: center;

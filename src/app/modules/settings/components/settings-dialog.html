@@ -680,7 +680,7 @@
                           <fb-radio [value]="i[0]">
                             <img
                               src="./assets/img/vessels/self.png"
-                              [style]="`transform: scale(${i[0]})`"
+                              [style.transform]="'scale(' + i[0] + ')'"
                             />
                             ({{i[1]}})
                           </fb-radio>

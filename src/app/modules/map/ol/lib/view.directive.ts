@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import View from 'ol/View';
 import type { ObjectEvent } from 'ol/Object';
-import { transformExtent, toLonLat, fromLonLat, ProjectionLike } from 'ol/proj';
+import { toLonLat, fromLonLat, ProjectionLike } from 'ol/proj';
 import { Coordinate, Extent } from './models';
 import { MapComponent } from './map.component';
 

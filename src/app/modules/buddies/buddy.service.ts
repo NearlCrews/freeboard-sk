@@ -2,14 +2,8 @@ import { Injectable } from '@angular/core';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { AppFacade } from 'src/app/app.facade';
 
-interface BuddyProperties {
-  urn: string;
-  name: string;
-}
-
 const BUDDIES_URI = '/resources/buddies';
 
-// ** Signal K Buddies operations
 @Injectable({ providedIn: 'root' })
 export class Buddies {
   constructor(
@@ -18,13 +12,13 @@ export class Buddies {
   ) {}
 
   list() {
-    return this.signalk.api.get(this.app.skApiVersion, `${BUDDIES_URI}`);
+    return this.signalk.api.get(this.app.skApiVersion, BUDDIES_URI);
   }
 
   add(urn: string, name: string) {
-    return this.signalk.api.post(this.app.skApiVersion, `${BUDDIES_URI}`, {
-      urn: urn,
-      name: name
+    return this.signalk.api.post(this.app.skApiVersion, BUDDIES_URI, {
+      urn,
+      name
     });
   }
 
@@ -32,7 +26,7 @@ export class Buddies {
     return this.signalk.api.put(
       this.app.skApiVersion,
       `${BUDDIES_URI}/${urn}`,
-      { name: name }
+      { name }
     );
   }
 

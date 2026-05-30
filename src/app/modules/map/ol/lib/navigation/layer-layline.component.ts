@@ -97,11 +97,9 @@ export class LaylineComponent implements OnInit, OnDestroy, OnChanges {
             this.source.clear();
             this.source.addFeatures(this.features);
           }
-        } else if (key === 'mapZoom') {
-          //this.handleLabelZoomChange(key, change);
         } else if (key === 'layerProperties') {
           layer.setProperties(properties, false);
-        } else {
+        } else if (key !== 'mapZoom') {
           properties[key] = change.currentValue;
         }
       }

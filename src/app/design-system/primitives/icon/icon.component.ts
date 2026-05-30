@@ -131,8 +131,6 @@ export class FbIconComponent {
   readonly weight = input<FbIconWeight>(400);
   readonly fill = input<FbIconFill>(0);
 
-  readonly classes = computed(() => `fb-icon fb-icon--${this.size()}`);
-
   readonly roleAttr = computed(() => (this.ariaLabel() ? 'img' : null));
   readonly ariaLabelAttr = computed(() => this.ariaLabel() || null);
   readonly ariaHiddenAttr = computed(() => (this.ariaLabel() ? null : 'true'));

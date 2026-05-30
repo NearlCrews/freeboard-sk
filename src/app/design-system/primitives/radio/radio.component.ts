@@ -141,10 +141,7 @@ export class FbRadioComponent<T extends string | number | null = string> {
   }
 
   focus(): void {
-    const btn = this.hostEl.nativeElement.querySelector(
-      'button'
-    ) as HTMLButtonElement | null;
-    btn?.focus();
+    this.hostEl.nativeElement.querySelector('button')?.focus();
   }
 
   onClick(): void {

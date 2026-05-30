@@ -108,8 +108,6 @@ export class S57Service {
 
   private http = inject(HttpClient);
 
-  constructor() {}
-
   public init(options: Options = DefaultOptions) {
     this.options = Object.assign({}, options);
     this.selectedColorTable = this.options.colorTable;
@@ -242,10 +240,8 @@ export class S57Service {
     switch (type) {
       case 'Line':
         return GeometryType.LINES;
-        break;
       case 'Area':
         return GeometryType.AREA;
-        break;
       default:
         return GeometryType.POINT;
     }
@@ -255,16 +251,12 @@ export class S57Service {
     switch (table) {
       case 'Simplified':
         return LookupTable.SIMPLIFIED;
-        break;
       case 'Paper':
         return LookupTable.PAPER_CHART;
-        break;
       case 'Lines':
         return LookupTable.LINES;
-        break;
       case 'Plain':
         return LookupTable.PLAIN;
-        break;
       default:
         return LookupTable.SYMBOLIZED;
     }
@@ -486,36 +478,24 @@ export class S57Service {
     switch (dispPrio) {
       case 'Group 1':
         return DisplayPriority.PRIO_GROUP1;
-        break;
       case 'Area 1':
         return DisplayPriority.PRIO_AREA_1;
-        break;
       case 'Area 2':
         return DisplayPriority.PRIO_AREA_2;
-        break;
       case 'Point Symbol':
         return DisplayPriority.PRIO_SYMB_POINT;
-        break;
       case 'Line Symbol':
         return DisplayPriority.PRIO_SYMB_LINE;
-        break;
       case 'Area Symbol':
         return DisplayPriority.PRIO_SYMB_AREA;
-        break;
       case 'Routing':
         return DisplayPriority.PRIO_ROUTEING;
-        break;
       case 'Hazards':
         return DisplayPriority.PRIO_HAZARDS;
-        break;
       case 'Mariners':
         return DisplayPriority.PRIO_MARINERS;
-        break;
       default:
         return DisplayPriority.PRIO_NODATA;
-        break;
     }
   }
-
-  // the interface of this service
 }

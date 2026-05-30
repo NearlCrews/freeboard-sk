@@ -99,7 +99,6 @@ export class LoginDialog implements OnInit, AfterViewInit {
   protected readonly username = signal<string>('');
   protected readonly password = signal<string>('');
 
-  public imgSource = 'assets/img/success.png';
   private result: { cancel: boolean; user: string | null; pwd: string | null } =
     {
       cancel: false,

@@ -199,7 +199,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('mainmenuTpl', { static: true })
   private mainmenuTpl!: TemplateRef<FbMenuTemplateContext>;
 
-  // Phase 3 shell services (state and orchestration extracted from this file)
   private readonly shell = inject(AppShellService);
   private readonly menu = inject(MenuController);
   private readonly audio = inject(AudioAlarmService);
@@ -223,9 +222,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   protected playbackTime = signal<string | null>(null);
 
-  public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME; // mirrored from controller for template binding
+  public mode: SKSTREAM_MODE = SKSTREAM_MODE.REALTIME;
 
-  // external resources
   protected instUrl = signal<SafeResourceUrl | null>(null);
   private selFavourite = -1;
   protected vidUrl = signal<SafeResourceUrl | null>(null);
@@ -258,8 +256,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   protected wakeLock = inject(WakeLockService);
   private settings = inject(SettingsFacade);
   protected autopilot = inject(AutopilotService);
-
-  // ----- template-bound signal proxies -----
 
   protected leftMenuCtrl = () => this.menu.state();
   protected displayFullscreen = () => this.shell.displayFullscreen();

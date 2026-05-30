@@ -28,10 +28,8 @@ export class AppDB {
   constructor() {
     this.db = new IndexedDB('open-binnacle', 1);
     this.db
-      .openDatabase(1, (evt) => {
-        const trail = evt.currentTarget.result.createObjectStore('trail', {
-          keyPath: 'uuid'
-        });
+      .openDatabase(1, (_evt, db) => {
+        const trail = db.createObjectStore('trail', { keyPath: 'uuid' });
         trail.createIndex('uuid_idx', 'uuid', { unique: true });
       })
       .then(

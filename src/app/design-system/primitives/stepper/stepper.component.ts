@@ -4,7 +4,6 @@ import {
   Component,
   Directive,
   ElementRef,
-  HostListener,
   TemplateRef,
   computed,
   contentChild,
@@ -137,7 +136,7 @@ export class FbStepHeaderActionsDirective {
             @if (headerActions(); as headerTpl) {
               <span class="fb-step__header-actions">
                 <ng-container
-                  *ngTemplateOutlet="headerTpl.templateRef"
+                  [ngTemplateOutlet]="headerTpl.templateRef"
                 ></ng-container>
               </span>
             }
@@ -373,7 +372,8 @@ export class FbStepComponent {
   host: {
     role: 'region',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '[attr.data-orientation]': 'orientation()'
+    '[attr.data-orientation]': 'orientation()',
+    '(keydown)': 'onKeyDown($event)'
   },
   template: `
     @if (orientation() === 'horizontal') {
@@ -436,7 +436,7 @@ export class FbStepComponent {
     @if (orientation() === 'horizontal') {
       @if (activeStepActions(); as actionsTpl) {
         <div class="fb-stepper__actions fb-stepper__actions--custom">
-          <ng-container *ngTemplateOutlet="actionsTpl"></ng-container>
+          <ng-container [ngTemplateOutlet]="actionsTpl"></ng-container>
         </div>
       } @else {
         <div class="fb-stepper__actions">
@@ -724,7 +724,6 @@ export class FbStepperComponent implements AfterContentInit {
     this.activeIndex.update((v) => v + 1);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target || target.getAttribute('role') !== 'tab') return;

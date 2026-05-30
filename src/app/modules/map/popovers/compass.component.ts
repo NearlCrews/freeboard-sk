@@ -11,8 +11,6 @@ import {
   OnChanges
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
-
 interface DialConfig {
   minValue: number;
   maxValue: number;
@@ -96,7 +94,7 @@ class SvgDialBase implements DialConfig {
 @Component({
   selector: 'ap-compass',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './compass.component.svg'
 })
 export class CompassComponent extends SvgDialBase implements OnInit, OnChanges {
@@ -271,7 +269,7 @@ export class CompassComponent extends SvgDialBase implements OnInit, OnChanges {
 @Component({
   selector: 'ap-compass-northup',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './compass-northup.component.svg'
 })
 export class NorthUpCompassComponent

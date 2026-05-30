@@ -1,10 +1,4 @@
-/** *****************************
- *  Unit Conversion Module
- ****************************** */
-
-/**
- * Conversion from SI base units
- */
+/** Conversion functions from SI base units to target units. */
 const siBaseFn = {
   K: {
     C: (v: number) => v - 273.15,
@@ -23,7 +17,7 @@ const siBaseFn = {
     kn: (v: number) => v * 1.94384,
     'km/h': (v: number) => v * 3.6,
     mph: (v: number) => v * 2.2369362920544025,
-    Bf: (v: number) => (v / 0.836) ^ (2 / 3),
+    Bf: (v: number) => (v / 0.836) ** (2 / 3),
     fps: (v: number) => v * 3.280839895013124
   },
   'rad/s': {
@@ -156,22 +150,18 @@ export class Convert {
   ): number | null {
     if (!Number.isFinite(value)) return null;
     if ((baseUnit as string) === (targetUnit as string)) return value;
-    try {
-      const fnMap = (
-        siBaseFn as unknown as Record<
-          string,
-          Record<string, (v: number) => number>
-        >
-      )[baseUnit];
-      const fn = fnMap?.[targetUnit];
-      if (!fn) throw new Error('Transformation not found!');
-      return fn(value);
-    } catch {
-      throw new Error('Transformation not found!');
-    }
+    const fnMap = (
+      siBaseFn as unknown as Record<
+        string,
+        Record<string, (v: number) => number>
+      >
+    )[baseUnit];
+    const fn = fnMap?.[targetUnit];
+    if (!fn) throw new Error('Transformation not found!');
+    return fn(value);
   }
 
-  static setSymbol(unit: TARGET_UNIT, symbol: string) {
+  static setSymbol(unit: TARGET_UNIT, symbol: string): void {
     const map = symbolMap as unknown as Record<
       string,
       { symbol: string; name: string } | undefined
@@ -227,7 +217,7 @@ export class Convert {
    @params ref - Base value the angle is offset from (in radians) -ive = port **
    @returns Resultant direction in the range 0 - 2Pi radians
    */
-  static angleToDirection(angle: number, ref: number) {
+  static angleToDirection(angle: number, ref: number): number | null {
     const p = Math.PI * 2;
     if (!ref) {
       ref = 0;
@@ -255,7 +245,7 @@ export class Convert {
    @params ref - Reference angle from which direction is offset from (in radians) 
    @returns Angle in radians in the range (-Pi to Pi) -ive = port
   */
-  static directionToAngle(direction: number, ref: number) {
+  static directionToAngle(direction: number, ref: number): number | null {
     const p = Math.PI * 2;
     if (!ref) {
       ref = 0;

@@ -234,18 +234,4 @@ export class InteractionHelpComponent {
   close() {
     this.cancel.emit();
   }
-
-  setButtonState() {
-    /*if (this.index > 0 || (this.index === -1 && this.coords.length > 2)) {
-      this.btnDisable.prev = false;
-    } else {
-      this.btnDisable.prev = true;
-    }
-
-    if (this.index !== -1 && this.index < this.coords.length - 2) {
-      this.btnDisable.next = false;
-    } else {
-      this.btnDisable.next = true;
-    }*/
-  }
 }

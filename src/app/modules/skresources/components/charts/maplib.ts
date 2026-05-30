@@ -1,7 +1,3 @@
-import { WMSCapabilities, WMTSCapabilities } from 'ol/format';
-import { SKInfoLayer } from '../../custom-resource-classes';
-import { ChartProvider } from 'src/app/types';
-
 interface CapabilitiesBaseDef {
   name: string;
   description: string;
@@ -140,7 +136,9 @@ const capabilitiesInWorker = (
       type: 'module'
     });
 
-    const finalise = (result: any) => {
+    const finalise = (
+      result: WMTSCapabilitiesDef | WMSCapabilitiesDef | null
+    ) => {
       worker.terminate();
       if (result) {
         resolve(result);

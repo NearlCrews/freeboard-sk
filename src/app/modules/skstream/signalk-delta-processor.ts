@@ -111,7 +111,6 @@ export interface AisExpiryPayload {
   expired: string[];
 }
 
-/** Sink for AIS expiry messages destined for the slim worker. */
 export interface WorkerSink {
   postAisTouch: (ids: string[]) => void;
   postAisRemove: (id: string) => void;
@@ -188,8 +187,6 @@ export class SignalKDeltaProcessor {
   ) {
     this.initVessels();
   }
-
-  // ************ public command surface ************
 
   setAuthToken(token: string | undefined): void {
     if (typeof token === 'string') {
@@ -281,7 +278,6 @@ export class SignalKDeltaProcessor {
       );
       return;
     }
-    // compose apiUrl from ws url
     const u = opt.url.split('/');
     u.pop();
     u.push('api');
@@ -379,8 +375,6 @@ export class SignalKDeltaProcessor {
     return this.playbackMode;
   }
 
-  // ************ stream lifecycle ************
-
   private onStreamConnect(msg: Event): void {
     const target = msg?.target as WebSocket | null;
     this.events.connect.next(
@@ -414,8 +408,6 @@ export class SignalKDeltaProcessor {
     this.watchDog.active = false;
   }
 
-  // ************ vessels init ************
-
   private initVessels(): void {
     this.vessels = {
       self: new SKVessel(),
@@ -430,8 +422,6 @@ export class SignalKDeltaProcessor {
     this.vessels.self.positionReceived = false;
     this.targetStatus = { updated: {}, stale: {}, expired: {} };
   }
-
-  // ************ delta parsing ************
 
   private parseStreamMessage(data: Record<string, unknown>): void {
     if (!this.stream) {
@@ -615,8 +605,6 @@ export class SignalKDeltaProcessor {
     }
   }
 
-  // ************ update emission + watchdog ************
-
   private postUpdate(immediate = false): void {
     if (this.msgInterval && !immediate) {
       return;
@@ -634,7 +622,6 @@ export class SignalKDeltaProcessor {
     this.events.update.next(msg);
     this.targetStatus = { updated: {}, stale: {}, expired: {} };
     this.vessels.self.resourceUpdates = [];
-    // extent recalc
     if (this.extRecalcCounter === 0) {
       const maxRadius = this.targetFilter?.signalk['maxRadius'];
       if (
@@ -694,8 +681,6 @@ export class SignalKDeltaProcessor {
     this.timers.forEach((t) => clearInterval(t));
     this.timers = [];
   }
-
-  // ************ vessel and AIS object assembly ************
 
   private selectVessel(id: string): SKVessel {
     let vessel = this.vessels.aisTargets.get(id);
@@ -1122,8 +1107,6 @@ export class SignalKDeltaProcessor {
     const lastIdx = d.track.length - 1;
     d.track[lastIdx] = d.track[lastIdx]!.slice(0 - this.aisMgr.maxTrack);
   }
-
-  // ************ AIS track refresh ************
 
   // Returns undefined synchronously when a request is already in flight so the
   // caller can short-circuit; otherwise returns the parsed JSON promise.

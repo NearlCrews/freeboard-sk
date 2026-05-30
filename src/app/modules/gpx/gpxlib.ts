@@ -1,15 +1,8 @@
-/********************************
- ** GPX File Class Module       *
- ********************************/
-
 import { xml2JsonInWorker } from 'src/app/lib/file-xml2json';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Extensions = Record<string, any>;
 
-/************************
- ** GPX File Class **
- ************************/
 export class GPX {
   private version = '1.1';
   public creator = '@panaaj';
@@ -34,12 +27,10 @@ export class GPX {
     this.metadata = new GPXMetadataType();
   }
 
-  /** alias for toXML() **/
   public stringify() {
     return this.toXML();
   }
 
-  /** return a formatted string of GPX data suitable for writing to a file **/
   public toXML() {
     let xml =
       `<?xml version="1.0" encoding="UTF-8"?>\r\n` +
@@ -59,7 +50,6 @@ export class GPX {
     return xml;
   }
 
-  /** Returns a formatted metadata string **/
   private metadataToXML() {
     let xml =
       `\t<metadata>\r\n` +
@@ -237,7 +227,6 @@ export class GPX {
     return xml;
   }
 
-  /** return formatted <extension> XML for supplied .extension object **/
   private extensionsToXML(ext: Extensions, padLevel = 1) {
     let xml = '';
     if (ext && Object.keys(ext).length !== 0) {
@@ -265,7 +254,6 @@ export class GPX {
     return undefined;
   }
 
-  /** parse GPX string contents and fill this.data  **/
   public async parse(gpxstr: string): Promise<boolean> {
     if (!gpxstr || !gpxstr.includes('<gpx')) {
       return false;
@@ -279,7 +267,6 @@ export class GPX {
         return false;
       }
 
-      //** parse header **
       if (gpxNode.metadata) {
         const meta = this.xValue(gpxNode.metadata);
 
@@ -299,19 +286,15 @@ export class GPX {
           : {};
       }
 
-      //** parse waypoints **
       if (gpxNode.wpt) {
         this.parseWaypoints(gpxNode.wpt);
       }
-      //** parse routes **
       if (gpxNode.rte) {
         this.parseRoutes(gpxNode.rte);
       }
-      //** parse tracks **
       if (gpxNode.trk) {
         this.parseTracks(gpxNode.trk);
       }
-      //** parse extensions **
       this.extensions = gpxNode.extensions
         ? this.parseExtensions(gpxNode.extensions)
         : {};
@@ -321,7 +304,6 @@ export class GPX {
     }
   }
 
-  /** parse wpt xml element object array into this.wpt array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseWaypoints(waypoints: any) {
     if (Array.isArray(waypoints)) {
@@ -337,7 +319,6 @@ export class GPX {
     }
   }
 
-  /** parse rte xml element object array into this.rte array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseRoutes(routes: any) {
     if (Array.isArray(routes)) {
@@ -351,7 +332,6 @@ export class GPX {
     }
   }
 
-  /** parse trk xml element object array into this.trk array **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseTracks(tracks: any) {
     if (Array.isArray(tracks)) {
@@ -365,7 +345,6 @@ export class GPX {
     }
   }
 
-  /** return extension data **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseExtensions(xext: any): Extensions {
     if (!xext) {
@@ -388,7 +367,6 @@ export class GPX {
     return resExt;
   }
 
-  /** return array of GPXLinkType objects from x2js **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseLinks(xlink: any): GPXLinkType[] {
     const links: GPXLinkType[] = [];
@@ -414,7 +392,6 @@ export class GPX {
     return links;
   }
 
-  /** return GPXRoute object for supplied rte xml object **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toRte(xmlrte: any): GPXRoute {
     const rte = new GPXRoute();
@@ -435,7 +412,6 @@ export class GPX {
     return rte;
   }
 
-  /** return GPXWaypoint object for supplied wpt xml object **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toWpt(xmlwpt: any): GPXWaypoint {
     const pt = new GPXWaypoint();
@@ -457,7 +433,6 @@ export class GPX {
     return pt;
   }
 
-  /** return GPXTrack object for supplied trk xml object **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toTrk(xmltrk: any): GPXTrack {
     const tk = new GPXTrack();
@@ -501,7 +476,6 @@ export class GPX {
     return tk;
   }
 
-  /** return GPXWaypoint array for supplied pt xml object(s) **/
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toPtArray(xpts: any): GPXWaypoint[] {
     const pts: GPXWaypoint[] = [];
@@ -547,7 +521,6 @@ export class GPX {
     signalk['uuid'] = value;
   }
 
-  /** update Bounds metadata **/
   public updateBounds(pt: { lat: number; lon: number }) {
     this.metadata.bounds.minLat =
       pt.lat < this.metadata.bounds.minLat
@@ -568,7 +541,6 @@ export class GPX {
   }
 }
 
-// ** GPX Waypont object **
 export class GPXWaypoint {
   public lat = 0;
   public lon = 0;
@@ -599,7 +571,6 @@ export class GPXWaypoint {
   }
 }
 
-// ** GPX Route object **
 export class GPXRoute {
   public name: string | null = '';
   public cmt: string | null = null;
@@ -616,7 +587,6 @@ export class GPXRoute {
   }
 }
 
-// ** GPX Track Class **
 export class GPXTrack {
   public name: string | null = '';
   public cmt: string | null = null;
@@ -638,9 +608,6 @@ export class GPXTrackSegment {
   public extensions: Extensions = {};
 }
 
-// ***************
-// ** GPX Types **
-// ***************
 export enum GPXFixType {
   NONE = 'none',
   '2D' = '2d',

@@ -5,7 +5,6 @@ import {
   signal,
   inject
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import {
   FbBottomSheetRef,
@@ -37,7 +36,6 @@ interface CoordinatesMetaEntry {
   selector: 'ap-dest-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FbButtonComponent,
     FbCardComponent,
     FbCardContentComponent,
@@ -224,7 +222,6 @@ export class ActiveResourcePropertiesModal implements OnInit {
   protected clearButtonText = 'Clear';
   protected showClearButton = signal<boolean>(false);
   protected readOnly = false;
-  protected closestPoint = signal<number>(-1);
 
   protected app = inject(AppFacade);
   protected modalRef = inject(FbBottomSheetRef) as FbBottomSheetRef<
@@ -240,8 +237,6 @@ export class ActiveResourcePropertiesModal implements OnInit {
     noButtons: boolean;
   }>(FB_BOTTOM_SHEET_DATA);
 
-  constructor() {}
-
   ngOnInit() {
     const resource = this.data.resource[1];
     if (resource.feature && resource.feature.geometry.coordinates) {
@@ -256,7 +251,7 @@ export class ActiveResourcePropertiesModal implements OnInit {
           : 'Route Points';
 
         if (this.data.resource[0] === this.app.data.activeRoute) {
-          this.selIndex.update(() => this.course.courseData().pointIndex);
+          this.selIndex.set(this.course.courseData().pointIndex);
           this.showClearButton.set(true);
         }
         this.readOnly =
@@ -317,13 +312,12 @@ export class ActiveResourcePropertiesModal implements OnInit {
     if (!selPosition) {
       return;
     }
-    let idx = 0;
-    this.points.forEach((p: Position) => {
-      if (p[0] === selPosition[0] && p[1] === selPosition[1]) {
-        this.selIndex.set(idx);
-      }
-      idx++;
-    });
+    const idx = this.points.findIndex(
+      (p) => p[0] === selPosition[0] && p[1] === selPosition[1]
+    );
+    if (idx !== -1) {
+      this.selIndex.set(idx);
+    }
   }
 
   close() {
@@ -353,7 +347,7 @@ export class ActiveResourcePropertiesModal implements OnInit {
       }
       idx = cpi;
     }
-    this.selIndex.update(() => idx);
+    this.selIndex.set(idx);
     this.showClearButton.set(true);
     this.course.activateRoute(this.data.resource[0], idx);
   }

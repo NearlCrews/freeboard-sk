@@ -170,7 +170,6 @@ function addYears(d: Date, n: number): Date {
             <fb-icon name="chevron_left" size="sm"></fb-icon>
           </button>
           <span
-            #monthLabel
             class="fb-datepicker__month-label"
             [id]="monthLabelId()"
             aria-live="polite"

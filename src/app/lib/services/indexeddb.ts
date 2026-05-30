@@ -11,10 +11,9 @@ export class IndexedDB {
 
   openDatabase(
     version: number,
-    upgradeCallback?: (evt: any, db: IDBDatabase) => void
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new Promise<any>((resolve, reject) => {
+    upgradeCallback?: (evt: IDBVersionChangeEvent, db: IDBDatabase) => void
+  ): Promise<Event> {
+    return new Promise<Event>((resolve, reject) => {
       this.dbWrapper.dbVersion = version;
       const request = this.utils.indexedDB.open(this.dbWrapper.dbName, version);
       request.onsuccess = (e) => {
@@ -22,15 +21,13 @@ export class IndexedDB {
         resolve(e);
       };
 
-      request.onerror = function (e) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        reject('IndexedDB error: ' + (e.target as any).errorCode);
+      request.onerror = (e) => {
+        const target = e.target as IDBOpenDBRequest | null;
+        reject('IndexedDB error: ' + (target?.error?.message ?? 'unknown'));
       };
 
       if (typeof upgradeCallback === 'function') {
         request.onupgradeneeded = (e) => {
-          // Cast to the in-progress IDBDatabase before the onsuccess fires;
-          // request.result is the same handle that we later store on dbWrapper.
           upgradeCallback(e, request.result);
         };
       }
@@ -57,8 +54,7 @@ export class IndexedDB {
       const objectStore = transaction.objectStore(storeName);
       const request: IDBRequest = objectStore.get(key);
       request.onsuccess = (event: Event) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        resolve((event.target as any).result);
+        resolve((event.target as IDBRequest).result);
       };
     });
   }
@@ -83,8 +79,7 @@ export class IndexedDB {
         }
       });
       const objectStore = transaction.objectStore(storeName);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: any[] = [];
+      const result: unknown[] = [];
       let request: IDBRequest;
 
       if (indexDetails) {
@@ -131,9 +126,8 @@ export class IndexedDB {
       const objectStore = transaction.objectStore(storeName);
 
       const request = objectStore.add(value, key);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      request.onsuccess = (evt: any) => {
-        key = evt.target.result;
+      request.onsuccess = (evt: Event) => {
+        key = (evt.target as IDBRequest).result;
       };
     });
   }
@@ -274,18 +268,22 @@ export class IndexedDB {
   }
 }
 
+type LegacyIndexedDB = Window & {
+  mozIndexedDB?: IDBFactory;
+  webkitIndexedDB?: IDBFactory;
+  msIndexedDB?: IDBFactory;
+};
+
 export class Utils {
   indexedDB: IDBFactory;
 
   constructor() {
+    const legacy = window as LegacyIndexedDB;
     this.indexedDB =
       window.indexedDB ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).mozIndexedDB ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).webkitIndexedDB ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).msIndexedDB;
+      legacy.mozIndexedDB ||
+      legacy.webkitIndexedDB ||
+      legacy.msIndexedDB;
   }
 }
 

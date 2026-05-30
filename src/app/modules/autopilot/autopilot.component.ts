@@ -1,7 +1,3 @@
-/***********************************
-Autopilot Console component
-    <autopilot-console>
-***********************************/
 import {
   Component,
   DestroyRef,
@@ -321,7 +317,6 @@ export class AutopilotComponent {
     });
   }
 
-  /** Narrow an unknown catch value to the HTTP-error shape used by AutopilotService responses. */
   private toApiError(err: unknown): {
     status?: number;
     error?: { message?: string };
@@ -369,7 +364,6 @@ export class AutopilotComponent {
       });
   }
 
-  /** fetch AP options from server */
   private async fetchAPOptions() {
     try {
       const options = await this.autopilot.fetchOptions();
@@ -386,7 +380,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** engage / disengage the pilot */
   protected async toggleEngaged() {
     try {
       if (this.apData().enabled) {
@@ -408,9 +401,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** adjust device target
-   * @param value Number (in degrees)
-   */
   protected async targetAdjust(value: number) {
     try {
       await this.autopilot.adjustTarget(value);
@@ -427,7 +417,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** toggle dodge mode on/off */
   protected async toggleDodge() {
     try {
       await this.autopilot.dodge(this.apData().mode !== 'dodge');
@@ -445,7 +434,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** send dodge direction value */
   protected async dodgeAdjust(value: number) {
     try {
       await this.autopilot.adjustDodge(value);
@@ -462,9 +450,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** send mode command
-   * @param mode Mode to set on the device
-   */
   protected async setMode(mode: string) {
     try {
       await this.autopilot.mode(mode);
@@ -482,9 +467,6 @@ export class AutopilotComponent {
     }
   }
 
-  /** send mode command
-   * @param state Mode to set on the device
-   */
   protected async setState(state: string) {
     try {
       await this.autopilot.state(state);
@@ -502,15 +484,19 @@ export class AutopilotComponent {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dragEventHandler(e: any, type: string) {
+  dragEventHandler(
+    e: {
+      event: { srcElement?: { clientLeft?: number; clientTop?: number } };
+    },
+    type: string
+  ) {
     this.app.debug(
       'e:',
       e,
       'type:',
       type,
-      e.event.srcElement.clientLeft,
-      e.event.srcElement.clientTop
+      e.event.srcElement?.clientLeft,
+      e.event.srcElement?.clientTop
     );
   }
 

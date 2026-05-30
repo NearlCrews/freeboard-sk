@@ -1,7 +1,3 @@
-/***********************************
-timer button component
-    <timer-button>
-***********************************/
 import {
   Component,
   Input,
@@ -21,7 +17,6 @@ import {
   selector: 'timer-button',
   imports: [FbButtonComponent, FbIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [``],
   template: `
     <div>
       @if (cancelled()) {
@@ -41,7 +36,7 @@ import {
   `
 })
 export class TimerButtonComponent implements OnInit, OnDestroy {
-  @Input() period = 5000; // timeout period in milliseconds
+  @Input() period = 5000;
   @Input() label = 'Action in ';
   @Input() icon = '';
   @Input() cancelledLabel = 'OK';
@@ -52,12 +47,10 @@ export class TimerButtonComponent implements OnInit, OnDestroy {
   protected timeLeft = signal<number>(this.period ?? 5);
   protected cancelled = signal<boolean>(false);
 
-  constructor() {}
-
   ngOnInit() {
-    this.timeLeft.update(() => (isNaN(this.period) ? 5 : this.period / 1000));
+    this.timeLeft.set(isNaN(this.period) ? 5 : this.period / 1000);
     this.timer = setInterval(() => {
-      this.timeLeft.update((current) => --current);
+      this.timeLeft.update((current) => current - 1);
       if (this.timeLeft() === 0) {
         this.disabled = true;
         this.action();

@@ -91,7 +91,6 @@ const LINE_DASH_MAP = new Map<string, string>([
 export class SettingsStore {
   private readonly signalk = inject(SignalKClient);
 
-  // ----- persisted UI configuration -----
   readonly uiConfig = signal<UiConfigState>({
     mapNorthUp: true,
     mapMove: false,
@@ -106,7 +105,6 @@ export class SettingsStore {
     useWebGLNightMode: false
   });
 
-  // ----- non-persisted UI state -----
   readonly uiCtrl = signal<UiCtrlState>({
     alertList: false,
     autopilotConsole: false,
@@ -115,7 +113,6 @@ export class SettingsStore {
     forceNightMode: false
   });
 
-  // ----- Signal K server feature flags -----
   readonly featureFlags = signal<FeatureFlagsState>({
     anchorApi: true,
     autopilotApi: false,
@@ -128,7 +125,6 @@ export class SettingsStore {
     buddyList: false
   });
 
-  // ----- session flags -----
   /** kiosk mode flag */
   readonly kioskMode = signal<boolean>(false);
   /** auth token has been presented */
@@ -150,12 +146,10 @@ export class SettingsStore {
     activate: false
   });
 
-  // ----- server-supplied unit preferences -----
   readonly serverConfig = {
     unitPreferences: signal<SKServerUnitPrefs | undefined>(undefined)
   };
 
-  // ----- line-dash style helpers -----
   get lineDashMap(): Map<string, string> {
     return LINE_DASH_MAP;
   }
@@ -231,8 +225,6 @@ export class SettingsStore {
     }
   }
 
-  // ----- number formatting -----
-
   /**
    * Format a value for display in the user's preferred units (e.g. 12.5 kn,
    * 8.8 m/s). Numbers default to 1 decimal place. Strings are returned
@@ -249,12 +241,12 @@ export class SettingsStore {
       precision?: number;
     }
   ): string {
-    if (typeof (value as unknown) !== 'number') {
-      const s = value as unknown as string;
+    if (typeof value !== 'number') {
+      const s: unknown = value;
       if (typeof s === 'string' && s.endsWith('Z') && s[10] === 'T') {
         return new Date(s).toLocaleString();
       }
-      return `${s}${sourceUnit}`;
+      return `${String(s)}${sourceUnit}`;
     }
     const precision = options?.precision ?? 1;
     let symbol = '';

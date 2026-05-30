@@ -1,6 +1,3 @@
-/** Text Dial Component **
- ************************/
-
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,11 +6,6 @@ import {
   OnChanges
 } from '@angular/core';
 
-/*********** Text Dial ***************
-title: "<string>" title text,
-value: "<string>" display value,
-units: "<string>" dsisplay units,
-***********************************/
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ap-dial-text',
@@ -39,9 +31,6 @@ export class TextDialComponent {
   @Input() units = '';
 }
 
-/*********** TTG Text Dial ***************
-value: "<number>" TTG value in minutes
-***********************************/
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ap-dial-ttg',
@@ -94,9 +83,6 @@ export class TTGDialComponent implements OnChanges {
   }
 }
 
-/*********** ETA Text Dial ***************
-value: "<Date>" ETA date
-***********************************/
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ap-dial-eta',

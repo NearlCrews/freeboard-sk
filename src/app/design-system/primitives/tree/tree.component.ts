@@ -3,7 +3,6 @@ import {
   Component,
   Directive,
   ElementRef,
-  HostListener,
   computed,
   input,
   model,
@@ -81,9 +80,10 @@ function flattenVisible<T>(
  * `onRowClick` and `onKeyDown` only when their semantics diverge (selection
  * + space-bar toggle in the select variant).
  *
- * Marked @Directive so Angular accepts the signal-based inputs/outputs and
- * @HostListener declarations under inheritance; the directive itself has no
- * selector and is never instantiated directly.
+ * Marked @Directive so Angular accepts the signal-based inputs/outputs
+ * under inheritance; the directive itself has no selector and is never
+ * instantiated directly. Subclasses bind `(focus)` and `(keydown)` to
+ * `onHostFocus` / `onKeyDown` via their own host metadata.
  */
 @Directive()
 export abstract class FbTreeBase<T = unknown> {
@@ -143,7 +143,6 @@ export abstract class FbTreeBase<T = unknown> {
     }
   }
 
-  @HostListener('focus')
   protected onHostFocus(): void {
     this.focusRow(this.rovingIndex());
   }
@@ -321,7 +320,8 @@ export abstract class FbTreeBase<T = unknown> {
   host: {
     role: 'tree',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '(keydown)': 'onKeyDown($event)'
+    '(keydown)': 'onKeyDown($event)',
+    '(focus)': 'onHostFocus()'
   },
   styles: [
     `
@@ -506,7 +506,8 @@ export class FbTreeComponent<T = unknown> extends FbTreeBase<T> {
     role: 'tree',
     'aria-multiselectable': 'true',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '(keydown)': 'onKeyDown($event)'
+    '(keydown)': 'onKeyDown($event)',
+    '(focus)': 'onHostFocus()'
   },
   styles: [
     `

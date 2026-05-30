@@ -36,10 +36,8 @@ import { OpenBinnacleOpenlayersModule } from 'src/app/modules/map/ol';
 import { CoordsPipe } from 'src/app/lib/pipes';
 
 import { toLonLat } from 'ol/proj';
-import { Style, Stroke, Fill } from 'ol/style';
 import { Collection, Feature } from 'ol';
 
-import { Convert } from 'src/app/lib/convert';
 import { GeoUtils } from 'src/app/lib/geoutils';
 import { LineString, MultiLineString, Position } from 'src/app/types';
 
@@ -94,7 +92,7 @@ import {
   removeNightMode
 } from './ol/lib/webgl/night-mode-webgl';
 import { FeatureLike } from 'ol/Feature';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FBMapInteractService,
   DrawFeatureInfo,
@@ -263,7 +261,6 @@ export class FBMapComponent
 
   private destroyRef = inject(DestroyRef);
 
-  private http = inject(HttpClient);
   protected app = inject(AppFacade);
   protected skres = inject(SKResourceService);
   protected skresOther = inject(FBCustomResourceService);
@@ -1349,19 +1346,6 @@ export class FBMapComponent
 
   private transformCoordsArray(ca: Position[]): Position[] {
     return ca.map((i) => toLonLat(i as [number, number]) as Position);
-  }
-
-  // apply default chart style (vectortile)
-  applyStyle() {
-    return new Style({
-      fill: new Fill({
-        color: '#e0d10e'
-      }),
-      stroke: new Stroke({
-        color: '#444',
-        width: 1
-      })
-    });
   }
 
   // ** called by onMapMoveEnd() to render features within map extent

@@ -25,7 +25,12 @@ import { AppFacade } from 'src/app/app.facade';
 import { SKResourceService } from '../skresources';
 import type { FBRoute, FBWaypoint } from 'src/app/types';
 
-//** GPXSave dialog **
+interface GPXExportResData {
+  routes: { feature: { id: string }; name?: string }[];
+  waypoints: { feature: { id: string }; name?: string }[];
+  tracks: unknown[];
+}
+
 @Component({
   selector: 'gpxsave-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,15 +49,13 @@ import type { FBRoute, FBWaypoint } from 'src/app/types';
   styleUrls: ['./gpxsave-dialog.css']
 })
 export class GPXExportDialog implements OnInit, OnDestroy {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected resData: { routes: any[]; waypoints: any[]; tracks: any[] } = {
+  protected resData: GPXExportResData = {
     routes: [],
     waypoints: [],
     tracks: []
   };
 
   protected selRoutes: boolean[] = [];
-  protected selectedRoute: number | null = null;
   protected selWaypoints: boolean[] = [];
   protected selTracks: boolean[] = [];
 
@@ -79,13 +82,16 @@ export class GPXExportDialog implements OnInit, OnDestroy {
     private skres: SKResourceService,
     private facade: GPXSaveFacade,
     protected dialogRef: DialogRef<unknown, GPXExportDialog>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(DIALOG_DATA) public data: any
+    @Inject(DIALOG_DATA)
+    public data: {
+      routes: FBRoute[];
+      waypoints: FBWaypoint[];
+      tracks: unknown[];
+    }
   ) {}
 
   ngOnInit() {
-    this.loadResources();
-    // ** close dialog returning error count **
+    void this.loadResources();
     this.facade.result$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((errCount) => {
@@ -116,7 +122,6 @@ export class GPXExportDialog implements OnInit, OnDestroy {
     this.parseResourceData();
   }
 
-  // ** load selected resources **
   save() {
     this.facade.saveToFile(this.resData, {
       rte: { selected: this.selRoutes },
@@ -158,7 +163,7 @@ export class GPXExportDialog implements OnInit, OnDestroy {
     this.selTracks.push(false);
   }
 
-  // ** select Route idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkRte(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {
@@ -184,7 +189,7 @@ export class GPXExportDialog implements OnInit, OnDestroy {
       this.display.allRoutesChecked || selcount === 0 ? false : true;
   }
 
-  // ** select Waypoint idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkWpt(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {
@@ -210,7 +215,7 @@ export class GPXExportDialog implements OnInit, OnDestroy {
       this.display.allWaypointsChecked || selcount === 0 ? false : true;
   }
 
-  // ** select Track idx=-1 -> check all
+  /** idx=-1 -> check all */
   checkTrk(checked: boolean, idx = -1) {
     let selcount = 0;
     if (idx !== -1) {

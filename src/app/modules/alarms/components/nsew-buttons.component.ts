@@ -1,7 +1,3 @@
-/***********************************
-NSEW arrow buttons component
-  <nsew-buttons>
-***********************************/
 import {
   Component,
   Input,
@@ -17,12 +13,9 @@ import { FbFabComponent } from 'src/app/design-system/primitives';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
-      .nsew {
-        border: silver 0px solid;
-      }
       .nsew .btnRow {
         display: flex;
-        flex-wrap: no-wrap;
+        flex-wrap: nowrap;
       }
       .nsew .btnDiv {
         width: 50px;
@@ -82,8 +75,6 @@ import { FbFabComponent } from 'src/app/design-system/primitives';
 export class NSEWButtonsComponent {
   @Input() disabled = false;
   readonly direction = output<number>();
-
-  constructor() {}
 
   action(value: number) {
     this.direction.emit(value);

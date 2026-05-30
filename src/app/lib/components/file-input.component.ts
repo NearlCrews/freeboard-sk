@@ -21,14 +21,16 @@ import {
 export class FileInputComponent {
   @Input() disabled = false;
   @Input() multiple = false;
-  @Input() maxfilesize = null; //** 1MB default
-  @Input() accept = ''; // ** html input attribute value
-  @Input() astext = false; // ** return text instead of base64
+  @Input() maxfilesize: number | null = null;
+  @Input() accept = '';
+  @Input() astext = false;
   @Input() preview = false;
   @Input() icon = false;
-  @Input() label = 'Upload File'; // ** button text
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly chosen = output<{ name: string; data: any }>();
+  @Input() label = 'Upload File';
+  readonly chosen = output<{
+    name: string;
+    data: string | ArrayBuffer | null;
+  }>();
   readonly invalid = output<{
     type: string;
     value: string | number;
@@ -95,37 +97,14 @@ export class FileInputComponent {
         }
       }
 
-      // Start reading this file
       this.readFile(current, reader, (result: string | ArrayBuffer | null) => {
-        // ** callback function **
         if (index === 0 && this.preview) {
           this.avatar = result;
         }
-        this.chosen.emit({ name: current.name, data: result }); //** fire chosen event
-
+        this.chosen.emit({ name: current.name, data: result });
         this.readFiles(files, index + 1);
-        // ****** resize image? **
-        /*
-                // Create an img element and add the image file data to it
-                let img = document.createElement("img");
-                img.src = result;
-            
-                // Send this img to the resize function (and wait for callback)
-                this.resize(img, 42, 42, (resized_jpeg, before, after)=> {   
-                    // ** callback function **
-
-                    // Add the resized jpeg img source to a list for preview
-                    // This is also the file you want to upload. (either as a
-                    // base64 string or img.src = resized_jpeg if you prefer a file). 
-                    this.file_srcs.push(resized_jpeg);
-            
-                    // Read the next file;
-                    this.readFiles(files, index+1);
-                });
-                */
       });
     } else {
-      // When all files are done This forces a change detection
       this.changeDetectorRef.detectChanges();
     }
   }

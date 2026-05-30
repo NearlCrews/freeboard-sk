@@ -215,16 +215,11 @@ export class RoutePanel {
       | { name?: string; description?: string; href?: string }[]
       | undefined;
     if (Array.isArray(coordinatesMeta)) {
-      const pointsMeta = coordinatesMeta.map((p) => ({
-        href: p?.href,
-        name: p?.name ?? '',
-        description: p?.description ?? ''
-      }));
-      let idx = 0;
-      return pointsMeta.map((pt) => {
-        idx++;
-        if (pt.href) {
-          const id = pt.href.split('/').slice(-1)[0] ?? '';
+      return coordinatesMeta.map((p, i) => {
+        const idx = i + 1;
+        const href = p?.href;
+        if (href) {
+          const id = href.split('/').slice(-1)[0] ?? '';
           const wpt = this.skres.fromCache('waypoints', id);
           return wpt
             ? {
@@ -240,16 +235,16 @@ export class RoutePanel {
         }
         return {
           index: idx,
-          name: pt.name || `RtePt-${('000' + String(idx)).slice(-3)}`,
-          description: pt.description ?? ``
+          name: p?.name || `RtePt-${String(idx).padStart(3, '0')}`,
+          description: p?.description ?? ''
         };
       });
     }
-    let idx = 0;
-    return this._route().feature.geometry.coordinates.map(() => {
+    return this._route().feature.geometry.coordinates.map((_, i) => {
+      const idx = i + 1;
       return {
         index: idx,
-        name: `RtePt-${('000' + String(++idx)).slice(-3)}`,
+        name: `RtePt-${String(idx).padStart(3, '0')}`,
         description: ''
       };
     });
@@ -366,7 +361,7 @@ export class RoutePanel {
       const glist = groups.map((g) => {
         return { id: g[0], name: g[1].name };
       });
-      if (glist.length) {
+      if (!glist.length) {
         this.app
           .showConfirm(
             'There are currently no groups defined.\nYou will need to first create a group and then add the resource.\n\nDo you want to create a new group?',

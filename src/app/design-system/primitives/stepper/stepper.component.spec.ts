@@ -10,7 +10,7 @@ import {
 
 @Component({
   standalone: true,
-  imports: [FbStepperComponent, FbStepComponent, FbStepActionsDirective],
+  imports: [FbStepperComponent, FbStepComponent],
   template: `
     <fb-stepper
       [(activeIndex)]="activeIndex"

@@ -119,30 +119,15 @@ interface DialogData {
         font-family: arial;
         min-width: 300px;
       }
-      .ap-confirm-icon {
-        min-width: 35px;
-        max-width: 35px;
-        color: darkorange;
-        text-align: left;
-      }
 
       ._ap-chartjob .key-label {
         width: 150px;
         font-weight: 500;
       }
-
-      @media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
-        only screen and (min-width: 800px) {
-        .ap-confirm-icon {
-          min-width: 25%;
-          max-width: 25%;
-        }
-      }
     `
   ]
 })
 export class ChartSeedJobDialog implements OnInit {
-  protected icon = '';
   protected zoomRange = signal<readonly number[]>([]);
   protected selZoom = 0;
   protected readonly String = String;
@@ -154,8 +139,6 @@ export class ChartSeedJobDialog implements OnInit {
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, ChartSeedJobDialog>);
   protected data = inject<DialogData>(DIALOG_DATA);
-
-  constructor() {}
 
   ngOnInit() {
     const minZoom = this.data.chart[1].minZoom ?? 1;

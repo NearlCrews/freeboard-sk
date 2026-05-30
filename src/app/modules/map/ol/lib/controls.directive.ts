@@ -56,16 +56,17 @@ export class ControlsDirective implements OnInit {
 
   setControls() {
     const map = this.mapComponent.getMap();
-    if (undefined !== map && map !== null) {
-      map.getControls().clear();
-      if (!this.controls || this.controls.length < 0) {
-        return;
-      }
-      for (const config of this.controls) {
-        this.addControl(map, config);
-      }
-      this.changeDetectorRef.detectChanges();
+    if (!map) {
+      return;
     }
+    map.getControls().clear();
+    if (!this.controls || this.controls.length === 0) {
+      return;
+    }
+    for (const config of this.controls) {
+      this.addControl(map, config);
+    }
+    this.changeDetectorRef.detectChanges();
   }
 
   private addControl(map: OLMap, controlConfig: ControlConfig) {

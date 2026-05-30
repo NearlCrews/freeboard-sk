@@ -1,5 +1,3 @@
-/** Settings abstraction Facade
- * ************************************/
 import { effect, Injectable, signal } from '@angular/core';
 
 import { AppFacade } from 'src/app/app.facade';
@@ -15,14 +13,12 @@ interface AnchorStatusResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AnchorService {
-  // **************** ATTRIBUTES ***************************
   private raisedSignal = signal<boolean>(true);
   readonly raised = this.raisedSignal.asReadonly();
   private positionSignal = signal<Position | null>(null);
   readonly position = this.positionSignal.asReadonly();
   private radiusSignal = signal<number>(0);
   readonly radius = this.radiusSignal.asReadonly();
-  // *******************************************************
 
   constructor(
     private app: AppFacade,
@@ -37,19 +33,10 @@ export class AnchorService {
     });
   }
 
-  /**
-   * @description Set the value of the raisedSignal
-   * @param value value to set for the signal
-   */
   public setRaisedSignal(value: boolean) {
     this.raisedSignal.set(value);
   }
 
-  /**
-   * @description Set anchor position
-   * @param position
-   * @returns Promise
-   */
   public setAnchorPosition(position: Position | null): Promise<boolean> {
     if (!position) {
       return Promise.resolve(false);
@@ -71,14 +58,11 @@ export class AnchorService {
     });
   }
 
-  /**
-   * @description Query anchor status from server
-   */
   public queryAnchorStatus(context?: string, position?: Position) {
     this.app.debug('Retrieving anchor status...');
     context = !context || context === 'self' ? 'vessels/self' : context;
-    this.signalk.api.get(`/${context}/navigation/anchor`).subscribe(
-      (r: AnchorStatusResponse) => {
+    this.signalk.api.get(`/${context}/navigation/anchor`).subscribe({
+      next: (r: AnchorStatusResponse) => {
         const pos: Position | null = r.position?.value
           ? [r.position.value.longitude, r.position.value.latitude]
           : null;
@@ -95,14 +79,13 @@ export class AnchorService {
         }
         this.parseAnchorStatus(data, position);
       },
-      () => {
+      error: () => {
         this.positionSignal.set([0, 0]);
         this.raisedSignal.set(true);
       }
-    );
+    });
   }
 
-  // ** process anchor status
   private parseAnchorStatus(
     r: {
       maxRadius?: number;

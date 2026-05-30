@@ -38,16 +38,13 @@ export function parseLaunchUrl(
   }
   const paramHost = hostDef.params['host'];
   hostDef.name =
-    typeof paramHost !== 'undefined' && paramHost !== null
-      ? paramHost
-      : devMode && devServer.host
-        ? devServer.host
-        : window.location.hostname;
+    paramHost ??
+    (devMode && devServer.host ? devServer.host : window.location.hostname);
   hostDef.ssl =
     window.location.protocol === 'https:' || (devMode && devServer.ssl);
   const paramPort = hostDef.params['port'];
   const parsedPort =
-    typeof paramPort !== 'undefined' && paramPort !== null
+    paramPort != null
       ? parseInt(paramPort)
       : devMode && devServer.port
         ? devServer.port

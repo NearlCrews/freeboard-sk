@@ -2,7 +2,6 @@ import {
   AfterContentInit,
   ChangeDetectionStrategy,
   Component,
-  HostListener,
   contentChildren,
   input,
   model
@@ -33,7 +32,8 @@ import { FbRadioComponent } from './radio.component';
   host: {
     role: 'radiogroup',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '[attr.aria-disabled]': 'disabled() || null'
+    '[attr.aria-disabled]': 'disabled() || null',
+    '(keydown)': 'onKeyDown($event)'
   },
   styles: [
     `
@@ -81,7 +81,6 @@ export class FbRadioGroupComponent<
     this.value.set(radioValue as T);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const key = event.key;

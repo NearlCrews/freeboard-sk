@@ -30,7 +30,7 @@ import { RASTER_TILE_CACHE_SIZE } from './tile-source.constants';
 export class WmsChartLayerComponent implements OnDestroy {
   protected chart = input<FBChart>();
   protected zIndex = input<number>();
-  protected params = input<{ id: string; param: Record<string, any> }[]>();
+  protected params = input<{ id: string; param: Record<string, unknown> }[]>();
   protected overZoomTiles = input<boolean>(true);
   protected mapMaxZoom = input<number>();
 
@@ -53,10 +53,11 @@ export class WmsChartLayerComponent implements OnDestroy {
       this.parseChart();
     });
     effect(() => {
-      if (!this.layer || !Array.isArray(this.params())) return;
+      const paramsValue = this.params();
+      if (!this.layer || !Array.isArray(paramsValue)) return;
       const src = this.layer.getSource();
       if (src) {
-        (src as TileWMS).updateParams(this.params);
+        (src as TileWMS).updateParams(paramsValue);
       }
     });
     effect(() => {

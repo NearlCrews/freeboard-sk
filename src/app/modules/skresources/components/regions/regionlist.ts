@@ -28,7 +28,6 @@ import {
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Position, FBRegions, FBRegion, FBResourceSelect } from 'src/app/types';
 import { SKResourceService, SKResourceType } from '../../resources.service';
 import { ResourceListBase } from '../resource-list-baseclass';
@@ -69,7 +68,6 @@ export class RegionListComponent
 
   protected override fullList: FBRegions = [];
   protected override filteredList = signal<FBRegions>([]);
-  filterList: FBRegion[] = [];
 
   protected app = inject(AppFacade);
   private worker = inject(SKWorkerService);

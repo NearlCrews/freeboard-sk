@@ -11,8 +11,7 @@ import {
   PositionStrategy
 } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { Observable, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Observable, Subject, take } from 'rxjs';
 import {
   FbMenuComponent,
   type FbMenuItem,

@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   TemplateRef,
   computed,
   inject,
@@ -11,7 +10,7 @@ import {
   output,
   viewChildren
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { FbIconComponent } from '../icon/icon.component';
 
 export interface FbMenuItem {
@@ -58,7 +57,7 @@ export interface FbMenuTemplateContext<T = unknown> {
   selector: 'fb-menu',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FbIconComponent],
+  imports: [NgTemplateOutlet, FbIconComponent],
   template: `
     @if (templateRef(); as tpl) {
       <ng-container
@@ -93,7 +92,8 @@ export interface FbMenuTemplateContext<T = unknown> {
   `,
   host: {
     role: 'menu',
-    '[attr.aria-label]': 'ariaLabel() || null'
+    '[attr.aria-label]': 'ariaLabel() || null',
+    '(keydown)': 'onKeyDown($event)'
   },
   styles: [
     `
@@ -214,7 +214,6 @@ export class FbMenuComponent implements AfterViewInit {
     this.itemSelected.emit(item.id);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     const key = event.key;
     if (

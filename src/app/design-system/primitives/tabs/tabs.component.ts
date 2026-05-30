@@ -4,7 +4,6 @@ import {
   Component,
   Directive,
   ElementRef,
-  HostListener,
   computed,
   contentChildren,
   effect,
@@ -72,6 +71,7 @@ export class FbTabPanelDirective {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FbIconComponent],
+  host: { '(keydown)': 'onKeyDown($event)' },
   template: `
     <div
       class="fb-tabs__list"
@@ -213,7 +213,6 @@ export class FbTabsComponent implements AfterContentInit {
     this.activeId.set(tab.id);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     const key = event.key;
     if (

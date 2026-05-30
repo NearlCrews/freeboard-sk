@@ -28,7 +28,9 @@ const EMPTY_MENU: LeftMenuState = {
   anchorWatch: false
 };
 
-const MENU_KEYS = new Set<string>([
+type PanelKey = Exclude<keyof LeftMenuState, 'leftMenuPanel'>;
+
+const MENU_KEYS = new Set<PanelKey>([
   'routeList',
   'waypointList',
   'chartList',
@@ -40,6 +42,10 @@ const MENU_KEYS = new Set<string>([
   'infoLayerList',
   'anchorWatch'
 ]);
+
+function isPanelKey(key: string): key is PanelKey {
+  return (MENU_KEYS as Set<string>).has(key);
+}
 
 /**
  * Owns the left-menu open/closed state. Each call sets a single panel
@@ -61,8 +67,8 @@ export class MenuController {
   /** Show or hide a panel by key. Empty key (or unknown) closes the menu. */
   display(menulist = '', show = false): void {
     const next: LeftMenuState = { ...EMPTY_MENU, leftMenuPanel: show };
-    if (menulist && MENU_KEYS.has(menulist)) {
-      (next as unknown as Record<string, boolean>)[menulist] = show;
+    if (menulist && isPanelKey(menulist)) {
+      next[menulist] = show;
     } else {
       next.leftMenuPanel = false;
     }

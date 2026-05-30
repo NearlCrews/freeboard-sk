@@ -9,10 +9,10 @@ import {
   FBCustomResourceService,
   SKResourceService,
   SKSTREAM_MODE,
-  SKStreamFacade,
-  StreamOptions
+  SKStreamFacade
 } from 'src/app/modules';
-import {
+import type { StreamOptions } from 'src/app/modules';
+import type {
   LineString,
   MultiLineString,
   NotificationMessage,
@@ -74,8 +74,6 @@ export class SignalKConnectionController {
   registerHooks(hooks: ConnectionHooks): void {
     this.hooks = hooks;
   }
-
-  // ******** PUBLIC API used by AppComponent ********
 
   fetchResources(): void {
     this.skres.refreshRoutes();
@@ -195,8 +193,6 @@ export class SignalKConnectionController {
     this.signalk.disconnect();
   }
 
-  // ******** STREAM EVENT HANDLERS ********
-
   handleConnect(e?: NotificationMessage | UpdateMessage): void {
     this.app.showMessage('Connection Open.', false, 2000);
     this.app.debug(e);
@@ -276,8 +272,6 @@ export class SignalKConnectionController {
       this.processTrail(e.data as unknown as LineString);
     }
   }
-
-  // ******** INTERNAL ********
 
   private setMode(mode: SKSTREAM_MODE): void {
     this.mode = mode;
@@ -368,15 +362,15 @@ export class SignalKConnectionController {
     if (!this.app.config.vessels.trail) {
       return;
     }
-    const t = this.app.selfTrail().slice(-1);
+    const trail = this.app.selfTrail();
+    const last = trail.length > 0 ? trail[trail.length - 1] : undefined;
     const selfPos = this.app.data.vessels.self.position;
     if (this.app.data.vessels.showSelf && selfPos) {
-      if (t.length === 0) {
+      if (!last) {
         this.app.selfTrail.update((current) => [...current, selfPos]);
         return;
       }
-      const last = t[0];
-      if (last && (selfPos[0] !== last[0] || selfPos[1] !== last[1])) {
+      if (selfPos[0] !== last[0] || selfPos[1] !== last[1]) {
         this.app.selfTrail.update((current) => [...current, selfPos]);
       }
     }
@@ -387,20 +381,24 @@ export class SignalKConnectionController {
           this.stream.requestTrailFromServer();
         }
       }
-      this.app.selfTrail.update((current) => current.slice(-5000));
+      this.app.selfTrail.update((current) =>
+        current.length > 5000 ? current.slice(-5000) : current
+      );
     } else {
       // trailData arrives shaped as Position[][] at runtime even though
-      // typed LineString; the .slice(-1) chain takes the trailing point of
-      // the trailing segment. Behavior preserved.
+      // typed LineString. Take the trailing point of the trailing segment.
       const segments = trailData as unknown as Position[][];
-      const lastseg = segments.slice(-1);
       let lastpt: LineString = [];
-      const first = lastseg[0];
-      if (lastseg.length !== 0 && first) {
-        lastpt = first.slice(-1);
+      const lastSeg = segments[segments.length - 1];
+      if (lastSeg && lastSeg.length > 0) {
+        const tail = lastSeg[lastSeg.length - 1];
+        if (tail) lastpt = [tail];
       } else if (segments.length > 1) {
         const prev = segments[segments.length - 2];
-        if (prev) lastpt = prev.slice(-1);
+        if (prev && prev.length > 0) {
+          const tail = prev[prev.length - 1];
+          if (tail) lastpt = [tail];
+        }
       }
       this.app.selfTrail.update(() => lastpt);
     }

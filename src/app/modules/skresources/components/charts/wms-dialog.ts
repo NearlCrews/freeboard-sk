@@ -136,7 +136,6 @@ export class WMSDialog {
     DIALOG_DATA
   );
 
-  constructor() {}
   /**
    * Handle layer selections and build WMS source objects
    */

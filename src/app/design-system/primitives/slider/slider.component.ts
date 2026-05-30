@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  HostListener,
   computed,
   input,
   model
@@ -25,6 +24,7 @@ import {
   selector: 'fb-slider',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(keydown)': 'onKeyDown($event)' },
   template: `
     <input
       #native
@@ -138,7 +138,6 @@ export class FbSliderComponent {
     this.value.set(numeric);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const key = event.key;

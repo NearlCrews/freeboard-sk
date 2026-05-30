@@ -39,7 +39,7 @@ import { SKResourceService } from '../../resources.service';
             cdkDropList
             (cdkDropListDropped)="drop($event)"
           >
-            @for (ch of chartList; track ch; let i = $index) {
+            @for (ch of chartList; track ch[0]; let i = $index) {
               <fb-card cdkDrag style="border-radius: unset;">
                 <fb-card-content>
                   <div class="point-drop-placeholder" *cdkDragPlaceholder></div>
@@ -95,18 +95,6 @@ import { SKResourceService } from '../../resources.service';
         display: flex;
         flex-direction: column;
       }
-      .ap-confirm-icon {
-        min-width: 35px;
-        max-width: 35px;
-        color: darkorange;
-        text-align: left;
-      }
-      .ap-confirm-icon fb-icon {
-        font-size: 25pt;
-      }
-      .ap-confirm-icon fb-icon ::ng-deep .fb-icon__glyph {
-        font-size: 25pt;
-      }
       .point-drop-placeholder {
         background: var(--color-surface-alt, var(--color-bg));
         border: dotted 3px var(--color-border);
@@ -138,17 +126,13 @@ export class ChartLayers implements OnInit {
   public app = inject(AppFacade);
   private skres = inject(SKResourceService);
 
-  constructor() {}
-
-  //** lifecycle: events **
   ngOnInit() {
     this.chartList = this.skres
       .arrangeChartLayers(this.charts().slice())
       .reverse();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  drop(e: CdkDragDrop<any>) {
+  drop(e: CdkDragDrop<unknown>) {
     moveItemInArray(this.chartList, e.previousIndex, e.currentIndex);
     // update and save config
     const newOrder = this.chartList.map((i) => {

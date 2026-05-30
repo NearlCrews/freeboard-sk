@@ -21,11 +21,6 @@ import type { AlertData } from './alert.component';
 import { NotificationManager } from '../notification-manager';
 import { alertSeverityClass } from './alert-severity';
 
-/********* AlertPropertiesModal **********
-	data: {
-    alert: "<string>" title text
-  }
-***********************************/
 @Component({
   selector: 'ap-alert-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,

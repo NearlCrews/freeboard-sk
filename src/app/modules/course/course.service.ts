@@ -86,7 +86,6 @@ const INITIAL_STATE: CourseDataState = {
   destPointName: ''
 };
 
-// ** Signal K course operations
 @Injectable({ providedIn: 'root' })
 export class CourseService {
   private _courseData = signal<CourseDataState>({ ...INITIAL_STATE });
@@ -99,7 +98,6 @@ export class CourseService {
     private app: AppFacade,
     private skres: SKResourceService
   ) {
-    // routes signal handler
     effect(() => {
       if (this.skres.routes()) {
         this.handleRoutesSignal();
@@ -107,12 +105,6 @@ export class CourseService {
     });
   }
 
-  /**
-   * @description Set route as active destintation
-   * @param id Route identifier
-   * @param startPoint Index of point in route to set as the active destination
-   * @param reverse Follow route in reverse point order
-   */
   public activateRoute(id: string, startPoint = 0, reverse = false) {
     this.signalk.api
       .putWithContext(
@@ -126,40 +118,27 @@ export class CourseService {
           arrivalCircle: this.app.config.course.arrivalCircle
         }
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Set waypoint as nextPoint
-   * @param id Waypoint identifier to set as destination.
-   */
   public navigateToWaypoint(id: string) {
     this.setDestination(`/resources/waypoints/${id}`);
   }
 
-  /**
-   * @description Clear / Cancel destintation
-   */
   public clearCourse() {
     this.signalk.api
       .delete(this.app.skApiVersion, `vessels/self/navigation/course`)
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Set active destintation
-   * @param value resource HREF or Signal K position object
-   */
   public setDestination(value: SKPosition | string) {
     const v: { href?: string; position?: SKPosition } =
       typeof value === 'string' ? { href: value } : { position: value };
@@ -172,17 +151,13 @@ export class CourseService {
           arrivalCircle: this.app.config.course.arrivalCircle
         })
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Restart course
-   */
   public courseRestart() {
     this.signalk.api
       .putWithContext(
@@ -191,17 +166,13 @@ export class CourseService {
         'navigation/course/restart',
         null
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Refresh route
-   */
   public courseRefresh() {
     this.signalk.api
       .putWithContext(
@@ -210,17 +181,13 @@ export class CourseService {
         'navigation/course/activeRoute/refresh',
         null
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Reverse course direction
-   */
   public courseReverse() {
     this.signalk.api
       .putWithContext(
@@ -229,18 +196,13 @@ export class CourseService {
         'navigation/course/activeRoute/reverse',
         null
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Set destination to the route point with the supplied index.
-   * @param pointIndex 0 based index of route point.
-   */
   public coursePointIndex(pointIndex: number) {
     this.signalk.api
       .putWithContext(
@@ -251,18 +213,13 @@ export class CourseService {
           value: pointIndex
         }
       )
-      .subscribe(
-        () => {},
-        (err: HttpErrorResponse) => {
+      .subscribe({
+        error: (err: HttpErrorResponse) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Process self vessel course data and update signal(s)
-   * @param self vessel
-   */
   public parseSelf(self: SKVessel) {
     if (typeof self.courseApi !== 'undefined') {
       this.processCourseData(self.courseApi as CourseApiValue | undefined);
@@ -270,7 +227,6 @@ export class CourseService {
     this.processCourseCalcs(self);
   }
 
-  /** Initialise courseData Signal */
   public initCourseData() {
     this._courseData.update((current) => ({
       ...INITIAL_STATE,
@@ -281,7 +237,6 @@ export class CourseService {
     }));
   }
 
-  /** Update CourseData Signal */
   private processCourseData(value: CourseApiValue | undefined | null) {
     const clearCourse = (state: CourseDataState): CourseDataState => {
       state.position = null;
@@ -301,7 +256,6 @@ export class CourseService {
     };
 
     if (!value) {
-      // clear course data signal
       this._courseData.update((current) =>
         Object.assign({}, clearCourse(current))
       );
@@ -310,18 +264,15 @@ export class CourseService {
 
     let c: CourseDataState = Object.assign({}, this._courseData());
 
-    // navData.arrivalCircle
     if (typeof value.arrivalCircle !== 'undefined') {
       c.arrivalCircle = value.arrivalCircle;
     }
 
     if (!value.nextPoint || !value.previousPoint) {
-      // no destination or source location
       c = clearCourse(c);
     }
 
     if (value.nextPoint && value.previousPoint) {
-      // navData.startPosition
       c.startPosition = value.previousPoint.position
         ? [
             value.previousPoint.position.longitude,
@@ -329,7 +280,6 @@ export class CourseService {
           ]
         : null;
 
-      // navData.position
       c.position = value.nextPoint.position
         ? [
             value.nextPoint.position.longitude,
@@ -337,7 +287,6 @@ export class CourseService {
           ]
         : null;
 
-      // wpt / route hrefs
       if (value.nextPoint.href) {
         const wptHref = value.nextPoint.href.split('/');
         const wptId = wptHref[wptHref.length - 1] ?? '';
@@ -378,9 +327,7 @@ export class CourseService {
 
         const rte = this.skres.fromCache('routes', rteId);
         if (!rte) {
-          // add route to cache
           this.skres.routeAddFromServer([rteId]);
-          // handleRouteSignal() updates activeRoute point details from cache
         } else {
           this.updateActiveRoutePointDetails(c, rte);
         }
@@ -388,18 +335,13 @@ export class CourseService {
         this.setAppDataField('activeRoute', null);
       }
     }
-    this._courseData.update(() => c);
+    this._courseData.set(c);
   }
 
-  /**
-   * @description Process course calcValues into navData
-   * @param v self vessel
-   */
   private processCourseCalcs(v: SKVessel) {
     const c: CourseDataState = Object.assign({}, this._courseData());
     const calcs = v.courseCalcs as Record<string, number | null | undefined>;
 
-    // ** process preferred course data **
     const crossTrackError = calcs['crossTrackError'];
     if (typeof crossTrackError === 'number') {
       c.xte =
@@ -484,13 +426,9 @@ export class CourseService {
       }
     }
 
-    this._courseData.update(() => c);
+    this._courseData.set(c);
   }
 
-  /**
-   * @description Update NavData with active route point details
-   * @param rte Active Route
-   */
   private updateActiveRoutePointDetails(c: CourseDataState, rte: FBRoute) {
     c.activeRoutePoints = rte[1].feature.geometry.coordinates;
 
@@ -503,7 +441,6 @@ export class CourseService {
         c.destPointName = c.pointNames[c.pointIndex] ?? '';
       }
     }
-    // is route circular?
     const coords = rte[1].feature.geometry.coordinates;
     const first = coords[0];
     const last = coords[coords.length - 1];
@@ -511,9 +448,6 @@ export class CourseService {
       !!first && !!last && first[0] === last[0] && first[1] === last[1];
   }
 
-  /**
-   * @description Handle routes() signal to update activeRoute point details
-   */
   private handleRoutesSignal() {
     const activeRouteId = this.app.data.activeRoute;
     if (!activeRouteId) {
@@ -523,7 +457,7 @@ export class CourseService {
     if (rte) {
       const c = Object.assign({}, this._courseData());
       this.updateActiveRoutePointDetails(c, rte);
-      this._courseData.update(() => c);
+      this._courseData.set(c);
     }
   }
 

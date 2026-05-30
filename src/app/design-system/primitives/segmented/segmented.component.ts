@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   computed,
   input,
   model,
@@ -63,7 +62,8 @@ export interface FbSegmentedOption {
   host: {
     role: 'radiogroup',
     '[attr.aria-label]': 'ariaLabel() || null',
-    '[attr.aria-disabled]': 'disabled() || null'
+    '[attr.aria-disabled]': 'disabled() || null',
+    '(keydown)': 'onKeyDown($event)'
   },
   styles: [
     `
@@ -141,7 +141,6 @@ export class FbSegmentedComponent {
     this.value.set(option.id);
   }
 
-  @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const key = event.key;

@@ -357,8 +357,6 @@ export class MapComponent implements OnInit, OnDestroy, OnChanges {
     this.mapPostRender.emit(event);
   private emitPreComposeEvent = (event: RenderEvent) =>
     this.mapPreCompose.emit(event);
-  private emitPropertyChangeEvent = (event: ObjectEvent) =>
-    this.mapPropertyChange.emit(event);
 
   private updateSizeThrottle = () => {
     clearTimeout(this.timeoutId);

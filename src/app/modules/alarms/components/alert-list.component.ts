@@ -1,7 +1,3 @@
-/***********************************
-  Alert List
-  <alert-list>
-***********************************/
 import {
   Component,
   ChangeDetectionStrategy,
@@ -91,7 +87,7 @@ import { alertSeverityClass } from './alert-severity';
               <fb-switch
                 fbTooltip="Sound on /off"
                 ariaLabel="Toggle alert sound"
-                [checked]="!this.app.config.display.muteSound"
+                [checked]="!app.config.display.muteSound"
                 (checkedChange)="togglePlaySound()"
               ></fb-switch>
             </div>
@@ -233,8 +229,6 @@ export class AlertListComponent {
       });
   }
 
-  constructor() {}
-
   protected handleClose() {
     this.closed.emit();
   }
@@ -260,19 +254,11 @@ export class AlertListComponent {
     this.notiMgr.silenceAll();
   }
 
-  /**
-   * @description Raise standard alarm
-   * @param alarmType Signal K standard alarm
-   */
   protected raiseAlarm(alarmType: string) {
     const msg = alarmType === 'mob' ? 'Person Overboard!' : undefined;
     this.notiMgr.raiseServerAlarm(alarmType, msg);
   }
 
-  /**
-   * @description Set the alert icon
-   * @returns svgIcon value
-   */
   protected setIcon(alert: AlertData): string {
     return getAlertIcon(alert).svgIcon ?? '';
   }

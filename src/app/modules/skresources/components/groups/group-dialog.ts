@@ -360,8 +360,6 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
   }>(DIALOG_DATA);
   private destroyRef = inject(DestroyRef);
 
-  constructor() {}
-
   ngOnInit() {
     this.gItem = {
       name: this.data.group.name ?? '',
@@ -379,7 +377,7 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     const groupRoutes = this.data.group.routes;
-    this.mask.routes = groupRoutes ? true : false;
+    this.mask.routes = !!groupRoutes;
     this.skres.listFromServer<FBRoute>('routes').then((r) => {
       if (groupRoutes) {
         r.forEach((rte) => {
@@ -391,7 +389,7 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
       }
     });
     const groupWaypoints = this.data.group.waypoints;
-    this.mask.waypoints = groupWaypoints ? true : false;
+    this.mask.waypoints = !!groupWaypoints;
     this.skres.listFromServer<FBWaypoint>('waypoints').then((w) => {
       if (groupWaypoints) {
         w.forEach((wpt) => {
@@ -403,7 +401,7 @@ export class ResourceGroupDialog implements OnInit, AfterViewInit {
       }
     });
     const groupRegions = this.data.group.regions;
-    this.mask.regions = groupRegions ? true : false;
+    this.mask.regions = !!groupRegions;
     this.skres.listFromServer<FBRegion>('regions').then((c) => {
       if (groupRegions) {
         c.forEach((region) => {

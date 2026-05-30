@@ -89,7 +89,11 @@ import { WMTSLayerDef, wmtsCapabilitiesInWorker } from './maplib';
               @if (wmtsLayers.length > 0) {
                 <div style="height: 200px;overflow-x: hidden;overflow-y: auto;">
                   <fb-list density="compact">
-                    @for (layer of wmtsLayers; track layer; let idx = $index) {
+                    @for (
+                      layer of wmtsLayers;
+                      track layer.id;
+                      let idx = $index
+                    ) {
                       <fb-list-item
                         interactive
                         [selected]="selections[0] === idx"
@@ -144,8 +148,6 @@ export class WMTSDialog {
   protected data = inject<{ format: 'chartprovider' | 'infolayer' }>(
     DIALOG_DATA
   );
-
-  constructor() {}
 
   selectLayer(idx: number) {
     this.selections = [idx];

@@ -23,7 +23,7 @@
         variant="ghost"
         ariaLabel="Close import dialog"
         [disabled]="app.sIsFetching()"
-        (pressed)="this.dialogRef.close(-1);"
+        (pressed)="dialogRef.close(-1);"
       >
         <fb-icon name="close" ariaLabel=""></fb-icon>
       </fb-button>

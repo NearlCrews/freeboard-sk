@@ -1,11 +1,10 @@
-/** Application Information Service **
- * Phase 3 Batch 3: AppFacade is now a thin shim over five focused stores
- * under src/app/stores/ (AlarmStore, CourseStore, ResourceStore,
- * SettingsStore, and VesselStore). Existing `app.something` consumers keep
- * working via delegating getters and methods. Direct store injection is the
- * forward path: each new consumer should `inject(SettingsStore)` etc., and
- * the shim will be deleted once all sites migrate.
- * ************************************/
+/**
+ * AppFacade is a thin shim over five focused stores under src/app/stores/
+ * (AlarmStore, CourseStore, ResourceStore, SettingsStore, VesselStore).
+ * Existing `app.something` consumers keep working via delegating getters
+ * and methods. New consumers should inject the stores directly; the shim
+ * will be deleted once all sites migrate.
+ */
 import {
   DestroyRef,
   effect,
@@ -16,12 +15,13 @@ import {
 import type { DialogRef } from '@angular/cdk/dialog';
 import { FbIconRegistry } from './design-system/primitives/icon/icon-registry.service';
 
-import { AppDB, InfoService, AppInfoDef } from './lib/services';
-import { WelcomeDialog } from './lib/components/dialogs/common-dialogs';
+import { AppDB, InfoService } from './lib/services';
+import type { AppInfoDef } from './lib/services';
+import type { WelcomeDialog } from './lib/components/dialogs/common-dialogs';
 import { SignalKClient } from 'src/lib/signalk-client';
 import { SKWorkerService } from './modules';
 
-import { SI_BASE_UNIT } from './lib/convert';
+import type { SI_BASE_UNIT } from './lib/convert';
 import type {
   ErrorList,
   IAppConfig,
@@ -58,7 +58,6 @@ interface ParentMessage {
   commands?: { nightModeEnable?: boolean };
 }
 
-// App details
 const APP_INFO: AppInfoDef = {
   id: 'open-binnacle',
   name: 'Open Binnacle',
@@ -70,7 +69,6 @@ const APP_INFO: AppInfoDef = {
 
 const SERVER_APPDATA_VERSION = '1.0.0';
 
-// Development SK server host details
 const DEV_SERVER = {
   host: 'localhost',
   port: 3000,
@@ -100,7 +98,6 @@ export class AppFacade extends InfoService {
   public watchingSKLogin = 0;
   public formattedSpeedUnits = '';
 
-  // ----- stores -----
   readonly settings = inject(SettingsStore);
   readonly vessel = inject(VesselStore);
   readonly alarm = inject(AlarmStore);
@@ -112,7 +109,6 @@ export class AppFacade extends InfoService {
   private iconReg = inject(FbIconRegistry);
   private s57 = inject(S57Service);
 
-  // ----- delegating signal getters (back-compat surface) -----
   get kioskMode() {
     return this.settings.kioskMode;
   }
@@ -222,7 +218,14 @@ export class AppFacade extends InfoService {
     // onOffline callback does not fire showAlert after the injector
     // tears down (NG0205 in TestBed).
     const probeAbort = new AbortController();
-    inject(DestroyRef).onDestroy(() => probeAbort.abort());
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => {
+      probeAbort.abort();
+      if (this.watchingSKLogin) {
+        clearInterval(this.watchingSKLogin);
+        this.watchingSKLogin = 0;
+      }
+    });
     testForInternet(() => {
       const mapsel = this.config.selections.charts;
       if (
@@ -397,8 +400,6 @@ export class AppFacade extends InfoService {
     });
   }
 
-  // ----- auth / cookies -----
-
   persistToken(value: string | null): void {
     if (value) {
       this.signalk.authToken = value;
@@ -407,8 +408,7 @@ export class AppFacade extends InfoService {
       this.hasAuthToken.set(true);
     } else {
       this.hasAuthToken.set(false);
-      (this.signalk as unknown as { authToken: string | null }).authToken =
-        null;
+      this.signalk.authToken = '';
       this.isLoggedIn.set(false);
       document.cookie = `sktoken=; SameSite=Strict; max-age=0;`;
       this.worker.postMessage({ cmd: 'auth', options: { token: null } });
@@ -469,8 +469,6 @@ export class AppFacade extends InfoService {
     });
   }
 
-  // ----- dialog delegates -----
-
   showHelp(anchor?: string): void {
     window.open(
       `./assets/help/index.html${anchor ? '#' + anchor : ''}`,
@@ -518,8 +516,6 @@ export class AppFacade extends InfoService {
   parseHttpErrorResponse(err: unknown): void {
     this.alarm.parseHttpErrorResponse(err);
   }
-
-  // ----- format delegates -----
 
   formatValueForDisplay(
     value: number,

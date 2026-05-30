@@ -1,5 +1,3 @@
-// POI Icons
-
 import { AppIconSet } from './app.icons';
 import { MapIconDef } from '../map/ol/lib/map-image-registry.service';
 
@@ -36,9 +34,6 @@ export const PoiIcons: AppIconSet = {
   ]
 };
 
-/**
- * @description Build MapIcon definitions for use by MapImageRegistry
- */
 export const getPoiDefs = (): Record<string, MapIconDef> => {
   const poiList: Record<string, MapIconDef> = {};
 

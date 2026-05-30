@@ -1,5 +1,3 @@
-// Alert Component
-
 import {
   Component,
   output,
@@ -36,7 +34,7 @@ export interface AlertData {
   message: string;
   sound: boolean;
   visual: boolean;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   icon: AppIconDef;
   type?: string;
   acknowledged: boolean;
@@ -55,6 +53,16 @@ const SoundFiles: Record<ALARM_STATE, string> = {
   normal: './assets/sound/ding.mp3',
   nominal: './assets/sound/ding.mp3'
 };
+
+const CRITICAL_PRIORITIES: ReadonlySet<ALARM_STATE> = new Set([
+  ALARM_STATE.emergency,
+  ALARM_STATE.alarm
+]);
+
+const STATIC_NEXT_POINT_TYPES: ReadonlySet<string> = new Set([
+  'perpendicularPassed',
+  'arrivalCircleEntered'
+]);
 
 @Component({
   selector: 'fb-alert',
@@ -82,9 +90,9 @@ const SoundFiles: Record<ALARM_STATE, string> = {
               <div style="display:flex; width:100%;">
                 <div style="width:35px;">
                   <fb-icon
-                    [class]="this.alert().icon.class"
-                    [svgName]="this.alert().icon.svgIcon ?? ''"
-                    [name]="this.alert().icon.name ?? ''"
+                    [class]="alert().icon.class"
+                    [svgName]="alert().icon.svgIcon ?? ''"
+                    [name]="alert().icon.name ?? ''"
                     ariaLabel=""
                   ></fb-icon>
                 </div>
@@ -254,17 +262,14 @@ export class AlertComponent implements OnDestroy {
       this.acknowledged();
       this.silenced();
       const al = this.alert();
-      this.showStaticNextPoint = [
-        'perpendicularPassed',
-        'arrivalCircleEntered'
-      ].includes(al.type ?? '');
+      this.showStaticNextPoint = STATIC_NEXT_POINT_TYPES.has(al.type ?? '');
       this.showAutoNextPoint =
         this.showStaticNextPoint &&
         this.app.config.course.autoNextPointTrigger === al.type;
       this.processAudio(al);
       if (
         !this.timerRef &&
-        !['emergency', 'alarm'].includes(al.priority) &&
+        !CRITICAL_PRIORITIES.has(al.priority) &&
         !this.showAutoNextPoint
       ) {
         // Auto-hide non-critical alerts after ~10 s (100 ticks of 100
@@ -329,7 +334,7 @@ export class AlertComponent implements OnDestroy {
           if (this.doNotPlaySound() || al.silenced || al.acknowledged) {
             this.audio.pause();
           } else {
-            this.audio.loop = ['emergency', 'alarm'].includes(al.priority);
+            this.audio.loop = CRITICAL_PRIORITIES.has(al.priority);
             this.audio.src = this.soundFile;
             this.audio
               .play()
@@ -343,14 +348,12 @@ export class AlertComponent implements OnDestroy {
     }
   }
 
-  // arrival alarm - goto next point handler
   gotoNextPoint() {
     this.nextPointClicked = true;
     this.nextPoint.emit();
     this.hide();
   }
 
-  // end route
   endRoute() {
     this.nextPointClicked = true;
     this.routeEnd.emit();

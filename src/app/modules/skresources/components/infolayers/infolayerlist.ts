@@ -81,13 +81,9 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
   closed = output<void>();
   paramChanged = output<{
     id: string;
-    param: Record<string, any>;
+    param: Record<string, unknown>;
   }>();
 
-  filterList: FBInfoLayer[] = [];
-  override filterText = '';
-  override someSel = false;
-  override allSel = false;
   protected override fullList: FBInfoLayers = [];
 
   private timeDim = new Map<string, TimeDef>();
@@ -246,8 +242,7 @@ export class InfoLayerListComponent extends ResourceListBase implements OnInit {
    * @param id layer identifier
    */
   protected itemSelect(checked: boolean, id: string) {
-    const idx = this.toggleItem(checked, id);
-    // update selections
+    this.toggleItem(checked, id);
     if (checked) {
       this.skres.selectionAdd(this.collection, id);
     } else {

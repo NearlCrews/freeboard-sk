@@ -67,8 +67,6 @@ export class SignalKDetailsComponent implements OnChanges {
 
   protected app = inject(AppFacade);
 
-  constructor() {}
-
   ngOnChanges() {
     const d = this.details();
     if (d) {
@@ -109,13 +107,13 @@ export class SignalKDetailsComponent implements OnChanges {
       return a[1] < b[1] ? -1 : 1;
     });
     let prevParent: string | null = null;
-    const processedParents: string[] = [];
+    const processedParents = new Set<string>();
     const out: SectionedItem[] = [];
     result.forEach((i) => {
       if (i[1] !== prevParent) {
         prevParent = i[1];
-        if (!processedParents.includes(i[1])) {
-          processedParents.push(i[1]);
+        if (!processedParents.has(i[1])) {
+          processedParents.add(i[1]);
           out.push([0, i[1], null]);
         }
       }
@@ -124,12 +122,11 @@ export class SignalKDetailsComponent implements OnChanges {
     return out;
   }
 
-  // ** flatten object values to .paths **
   private flatten(u: FlatEntry[]): FlatEntry[] {
-    let paths: FlatEntry[] = [];
+    const paths: FlatEntry[] = [];
     u.forEach((i) => {
       if (typeof i[1] === 'object' && i[1] !== null) {
-        paths = paths.concat(this.processObject(i[0], i[1]));
+        paths.push(...this.processObject(i[0], i[1]));
       } else {
         paths.push([i[0], i[1]]);
       }
@@ -137,16 +134,15 @@ export class SignalKDetailsComponent implements OnChanges {
     return paths;
   }
 
-  // ** process object values **
   private processObject(parent: string, obj: DetailsTree): FlatEntry[] {
-    let paths: FlatEntry[] = [];
+    const paths: FlatEntry[] = [];
     const u = Object.entries(obj);
     u.sort((a, b) => {
       return a[0] < b[0] ? -1 : 1;
     });
     u.forEach((i) => {
       if (typeof i[1] === 'object' && i[1] !== null) {
-        paths = paths.concat(this.processObject(parent + '.' + i[0], i[1]));
+        paths.push(...this.processObject(parent + '.' + i[0], i[1]));
       } else {
         paths.push([parent + '.' + i[0], i[1]]);
       }

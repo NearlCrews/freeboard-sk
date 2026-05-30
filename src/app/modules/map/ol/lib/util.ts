@@ -4,22 +4,8 @@ import { getPointResolution, fromLonLat } from 'ol/proj';
 
 import { Coordinate } from './models';
 
-export function stringToEl(html: string): ChildNode | null {
-  const parser = new DOMParser();
-  const DOM = parser.parseFromString(html, 'text/html');
-  return DOM.body.firstChild;
-}
-
-export function defaultLayers() {
-  return [osmLayer()];
-}
-
 export function osmLayer() {
   return new TileLayer({ source: new OSM() });
-}
-
-export function osmSource() {
-  return new OSM();
 }
 
 // Point | LineString | MultiLineString
@@ -49,7 +35,7 @@ export function fromLonLatArray(
  * zoneValue: lower end of 180 to xx range within which Longitude must fall for retun value to be true
  **/
 export function inDLCrossingZone(coord: Coordinate, zoneValue = 170): boolean {
-  return Math.abs(coord[0] ?? 0) >= zoneValue ? true : false;
+  return Math.abs(coord[0] ?? 0) >= zoneValue;
 }
 
 // update linestring coords for map display (including dateline crossing)

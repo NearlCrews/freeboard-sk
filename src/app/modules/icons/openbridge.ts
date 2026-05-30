@@ -1,5 +1,3 @@
-// OpenBridge Icons
-
 import { AppIconSet } from './app.icons';
 
 export const OpenBridgeIcons: AppIconSet = {

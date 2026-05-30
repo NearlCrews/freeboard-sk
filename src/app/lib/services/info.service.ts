@@ -1,6 +1,3 @@
-//*************************************
-//** Application Information Service **
-//*************************************
 import { isDevMode } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
@@ -39,7 +36,6 @@ export class InfoService {
   private id = '';
   private ls: Storage | null = null;
 
-  // Observables
   private configEvent: Subject<ConfigEvent> = new Subject<ConfigEvent>();
   public config$: Observable<ConfigEvent> = this.configEvent.asObservable();
 

@@ -1,6 +1,3 @@
-/** Weather Forecast Component **
- ********************************/
-
 import type { OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
@@ -46,11 +43,23 @@ interface WeatherData {
   };
 }
 
-/********* WeatherForecastModal **********
-	data: {
-        title: "<string>" title text
-    }
-***********************************/
+interface ForecastPoint {
+  description?: string;
+  date?: string | number;
+  outside?: {
+    temperature?: number;
+    dewPointTemperature?: number;
+    absoluteHumidity?: number;
+    pressure?: number;
+    precipitationVolume?: number;
+  };
+  wind?: {
+    speedTrue?: number;
+    gust?: number;
+    directionTrue?: number;
+  };
+}
+
 @Component({
   selector: 'weather-forecast-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,7 +108,7 @@ interface WeatherData {
                   <span class="weather-position-label">Lat:</span>&nbsp;
                   <span
                     [innerText]="
-                      this.data.position[1]
+                      data.position[1]
                         | coords: app.config.units.positionFormat : true
                     "
                   >
@@ -110,7 +119,7 @@ interface WeatherData {
                   <span class="weather-position-label">Lon:</span>&nbsp;
                   <span
                     [innerText]="
-                      this.data.position[0]
+                      data.position[0]
                         | coords: app.config.units.positionFormat : false
                     "
                   >
@@ -340,8 +349,7 @@ interface WeatherData {
   ]
 })
 export class WeatherForecastModal implements OnInit {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public forecasts: any[] = [];
+  public forecasts: WeatherData[] = [];
   protected isFetching = false;
   protected errorText = 'No weather data found!';
   protected units!: {
@@ -359,8 +367,8 @@ export class WeatherForecastModal implements OnInit {
     public app: AppFacade,
     private sk: SignalKClient,
     public modalRef: FbBottomSheetRef<unknown, WeatherForecastModal>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    @Inject(FB_BOTTOM_SHEET_DATA) public data: any
+    @Inject(FB_BOTTOM_SHEET_DATA)
+    public data: { title: string; subTitle?: string; position: Position }
   ) {}
 
   ngOnInit() {
@@ -392,79 +400,76 @@ export class WeatherForecastModal implements OnInit {
     this.sk.api
       .get(2, path)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (forecasts: any) => {
+      .subscribe({
+        next: (forecasts: ForecastPoint[]) => {
           this.isFetching = false;
-          forecasts = forecasts.slice(0, this.maxForecasts);
-          Object.values(forecasts)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .forEach((v: any) => {
-              const forecastData: WeatherData = { wind: {} };
-              forecastData.description = v.description ?? '';
-              const d = new Date(v.date);
-              forecastData.time = d
-                ? `${d.getHours()}:${('00' + d.getMinutes()).slice(-2)}`
-                : '';
+          const limited = forecasts.slice(0, this.maxForecasts);
+          for (const v of Object.values(limited)) {
+            const forecastData: WeatherData = { wind: {} };
+            forecastData.description = v.description ?? '';
+            const d = new Date(v.date ?? 0);
+            forecastData.time = d
+              ? `${d.getHours()}:${('00' + d.getMinutes()).slice(-2)}`
+              : '';
 
-              if (typeof v.outside?.temperature !== 'undefined') {
-                forecastData.temperature = this.app.formatValueForDisplay(
-                  v.outside.temperature,
-                  'K',
-                  { noSymbol: true }
-                );
-              } else {
-                forecastData.temperature = '--';
-              }
-              if (typeof v.outside?.dewPointTemperature !== 'undefined') {
-                forecastData.dewPoint = this.app.formatValueForDisplay(
-                  v.outside?.dewPointTemperature,
-                  'K',
-                  { noSymbol: true }
-                );
-              } else {
-                forecastData.dewPoint = '--';
-              }
+            if (typeof v.outside?.temperature !== 'undefined') {
+              forecastData.temperature = this.app.formatValueForDisplay(
+                v.outside.temperature,
+                'K',
+                { noSymbol: true }
+              );
+            } else {
+              forecastData.temperature = '--';
+            }
+            if (typeof v.outside?.dewPointTemperature !== 'undefined') {
+              forecastData.dewPoint = this.app.formatValueForDisplay(
+                v.outside.dewPointTemperature,
+                'K',
+                { noSymbol: true }
+              );
+            } else {
+              forecastData.dewPoint = '--';
+            }
 
-              forecastData.humidity =
-                typeof v.outside?.absoluteHumidity !== 'undefined'
-                  ? `${(v.outside?.absoluteHumidity * 100).toFixed(0)}`
+            forecastData.humidity =
+              typeof v.outside?.absoluteHumidity !== 'undefined'
+                ? `${(v.outside.absoluteHumidity * 100).toFixed(0)}`
+                : '--';
+            forecastData.pressure =
+              typeof v.outside?.pressure !== 'undefined'
+                ? `${Math.round(v.outside.pressure)}`
+                : '--';
+
+            forecastData.rain =
+              typeof v.outside?.precipitationVolume !== 'undefined'
+                ? `${(v.outside.precipitationVolume * 1000).toFixed(2)}`
+                : '--';
+
+            if (typeof v.wind !== 'undefined') {
+              const wind = forecastData.wind ?? (forecastData.wind = {});
+              wind.speed =
+                typeof v.wind.speedTrue !== 'undefined'
+                  ? `${this.app.formatSpeed(v.wind.speedTrue, true)}`
                   : '--';
-              forecastData.pressure =
-                typeof v.outside?.pressure !== 'undefined'
-                  ? `${Math.round(v.outside?.pressure)}`
+
+              wind.gust =
+                typeof v.wind.gust !== 'undefined'
+                  ? `${this.app.formatSpeed(v.wind.gust, true)}`
                   : '--';
 
-              forecastData.rain =
-                typeof v.outside?.precipitationVolume !== 'undefined'
-                  ? `${(v.outside?.precipitationVolume * 1000).toFixed(2)}`
+              wind.direction =
+                typeof v.wind.directionTrue !== 'undefined'
+                  ? `${this.toCardinal(Convert.radiansToDegrees(v.wind.directionTrue))}`
                   : '--';
-
-              if (typeof v.wind !== 'undefined') {
-                const wind = forecastData.wind ?? (forecastData.wind = {});
-                wind.speed =
-                  typeof v.wind.speedTrue !== 'undefined'
-                    ? `${this.app.formatSpeed(v.wind.speedTrue, true)}`
-                    : '--';
-
-                wind.gust =
-                  typeof v.wind.gust !== 'undefined'
-                    ? `${this.app.formatSpeed(v.wind.gust, true)}`
-                    : '--';
-
-                wind.direction =
-                  typeof v.wind.directionTrue !== 'undefined'
-                    ? `${this.toCardinal(Convert.radiansToDegrees(v.wind.directionTrue))}`
-                    : '--';
-              }
-              this.forecasts.push(forecastData);
-            });
+            }
+            this.forecasts.push(forecastData);
+          }
         },
-        () => {
+        error: () => {
           this.isFetching = false;
           this.errorText = 'Error retrieving weather data!';
         }
-      );
+      });
   }
 
   toCardinal(value: number) {

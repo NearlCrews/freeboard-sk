@@ -13,6 +13,20 @@ import { AtoNsType1 } from './atons';
 import { WaypointIcons, getWaypointDefs } from './waypoints';
 import { VesselAisIcons, AIS_TYPE_IDS } from './vessels';
 
+const ALARM_TYPES_WITH_DEDICATED_ICON: ReadonlySet<string> = new Set([
+  'mob',
+  'fire',
+  'abandon',
+  'aground',
+  'cpa',
+  'depth'
+]);
+
+const CRITICAL_ALARM_PRIORITIES: ReadonlySet<string> = new Set([
+  'emergency',
+  'alarm'
+]);
+
 export interface AppIconSet {
   path: string;
   files: string[];
@@ -26,10 +40,6 @@ export interface AppIconDef {
   name?: string;
 }
 
-/** Return a list of SVG Icons
- * @description Builds a list of SVG Icons for loading into the IconRegistry
- * @returns Array of files (including path)
- */
 export const getSvgList = (): { id: string; path: string }[] => {
   const svgList: { id: string; path: string }[] = [];
 
@@ -50,12 +60,6 @@ export const getSvgList = (): { id: string; path: string }[] => {
   return svgList;
 };
 
-/**
- * @description Return an icon definition that can be used to assign an fb-icon for a resource
- * @param resourceType The type of resource supplied 'route' | 'waypoint' | 'region' | 'note'
- * @param resource Signal K resource
- * @returns Icon definition object
- */
 export const getResourceIcon = (
   resourceType: SKResourceType,
   resource?: SKRoute | SKWaypoint | SKRegion | SKNote | string
@@ -117,15 +121,10 @@ export const getResourceIcon = (
   return { class: 'icon-default', name: 'help' };
 };
 
-/**
- * @description Return an icon definition for an Alert
- * @param alert AlertData object
- * @returns Icon Definition object
- */
 export const getAlertIcon = (alert: AlertData): AppIconDef => {
   if (
     alert.type !== undefined &&
-    ['mob', 'fire', 'abandon', 'aground', 'cpa', 'depth'].includes(alert.type)
+    ALARM_TYPES_WITH_DEDICATED_ICON.has(alert.type)
   ) {
     return { class: 'ob', svgIcon: `alarm-${alert.type}` };
   } else if (alert.type === 'arrivalCircleEntered') {
@@ -136,7 +135,7 @@ export const getAlertIcon = (alert: AlertData): AppIconDef => {
     return { name: 'air' };
   } else if (alert.priority === 'warn') {
     return { class: 'ob', svgIcon: 'warning-unack-iec' };
-  } else if (['emergency', 'alarm'].includes(alert.priority)) {
+  } else if (CRITICAL_ALARM_PRIORITIES.has(alert.priority)) {
     const icon = alert.acknowledged
       ? 'alarm-acknowledged-iec'
       : alert.silenced
@@ -153,11 +152,6 @@ export const getAlertIcon = (alert: AlertData): AppIconDef => {
   }
 };
 
-/**
- * @description Return an icon definition for an AIS vessel
- * @param id AIS shipType
- * @returns Icon Definition object
- */
 export const getAisIcon = (id: number | string): AppIconDef => {
   if (typeof id === 'number') {
     id = Math.floor(id / 10) * 10;
@@ -171,9 +165,6 @@ export const getAisIcon = (id: number | string): AppIconDef => {
   return { svgIcon, name: key };
 };
 
-/**
- * @description Return a list of POI icon ids
- */
 export const listPoiIds = (): { id: string; name: string }[] => {
   const icons = PoiIcons.files.map((file: string) => {
     const name = file.slice(0, file.lastIndexOf('.'));

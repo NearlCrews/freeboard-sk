@@ -58,14 +58,15 @@ export class InteractionsDirective implements OnInit {
 
   setInteractions() {
     const map = this.mapComponent.getMap();
-    if (undefined !== map && map !== null) {
-      map.getInteractions().clear();
-      if (!this.interactions || this.interactions.length < 0) return;
-      for (const config of this.interactions) {
-        this.addInteraction(map, config);
-      }
-      this.changeDetectorRef.detectChanges();
+    if (!map) {
+      return;
     }
+    map.getInteractions().clear();
+    if (!this.interactions || this.interactions.length === 0) return;
+    for (const config of this.interactions) {
+      this.addInteraction(map, config);
+    }
+    this.changeDetectorRef.detectChanges();
   }
 
   private addInteraction(map: OLMap, controlConfig: InteractionConfig) {

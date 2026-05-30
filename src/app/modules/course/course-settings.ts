@@ -47,11 +47,6 @@ interface CoursePutResponse {
   targetArrivalTime?: string | null;
 }
 
-/********* Course Settings Modal ********
-	data: {
-        title: "<string>" title text
-    }
-***********************************/
 @Component({
   selector: 'ap-course-modal',
   imports: [
@@ -198,7 +193,7 @@ interface CoursePutResponse {
   styles: [
     `
       ._ap-course {
-        font-family: arial;
+        font-family: var(--font-family-sans);
         min-width: 300px;
       }
       ._ap-course .key-label {
@@ -229,9 +224,6 @@ export class CourseSettingsModal implements OnInit {
     datetime: null
   };
   private context = 'self';
-  /*this.app.data.vessels.activeId
-  ? this.app.data.vessels.activeId
-  : 'self';*/
 
   constructor(
     public app: AppFacade,
@@ -244,7 +236,7 @@ export class CourseSettingsModal implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.data.title === 'undefined') {
+    if (this.data.title === undefined) {
       this.data.title = 'Course Settings';
     }
     const arrivalCircle = this.course.courseData().arrivalCircle;
@@ -326,16 +318,15 @@ export class CourseSettingsModal implements OnInit {
             'navigation/course/arrivalCircle',
             { value: d }
           )
-          .subscribe(
-            () => {},
-            (error: HttpErrorResponse) => {
+          .subscribe({
+            error: (error: HttpErrorResponse) => {
               let msg = `Error setting Arrival Circle!\n`;
               if (error.status === 403) {
                 msg += 'Unauthorised: Please login.';
               }
               this.app.showAlert(`Error (${error.status}):`, msg);
             }
-          );
+          });
       }
     }
   }
@@ -396,28 +387,26 @@ export class CourseSettingsModal implements OnInit {
     return ts.slice(0, ts.indexOf('.')) + 'Z';
   }
 
-  hrValues(): string[] {
-    const v: string[] = [];
-    for (let i = 0; i < 24; i++) {
-      v.push(('00' + i).slice(-2));
+  private static readonly HOUR_OPTIONS: readonly FbSelectOption[] = Array.from(
+    { length: 24 },
+    (_v, i) => {
+      const label = ('00' + i).slice(-2);
+      return { id: label, label };
     }
-    return v;
-  }
+  );
 
-  minValues(): string[] {
-    const v: string[] = [];
-    for (let i = 0; i < 59; i++) {
-      v.push(('00' + i).slice(-2));
-    }
-    return v;
-  }
+  private static readonly MINUTE_OPTIONS: readonly FbSelectOption[] =
+    Array.from({ length: 59 }, (_v, i) => {
+      const label = ('00' + i).slice(-2);
+      return { id: label, label };
+    });
 
   protected hrOptions(): readonly FbSelectOption[] {
-    return this.hrValues().map((v) => ({ id: v, label: v }));
+    return CourseSettingsModal.HOUR_OPTIONS;
   }
 
   protected minOptions(): readonly FbSelectOption[] {
-    return this.minValues().map((v) => ({ id: v, label: v }));
+    return CourseSettingsModal.MINUTE_OPTIONS;
   }
 
   protected onArrivalCircleChange(value: string) {

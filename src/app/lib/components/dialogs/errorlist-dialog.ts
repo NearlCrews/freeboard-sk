@@ -73,8 +73,6 @@ import {
   standalone: true
 })
 export class ErrorListDialog implements OnInit {
-  public image = null;
-
   constructor(
     public dialogRef: DialogRef<unknown, ErrorListDialog>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

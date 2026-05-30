@@ -100,7 +100,7 @@ interface BuildRoutePoint {
                 [cdkDropListConnectedTo]="[rteptList]"
                 (cdkDropListDropped)="dropEventHandler($event)"
               >
-                @for (item of wpts(); track item) {
+                @for (item of wpts(); track item.id) {
                   <div class="wpt-box" cdkDrag>
                     <div style="width:40px;">
                       <fb-icon name="room" ariaLabel=""></fb-icon>
@@ -122,7 +122,7 @@ interface BuildRoutePoint {
                 [cdkDropListData]="rtepts"
                 (cdkDropListDropped)="dropEventHandler($event)"
               >
-                @for (item of rtepts; track item; let idx = $index) {
+                @for (item of rtepts; track $index; let idx = $index) {
                   <div class="wpt-box" fb-app-background cdkDrag>
                     <div style="width:40px;">
                       <fb-icon name="room" ariaLabel=""></fb-icon>
@@ -173,8 +173,6 @@ export class BuildRouteComponent implements AfterViewInit {
   private skres = inject(SKResourceService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
-
-  constructor() {}
 
   ngAfterViewInit() {
     this.getWaypoints();

@@ -98,17 +98,19 @@ export class ResourceImportDialog implements OnInit {
       );
   }
 
-  // ** send data for load to server **
   load() {
     this.dialogRef.close({ path: this.targetPath, data: this.source.data });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseFile(e: any) {
+  parseFile(e: {
+    type: string | null;
+    name: string | null;
+    data: string | null;
+  }) {
     this.source = e;
     this.source.type = 'Unknown';
     try {
-      const jdata = JSON.parse(e.data);
+      const jdata = JSON.parse(e.data ?? '') as { type?: string };
       this.source.type = jdata.type ? jdata.type : this.source.type;
     } catch {
       console.warn('Error parsing resource file');

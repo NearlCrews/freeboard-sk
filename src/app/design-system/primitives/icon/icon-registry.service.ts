@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, shareReplay } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map, of, shareReplay } from 'rxjs';
 
 /**
  * Tiny in-house SVG registry used by fb-icon's svgName input. Consumers

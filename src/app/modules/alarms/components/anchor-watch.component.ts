@@ -77,7 +77,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   protected rodeOut = false;
   protected convert = Convert;
 
-  // set controls
   protected useDefaultRadius = false;
   protected useSetManual = false;
   protected defaultRodeLength = signal<number>(10);
@@ -103,7 +102,7 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     }
   }
 
-  protected radiusValue = signal<number>(0); // incoming alarm radius
+  protected radiusValue = signal<number>(0);
   protected formattedRadiusValue = computed(() => {
     if (!Number.isFinite(this.radiusValue()) || this.raised) {
       return '--';
@@ -113,17 +112,15 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
   });
   protected displayRadius = signal<string>('--');
 
-  constructor() {}
-
   ngOnInit() {
     this.useDefaultRadius = this.app.config.anchor.setRadius;
     this.useSetManual = this.app.config.anchor.manualSet;
-    this.defaultRodeLength.update(() => {
-      return Math.round(this.transformValue(this.app.config.anchor.rodeLength));
-    });
-    this.defaultAlarmRadius.update(() => {
-      return Math.round(this.transformValue(this.app.config.anchor.radius));
-    });
+    this.defaultRodeLength.set(
+      Math.round(this.transformValue(this.app.config.anchor.rodeLength))
+    );
+    this.defaultAlarmRadius.set(
+      Math.round(this.transformValue(this.app.config.anchor.radius))
+    );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -136,10 +133,8 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
         this.sliderValue = Math.round(radiusChange.currentValue);
         this.max = this.sliderValue + 100;
       }
-      this.radiusValue.update(() =>
-        this.transformValue(radiusChange.currentValue)
-      );
-      this.displayRadius.update(() =>
+      this.radiusValue.set(this.transformValue(radiusChange.currentValue));
+      this.displayRadius.set(
         this.formatTransformedValue(radiusChange.currentValue)
       );
     }
@@ -154,11 +149,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
       !this.showSelf || (this.raised && this.useSetManual);
   }
 
-  /**
-   * Convert the formatted value based on config.units.length
-   * @param value to convert
-   * @returns Transformed value
-   */
   transformValue(value: number): number {
     return (
       Convert.transform(
@@ -169,29 +159,17 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     );
   }
 
-  /**
-   * Convert and format the value for display
-   * @param value Value to display
-   * @returns Formatted string of transformed for display
-   */
   formatTransformedValue(value: number): string {
     return `${Math.round(this.transformValue(value))} ${Convert.getSymbol(this.app.config.units.length)}`;
-  }
-
-  /** Format slider thumb value for display */
-  get formatSliderLabel() {
-    return (value: number): string => {
-      return this.formatTransformedValue(value);
-    };
   }
 
   onDefaultRadiusChecked(checked: boolean) {
     this.useDefaultRadius = checked;
     this.app.config.anchor.setRadius = checked;
     if (!checked) {
-      this.defaultAlarmRadius.update(() => {
-        return Math.round(this.transformValue(this.app.config.anchor.radius));
-      });
+      this.defaultAlarmRadius.set(
+        Math.round(this.transformValue(this.app.config.anchor.radius))
+      );
     }
     this.app.saveConfig();
   }
@@ -211,28 +189,18 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     this.useSetManual = checked;
     this.app.config.anchor.manualSet = checked;
     if (!checked) {
-      this.defaultRodeLength.update(() => {
-        return Math.round(
-          this.transformValue(this.app.config.anchor.rodeLength)
-        );
-      });
+      this.defaultRodeLength.set(
+        Math.round(this.transformValue(this.app.config.anchor.rodeLength))
+      );
     }
     this.disableRaiseDrop = this.raised && this.useSetManual;
     this.app.saveConfig();
   }
 
-  stepSetRode() {
-    this.setRadius();
-  }
-
-  /**
-   * @description Set the anchor alarm max radius.
-   * @param value Alarm radius in meters
-   */
   setRadius(value?: number) {
     this.rodeOut = true;
     if (typeof value === 'number') {
-      this.displayRadius.update(() => this.formatTransformedValue(value));
+      this.displayRadius.set(this.formatTransformedValue(value));
     }
     if (!this.raised) {
       this.signalk
@@ -255,9 +223,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Set anchor position using the rode length
-   */
   setManualAnchor() {
     if (typeof this.defaultRodeLength() !== 'number') {
       this.app.showAlert('Error', 'Rode length value is not a number!');
@@ -288,10 +253,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
       });
   }
 
-  /**
-   * @description Handle raise / drop slide toggle change.
-   * Switch is checked when anchor is DROPPED (logical inverse of raised).
-   */
   dropRaiseAnchor(checked: boolean) {
     if (checked) {
       this.dropAnchor(
@@ -302,10 +263,6 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * @description Drop the Anchor
-   * @param radius Alarm radius to set
-   */
   dropAnchor(radius?: number) {
     if (typeof radius === 'number') {
       this.app.config.anchor.radius = radius;
@@ -328,25 +285,17 @@ export class AnchorWatchComponent implements OnInit, OnChanges {
       });
   }
 
-  /**
-   * @description Raise the Anchor
-   */
   raiseAnchor() {
     this.signalk
       .post('/plugins/anchoralarm/raiseAnchor', {})
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(
-        () => {},
-        (err: unknown) => {
+      .subscribe({
+        error: (err: unknown) => {
           this.app.parseHttpErrorResponse(err);
         }
-      );
+      });
   }
 
-  /**
-   * @description Shift anchor position n,s,e,w
-   * @param direction (degrees) 0 | 90 | 180 | 270
-   */
   shiftAnchor(direction: number) {
     const inc = 1;
     const anchorPos = this.anchor.position();

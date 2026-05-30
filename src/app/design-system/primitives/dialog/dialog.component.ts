@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  HostBinding,
+  computed,
   inject,
   input
 } from '@angular/core';
@@ -40,6 +40,11 @@ import { DialogRef } from '@angular/cdk/dialog';
   selector: 'fb-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    role: 'dialog',
+    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[attr.aria-describedby]': 'ariaDescribedBy()'
+  },
   template: `
     <header class="fb-dialog__header">
       <ng-content select="[fbDialogHeader]"></ng-content>
@@ -106,15 +111,8 @@ export class FbDialogComponent {
   // present) without throwing.
   private readonly dialogRef = inject(DialogRef, { optional: true });
 
-  @HostBinding('attr.role') readonly roleAttr = 'dialog';
-
-  @HostBinding('attr.aria-labelledby') get ariaLabelledBy(): string | null {
-    return this.labelId() || null;
-  }
-
-  @HostBinding('attr.aria-describedby') get ariaDescribedBy(): string | null {
-    return this.descriptionId() || null;
-  }
+  readonly ariaLabelledBy = computed(() => this.labelId() || null);
+  readonly ariaDescribedBy = computed(() => this.descriptionId() || null);
 
   /** Helper for templates: closes the parent CDK DialogRef when present. */
   close(value?: unknown): void {

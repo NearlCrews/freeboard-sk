@@ -24,7 +24,6 @@ import {
 } from 'src/app/design-system/primitives';
 
 import { AppFacade } from 'src/app/app.facade';
-import { HttpErrorResponse } from '@angular/common/http';
 import { SKResourceService } from 'src/app/modules';
 import { FBVessel, FBVessels, Position } from 'src/app/types';
 import { ResourceListBase } from '../resource-list-baseclass';
@@ -58,12 +57,7 @@ export class AISListComponent extends ResourceListBase implements OnInit {
   focusVessel = output<string | undefined>();
   pan = output<{ center: Position; zoomLevel: number }>();
 
-  aisAvailable: FBVessel[] = [];
   onlyIMO = false;
-  filterList: FBVessel[] = [];
-  override filterText = '';
-  override someSel = false;
-  override allSel = false;
 
   shipTypes = [
     {
@@ -202,27 +196,20 @@ export class AISListComponent extends ResourceListBase implements OnInit {
     if (!Array.isArray(this.app.config.selections.aisTargetTypes)) {
       this.app.config.selections.aisTargetTypes = [];
     }
-    const t = this.app.config.selections.aisTargetTypes.splice(0);
+    const t = this.app.config.selections.aisTargetTypes.slice();
     if (checked) {
       if (!t.includes(id)) {
         t.push(id);
       }
     } else {
-      if (t.includes(id)) {
-        t.splice(t.indexOf(id), 1);
+      const i = t.indexOf(id);
+      if (i !== -1) {
+        t.splice(i, 1);
       }
     }
     this.onlyIMO = t.includes(-999);
-    this.app.config.selections.aisTargetTypes = t.splice(0);
+    this.app.config.selections.aisTargetTypes = t;
     this.app.saveConfig();
-  }
-
-  /**
-   * @description Toggle selections on / off
-   * @param checked Determines if all checkboxes are checked or unchecked
-   */
-  protected override toggleAll(checked: boolean) {
-    super.toggleAll(checked);
   }
 
   /**
@@ -231,8 +218,7 @@ export class AISListComponent extends ResourceListBase implements OnInit {
    * @param id Vessel identifier
    */
   protected itemSelect(checked: boolean, id: string) {
-    const idx = this.toggleItem(checked, id);
-    // update selections
+    this.toggleItem(checked, id);
     if (checked) {
       this.skres.selectionAdd(this.collection, id);
     } else {

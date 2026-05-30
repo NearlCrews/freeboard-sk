@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  HostBinding,
   TemplateRef,
   computed,
   contentChild,
@@ -35,6 +34,7 @@ export interface FbListPaneItem {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CdkListbox, CdkOption, NgTemplateOutlet],
+  host: { role: 'navigation' },
   template: `
     @if (headerTpl()) {
       <header class="fb-list-pane__header">
@@ -82,8 +82,6 @@ export class FbListPaneComponent {
   readonly itemTpl =
     contentChild<TemplateRef<{ $implicit: FbListPaneItem }>>('fbListPaneItem');
   readonly footerTpl = contentChild<TemplateRef<unknown>>('fbListPaneFooter');
-
-  @HostBinding('attr.role') readonly roleAttr = 'navigation';
 
   readonly selectedValue = computed<readonly string[]>(() => {
     const value = this.selected();

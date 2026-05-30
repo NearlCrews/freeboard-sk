@@ -92,11 +92,15 @@ import {
       <div
         style="text-align:center;font-size:var(--font-size-sm);font-family:roboto;"
       >
-        @for (c of data; track c; let i = $index) {
+        @for (c of data; track $index; let i = $index) {
           <fb-icon
             name="fiber_manual_record"
             ariaLabel=""
-            [style.color]="currentPage - 1 === i ? 'blue' : 'gray'"
+            [style.color]="
+              currentPage - 1 === i
+                ? 'var(--color-primary)'
+                : 'var(--color-text-muted)'
+            "
             style="font-size:var(--font-size-xs);width:12px;"
           ></fb-icon>
         }

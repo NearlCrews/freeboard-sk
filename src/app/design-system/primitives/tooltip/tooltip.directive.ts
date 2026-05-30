@@ -2,7 +2,6 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
-  HostListener,
   effect,
   inject,
   input,
@@ -31,7 +30,16 @@ let uidCounter = 0;
 
 @Directive({
   selector: '[fbTooltip]',
-  standalone: true
+  standalone: true,
+  host: {
+    '(mouseenter)': 'show()',
+    '(focus)': 'show()',
+    '(mouseleave)': 'hide()',
+    '(blur)': 'hide()',
+    '(touchstart)': 'onTouchStart()',
+    '(touchend)': 'onTouchEnd()',
+    '(touchcancel)': 'onTouchEnd()'
+  }
 })
 export class FbTooltipDirective {
   readonly fbTooltip = input<string>('');
@@ -68,16 +76,12 @@ export class FbTooltipDirective {
     });
   }
 
-  @HostListener('mouseenter')
-  @HostListener('focus')
   show(): void {
     if (this.fbTooltipDisabled() || !this.fbTooltip()) return;
     this.clearShowTimer();
     this.showTimer = setTimeout(() => this.attach(), SHOW_DELAY_MS);
   }
 
-  @HostListener('mouseleave')
-  @HostListener('blur')
   hide(): void {
     this.clearShowTimer();
     this.clearTouchTimer();
@@ -92,17 +96,13 @@ export class FbTooltipDirective {
     }
   }
 
-  @HostListener('touchstart', ['$event'])
-  onTouchStart(event: TouchEvent): void {
+  onTouchStart(): void {
     if (this.fbTooltipDisabled() || !this.fbTooltip()) return;
     this.clearTouchTimer();
     // Long-press matches matTooltip's touch behavior; cancel on quick release.
     this.touchTimer = setTimeout(() => this.attach(), SHOW_DELAY_MS);
-    void event;
   }
 
-  @HostListener('touchend')
-  @HostListener('touchcancel')
   onTouchEnd(): void {
     this.clearTouchTimer();
     this.hide();

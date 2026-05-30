@@ -31,40 +31,15 @@ interface WelcomeContentItem {
 }
 
 /**
- * Phase 3 Batch 3: owns the cross-cutting alert and notification surface:
- * the dialog primitives (AlertDialog, ConfirmDialog, MsgBox, ErrorListDialog,
- * WelcomeDialog), the snack-bar MessageBar wrapper, the HTTP error renderer,
- * and a context-menu inhibit signal that the alert subsystem uses to keep
- * map-click menus off while an alarm is active.
+ * Owns the cross-cutting alert and notification surface: dialog primitives
+ * (AlertDialog, ConfirmDialog, MsgBox, ErrorListDialog, WelcomeDialog), the
+ * MessageBar snack-bar wrapper, the HTTP error renderer, and a context-menu
+ * inhibit signal that the alert subsystem uses to keep map-click menus off
+ * while an alarm is active.
  *
- * The audio pipeline itself (oscillator / gain per alert) stays on
- * AppFacade.audio + AudioAlarmService for Batch 2 backward compatibility.
- * Single-fire highest-severity selection over a unified alarm queue lands
- * in Phase 7.
- *
- * Safety-token wiring (landed):
- *
- *   Phase 3 Batch 2 introduced --safety-alert-emergency, --safety-alert-alarm,
- *   --safety-alert-warn, and --safety-alert-caution in src/tokens.css. These
- *   are theme-invariant by design so a Signal K `state: 'alarm'` notification
- *   stays red, and a `state: 'warn'` stays yellow, in dark mode and night-red
- *   (IEC 62288 / IMO MSC.302(87)). AlarmStore itself does not consume them:
- *   the SK severity is classified inside NotificationManager and the
- *   token-backed CSS class is resolved by the shared `alertSeverityClass()`
- *   helper in src/app/modules/alarms/components/alert-severity.ts and applied
- *   by alert-list.component.ts, alert.component.ts, and
- *   alert-properties-modal.ts.
- *
- *   ALARM_STATE to class to token mapping (single source of truth in
- *   alert-severity.ts):
- *     - nominal, normal: no class (no safety color).
- *     - alert: .fb-alert-caution to --safety-alert-caution.
- *     - warn: .fb-alert-warn to --safety-alert-warn.
- *     - alarm: .fb-alert-alarm to --safety-alert-alarm.
- *     - emergency: .fb-alert-emergency to --safety-alert-emergency.
- *
- *   This also closed the prior rendering gap where `priority === 'warn'`
- *   fell through with no severity class at all.
+ * The audio pipeline (oscillator/gain per alert) stays on AppFacade.audio +
+ * AudioAlarmService until single-fire highest-severity selection over a
+ * unified alarm queue lands in a later phase.
  */
 @Injectable({ providedIn: 'root' })
 export class AlarmStore {
@@ -80,8 +55,6 @@ export class AlarmStore {
   setInhibitContextMenu(value: boolean): void {
     this._inhibitContextMenu.set(value);
   }
-
-  // ----- dialog primitives -----
 
   showMsgBox(title: string, message: string, btn?: string) {
     return this.dialog.open(MsgBox, {

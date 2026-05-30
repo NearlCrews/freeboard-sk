@@ -5,7 +5,6 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { form, FormField, max, min, required } from '@angular/forms/signals';
 import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
@@ -79,7 +78,6 @@ interface WaypointTypeOption {
   selector: 'ap-waypointdialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FbButtonComponent,
     FbDialogActionsDirective,
     FbDialogContentDirective,
@@ -191,14 +189,13 @@ interface WaypointTypeOption {
                   <div
                     style="display:flex;flex-wrap:wrap;padding-bottom:var(--space-md);height:40px;"
                   >
-                    @for (i of iconsForSelection(); track i) {
+                    @for (i of iconsForSelection(); track $index) {
                       <div
                         style="background-color:var(--color-border);padding:var(--space-xs);"
-                        [ngClass]="{
-                          'selected-icon': i.svgIcon === this.wptIcon().svgIcon,
-                          'unselected-icon':
-                            i.svgIcon !== this.wptIcon().svgIcon
-                        }"
+                        [class.selected-icon]="i.svgIcon === wptIcon().svgIcon"
+                        [class.unselected-icon]="
+                          i.svgIcon !== wptIcon().svgIcon
+                        "
                         (click)="handleIconSelected(i.svgIcon)"
                       >
                         <fb-icon
@@ -294,11 +291,11 @@ interface WaypointTypeOption {
       }
 
       ._ap-waypoint .selected-icon {
-        border: red 2px solid;
+        border: 2px solid var(--color-primary);
       }
 
       ._ap-waypoint .unselected-icon {
-        border: black 1px solid;
+        border: 1px solid var(--color-border);
       }
     `
   ]
@@ -340,7 +337,6 @@ export class WaypointDialog {
   protected saveDisabled = computed(() => this.wptForm().invalid());
 
   protected iconsForSelection = signal<AppIconDef[]>([]);
-  protected selectableIcons = ['pseudoaton'];
 
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, WaypointDialog>);
@@ -349,7 +345,7 @@ export class WaypointDialog {
   constructor() {
     this.dialogIcon = this.data.addMode ? 'add_location' : 'edit_location';
 
-    this.wptIcon.update(() => this.getIconDef(this.data.waypoint));
+    this.wptIcon.set(this.getIconDef(this.data.waypoint));
     this.wptIconDisplayName = this.getFriendlyIconName(this.data.waypoint);
 
     this.wptType = this.data.waypoint.type ?? '';
@@ -437,53 +433,6 @@ export class WaypointDialog {
       });
     });
     return groups;
-    /*return [
-      {
-        group: 'Points of Interest',
-        icons: [
-          {
-            type: '',
-            name: 'Waypoint',
-            icon: waypointTypeDef.default.icon
-          },
-          {
-            type: 'pseudoaton',
-            name: 'Pseudo AtoN',
-            icon: waypointTypeDef.pseudoaton.icon
-          },
-          {
-            type: 'whale',
-            name: 'Whale Sighting',
-            icon: waypointTypeDef.whale.icon
-          }
-        ]
-      },
-      {
-        group: 'Racing',
-        icons: [
-          {
-            type: 'start-boat',
-            name: 'Start Boat',
-            icon: waypointTypeDef['start-boat'].icon
-          },
-          {
-            type: 'start-pin',
-            name: 'Start Pin',
-            icon: waypointTypeDef['start-pin'].icon
-          }
-        ]
-      },
-      {
-        group: 'Alarms',
-        icons: [
-          {
-            type: 'pob',
-            name: 'Person Overboard',
-            icon: waypointTypeDef.pob.icon
-          }
-        ]
-      }
-    ]*/
   }
 
   private getFriendlyIconName(w: SKWaypoint): string {
@@ -507,7 +456,7 @@ export class WaypointDialog {
       delete w.feature.properties['skIcon'];
     }
     this.wptIconDisplayName = this.getFriendlyIconName(w);
-    this.wptIcon.update(() => this.getIconDef(w));
+    this.wptIcon.set(this.getIconDef(w));
     this.iconsForSelection.set([]);
     this.skIcon = undefined;
     this.handleChangeIcon();
@@ -522,7 +471,7 @@ export class WaypointDialog {
       if (svgIcon) {
         d.unshift({ svgIcon });
       }
-      this.iconsForSelection.update(() => d);
+      this.iconsForSelection.set(d);
     } else {
       this.iconsForSelection.set([]);
     }
@@ -536,6 +485,6 @@ export class WaypointDialog {
     props['skIcon'] = skIcon;
     w.feature.properties = props;
     this.wptIconDisplayName = this.getFriendlyIconName(w);
-    this.wptIcon.update(() => this.getIconDef(w));
+    this.wptIcon.set(this.getIconDef(w));
   }
 }

@@ -252,30 +252,15 @@ import { NodeListSelect } from './node-list-select';
         font-family: arial;
         min-width: 300px;
       }
-      .ap-confirm-icon {
-        min-width: 35px;
-        max-width: 35px;
-        color: darkorange;
-        text-align: left;
-      }
 
       ._ap-chartinfo .key-label {
         width: 150px;
         font-weight: 500;
       }
-
-      @media only screen and (min-device-width: 768px) and (max-device-width: 1024px),
-        only screen and (min-width: 800px) {
-        .ap-confirm-icon {
-          min-width: 25%;
-          max-width: 25%;
-        }
-      }
     `
   ]
 })
 export class ChartPropertiesDialog implements OnInit {
-  protected icon = '';
   protected wmsLayers = signal<LayerNode[]>([]);
   protected wmtsLayers = signal<
     {
@@ -311,11 +296,9 @@ export class ChartPropertiesDialog implements OnInit {
 
   ngOnInit() {
     if (['wms', 'wmts'].includes(this.data.type?.toLowerCase())) {
-      this.capabilitiesParam.update(() => {
-        return {
-          url: this.data.url,
-          type: this.data.type.toLowerCase()
-        };
+      this.capabilitiesParam.set({
+        url: this.data.url,
+        type: this.data.type.toLowerCase()
       });
     }
   }
@@ -334,12 +317,12 @@ export class ChartPropertiesDialog implements OnInit {
     try {
       if (chartType === 'wms') {
         this.capabilities = await wmsCapabilitiesInWorker(url);
-        this.wmsLayers.update(() => this.capabilities.layers as LayerNode[]);
+        this.wmsLayers.set(this.capabilities.layers as LayerNode[]);
       } else if (chartType === 'wmts') {
         this.capabilities = await wmtsCapabilitiesInWorker(url);
-        this.wmtsLayers.update(() => this.capabilities.layers);
+        this.wmtsLayers.set(this.capabilities.layers);
       }
-    } catch (err) {
+    } catch {
       this.layerErrorText = 'Error retrieving layers.';
     }
   }

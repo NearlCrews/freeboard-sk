@@ -1,7 +1,3 @@
-/***********************************
-Signal K preferred paths component
-    <signalk-preferred-paths>
-***********************************/
 import {
   Component,
   Input,
@@ -23,6 +19,11 @@ interface PreferredPathEntry {
   choices: string[];
   available: string[];
   current: string;
+}
+
+interface PreferredPathsEmit {
+  save: boolean;
+  value: Record<string, string>;
 }
 
 @Component({
@@ -58,8 +59,7 @@ interface PreferredPathEntry {
 })
 export class SignalKPreferredPathsComponent implements OnInit {
   @Input() title = '';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly chosen = output<any>();
+  readonly chosen = output<PreferredPathsEmit>();
 
   private pathChoices: {
     tws: PreferredPathEntry;
@@ -101,18 +101,14 @@ export class SignalKPreferredPathsComponent implements OnInit {
 
   protected pathChoicesArray = Object.entries(this.pathChoices);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public availPaths: any;
+  public availPaths!: Map<string, unknown>;
 
   private app = inject(AppFacade);
-
-  constructor() {}
 
   ngOnInit() {
     this.initEntries();
   }
 
-  // ** initialise items from settings
   initEntries() {
     this.availPaths = new Map(
       Object.entries(this.app.data.vessels.prefAvailablePaths)
@@ -125,13 +121,11 @@ export class SignalKPreferredPathsComponent implements OnInit {
     const u = Object.entries(this.pathChoices);
     u.forEach((x) => {
       const i = x[1];
-      // ** fill available paths from received path data **
       i.choices.forEach((c) => {
         if (this.availPaths.has(c)) {
           i.available.push(c);
         }
       });
-      // ** ensure a default
       if (i.available.length === 0) {
         const fallback = i.choices[0];
         if (typeof fallback === 'string') {
@@ -141,12 +135,11 @@ export class SignalKPreferredPathsComponent implements OnInit {
     });
   }
 
-  // save / cancel
   save(keep: boolean) {
     const value: Record<string, string> = {};
     Object.entries(this.pathChoices).forEach((i) => {
       value[i[0]] = i[1].current;
     });
-    this.chosen.emit({ save: keep, value: value });
+    this.chosen.emit({ save: keep, value });
   }
 }
