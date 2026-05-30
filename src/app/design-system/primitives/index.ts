@@ -209,3 +209,10 @@ export {
   type FbSelectGroup,
   FbSelectOptionTemplateDirective
 } from './select/select.component';
+
+/* Tier-3 rich-text editor (Tiptap-backed). */
+export {
+  FbRichTextEditorComponent,
+  FB_RICH_TEXT_DEFAULT_PALETTE,
+  type FbRichTextSwatch
+} from './rich-text-editor/rich-text-editor.component';

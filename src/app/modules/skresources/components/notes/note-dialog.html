@@ -171,134 +171,14 @@
             name="note-description"
             [(value)]="data.note.description"
           ></fb-textarea>
-          } @else { @if(editor; as ed) {
+          } @else { @if (data.editable) {
           <label for="note-description" class="block font-semibold">
             Description
           </label>
-          <div class="tiptap-shell">
-            <div class="tiptap-toolbar" role="toolbar" aria-label="Formatting">
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Undo"
-                fbTooltip="Undo"
-                (pressed)="ed.chain().focus().undo().run()"
-              >
-                <fb-icon name="undo" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Redo"
-                fbTooltip="Redo"
-                (pressed)="ed.chain().focus().redo().run()"
-              >
-                <fb-icon name="redo" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-divider orientation="vertical"></fb-divider>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Bold"
-                fbTooltip="Bold"
-                (pressed)="ed.chain().focus().toggleBold().run()"
-              >
-                <fb-icon name="format_bold" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Italic"
-                fbTooltip="Italic"
-                (pressed)="ed.chain().focus().toggleItalic().run()"
-              >
-                <fb-icon name="format_italic" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Underline"
-                fbTooltip="Underline"
-                (pressed)="ed.chain().focus().toggleUnderline().run()"
-              >
-                <fb-icon name="format_underlined" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Text color"
-                fbTooltip="Text color"
-                (pressed)="toggleColorPicker()"
-              >
-                <fb-icon name="format_color_text" ariaLabel=""></fb-icon>
-              </fb-button>
-              <fb-divider orientation="vertical"></fb-divider>
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Link"
-                fbTooltip="Link"
-                (pressed)="openLinkEditor()"
-              >
-                <fb-icon name="link" ariaLabel=""></fb-icon>
-              </fb-button>
-            </div>
-            @if (colorPickerOpen()) {
-            <div
-              class="tiptap-color-swatches"
-              role="group"
-              aria-label="Text color"
-            >
-              @for (swatch of colorPalette; track swatch.label) {
-              <button
-                type="button"
-                class="tiptap-swatch"
-                [class.tiptap-swatch--clear]="swatch.value === null"
-                [style.background]="swatch.value ?? 'transparent'"
-                [attr.aria-label]="swatch.label"
-                [fbTooltip]="swatch.label"
-                (click)="applyColor(swatch.value)"
-              ></button>
-              }
-            </div>
-            } @if (linkEditorOpen()) {
-            <div
-              class="tiptap-link-edit"
-              role="group"
-              aria-label="Edit link URL"
-            >
-              <fb-input
-                name="link-url"
-                type="text"
-                placeholder="https://example.com"
-                ariaLabel="Link URL"
-                [(value)]="linkUrl"
-                (keydown.enter)="applyLink()"
-                (keydown.escape)="cancelLinkEditor()"
-              ></fb-input>
-              <fb-button variant="primary" size="sm" (pressed)="applyLink()"
-                >Apply</fb-button
-              >
-              @if (linkActive()) {
-              <fb-button variant="ghost" size="sm" (pressed)="removeLink()"
-                >Remove</fb-button
-              >
-              }
-              <fb-button
-                variant="ghost"
-                size="sm"
-                ariaLabel="Cancel"
-                (pressed)="cancelLinkEditor()"
-              >
-                <fb-icon name="close" ariaLabel=""></fb-icon>
-              </fb-button>
-            </div>
-            }
-            <tiptap-editor
-              [editor]="ed"
-              [(ngModel)]="data.note.description"
-            ></tiptap-editor>
-          </div>
+          <fb-rich-text-editor
+            ariaLabel="Note description"
+            [(value)]="data.note.description"
+          ></fb-rich-text-editor>
           } }
         </div>
 
@@ -350,7 +230,6 @@
               name="note-mime"
               [options]="mimeTypeOptions"
               [(value)]="data.note.mimeType"
-              (valueChange)="onMimeTypeChange()"
             ></fb-select>
           </div>
           @if(data.position && data.note.position; as pos) {
