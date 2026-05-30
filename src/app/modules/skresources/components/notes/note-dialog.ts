@@ -123,9 +123,17 @@ export class NoteDialog implements OnInit, OnDestroy {
   protected editor: Editor | undefined;
 
   protected readonly colorPalette = NOTE_COLOR_PALETTE;
-  protected colorPickerOpen = signal(false);
 
-  protected linkEditorOpen = signal(false);
+  // At most one popover is open at a time. Hand-rolled mutual exclusion of
+  // two booleans scales linearly with each new popover; this discriminator
+  // keeps the invariant explicit and constant-cost.
+  protected activePopover = signal<'color' | 'link' | null>(null);
+  protected colorPickerOpen = computed(() => this.activePopover() === 'color');
+  protected linkEditorOpen = computed(() => this.activePopover() === 'link');
+
+  // Mirror of `editor.isActive('link')` so the toolbar's Remove button
+  // updates reactively when the caret moves into or out of a link mark.
+  protected linkActive = signal(false);
   protected linkUrl = signal('');
 
   protected noteModel = signal<{ name: string }>({ name: '' });
@@ -167,7 +175,7 @@ export class NoteDialog implements OnInit, OnDestroy {
     const wantsEditor =
       this.data.editable && !this.data.note.mimeType.includes('markdown');
     if (wantsEditor && !this.editor) {
-      this.editor = new Editor({
+      const editor = new Editor({
         extensions: NOTE_EDITOR_EXTENSIONS,
         content: this.data.note.description ?? '',
         editorProps: {
@@ -177,9 +185,15 @@ export class NoteDialog implements OnInit, OnDestroy {
           }
         }
       });
+      editor.on('selectionUpdate', () => {
+        this.linkActive.set(editor.isActive('link'));
+      });
+      this.editor = editor;
     } else if (!wantsEditor && this.editor) {
       this.editor.destroy();
       this.editor = undefined;
+      this.activePopover.set(null);
+      this.linkActive.set(false);
     }
   }
 
@@ -207,10 +221,7 @@ export class NoteDialog implements OnInit, OnDestroy {
 
   protected toggleColorPicker() {
     if (!this.editor) return;
-    this.colorPickerOpen.update((v) => !v);
-    if (this.colorPickerOpen()) {
-      this.linkEditorOpen.set(false);
-    }
+    this.activePopover.update((v) => (v === 'color' ? null : 'color'));
   }
 
   protected applyColor(value: string | null) {
@@ -221,21 +232,20 @@ export class NoteDialog implements OnInit, OnDestroy {
     } else {
       chain.setColor(value).run();
     }
-    this.colorPickerOpen.set(false);
+    this.activePopover.set(null);
   }
 
   protected openLinkEditor() {
     if (!this.editor) return;
     if (this.linkEditorOpen()) {
-      this.linkEditorOpen.set(false);
+      this.activePopover.set(null);
       return;
     }
     const previousUrl = this.editor.getAttributes('link')['href'] as
       | string
       | undefined;
     this.linkUrl.set(previousUrl ?? '');
-    this.linkEditorOpen.set(true);
-    this.colorPickerOpen.set(false);
+    this.activePopover.set('link');
   }
 
   protected applyLink() {
@@ -256,22 +266,18 @@ export class NoteDialog implements OnInit, OnDestroy {
       .setLink({ href: url })
       .run();
     if (ok) {
-      this.linkEditorOpen.set(false);
+      this.activePopover.set(null);
     }
   }
 
   protected removeLink() {
     if (!this.editor) return;
     this.editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    this.linkEditorOpen.set(false);
+    this.activePopover.set(null);
   }
 
   protected cancelLinkEditor() {
-    this.linkEditorOpen.set(false);
-  }
-
-  protected isLinkActive(): boolean {
-    return this.editor?.isActive('link') ?? false;
+    this.activePopover.set(null);
   }
 
   onSave() {
