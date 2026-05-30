@@ -88,6 +88,20 @@ panel at the same time and they all show the same vessel.
   `window.__FB_SENTRY_DSN__`, Sentry loads lazily after first paint
   and reports crashes plus 10% perf traces. Without a DSN, zero
   Sentry code ships.
+- **Rich-text notes editor.** Tier-3 design-system primitive
+  (`fb-rich-text-editor`) wrapping a Tiptap 3 + ngx-tiptap 14 editor.
+  Toolbar covers bold, italic, underline, color (marine palette mapped
+  to design tokens so it theme-switches), link with inline edit
+  popover, undo, and redo. ProseMirror-backed schema sanitizes
+  pasted markup. Available to any future consumer that needs rich
+  text via `<fb-rich-text-editor [(value)]="html">`.
+- **S-52 SAFCON correctness fix.** S-57 depth-contour selection used
+  to mutate `selectedSafeContour` from inside an OpenLayers sort
+  comparator, so the wrong DEPCN line could be emphasized as the
+  safety contour run-to-run. The running min now lives in `getStyle`
+  (visits every visible feature deterministically), and a forthcoming
+  prerender hook will make the result stable across incremental
+  vector-tile loads.
 
 ### Bug fixes carried over from upstream
 
