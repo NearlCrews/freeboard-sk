@@ -93,6 +93,9 @@ export class NoteDialog implements OnInit, OnDestroy {
   // Created only for HTML notes; markdown notes use fb-textarea instead.
   protected editor?: Editor;
 
+  protected linkEditorOpen = signal(false);
+  protected linkUrl = signal('');
+
   protected noteModel = signal<{ name: string }>({ name: '' });
   protected noteForm = form(this.noteModel, (p) => {
     required(p.name, { message: 'Please enter a title for the note' });
@@ -162,22 +165,47 @@ export class NoteDialog implements OnInit, OnDestroy {
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
   }
 
-  protected toggleLink() {
+  protected openLinkEditor() {
     if (!this.editor) return;
-    if (this.editor.isActive('link')) {
-      this.editor.chain().focus().unsetLink().run();
+    if (this.linkEditorOpen()) {
+      this.linkEditorOpen.set(false);
       return;
     }
     const previousUrl = this.editor.getAttributes('link')['href'] as
       | string
       | undefined;
-    const url = window.prompt('URL', previousUrl ?? 'https://');
-    if (url === null) return;
+    this.linkUrl.set(previousUrl ?? '');
+    this.linkEditorOpen.set(true);
+  }
+
+  protected applyLink() {
+    if (!this.editor) return;
+    const url = this.linkUrl().trim();
     if (url === '') {
-      this.editor.chain().focus().unsetLink().run();
-      return;
+      this.editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    } else {
+      this.editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: url })
+        .run();
     }
-    this.editor.chain().focus().setLink({ href: url }).run();
+    this.linkEditorOpen.set(false);
+  }
+
+  protected removeLink() {
+    if (!this.editor) return;
+    this.editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    this.linkEditorOpen.set(false);
+  }
+
+  protected cancelLinkEditor() {
+    this.linkEditorOpen.set(false);
+  }
+
+  protected isLinkActive(): boolean {
+    return this.editor?.isActive('link') ?? false;
   }
 
   onSave() {

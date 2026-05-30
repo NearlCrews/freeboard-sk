@@ -29,6 +29,20 @@
   background: var(--color-surface-raised);
 }
 
+.tiptap-link-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+
+  > fb-input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 :host ::ng-deep .tiptap-editable {
   min-height: 150px;
   padding: var(--space-sm);
