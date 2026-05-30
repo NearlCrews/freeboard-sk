@@ -9,7 +9,17 @@
   ],
   "signalk": {
     "appIcon": "./assets/icons/icon-72x72.png",
-    "displayName": "Open Binnacle"
+    "displayName": "Open Binnacle",
+    "screenshots": [
+      "src/assets/screenshots/01-map.png",
+      "src/assets/screenshots/02-settings.png",
+      "src/assets/screenshots/03-notes.png"
+    ],
+    "recommends": [
+      "signalk-crows-nest",
+      "signalk-virtual-weather-sensors",
+      "signalk-nmea2000-emitter-cannon"
+    ]
   },
   "repository": "https://github.com/NearlCrews/signalk-open-binnacle",
   "main": "plugin/index.js",
