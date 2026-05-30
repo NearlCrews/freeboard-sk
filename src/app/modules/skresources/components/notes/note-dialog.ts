@@ -1,8 +1,7 @@
-import type { OnInit } from '@angular/core';
+import type { OnDestroy, OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  ViewEncapsulation,
   computed,
   inject,
   signal
@@ -11,8 +10,10 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { CoordsPipe } from 'src/app/lib/pipes';
 import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
-import type { AngularEditorConfig } from '@kolkov/angular-editor';
-import { AngularEditorModule } from '@kolkov/angular-editor';
+import { Editor } from '@tiptap/core';
+import { StarterKit } from '@tiptap/starter-kit';
+import { Link } from '@tiptap/extension-link';
+import { TiptapEditorDirective } from 'ngx-tiptap';
 import { RemarkModule } from 'ngx-remark';
 import { AddTargetPipe } from './add-target.pipe';
 
@@ -52,12 +53,6 @@ interface DialogData {
 @Component({
   selector: 'ap-notedialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // ViewEncapsulation.None so the angular-editor stylesheet (imported
-  // via styleUrls below) reaches the editor's deeply-nested children.
-  // The editor's class names are specific enough (`.angular-editor*`)
-  // that global scope is fine, and the styles only insert when this
-  // dialog actually mounts.
-  encapsulation: ViewEncapsulation.None,
   imports: [
     FormsModule,
     FormField,
@@ -76,90 +71,23 @@ interface DialogData {
     FbSwitchComponent,
     FbToolbarComponent,
     FbTooltipDirective,
-    AngularEditorModule,
+    TiptapEditorDirective,
     CoordsPipe,
     AddTargetPipe,
     RemarkModule
   ],
   templateUrl: `note-dialog.html`,
-  styleUrls: [
-    '../../../../../../node_modules/@kolkov/angular-editor/themes/default.scss'
-  ],
-  styles: [
-    // Override the global `b { font-weight: 500 }` rule from
-    // src/styles.scss so bold actually looks bold inside the editor.
-    `
-      .angular-editor-textarea b {
-        font-weight: bold;
-      }
-    `
-  ]
+  styleUrl: './note-dialog.scss'
 })
-export class NoteDialog implements OnInit {
-  private editorHiddenButtons = [
-    [
-      //'undo',
-      //'redo',
-      //'bold',
-      //'italic',
-      //'underline',
-      'strikeThrough',
-      'subscript',
-      'superscript',
-      'justifyLeft',
-      'justifyCenter',
-      'justifyRight',
-      'justifyFull',
-      'indent',
-      'outdent',
-      'insertUnorderedList',
-      'insertOrderedList',
-      'heading',
-      'fontName'
-    ],
-    [
-      'fontSize',
-      //'textColor',
-      'backgroundColor',
-      'customClasses',
-      'link',
-      'unlink',
-      'insertImage',
-      'insertVideo',
-      'insertHorizontalRule',
-      'removeFormat',
-      'toggleEditorMode'
-    ]
-  ];
-
-  public editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: false,
-    height: 'auto',
-    minHeight: '150',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'no',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [{ class: 'roboto', name: 'Default' }],
-    customClasses: [],
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: this.editorHiddenButtons
-  };
-
+export class NoteDialog implements OnInit, OnDestroy {
   protected icon: AppIconDef = {};
   protected poiIcons: { id: string; name: string }[] = [];
   protected poiIconOptions: readonly FbSelectOption<string>[] = [];
   protected data = inject<DialogData>(DIALOG_DATA);
   protected app = inject(AppFacade);
   protected dialogRef = inject(DialogRef<unknown, NoteDialog>);
+
+  protected editor!: Editor;
 
   protected noteModel = signal<{ name: string }>({ name: '' });
   protected noteForm = form(this.noteModel, (p) => {
@@ -189,6 +117,24 @@ export class NoteDialog implements OnInit {
       label: p.name
     }));
     this.noteModel.set({ name: this.data.note.name ?? '' });
+
+    this.editor = new Editor({
+      extensions: [
+        StarterKit,
+        Link.configure({ openOnClick: false, autolink: true })
+      ],
+      content: this.data.note.description ?? '',
+      editorProps: {
+        attributes: {
+          'aria-label': 'Note description',
+          class: 'tiptap-editable'
+        }
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.editor?.destroy();
   }
 
   cleanIconDef(icon: AppIconDef) {
@@ -208,8 +154,27 @@ export class NoteDialog implements OnInit {
     }
     this.icon = this.cleanIconDef(getResourceIcon('notes', this.data.note));
   }
+
+  protected toggleLink() {
+    if (this.editor.isActive('link')) {
+      this.editor.chain().focus().unsetLink().run();
+      return;
+    }
+    const previousUrl = this.editor.getAttributes('link')['href'] as
+      | string
+      | undefined;
+    const url = window.prompt('URL', previousUrl ?? 'https://');
+    if (url === null) return;
+    if (url === '') {
+      this.editor.chain().focus().unsetLink().run();
+      return;
+    }
+    this.editor.chain().focus().setLink({ href: url }).run();
+  }
+
   onSave() {
     this.data.note.name = this.noteModel().name;
+    this.data.note.description = this.editor.getHTML();
     this.dialogRef.close({
       result: true,
       data: this.data.note,

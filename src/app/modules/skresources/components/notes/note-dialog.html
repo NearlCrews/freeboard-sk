@@ -2,10 +2,6 @@
   .nosmall {
     display: none;
   }
-  :host ::ng-deep .ck.ck-editor__main > .ck-editor__editable {
-    color: var(--color-text);
-    background: var(--color-surface);
-  }
   @media only screen and (min-width: 600px) {
     .nosmall {
       display: flex;
@@ -188,15 +184,58 @@
             name="note-description"
             [(value)]="data.note.description"
           ></fb-textarea>
-          } @else { @defer{
-          <angular-editor
-            height
-            [config]="editorConfig"
-            [placeholder]="'Add note text here.'"
-            [(ngModel)]="data.note.description"
-          >
-          </angular-editor>
-          } }
+          } @else {
+          <label for="note-description" class="block font-semibold">
+            Description
+          </label>
+          <div class="tiptap-shell">
+            <div class="tiptap-toolbar" role="toolbar" aria-label="Formatting">
+              <button
+                type="button"
+                class="tiptap-btn"
+                aria-label="Undo"
+                (click)="editor.chain().focus().undo().run()"
+              >
+                <fb-icon name="undo" ariaLabel=""></fb-icon>
+              </button>
+              <button
+                type="button"
+                class="tiptap-btn"
+                aria-label="Redo"
+                (click)="editor.chain().focus().redo().run()"
+              >
+                <fb-icon name="redo" ariaLabel=""></fb-icon>
+              </button>
+              <span class="tiptap-sep" aria-hidden="true"></span>
+              <button
+                type="button"
+                class="tiptap-btn"
+                aria-label="Bold"
+                (click)="editor.chain().focus().toggleBold().run()"
+              >
+                <fb-icon name="format_bold" ariaLabel=""></fb-icon>
+              </button>
+              <button
+                type="button"
+                class="tiptap-btn"
+                aria-label="Italic"
+                (click)="editor.chain().focus().toggleItalic().run()"
+              >
+                <fb-icon name="format_italic" ariaLabel=""></fb-icon>
+              </button>
+              <span class="tiptap-sep" aria-hidden="true"></span>
+              <button
+                type="button"
+                class="tiptap-btn"
+                aria-label="Link"
+                (click)="toggleLink()"
+              >
+                <fb-icon name="link" ariaLabel=""></fb-icon>
+              </button>
+            </div>
+            <tiptap-editor [editor]="editor"></tiptap-editor>
+          </div>
+          }
         </div>
 
         <div>
