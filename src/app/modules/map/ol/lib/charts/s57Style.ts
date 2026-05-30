@@ -1108,38 +1108,42 @@ export class S57Style {
     return 0;
   }
 
-  /** Current S-52 SAFCON value (shallowest contour at or above safetyDepth). */
-  public get safeContour(): number {
-    return this.selectedSafeContour;
+  // Walks every feature in a freshly-loaded vector tile, lowering
+  // `selectedSafeContour` toward the shallowest contour at or above
+  // safetyDepth (S-52 SAFCON). Returns true when the running min decreased
+  // so the caller can decide whether to force a layer redraw. Owned by the
+  // styler so the OL plumbing in VectorLayerStyleFactory does not have to
+  // know about SAFCON's internal state.
+  public ingestTileFeatures(features: readonly Feature[]): boolean {
+    let changed = false;
+    for (const feature of features) {
+      const properties = feature.getProperties();
+      const candidate = properties['DRVAL1'] ?? properties['VALDCO'];
+      if (typeof candidate !== 'number') continue;
+      if (
+        candidate >= this.s57Service.options.safetyDepth &&
+        candidate < this.selectedSafeContour
+      ) {
+        this.selectedSafeContour = candidate;
+        changed = true;
+      }
+    }
+    return changed;
   }
 
-  // Lowers `selectedSafeContour` toward the shallowest contour value that is
-  // still at or above the user's safetyDepth, per S-52 SAFCON. Returns true
-  // when the running min decreased so the caller can decide whether to force
-  // a layer redraw. Called from both getStyle (deterministic per-feature
-  // visit during render) and the vector-tile-source tileloadend handler in
-  // VectorLayerStyleFactory (so freshly-loaded tiles update the value before
-  // the next render rather than after).
-  public updateSafeContour(feature: Feature): boolean {
-    const properties = feature.getProperties();
-    const candidate = properties['DRVAL1'] ?? properties['VALDCO'];
-    if (typeof candidate !== 'number') return false;
-    if (
-      candidate >= this.s57Service.options.safetyDepth &&
-      candidate < this.selectedSafeContour
-    ) {
-      this.selectedSafeContour = candidate;
-      return true;
-    }
-    return false;
+  // Reset SAFCON back to the unconverged sentinel. Called from the
+  // s57Service.refresh handler in VectorLayerStyleFactory so a settings
+  // change (safetyDepth raised, color table changed, etc.) re-runs the
+  // running-min from scratch as the source refetches tiles.
+  public resetSafeContour(): void {
+    this.selectedSafeContour = 1000;
   }
 
   public renderOrder = (feature1: Feature, feature2: Feature): number => {
     const l1 = this.layerOrder(feature1);
     const l2 = this.layerOrder(feature2);
-    // updateSafeContour now runs from getStyle, which visits every feature
-    // deterministically. Read the depth value here without mutating shared
-    // state.
+    // SAFCON runs from `ingestTileFeatures` driven by the source's
+    // tileloadend event. Read the depth here without mutating shared state.
     const o1 = this.depthValue(feature1);
     const o2 = this.depthValue(feature2);
     let lupIndex1 = feature1.get(LOOKUPINDEXKEY) as number | undefined;
@@ -1178,7 +1182,6 @@ export class S57Style {
 
   public getStyle = (feature: Feature, resolution: number): Style[] | void => {
     this.currentResolution = resolution;
-    this.updateSafeContour(feature);
     let lupIndex = feature.get(LOOKUPINDEXKEY) as number | undefined | null;
     if (lupIndex === undefined || lupIndex === null) {
       lupIndex = this.s57Service.selectLookup(feature);

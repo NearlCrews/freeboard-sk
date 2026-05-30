@@ -8,6 +8,8 @@ import { Extent } from 'ol/extent';
 import { transformExtent } from 'ol/proj';
 import { MVT } from 'ol/format';
 import type Feature from 'ol/Feature';
+import type VectorTile from 'ol/VectorTile';
+import type { TileSourceEvent } from 'ol/source/Tile';
 import type { StyleFunction } from 'ol/style/Style';
 import type { OrderFunction } from 'ol/render';
 
@@ -72,26 +74,17 @@ class S57LayerStyler extends VectorLayerStyler {
     vectorLayer.setRenderOrder(style.renderOrder as unknown as OrderFunction);
 
     this.s57service.refresh.subscribe(() => {
+      style.resetSafeContour();
       source.refresh();
     });
 
     // S-52 SAFCON prerender pass: every freshly-loaded tile gets its
-    // features fed through `updateSafeContour` before the next render, so
-    // depth-contour styling stays consistent as tiles stream in. Without
-    // this hook, getStyle's per-feature pass eventually converges, but the
-    // FIRST frame after a tile load uses an old `selectedSafeContour` value
-    // for features styled earlier in the same render.
-    source.on('tileloadend', (event) => {
-      const tile = (event as { tile?: { getFeatures?: () => Feature[] } }).tile;
-      const features = tile?.getFeatures?.();
-      if (!features || features.length === 0) return;
-      let changed = false;
-      for (const feature of features) {
-        if (style.updateSafeContour(feature)) {
-          changed = true;
-        }
-      }
-      if (changed) {
+    // features ingested by the styler before the next render, so
+    // depth-contour styling stays consistent as tiles stream in.
+    source.on('tileloadend', (event: TileSourceEvent) => {
+      const features = (event.tile as VectorTile<Feature>).getFeatures();
+      if (!features.length) return;
+      if (style.ingestTileFeatures(features)) {
         vectorLayer.changed();
       }
     });

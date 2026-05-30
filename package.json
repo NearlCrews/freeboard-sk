@@ -11,9 +11,9 @@
     "appIcon": "./assets/icons/icon-72x72.png",
     "displayName": "Open Binnacle",
     "screenshots": [
-      "src/assets/screenshots/01-map.png",
-      "src/assets/screenshots/02-settings.png",
-      "src/assets/screenshots/03-notes.png"
+      "screenshots/01-map.png",
+      "screenshots/02-settings.png",
+      "screenshots/03-notes.png"
     ],
     "recommends": [
       "signalk-crows-nest",
